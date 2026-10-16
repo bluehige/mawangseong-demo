@@ -308,6 +308,11 @@ func acknowledge_update() -> void:
 
 func input(event: InputEvent) -> bool:
 	if root.current_screen=="management" and not root.pause_menu_open and root.ui_layer!=null:
+		var approved: Control = root.ui_layer.get_node_or_null("ApprovedMapManagement")
+		if approved!=null:
+			if approved.handle_key(event): return true
+			# Let the image viewport receive GUI events; block legacy world picking.
+			if event is InputEventMouse or event is InputEventScreenTouch or event is InputEventScreenDrag or event is InputEventGesture: return true
 		var graybox: Control = root.ui_layer.get_node_or_null("DefenseGrayboxManagement")
 		if graybox!=null and graybox.handle_key(event): return true
 	if event is InputEventKey:

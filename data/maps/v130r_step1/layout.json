@@ -1,0 +1,7582 @@
+{
+  "id": "approved_v7d_E",
+  "grade": "E",
+  "size": [
+    32,
+    18
+  ],
+  "tile_size": [
+    128,
+    64
+  ],
+  "rows": [
+    "........~~..............~~.TTTTT",
+    "........~~KKKKK.........~~.TTTTT",
+    "........~~KKKKK.........~~.TTTTT",
+    "...WWW..~~KKKKK.........~~.TTTTT",
+    "...WWW..~~KKKKK.........~~.TTTTT",
+    "...WWW..~~KKKKK.======X=BB==mm..",
+    "...mm...~~.mm...======X=BB==mm..",
+    "EEEm=...~~.mm...==.CCCCC~~......",
+    "EEE===XXBB=========CCCCC~~~~~~~~",
+    "EEE===XXBB========mCCCCC~~~~~~~~",
+    "...mm...~~.mm...==.CCCCC~~......",
+    "...==...~~.==...XX.CCCCC~~..VVVV",
+    "...LLL..~~RRRRR.======X=BB=mVVVV",
+    "...LLL..~~RRRRR.======X=BB=mVVVV",
+    "...LLL..~~RRRRR.........~~..VVVV",
+    "........~~RRRRR.........~~......",
+    "........~~RRRRR.........~~......",
+    "........~~..............~~......"
+  ],
+  "buildings": [
+    {
+      "code": "E",
+      "rect": [
+        0,
+        7,
+        3,
+        3
+      ],
+      "door": "E",
+      "id": "entrance",
+      "fixed": true
+    },
+    {
+      "code": "W",
+      "rect": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "door": "S",
+      "id": "watchtower",
+      "fixed": false,
+      "door_cell": [
+        4,
+        6
+      ],
+      "door_outside": [
+        [
+          3,
+          6
+        ],
+        [
+          4,
+          6
+        ]
+      ],
+      "arch": "up"
+    },
+    {
+      "code": "L",
+      "rect": [
+        3,
+        12,
+        3,
+        3
+      ],
+      "door": "N",
+      "id": "bait_treasure",
+      "fixed": false,
+      "door_cell": [
+        4,
+        12
+      ],
+      "door_outside": [
+        [
+          3,
+          11
+        ],
+        [
+          4,
+          11
+        ]
+      ],
+      "arch": "up"
+    },
+    {
+      "code": "K",
+      "rect": [
+        10,
+        1,
+        5,
+        5
+      ],
+      "door": "S",
+      "id": "barracks",
+      "fixed": false,
+      "door_cell": [
+        12,
+        6
+      ],
+      "door_outside": [
+        [
+          11,
+          6
+        ],
+        [
+          12,
+          6
+        ]
+      ],
+      "arch": "up"
+    },
+    {
+      "code": "R",
+      "rect": [
+        10,
+        12,
+        5,
+        5
+      ],
+      "door": "N",
+      "id": "recovery_nest",
+      "fixed": false,
+      "door_cell": [
+        12,
+        12
+      ],
+      "door_outside": [
+        [
+          11,
+          11
+        ],
+        [
+          12,
+          11
+        ]
+      ],
+      "arch": "up"
+    },
+    {
+      "code": "C",
+      "rect": [
+        19,
+        7,
+        5,
+        5
+      ],
+      "door": "W",
+      "id": "ward_core",
+      "fixed": false,
+      "door_cell": [
+        19,
+        9
+      ],
+      "door_outside": [
+        [
+          18,
+          8
+        ],
+        [
+          18,
+          9
+        ]
+      ],
+      "arch": "down"
+    },
+    {
+      "code": "T",
+      "rect": [
+        27,
+        0,
+        5,
+        5
+      ],
+      "door": "S",
+      "id": "throne",
+      "fixed": true,
+      "door_cell": [
+        28,
+        5
+      ],
+      "door_outside": [
+        [
+          27,
+          5
+        ],
+        [
+          28,
+          5
+        ]
+      ],
+      "arch": "up"
+    },
+    {
+      "code": "V",
+      "rect": [
+        28,
+        11,
+        4,
+        4
+      ],
+      "door": "W",
+      "id": "vault",
+      "fixed": true,
+      "door_cell": [
+        28,
+        13
+      ],
+      "door_outside": [
+        [
+          27,
+          12
+        ],
+        [
+          27,
+          13
+        ]
+      ],
+      "arch": "down"
+    }
+  ],
+  "bridges": [
+    [
+      [
+        24,
+        5
+      ],
+      [
+        24,
+        6
+      ],
+      [
+        25,
+        6
+      ],
+      [
+        25,
+        5
+      ]
+    ],
+    [
+      [
+        8,
+        8
+      ],
+      [
+        8,
+        9
+      ],
+      [
+        9,
+        9
+      ],
+      [
+        9,
+        8
+      ]
+    ],
+    [
+      [
+        24,
+        12
+      ],
+      [
+        24,
+        13
+      ],
+      [
+        25,
+        13
+      ],
+      [
+        25,
+        12
+      ]
+    ]
+  ],
+  "traps": [
+    {
+      "cell": [
+        22,
+        5
+      ],
+      "kind": "sticky"
+    },
+    {
+      "cell": [
+        22,
+        6
+      ],
+      "kind": "spikes"
+    },
+    {
+      "cell": [
+        6,
+        8
+      ],
+      "kind": "spikes"
+    },
+    {
+      "cell": [
+        7,
+        8
+      ],
+      "kind": "sticky"
+    },
+    {
+      "cell": [
+        6,
+        9
+      ],
+      "kind": "sticky"
+    },
+    {
+      "cell": [
+        7,
+        9
+      ],
+      "kind": "spikes"
+    },
+    {
+      "cell": [
+        16,
+        11
+      ],
+      "kind": "sticky"
+    },
+    {
+      "cell": [
+        17,
+        11
+      ],
+      "kind": "spikes"
+    },
+    {
+      "cell": [
+        22,
+        12
+      ],
+      "kind": "spikes"
+    },
+    {
+      "cell": [
+        22,
+        13
+      ],
+      "kind": "sticky"
+    }
+  ],
+  "monsters": [
+    {
+      "cell": [
+        28,
+        5
+      ],
+      "kind": "goblin",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        29,
+        5
+      ],
+      "kind": "slime",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        3,
+        6
+      ],
+      "kind": "goblin",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        4,
+        6
+      ],
+      "kind": "slime",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        11,
+        6
+      ],
+      "kind": "goblin",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        12,
+        6
+      ],
+      "kind": "slime",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        28,
+        6
+      ],
+      "kind": "slime",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        29,
+        6
+      ],
+      "kind": "goblin",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        3,
+        7
+      ],
+      "kind": "slime",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        11,
+        7
+      ],
+      "kind": "slime",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        12,
+        7
+      ],
+      "kind": "goblin",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        18,
+        9
+      ],
+      "kind": "goblin",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        3,
+        10
+      ],
+      "kind": "goblin",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        4,
+        10
+      ],
+      "kind": "slime",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        11,
+        10
+      ],
+      "kind": "goblin",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        12,
+        10
+      ],
+      "kind": "slime",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        27,
+        12
+      ],
+      "kind": "goblin",
+      "facing": "down"
+    },
+    {
+      "cell": [
+        27,
+        13
+      ],
+      "kind": "slime",
+      "facing": "down"
+    }
+  ],
+  "projection": "X_iso=y; Y_iso=W-x",
+  "origin": [
+    2304,
+    512
+  ],
+  "full_camera": {
+    "scale": 0.48,
+    "center": [
+      1856,
+      1260
+    ]
+  },
+  "default_camera": {
+    "scale": 0.75,
+    "center": [
+      1984,
+      1248
+    ]
+  },
+  "background": {
+    "asset": "background/cave_background.png",
+    "position": [
+      -144,
+      135
+    ],
+    "size": [
+      4000,
+      2250
+    ]
+  },
+  "assets": {
+    "terrain/ground_unique_field.png": {
+      "size": [
+        3205,
+        1605
+      ],
+      "pivot": [
+        2.0,
+        1026.0
+      ],
+      "sha256": "db1b00123ef4c1538d2c4617bfce6f221c7f33e9c33fcd6f1e08beaad0e00e8f"
+    },
+    "terrain/road_material.png": {
+      "size": [
+        512,
+        256
+      ],
+      "pivot": [
+        0.0,
+        0.0
+      ],
+      "sha256": "9cfa3b747ab7017fc9f09b7c44f4d458812ad88765694324bac863ffae9582f0"
+    },
+    "terrain/water_material.png": {
+      "size": [
+        1536,
+        1024
+      ],
+      "pivot": [
+        0.0,
+        0.0
+      ],
+      "sha256": "3f74b9b1c01affef6e5c7d97c4e835153e34f594308bcaff271d8be7273d7965"
+    },
+    "road/edge_down_128.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0.0,
+        3.0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "road/edge_up_128.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0.0,
+        67.0
+      ],
+      "sha256": "5af0266e55e58394ab8c019f35272d8d9cdbab1a964b0a8332c01b8700b20066"
+    },
+    "road/outer_corner_q0.png": {
+      "size": [
+        26,
+        16
+      ],
+      "pivot": [
+        20.0,
+        7.5
+      ],
+      "sha256": "0187d9ead94e8abd62ff3dec3e2004f8f95abed0b8e45b05e024f08425026adf"
+    },
+    "road/outer_corner_q1.png": {
+      "size": [
+        32,
+        13
+      ],
+      "pivot": [
+        16.0,
+        10.0
+      ],
+      "sha256": "947cd422e49e7f48a3ed80e1c255b08d32415aae9188f139dad73a44ca28f9b3"
+    },
+    "road/outer_corner_q2.png": {
+      "size": [
+        26,
+        16
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "sha256": "d8092122034417c3e6a8ec55fa0df6bcea23ef236d9b2e34d7304aebf46a62f9"
+    },
+    "road/outer_corner_q3.png": {
+      "size": [
+        32,
+        13
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "sha256": "72e94be6e5a496887e635e8e32c79bcaf15cddbb84752cec1035757c2fe13cf4"
+    },
+    "road/inner_corner_q0.png": {
+      "size": [
+        26,
+        16
+      ],
+      "pivot": [
+        20.0,
+        7.5
+      ],
+      "sha256": "434bc982a88358147f6e132ff7c3c8e228b5e984ce0177e4fca182bc2ede2c2c"
+    },
+    "road/inner_corner_q1.png": {
+      "size": [
+        32,
+        13
+      ],
+      "pivot": [
+        16.0,
+        10.0
+      ],
+      "sha256": "3ca979c9c4fab04f157250850f0208edf7dc18695a2f9af629f94cb369cc9bf4"
+    },
+    "road/inner_corner_q2.png": {
+      "size": [
+        26,
+        16
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "sha256": "0217ad57dbca7b0cec2024e09f893064a3994b0103b9b4de017a73d1456bb005"
+    },
+    "road/inner_corner_q3.png": {
+      "size": [
+        32,
+        13
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "sha256": "d9f7d4eef894805643a20e64310789e63f5b6f742c27ab304ce8a7868da65982"
+    },
+    "water/edge_down_128.png": {
+      "size": [
+        128,
+        72
+      ],
+      "pivot": [
+        0.0,
+        3.0
+      ],
+      "sha256": "36d646e411bc98a5078ccb5650f551551a3ae9e97796a88a344e593f085893b4"
+    },
+    "water/edge_up_128.png": {
+      "size": [
+        128,
+        72
+      ],
+      "pivot": [
+        0.0,
+        67.0
+      ],
+      "sha256": "db4b3cc43e70e6ea81d522513a607dff951a543d36fc17433af23d71ae774f78"
+    },
+    "water/outer_corner_q0.png": {
+      "size": [
+        40,
+        16
+      ],
+      "pivot": [
+        34.0,
+        7.5
+      ],
+      "sha256": "4ead5fe448774138f1028e464b8afd718295a373e9624af749274e5c9510f1a2"
+    },
+    "water/outer_corner_q1.png": {
+      "size": [
+        32,
+        20
+      ],
+      "pivot": [
+        16.0,
+        17.0
+      ],
+      "sha256": "39de69e57fa9231d9293c32d58c8b1a378183754a67e91233898fe059cd0581e"
+    },
+    "water/outer_corner_q2.png": {
+      "size": [
+        40,
+        16
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "sha256": "3e09ac14361da9232346cd444cae2db891c484040dc5219f63ab0ea3d4b02e46"
+    },
+    "water/outer_corner_q3.png": {
+      "size": [
+        32,
+        20
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "sha256": "23f678805e30d0840bf7ce051b0a2ce8700a5da45914959c3a278eda6b60cb10"
+    },
+    "water/inner_corner_q0.png": {
+      "size": [
+        40,
+        16
+      ],
+      "pivot": [
+        34.0,
+        7.5
+      ],
+      "sha256": "93ef4566fcaf4ce41da310ec4e3a8b84bb3c5fd031dfd67a9a7d230651a725b5"
+    },
+    "water/inner_corner_q1.png": {
+      "size": [
+        32,
+        20
+      ],
+      "pivot": [
+        16.0,
+        17.0
+      ],
+      "sha256": "81bd084df8b7b9cdd0869215835f9c12af598e1270e8672fc6982c60144e6d80"
+    },
+    "water/inner_corner_q2.png": {
+      "size": [
+        40,
+        16
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "sha256": "9249804f166ee6263fcaecbefd052c0d56af6c08170c0866f4fdf79bbb453609"
+    },
+    "water/inner_corner_q3.png": {
+      "size": [
+        32,
+        20
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "sha256": "4f26fee040b0002bd7f666b853f4bfbc08ec51d1c87269db384dae48ed09ffd2"
+    },
+    "cliff/straight_down_flat.png": {
+      "size": [
+        1206,
+        245
+      ],
+      "pivot": [
+        0.0,
+        7.0
+      ],
+      "sha256": "8dfcc1fd6dd736a87ffafc51ce212c0c4aed88fc62ee0d8b01231b2f8a0dc027"
+    },
+    "cliff/straight_up_flat.png": {
+      "size": [
+        1207,
+        250
+      ],
+      "pivot": [
+        0.0,
+        7.0
+      ],
+      "sha256": "1bd5512305b109964835e192615e030c4bd0834657ceb72c76541d10ca24f3c9"
+    },
+    "interiors/bait_treasure.png": {
+      "size": [
+        384,
+        352
+      ],
+      "pivot": [
+        192.0,
+        352.0
+      ],
+      "sha256": "30e1651e6f402c087e8d66405ff7c5bc1a8ab764eac79f6c5a7fa56d7ed5ca66"
+    },
+    "interiors/barracks.png": {
+      "size": [
+        640,
+        544
+      ],
+      "pivot": [
+        320.0,
+        544.0
+      ],
+      "sha256": "a96688511230cc8552fe015ff04d781ac0679c15ead73104124d937f9c67ff6d"
+    },
+    "interiors/entrance.png": {
+      "size": [
+        359,
+        303
+      ],
+      "pivot": [
+        181.26,
+        225.0
+      ],
+      "sha256": "3a4b665f1814eb42e5fd4dd5c0762b7519553c85bf906d79827c0219cc8ac9f1"
+    },
+    "interiors/recovery_nest.png": {
+      "size": [
+        640,
+        480
+      ],
+      "pivot": [
+        320.0,
+        480.0
+      ],
+      "sha256": "0cd59be1b9346dc5b60b7ced9e8c452918265db4862da78b075e3f07d8e8a188"
+    },
+    "interiors/throne.png": {
+      "size": [
+        640,
+        640
+      ],
+      "pivot": [
+        320.0,
+        640.0
+      ],
+      "sha256": "cab2381c31a4390a38c094cee5e96942471c2b2bb6abc1e9e117745207ff21d0"
+    },
+    "interiors/vault.png": {
+      "size": [
+        512,
+        480
+      ],
+      "pivot": [
+        256.0,
+        480.0
+      ],
+      "sha256": "446ea2b5d82607249147dd2750f3639f1743209533a93bc07fdaf45f13d4958c"
+    },
+    "interiors/ward_core.png": {
+      "size": [
+        640,
+        544
+      ],
+      "pivot": [
+        320.0,
+        544.0
+      ],
+      "sha256": "355eb0e8606df95a8c4f8950c67156b1970f35fd25ce78ec99f372a93602c1c4"
+    },
+    "interiors/watchtower.png": {
+      "size": [
+        384,
+        576
+      ],
+      "pivot": [
+        192.0,
+        576.0
+      ],
+      "sha256": "1b3a2c9313b6d78942728be3e2fb568b69ec3cd83bddb1ebd49c57f7aa195f64"
+    },
+    "building/back_nw.png": {
+      "size": [
+        128,
+        160
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "sha256": "1ba572cf368a6c4915c2ea50b929cb08e7681cdb36cdebc6ffd5ef4eb6c9f2c4"
+    },
+    "building/back_ne.png": {
+      "size": [
+        128,
+        160
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "sha256": "c9a3d964698a9bff26e242f9f1eaa73c27c728a793ae5b81cc706ffa818101a2"
+    },
+    "building/back_corner.png": {
+      "size": [
+        128,
+        160
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "sha256": "dee7178765eeeb47edde3de02c9771b5019339b03b9e7fc8e285efd25312ca52"
+    },
+    "building/front_se.png": {
+      "size": [
+        128,
+        80
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "sha256": "5c17d3febc8126898a61206782e901e341a7e05aa0e27fd6a93f096b2b078711"
+    },
+    "building/front_sw.png": {
+      "size": [
+        128,
+        80
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "sha256": "5ab75e4b7d0a6a51590b878b9d876210e8418faad91cc4fca7f7c6aeeebd63ad"
+    },
+    "building/front_corner.png": {
+      "size": [
+        128,
+        80
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "sha256": "038435a9f48d7e28bb3317191c92cb5d3f22287a17eae6ef5c56faefe7b16243"
+    },
+    "building/door_arch.png": {
+      "size": [
+        196,
+        184
+      ],
+      "pivot": [
+        102.01980198019803,
+        146.93877551020407
+      ],
+      "sha256": "2d5c325ebafac8ed35cb13a7ead869d5a79bfc57d4148d1363383e9990441c7e"
+    },
+    "building/threshold.png": {
+      "size": [
+        128,
+        64
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "sha256": "8624f26c49913866b07f1cce333172d50af8cf0e7e30361198c15aa03727f67f"
+    },
+    "perimeter/edge_nw.png": {
+      "size": [
+        128,
+        196
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "sha256": "3b9889bf686d59bd81e34fa1b0f9685f2ea15e62bf82b7e9fb0aef7e722c2b41"
+    },
+    "perimeter/edge_ne.png": {
+      "size": [
+        128,
+        196
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "sha256": "91c349e997c7bf718ba87d0e264dc3a97d86e2f2822ed76ed558e14142300216"
+    },
+    "bridge/bridge_water_y.png": {
+      "size": [
+        256,
+        128
+      ],
+      "pivot": [
+        128.0,
+        64.0
+      ],
+      "sha256": "bb486a0f83a927d2eb8039e96298c6c8b8a3531ea301d149cdf54467a24eeb60"
+    },
+    "traps/spikes.png": {
+      "size": [
+        128,
+        112
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "sha256": "ac7775ae2816c23471e8c10a2639a7d13a0ad47275f736ec879394e5ef6b2d9c"
+    },
+    "traps/sticky.png": {
+      "size": [
+        128,
+        72
+      ],
+      "pivot": [
+        64.0,
+        40.0
+      ],
+      "sha256": "104a56505860db9461bc2f1f88ec7bd31ed85b02d8481463d3f82537dcdcec45"
+    },
+    "monsters/slime.png": {
+      "size": [
+        90,
+        71
+      ],
+      "pivot": [
+        45.0,
+        66.0
+      ],
+      "sha256": "3e3c79a4493a5e9e3ebd8a9538745de908112c7c31ce4f501f8f5e4c935a22eb"
+    },
+    "monsters/goblin.png": {
+      "size": [
+        86,
+        96
+      ],
+      "pivot": [
+        43.0,
+        91.0
+      ],
+      "sha256": "297e0a7665c29e5691b1b0a92feb2c6bce2d89f14e7878797068c28a6e454607"
+    },
+    "background/cave_background.png": {
+      "size": [
+        1672,
+        941
+      ],
+      "pivot": [
+        836.0,
+        470.5
+      ],
+      "sha256": "26e46cfa3f51b44d3c9fdf42add424cb3ad76c8185a5e059c29cd938bbca2b9c"
+    },
+    "building/door_arch_down.png": {
+      "size": [
+        196,
+        184
+      ],
+      "pivot": [
+        102.01980198019803,
+        146.93877551020407
+      ],
+      "sha256": "2d5c325ebafac8ed35cb13a7ead869d5a79bfc57d4148d1363383e9990441c7e"
+    },
+    "building/door_arch_up.png": {
+      "size": [
+        196,
+        184
+      ],
+      "pivot": [
+        93.98019801980197,
+        146.93877551020407
+      ],
+      "sha256": "9c905a01d7555eaf001ec471276d084a8715800c31163d21c5a24257158f467d"
+    },
+    "terrain/entrance_external_road.png": {
+      "size": [
+        481,
+        241
+      ],
+      "pivot": [
+        224.0,
+        128.0
+      ],
+      "sha256": "40df3344693aa51d68c34ac354eaa5ad61c26c70fac53574c44a1b4d9e64afbc"
+    },
+    "bridge/entrance_bridge.png": {
+      "size": [
+        969,
+        664
+      ],
+      "pivot": [
+        867.2,
+        88.40000000000009
+      ],
+      "sha256": "123aa512691c9d89fae768bae2f23ff2bad8e91f8deaca8c8428e8bee42583d6"
+    },
+    "assembled/cliff_down.png": {
+      "size": [
+        1152,
+        751
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "8e8ece18dce70894e1ac1624b5a46ed5252f781b9657591b0c72de9b9bb05a05"
+    },
+    "assembled/cliff_up.png": {
+      "size": [
+        2048,
+        1199
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "6969fbe7ab6589d5f8608135fdf7be02425d56bcb717d7b79c19eeb7ec45701e"
+    },
+    "assembled/water_field.png": {
+      "size": [
+        2309,
+        1157
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "8471fdeef99063e971709c6f3b9c26ea7067227e8135c3e70c6a8b7830de7312"
+    },
+    "assembled/water_8_0_10_0.png": {
+      "size": [
+        128,
+        72
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "db4b3cc43e70e6ea81d522513a607dff951a543d36fc17433af23d71ae774f78"
+    },
+    "assembled/water_24_0_26_0.png": {
+      "size": [
+        128,
+        72
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "db4b3cc43e70e6ea81d522513a607dff951a543d36fc17433af23d71ae774f78"
+    },
+    "assembled/water_26_8_32_8.png": {
+      "size": [
+        384,
+        200
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "68436dff80ac97b049b78ddb4c9442324e59c6c6331af294610c3787a5a1db5d"
+    },
+    "assembled/water_26_10_32_10.png": {
+      "size": [
+        384,
+        200
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "68436dff80ac97b049b78ddb4c9442324e59c6c6331af294610c3787a5a1db5d"
+    },
+    "assembled/water_8_18_10_18.png": {
+      "size": [
+        128,
+        72
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "db4b3cc43e70e6ea81d522513a607dff951a543d36fc17433af23d71ae774f78"
+    },
+    "assembled/water_24_18_26_18.png": {
+      "size": [
+        128,
+        72
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "db4b3cc43e70e6ea81d522513a607dff951a543d36fc17433af23d71ae774f78"
+    },
+    "assembled/water_8_0_8_18.png": {
+      "size": [
+        1152,
+        584
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "296413b34f18e98c131e8c86970524de21e008baa714bf109f2a22f9083418c0"
+    },
+    "assembled/water_10_0_10_18.png": {
+      "size": [
+        1152,
+        584
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "296413b34f18e98c131e8c86970524de21e008baa714bf109f2a22f9083418c0"
+    },
+    "assembled/water_24_0_24_18.png": {
+      "size": [
+        1152,
+        584
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "296413b34f18e98c131e8c86970524de21e008baa714bf109f2a22f9083418c0"
+    },
+    "assembled/water_26_0_26_8.png": {
+      "size": [
+        512,
+        264
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "48e634419e52557cf2fbfdf7fbfcc9b62ea8146d3156adf3e628f55dfb2993fb"
+    },
+    "assembled/water_26_10_26_18.png": {
+      "size": [
+        512,
+        264
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "48e634419e52557cf2fbfdf7fbfcc9b62ea8146d3156adf3e628f55dfb2993fb"
+    },
+    "assembled/water_32_8_32_10.png": {
+      "size": [
+        128,
+        72
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "36d646e411bc98a5078ccb5650f551551a3ae9e97796a88a344e593f085893b4"
+    },
+    "assembled/road_field.png": {
+      "size": [
+        2117,
+        1093
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "da87a8087e55ab5678c66acef26d86ea39a0bd75d02ab7f11f4b7597c158e764"
+    },
+    "assembled/road_16_5_24_5.png": {
+      "size": [
+        512,
+        269
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "ef1906342694d8093e24da67612c3246c8bf2e93cdd83f61f672bbce2b7fc736"
+    },
+    "assembled/road_26_5_30_5.png": {
+      "size": [
+        256,
+        141
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "717764f5154c3dde63665adb9cbed079942feeb2947eaf304eaf3a74996954ff"
+    },
+    "assembled/road_3_6_5_6.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "5af0266e55e58394ab8c019f35272d8d9cdbab1a964b0a8332c01b8700b20066"
+    },
+    "assembled/road_11_6_13_6.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "5af0266e55e58394ab8c019f35272d8d9cdbab1a964b0a8332c01b8700b20066"
+    },
+    "assembled/road_18_7_24_7.png": {
+      "size": [
+        384,
+        205
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "1f8c97909077c8d72ba72e2726e1c8a729888eb29e9f70df7edcbb889fbd9d83"
+    },
+    "assembled/road_26_7_30_7.png": {
+      "size": [
+        256,
+        141
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "717764f5154c3dde63665adb9cbed079942feeb2947eaf304eaf3a74996954ff"
+    },
+    "assembled/road_5_8_8_8.png": {
+      "size": [
+        192,
+        109
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "5c5a57f9981e2c0ea1a6a147495f416ad14f7d45102fb38f2e6c0f48b3ef6a4f"
+    },
+    "assembled/road_10_8_11_8.png": {
+      "size": [
+        64,
+        45
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "6831964fbae7f16f9087b07e00fe8b191d81ab8352b02810d697a50d9e3373d6"
+    },
+    "assembled/road_13_8_16_8.png": {
+      "size": [
+        192,
+        109
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "5c5a57f9981e2c0ea1a6a147495f416ad14f7d45102fb38f2e6c0f48b3ef6a4f"
+    },
+    "assembled/road_18_8_19_8.png": {
+      "size": [
+        64,
+        45
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "6831964fbae7f16f9087b07e00fe8b191d81ab8352b02810d697a50d9e3373d6"
+    },
+    "assembled/road_5_10_8_10.png": {
+      "size": [
+        192,
+        109
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "5c5a57f9981e2c0ea1a6a147495f416ad14f7d45102fb38f2e6c0f48b3ef6a4f"
+    },
+    "assembled/road_10_10_11_10.png": {
+      "size": [
+        64,
+        45
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "6831964fbae7f16f9087b07e00fe8b191d81ab8352b02810d697a50d9e3373d6"
+    },
+    "assembled/road_13_10_16_10.png": {
+      "size": [
+        192,
+        109
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "5c5a57f9981e2c0ea1a6a147495f416ad14f7d45102fb38f2e6c0f48b3ef6a4f"
+    },
+    "assembled/road_18_10_19_10.png": {
+      "size": [
+        64,
+        45
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "6831964fbae7f16f9087b07e00fe8b191d81ab8352b02810d697a50d9e3373d6"
+    },
+    "assembled/road_3_12_5_12.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "5af0266e55e58394ab8c019f35272d8d9cdbab1a964b0a8332c01b8700b20066"
+    },
+    "assembled/road_11_12_13_12.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "5af0266e55e58394ab8c019f35272d8d9cdbab1a964b0a8332c01b8700b20066"
+    },
+    "assembled/road_18_12_24_12.png": {
+      "size": [
+        384,
+        205
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "1f8c97909077c8d72ba72e2726e1c8a729888eb29e9f70df7edcbb889fbd9d83"
+    },
+    "assembled/road_26_12_28_12.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "5af0266e55e58394ab8c019f35272d8d9cdbab1a964b0a8332c01b8700b20066"
+    },
+    "assembled/road_16_14_24_14.png": {
+      "size": [
+        512,
+        269
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "ef1906342694d8093e24da67612c3246c8bf2e93cdd83f61f672bbce2b7fc736"
+    },
+    "assembled/road_26_14_28_14.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "5af0266e55e58394ab8c019f35272d8d9cdbab1a964b0a8332c01b8700b20066"
+    },
+    "assembled/road_3_6_3_12.png": {
+      "size": [
+        384,
+        205
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "d12d954acb54cf3bc475d658c554c15bd16ed987556bd263c197ddde4648e4bd"
+    },
+    "assembled/road_5_6_5_8.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_5_10_5_12.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_8_8_8_10.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_10_8_10_10.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_11_6_11_8.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_11_10_11_12.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_13_6_13_8.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_13_10_13_12.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_16_5_16_8.png": {
+      "size": [
+        192,
+        109
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "f7212c972c5d37706da4b8b12e2958628a6f7b52f042ae5d0e89d167a5ae9973"
+    },
+    "assembled/road_16_10_16_14.png": {
+      "size": [
+        256,
+        141
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "856db17accbf30f50c6c3b5fb0b9831151e61c5388667980ab9c00d35f295e35"
+    },
+    "assembled/road_18_7_18_8.png": {
+      "size": [
+        64,
+        45
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "07a1cb63d769f93f59daecc1e2a512b6a5e95bed064f5c9c4abe84786b3b4828"
+    },
+    "assembled/road_18_10_18_12.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_19_8_19_10.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_24_5_24_7.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_24_12_24_14.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_26_5_26_7.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_26_12_26_14.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_28_12_28_14.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    },
+    "assembled/road_30_5_30_7.png": {
+      "size": [
+        128,
+        77
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "sha256": "b513d646e78e676066b757a1422113e3bdf51521aea145cbc72da0363f10b715"
+    }
+  },
+  "draw_list": [
+    {
+      "asset": "assembled/cliff_down.png",
+      "anchor": [
+        256,
+        1529
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        256,
+        1529
+      ],
+      "depth": 1529,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/cliff_up.png",
+      "anchor": [
+        1408,
+        1081
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1408,
+        1081
+      ],
+      "depth": 1081,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        320,
+        1568
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        256,
+        1372
+      ],
+      "depth": 1568,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        384,
+        1536
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        320,
+        1340
+      ],
+      "depth": 1536,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        448,
+        1504
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        384,
+        1308
+      ],
+      "depth": 1504,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        512,
+        1472
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        448,
+        1276
+      ],
+      "depth": 1472,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        576,
+        1440
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        512,
+        1244
+      ],
+      "depth": 1440,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        640,
+        1408
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        576,
+        1212
+      ],
+      "depth": 1408,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        704,
+        1376
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        640,
+        1180
+      ],
+      "depth": 1376,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        768,
+        1344
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        704,
+        1148
+      ],
+      "depth": 1344,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        960,
+        1248
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        896,
+        1052
+      ],
+      "depth": 1248,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        1024,
+        1216
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        960,
+        1020
+      ],
+      "depth": 1216,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        1088,
+        1184
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        1024,
+        988
+      ],
+      "depth": 1184,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        1152,
+        1152
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        1088,
+        956
+      ],
+      "depth": 1152,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        1216,
+        1120
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        1152,
+        924
+      ],
+      "depth": 1120,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        1280,
+        1088
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        1216,
+        892
+      ],
+      "depth": 1088,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        1344,
+        1056
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        1280,
+        860
+      ],
+      "depth": 1056,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        1408,
+        1024
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        1344,
+        828
+      ],
+      "depth": 1024,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        1472,
+        992
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        1408,
+        796
+      ],
+      "depth": 992,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        1536,
+        960
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        1472,
+        764
+      ],
+      "depth": 960,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        1600,
+        928
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        1536,
+        732
+      ],
+      "depth": 928,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        1664,
+        896
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        1600,
+        700
+      ],
+      "depth": 896,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        1728,
+        864
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        1664,
+        668
+      ],
+      "depth": 864,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        1792,
+        832
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        1728,
+        636
+      ],
+      "depth": 832,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        1984,
+        736
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        1920,
+        540
+      ],
+      "depth": 736,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        2048,
+        704
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        1984,
+        508
+      ],
+      "depth": 704,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        2112,
+        672
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        2048,
+        476
+      ],
+      "depth": 672,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        2176,
+        640
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        2112,
+        444
+      ],
+      "depth": 640,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        2240,
+        608
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        2176,
+        412
+      ],
+      "depth": 608,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_nw.png",
+      "anchor": [
+        2304,
+        576
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        2240,
+        380
+      ],
+      "depth": 576,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        2304,
+        576
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        2240,
+        380
+      ],
+      "depth": 576,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        2368,
+        608
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        2304,
+        412
+      ],
+      "depth": 608,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        2432,
+        640
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        2368,
+        444
+      ],
+      "depth": 640,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        2496,
+        672
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        2432,
+        476
+      ],
+      "depth": 672,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        2560,
+        704
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        2496,
+        508
+      ],
+      "depth": 704,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        2624,
+        736
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        2560,
+        540
+      ],
+      "depth": 736,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        2688,
+        768
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        2624,
+        572
+      ],
+      "depth": 768,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        2752,
+        800
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        2688,
+        604
+      ],
+      "depth": 800,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        2944,
+        896
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        2880,
+        700
+      ],
+      "depth": 896,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        3008,
+        928
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        2944,
+        732
+      ],
+      "depth": 928,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        3072,
+        960
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        3008,
+        764
+      ],
+      "depth": 960,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        3136,
+        992
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        3072,
+        796
+      ],
+      "depth": 992,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        3200,
+        1024
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        3136,
+        828
+      ],
+      "depth": 1024,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        3264,
+        1056
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        3200,
+        860
+      ],
+      "depth": 1056,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        3328,
+        1088
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        3264,
+        892
+      ],
+      "depth": 1088,
+      "layer": "terrain"
+    },
+    {
+      "asset": "perimeter/edge_ne.png",
+      "anchor": [
+        3392,
+        1120
+      ],
+      "pivot": [
+        64.0,
+        196.0
+      ],
+      "position": [
+        3328,
+        924
+      ],
+      "depth": 1120,
+      "layer": "terrain"
+    },
+    {
+      "asset": "terrain/ground_unique_field.png",
+      "anchor": [
+        256,
+        1536
+      ],
+      "pivot": [
+        2.0,
+        1026.0
+      ],
+      "position": [
+        254,
+        510
+      ],
+      "depth": 1536,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/water_field.png",
+      "anchor": [
+        766,
+        702
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        766,
+        702
+      ],
+      "depth": 702,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/water_8_0_10_0.png",
+      "anchor": [
+        768,
+        1213
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        768,
+        1213
+      ],
+      "depth": 1213,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/water_24_0_26_0.png",
+      "anchor": [
+        1792,
+        701
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1792,
+        701
+      ],
+      "depth": 701,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/water_26_8_32_8.png",
+      "anchor": [
+        2432,
+        765
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2432,
+        765
+      ],
+      "depth": 765,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/water_26_10_32_10.png",
+      "anchor": [
+        2560,
+        829
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2560,
+        829
+      ],
+      "depth": 829,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/water_8_18_10_18.png",
+      "anchor": [
+        1920,
+        1789
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1920,
+        1789
+      ],
+      "depth": 1789,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/water_24_18_26_18.png",
+      "anchor": [
+        2944,
+        1277
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2944,
+        1277
+      ],
+      "depth": 1277,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/water_8_0_8_18.png",
+      "anchor": [
+        768,
+        1277
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        768,
+        1277
+      ],
+      "depth": 1277,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/water_10_0_10_18.png",
+      "anchor": [
+        896,
+        1213
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        896,
+        1213
+      ],
+      "depth": 1213,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/water_24_0_24_18.png",
+      "anchor": [
+        1792,
+        765
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1792,
+        765
+      ],
+      "depth": 765,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/water_26_0_26_8.png",
+      "anchor": [
+        1920,
+        701
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1920,
+        701
+      ],
+      "depth": 701,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/water_26_10_26_18.png",
+      "anchor": [
+        2560,
+        1021
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2560,
+        1021
+      ],
+      "depth": 1021,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/water_32_8_32_10.png",
+      "anchor": [
+        2816,
+        765
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2816,
+        765
+      ],
+      "depth": 765,
+      "layer": "terrain"
+    },
+    {
+      "asset": "water/outer_corner_q2.png",
+      "anchor": [
+        768,
+        1280
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "position": [
+        764,
+        1272
+      ],
+      "depth": 1280,
+      "layer": "terrain"
+    },
+    {
+      "asset": "water/outer_corner_q3.png",
+      "anchor": [
+        896,
+        1216
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "position": [
+        880,
+        1214
+      ],
+      "depth": 1216,
+      "layer": "terrain"
+    },
+    {
+      "asset": "water/outer_corner_q2.png",
+      "anchor": [
+        1792,
+        768
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "position": [
+        1788,
+        760
+      ],
+      "depth": 768,
+      "layer": "terrain"
+    },
+    {
+      "asset": "water/outer_corner_q3.png",
+      "anchor": [
+        1920,
+        704
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "position": [
+        1904,
+        702
+      ],
+      "depth": 704,
+      "layer": "terrain"
+    },
+    {
+      "asset": "water/inner_corner_q1.png",
+      "anchor": [
+        2432,
+        960
+      ],
+      "pivot": [
+        16.0,
+        17.0
+      ],
+      "position": [
+        2416,
+        943
+      ],
+      "depth": 960,
+      "layer": "terrain"
+    },
+    {
+      "asset": "water/outer_corner_q3.png",
+      "anchor": [
+        2816,
+        768
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "position": [
+        2800,
+        766
+      ],
+      "depth": 768,
+      "layer": "terrain"
+    },
+    {
+      "asset": "water/inner_corner_q2.png",
+      "anchor": [
+        2560,
+        1024
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "position": [
+        2556,
+        1016
+      ],
+      "depth": 1024,
+      "layer": "terrain"
+    },
+    {
+      "asset": "water/outer_corner_q0.png",
+      "anchor": [
+        2944,
+        832
+      ],
+      "pivot": [
+        34.0,
+        7.5
+      ],
+      "position": [
+        2910,
+        824
+      ],
+      "depth": 832,
+      "layer": "terrain"
+    },
+    {
+      "asset": "water/outer_corner_q1.png",
+      "anchor": [
+        1920,
+        1856
+      ],
+      "pivot": [
+        16.0,
+        17.0
+      ],
+      "position": [
+        1904,
+        1839
+      ],
+      "depth": 1856,
+      "layer": "terrain"
+    },
+    {
+      "asset": "water/outer_corner_q0.png",
+      "anchor": [
+        2048,
+        1792
+      ],
+      "pivot": [
+        34.0,
+        7.5
+      ],
+      "position": [
+        2014,
+        1784
+      ],
+      "depth": 1792,
+      "layer": "terrain"
+    },
+    {
+      "asset": "water/outer_corner_q1.png",
+      "anchor": [
+        2944,
+        1344
+      ],
+      "pivot": [
+        16.0,
+        17.0
+      ],
+      "position": [
+        2928,
+        1327
+      ],
+      "depth": 1344,
+      "layer": "terrain"
+    },
+    {
+      "asset": "water/outer_corner_q0.png",
+      "anchor": [
+        3072,
+        1280
+      ],
+      "pivot": [
+        34.0,
+        7.5
+      ],
+      "position": [
+        3038,
+        1272
+      ],
+      "depth": 1280,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_field.png",
+      "anchor": [
+        830,
+        734
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        830,
+        734
+      ],
+      "depth": 734,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_16_5_24_5.png",
+      "anchor": [
+        1600,
+        925
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1600,
+        925
+      ],
+      "depth": 925,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_26_5_30_5.png",
+      "anchor": [
+        2240,
+        733
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2240,
+        733
+      ],
+      "depth": 733,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_3_6_5_6.png",
+      "anchor": [
+        832,
+        1565
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        832,
+        1565
+      ],
+      "depth": 1565,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_11_6_13_6.png",
+      "anchor": [
+        1344,
+        1309
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1344,
+        1309
+      ],
+      "depth": 1309,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_18_7_24_7.png",
+      "anchor": [
+        1856,
+        989
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1856,
+        989
+      ],
+      "depth": 989,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_26_7_30_7.png",
+      "anchor": [
+        2368,
+        797
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2368,
+        797
+      ],
+      "depth": 797,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_5_8_8_8.png",
+      "anchor": [
+        1088,
+        1533
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1088,
+        1533
+      ],
+      "depth": 1533,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_10_8_11_8.png",
+      "anchor": [
+        1408,
+        1437
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1408,
+        1437
+      ],
+      "depth": 1437,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_13_8_16_8.png",
+      "anchor": [
+        1600,
+        1277
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1600,
+        1277
+      ],
+      "depth": 1277,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_18_8_19_8.png",
+      "anchor": [
+        1920,
+        1181
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1920,
+        1181
+      ],
+      "depth": 1181,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_5_10_8_10.png",
+      "anchor": [
+        1216,
+        1597
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1216,
+        1597
+      ],
+      "depth": 1597,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_10_10_11_10.png",
+      "anchor": [
+        1536,
+        1501
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1536,
+        1501
+      ],
+      "depth": 1501,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_13_10_16_10.png",
+      "anchor": [
+        1728,
+        1341
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1728,
+        1341
+      ],
+      "depth": 1341,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_18_10_19_10.png",
+      "anchor": [
+        2048,
+        1245
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2048,
+        1245
+      ],
+      "depth": 1245,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_3_12_5_12.png",
+      "anchor": [
+        1216,
+        1757
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1216,
+        1757
+      ],
+      "depth": 1757,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_11_12_13_12.png",
+      "anchor": [
+        1728,
+        1501
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1728,
+        1501
+      ],
+      "depth": 1501,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_18_12_24_12.png",
+      "anchor": [
+        2176,
+        1149
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2176,
+        1149
+      ],
+      "depth": 1149,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_26_12_28_12.png",
+      "anchor": [
+        2688,
+        1021
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2688,
+        1021
+      ],
+      "depth": 1021,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_16_14_24_14.png",
+      "anchor": [
+        2176,
+        1213
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2176,
+        1213
+      ],
+      "depth": 1213,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_26_14_28_14.png",
+      "anchor": [
+        2816,
+        1085
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2816,
+        1085
+      ],
+      "depth": 1085,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_3_6_3_12.png",
+      "anchor": [
+        832,
+        1629
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        832,
+        1629
+      ],
+      "depth": 1629,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_5_6_5_8.png",
+      "anchor": [
+        960,
+        1565
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        960,
+        1565
+      ],
+      "depth": 1565,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_5_10_5_12.png",
+      "anchor": [
+        1216,
+        1693
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1216,
+        1693
+      ],
+      "depth": 1693,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_8_8_8_10.png",
+      "anchor": [
+        1280,
+        1533
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1280,
+        1533
+      ],
+      "depth": 1533,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_10_8_10_10.png",
+      "anchor": [
+        1408,
+        1469
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1408,
+        1469
+      ],
+      "depth": 1469,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_11_6_11_8.png",
+      "anchor": [
+        1344,
+        1373
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1344,
+        1373
+      ],
+      "depth": 1373,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_11_10_11_12.png",
+      "anchor": [
+        1600,
+        1501
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1600,
+        1501
+      ],
+      "depth": 1501,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_13_6_13_8.png",
+      "anchor": [
+        1472,
+        1309
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1472,
+        1309
+      ],
+      "depth": 1309,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_13_10_13_12.png",
+      "anchor": [
+        1728,
+        1437
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1728,
+        1437
+      ],
+      "depth": 1437,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_16_5_16_8.png",
+      "anchor": [
+        1600,
+        1181
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1600,
+        1181
+      ],
+      "depth": 1181,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_16_10_16_14.png",
+      "anchor": [
+        1920,
+        1341
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1920,
+        1341
+      ],
+      "depth": 1341,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_18_7_18_8.png",
+      "anchor": [
+        1856,
+        1181
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1856,
+        1181
+      ],
+      "depth": 1181,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_18_10_18_12.png",
+      "anchor": [
+        2048,
+        1277
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2048,
+        1277
+      ],
+      "depth": 1277,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_19_8_19_10.png",
+      "anchor": [
+        1984,
+        1181
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        1984,
+        1181
+      ],
+      "depth": 1181,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_24_5_24_7.png",
+      "anchor": [
+        2112,
+        925
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2112,
+        925
+      ],
+      "depth": 925,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_24_12_24_14.png",
+      "anchor": [
+        2560,
+        1149
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2560,
+        1149
+      ],
+      "depth": 1149,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_26_5_26_7.png",
+      "anchor": [
+        2240,
+        861
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2240,
+        861
+      ],
+      "depth": 861,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_26_12_26_14.png",
+      "anchor": [
+        2688,
+        1085
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2688,
+        1085
+      ],
+      "depth": 1085,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_28_12_28_14.png",
+      "anchor": [
+        2816,
+        1021
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2816,
+        1021
+      ],
+      "depth": 1021,
+      "layer": "terrain"
+    },
+    {
+      "asset": "assembled/road_30_5_30_7.png",
+      "anchor": [
+        2496,
+        733
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "position": [
+        2496,
+        733
+      ],
+      "depth": 733,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q2.png",
+      "anchor": [
+        1600,
+        1184
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "position": [
+        1596,
+        1176
+      ],
+      "depth": 1184,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q3.png",
+      "anchor": [
+        2112,
+        928
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "position": [
+        2096,
+        926
+      ],
+      "depth": 928,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q2.png",
+      "anchor": [
+        2240,
+        864
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "position": [
+        2236,
+        856
+      ],
+      "depth": 864,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q3.png",
+      "anchor": [
+        2496,
+        736
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "position": [
+        2480,
+        734
+      ],
+      "depth": 736,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q2.png",
+      "anchor": [
+        832,
+        1632
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "position": [
+        828,
+        1624
+      ],
+      "depth": 1632,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q3.png",
+      "anchor": [
+        960,
+        1568
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "position": [
+        944,
+        1566
+      ],
+      "depth": 1568,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q2.png",
+      "anchor": [
+        1344,
+        1376
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "position": [
+        1340,
+        1368
+      ],
+      "depth": 1376,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q3.png",
+      "anchor": [
+        1472,
+        1312
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "position": [
+        1456,
+        1310
+      ],
+      "depth": 1312,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/inner_corner_q2.png",
+      "anchor": [
+        1856,
+        1184
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "position": [
+        1852,
+        1176
+      ],
+      "depth": 1184,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q0.png",
+      "anchor": [
+        2240,
+        992
+      ],
+      "pivot": [
+        20.0,
+        7.5
+      ],
+      "position": [
+        2220,
+        984
+      ],
+      "depth": 992,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q1.png",
+      "anchor": [
+        2368,
+        928
+      ],
+      "pivot": [
+        16.0,
+        10.0
+      ],
+      "position": [
+        2352,
+        918
+      ],
+      "depth": 928,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q0.png",
+      "anchor": [
+        2624,
+        800
+      ],
+      "pivot": [
+        20.0,
+        7.5
+      ],
+      "position": [
+        2604,
+        792
+      ],
+      "depth": 800,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/inner_corner_q1.png",
+      "anchor": [
+        1088,
+        1632
+      ],
+      "pivot": [
+        16.0,
+        10.0
+      ],
+      "position": [
+        1072,
+        1622
+      ],
+      "depth": 1632,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q3.png",
+      "anchor": [
+        1280,
+        1536
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "position": [
+        1264,
+        1534
+      ],
+      "depth": 1536,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q2.png",
+      "anchor": [
+        1408,
+        1472
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "position": [
+        1404,
+        1464
+      ],
+      "depth": 1472,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/inner_corner_q0.png",
+      "anchor": [
+        1472,
+        1440
+      ],
+      "pivot": [
+        20.0,
+        7.5
+      ],
+      "position": [
+        1452,
+        1432
+      ],
+      "depth": 1440,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/inner_corner_q1.png",
+      "anchor": [
+        1600,
+        1376
+      ],
+      "pivot": [
+        16.0,
+        10.0
+      ],
+      "position": [
+        1584,
+        1366
+      ],
+      "depth": 1376,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/inner_corner_q0.png",
+      "anchor": [
+        1792,
+        1280
+      ],
+      "pivot": [
+        20.0,
+        7.5
+      ],
+      "position": [
+        1772,
+        1272
+      ],
+      "depth": 1280,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/inner_corner_q1.png",
+      "anchor": [
+        1920,
+        1216
+      ],
+      "pivot": [
+        16.0,
+        10.0
+      ],
+      "position": [
+        1904,
+        1206
+      ],
+      "depth": 1216,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q3.png",
+      "anchor": [
+        1984,
+        1184
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "position": [
+        1968,
+        1182
+      ],
+      "depth": 1184,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/inner_corner_q2.png",
+      "anchor": [
+        1216,
+        1696
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "position": [
+        1212,
+        1688
+      ],
+      "depth": 1696,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q0.png",
+      "anchor": [
+        1408,
+        1600
+      ],
+      "pivot": [
+        20.0,
+        7.5
+      ],
+      "position": [
+        1388,
+        1592
+      ],
+      "depth": 1600,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q1.png",
+      "anchor": [
+        1536,
+        1536
+      ],
+      "pivot": [
+        16.0,
+        10.0
+      ],
+      "position": [
+        1520,
+        1526
+      ],
+      "depth": 1536,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/inner_corner_q3.png",
+      "anchor": [
+        1600,
+        1504
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "position": [
+        1584,
+        1502
+      ],
+      "depth": 1504,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/inner_corner_q2.png",
+      "anchor": [
+        1728,
+        1440
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "position": [
+        1724,
+        1432
+      ],
+      "depth": 1440,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/inner_corner_q3.png",
+      "anchor": [
+        1920,
+        1344
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "position": [
+        1904,
+        1342
+      ],
+      "depth": 1344,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/inner_corner_q2.png",
+      "anchor": [
+        2048,
+        1280
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "position": [
+        2044,
+        1272
+      ],
+      "depth": 1280,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q0.png",
+      "anchor": [
+        2112,
+        1248
+      ],
+      "pivot": [
+        20.0,
+        7.5
+      ],
+      "position": [
+        2092,
+        1240
+      ],
+      "depth": 1248,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q1.png",
+      "anchor": [
+        1216,
+        1824
+      ],
+      "pivot": [
+        16.0,
+        10.0
+      ],
+      "position": [
+        1200,
+        1814
+      ],
+      "depth": 1824,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q0.png",
+      "anchor": [
+        1344,
+        1760
+      ],
+      "pivot": [
+        20.0,
+        7.5
+      ],
+      "position": [
+        1324,
+        1752
+      ],
+      "depth": 1760,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q1.png",
+      "anchor": [
+        1728,
+        1568
+      ],
+      "pivot": [
+        16.0,
+        10.0
+      ],
+      "position": [
+        1712,
+        1558
+      ],
+      "depth": 1568,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q0.png",
+      "anchor": [
+        1856,
+        1504
+      ],
+      "pivot": [
+        20.0,
+        7.5
+      ],
+      "position": [
+        1836,
+        1496
+      ],
+      "depth": 1504,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/inner_corner_q1.png",
+      "anchor": [
+        2176,
+        1344
+      ],
+      "pivot": [
+        16.0,
+        10.0
+      ],
+      "position": [
+        2160,
+        1334
+      ],
+      "depth": 1344,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q3.png",
+      "anchor": [
+        2560,
+        1152
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "position": [
+        2544,
+        1150
+      ],
+      "depth": 1152,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q2.png",
+      "anchor": [
+        2688,
+        1088
+      ],
+      "pivot": [
+        4.0,
+        8.0
+      ],
+      "position": [
+        2684,
+        1080
+      ],
+      "depth": 1088,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q3.png",
+      "anchor": [
+        2816,
+        1024
+      ],
+      "pivot": [
+        16.0,
+        2.0
+      ],
+      "position": [
+        2800,
+        1022
+      ],
+      "depth": 1024,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q1.png",
+      "anchor": [
+        2176,
+        1472
+      ],
+      "pivot": [
+        16.0,
+        10.0
+      ],
+      "position": [
+        2160,
+        1462
+      ],
+      "depth": 1472,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q0.png",
+      "anchor": [
+        2688,
+        1216
+      ],
+      "pivot": [
+        20.0,
+        7.5
+      ],
+      "position": [
+        2668,
+        1208
+      ],
+      "depth": 1216,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q1.png",
+      "anchor": [
+        2816,
+        1152
+      ],
+      "pivot": [
+        16.0,
+        10.0
+      ],
+      "position": [
+        2800,
+        1142
+      ],
+      "depth": 1152,
+      "layer": "terrain"
+    },
+    {
+      "asset": "road/outer_corner_q0.png",
+      "anchor": [
+        2944,
+        1088
+      ],
+      "pivot": [
+        20.0,
+        7.5
+      ],
+      "position": [
+        2924,
+        1080
+      ],
+      "depth": 1088,
+      "layer": "terrain"
+    },
+    {
+      "asset": "terrain/entrance_external_road.png",
+      "anchor": [
+        832,
+        1824
+      ],
+      "pivot": [
+        224.0,
+        128.0
+      ],
+      "position": [
+        608,
+        1696
+      ],
+      "depth": 1824,
+      "layer": "terrain"
+    },
+    {
+      "asset": "bridge/bridge_water_y.png",
+      "anchor": [
+        2240,
+        928
+      ],
+      "pivot": [
+        128.0,
+        64.0
+      ],
+      "position": [
+        2112,
+        864
+      ],
+      "depth": 928,
+      "layer": "terrain"
+    },
+    {
+      "asset": "bridge/bridge_water_y.png",
+      "anchor": [
+        1408,
+        1536
+      ],
+      "pivot": [
+        128.0,
+        64.0
+      ],
+      "position": [
+        1280,
+        1472
+      ],
+      "depth": 1536,
+      "layer": "terrain"
+    },
+    {
+      "asset": "bridge/bridge_water_y.png",
+      "anchor": [
+        2688,
+        1152
+      ],
+      "pivot": [
+        128.0,
+        64.0
+      ],
+      "position": [
+        2560,
+        1088
+      ],
+      "depth": 1152,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/threshold.png",
+      "anchor": [
+        832,
+        1600
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "position": [
+        768,
+        1568
+      ],
+      "depth": 1600,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/threshold.png",
+      "anchor": [
+        896,
+        1568
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "position": [
+        832,
+        1536
+      ],
+      "depth": 1568,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/threshold.png",
+      "anchor": [
+        1280,
+        1824
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "position": [
+        1216,
+        1792
+      ],
+      "depth": 1824,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/threshold.png",
+      "anchor": [
+        1344,
+        1792
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "position": [
+        1280,
+        1760
+      ],
+      "depth": 1792,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/threshold.png",
+      "anchor": [
+        1344,
+        1344
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "position": [
+        1280,
+        1312
+      ],
+      "depth": 1344,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/threshold.png",
+      "anchor": [
+        1408,
+        1312
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "position": [
+        1344,
+        1280
+      ],
+      "depth": 1312,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/threshold.png",
+      "anchor": [
+        1792,
+        1568
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "position": [
+        1728,
+        1536
+      ],
+      "depth": 1568,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/threshold.png",
+      "anchor": [
+        1856,
+        1536
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "position": [
+        1792,
+        1504
+      ],
+      "depth": 1536,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/threshold.png",
+      "anchor": [
+        2048,
+        1184
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "position": [
+        1984,
+        1152
+      ],
+      "depth": 1184,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/threshold.png",
+      "anchor": [
+        2112,
+        1216
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "position": [
+        2048,
+        1184
+      ],
+      "depth": 1216,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/threshold.png",
+      "anchor": [
+        2304,
+        800
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "position": [
+        2240,
+        768
+      ],
+      "depth": 800,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/threshold.png",
+      "anchor": [
+        2368,
+        768
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "position": [
+        2304,
+        736
+      ],
+      "depth": 768,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/threshold.png",
+      "anchor": [
+        2880,
+        1024
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "position": [
+        2816,
+        992
+      ],
+      "depth": 1024,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/threshold.png",
+      "anchor": [
+        2944,
+        1056
+      ],
+      "pivot": [
+        64.0,
+        32.0
+      ],
+      "position": [
+        2880,
+        1024
+      ],
+      "depth": 1056,
+      "layer": "terrain"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        2304,
+        576
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2240,
+        416
+      ],
+      "depth": 576,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        2304,
+        576
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2240,
+        416
+      ],
+      "depth": 576,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_corner.png",
+      "anchor": [
+        2304,
+        576
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2240,
+        416
+      ],
+      "depth": 576,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        2240,
+        608
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2176,
+        448
+      ],
+      "depth": 608,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        2368,
+        608
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2304,
+        448
+      ],
+      "depth": 608,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        2176,
+        640
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2112,
+        480
+      ],
+      "depth": 640,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        2432,
+        640
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2368,
+        480
+      ],
+      "depth": 640,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        2112,
+        672
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2048,
+        512
+      ],
+      "depth": 672,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        2496,
+        672
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2432,
+        512
+      ],
+      "depth": 672,
+      "layer": "objects"
+    },
+    {
+      "asset": "interiors/throne.png",
+      "anchor": [
+        2304,
+        832
+      ],
+      "pivot": [
+        320.0,
+        640.0
+      ],
+      "position": [
+        1984,
+        192
+      ],
+      "depth": 684,
+      "layer": "objects",
+      "building": "throne"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        2048,
+        704
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1984,
+        544
+      ],
+      "depth": 704,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        2560,
+        704
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2496,
+        624
+      ],
+      "depth": 704,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        2048,
+        704
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1984,
+        624
+      ],
+      "depth": 704,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        2560,
+        704
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2496,
+        544
+      ],
+      "depth": 704,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        2496,
+        736
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2432,
+        656
+      ],
+      "depth": 736,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        2112,
+        736
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2048,
+        656
+      ],
+      "depth": 736,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        2432,
+        768
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2368,
+        688
+      ],
+      "depth": 768,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        2176,
+        768
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2112,
+        688
+      ],
+      "depth": 768,
+      "layer": "objects"
+    },
+    {
+      "asset": "monsters/slime.png",
+      "anchor": [
+        2496,
+        768
+      ],
+      "pivot": [
+        45.0,
+        66.0
+      ],
+      "position": [
+        2451,
+        702
+      ],
+      "depth": 770,
+      "layer": "objects",
+      "cell": [
+        29,
+        5
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        2240,
+        800
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2176,
+        720
+      ],
+      "depth": 800,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/door_arch_up.png",
+      "anchor": [
+        2368,
+        800
+      ],
+      "pivot": [
+        93.98019801980197,
+        146.93877551020407
+      ],
+      "position": [
+        2274,
+        653
+      ],
+      "depth": 801,
+      "layer": "objects",
+      "building": "throne"
+    },
+    {
+      "asset": "monsters/goblin.png",
+      "anchor": [
+        2432,
+        800
+      ],
+      "pivot": [
+        43.0,
+        91.0
+      ],
+      "position": [
+        2389,
+        709
+      ],
+      "depth": 802,
+      "layer": "objects",
+      "cell": [
+        28,
+        5
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "monsters/goblin.png",
+      "anchor": [
+        2560,
+        800
+      ],
+      "pivot": [
+        43.0,
+        91.0
+      ],
+      "position": [
+        2517,
+        709
+      ],
+      "depth": 802,
+      "layer": "objects",
+      "cell": [
+        29,
+        6
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        2304,
+        832
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2240,
+        752
+      ],
+      "depth": 832,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_corner.png",
+      "anchor": [
+        2304,
+        832
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2240,
+        752
+      ],
+      "depth": 832,
+      "layer": "objects"
+    },
+    {
+      "asset": "monsters/slime.png",
+      "anchor": [
+        2496,
+        832
+      ],
+      "pivot": [
+        45.0,
+        66.0
+      ],
+      "position": [
+        2451,
+        766
+      ],
+      "depth": 834,
+      "layer": "objects",
+      "cell": [
+        28,
+        6
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        3008,
+        928
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2944,
+        768
+      ],
+      "depth": 928,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        3008,
+        928
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2944,
+        768
+      ],
+      "depth": 928,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_corner.png",
+      "anchor": [
+        3008,
+        928
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2944,
+        768
+      ],
+      "depth": 928,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        2944,
+        960
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2880,
+        800
+      ],
+      "depth": 960,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        3072,
+        960
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        3008,
+        800
+      ],
+      "depth": 960,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        2880,
+        992
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2816,
+        832
+      ],
+      "depth": 992,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        3136,
+        992
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        3072,
+        832
+      ],
+      "depth": 992,
+      "layer": "objects"
+    },
+    {
+      "asset": "traps/sticky.png",
+      "anchor": [
+        2048,
+        992
+      ],
+      "pivot": [
+        64.0,
+        40.0
+      ],
+      "position": [
+        1984,
+        952
+      ],
+      "depth": 992,
+      "layer": "objects",
+      "cell": [
+        22,
+        5
+      ]
+    },
+    {
+      "asset": "interiors/vault.png",
+      "anchor": [
+        3008,
+        1120
+      ],
+      "pivot": [
+        256.0,
+        480.0
+      ],
+      "position": [
+        2752,
+        640
+      ],
+      "depth": 1004,
+      "layer": "objects",
+      "building": "vault"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        2816,
+        1024
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2752,
+        864
+      ],
+      "depth": 1024,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        3200,
+        1024
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        3136,
+        944
+      ],
+      "depth": 1024,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        2816,
+        1024
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2752,
+        944
+      ],
+      "depth": 1024,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        3200,
+        1024
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        3136,
+        864
+      ],
+      "depth": 1024,
+      "layer": "objects"
+    },
+    {
+      "asset": "traps/spikes.png",
+      "anchor": [
+        2112,
+        1024
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2048,
+        944
+      ],
+      "depth": 1024,
+      "layer": "objects",
+      "cell": [
+        22,
+        6
+      ]
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        2240,
+        1056
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2176,
+        896
+      ],
+      "depth": 1056,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        2240,
+        1056
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2176,
+        896
+      ],
+      "depth": 1056,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_corner.png",
+      "anchor": [
+        2240,
+        1056
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2176,
+        896
+      ],
+      "depth": 1056,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        3136,
+        1056
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        3072,
+        976
+      ],
+      "depth": 1056,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/door_arch_down.png",
+      "anchor": [
+        2880,
+        1056
+      ],
+      "pivot": [
+        102.01980198019803,
+        146.93877551020407
+      ],
+      "position": [
+        2778,
+        909
+      ],
+      "depth": 1057,
+      "layer": "objects",
+      "building": "vault"
+    },
+    {
+      "asset": "monsters/goblin.png",
+      "anchor": [
+        2816,
+        1056
+      ],
+      "pivot": [
+        43.0,
+        91.0
+      ],
+      "position": [
+        2773,
+        965
+      ],
+      "depth": 1058,
+      "layer": "objects",
+      "cell": [
+        27,
+        12
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        2176,
+        1088
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2112,
+        928
+      ],
+      "depth": 1088,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        2304,
+        1088
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2240,
+        928
+      ],
+      "depth": 1088,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        3072,
+        1088
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        3008,
+        1008
+      ],
+      "depth": 1088,
+      "layer": "objects"
+    },
+    {
+      "asset": "monsters/slime.png",
+      "anchor": [
+        2880,
+        1088
+      ],
+      "pivot": [
+        45.0,
+        66.0
+      ],
+      "position": [
+        2835,
+        1022
+      ],
+      "depth": 1090,
+      "layer": "objects",
+      "cell": [
+        27,
+        13
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        2112,
+        1120
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2048,
+        960
+      ],
+      "depth": 1120,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        2368,
+        1120
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2304,
+        960
+      ],
+      "depth": 1120,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        3008,
+        1120
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2944,
+        1040
+      ],
+      "depth": 1120,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        3008,
+        1120
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2944,
+        1040
+      ],
+      "depth": 1120,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_corner.png",
+      "anchor": [
+        3008,
+        1120
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2944,
+        1040
+      ],
+      "depth": 1120,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        1280,
+        1152
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1216,
+        992
+      ],
+      "depth": 1152,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        1280,
+        1152
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1216,
+        992
+      ],
+      "depth": 1152,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_corner.png",
+      "anchor": [
+        1280,
+        1152
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1216,
+        992
+      ],
+      "depth": 1152,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        2048,
+        1152
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1984,
+        992
+      ],
+      "depth": 1152,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        2432,
+        1152
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2368,
+        992
+      ],
+      "depth": 1152,
+      "layer": "objects"
+    },
+    {
+      "asset": "interiors/ward_core.png",
+      "anchor": [
+        2240,
+        1312
+      ],
+      "pivot": [
+        320.0,
+        544.0
+      ],
+      "position": [
+        1920,
+        768
+      ],
+      "depth": 1164,
+      "layer": "objects",
+      "building": "ward_core"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        1216,
+        1184
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1152,
+        1024
+      ],
+      "depth": 1184,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        1344,
+        1184
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1280,
+        1024
+      ],
+      "depth": 1184,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        1984,
+        1184
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1920,
+        1024
+      ],
+      "depth": 1184,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        2496,
+        1184
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2432,
+        1104
+      ],
+      "depth": 1184,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        1984,
+        1184
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1920,
+        1104
+      ],
+      "depth": 1184,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        2496,
+        1184
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2432,
+        1024
+      ],
+      "depth": 1184,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        1152,
+        1216
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1088,
+        1056
+      ],
+      "depth": 1216,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        1408,
+        1216
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1344,
+        1056
+      ],
+      "depth": 1216,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        2432,
+        1216
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2368,
+        1136
+      ],
+      "depth": 1216,
+      "layer": "objects"
+    },
+    {
+      "asset": "traps/spikes.png",
+      "anchor": [
+        2496,
+        1216
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2432,
+        1136
+      ],
+      "depth": 1216,
+      "layer": "objects",
+      "cell": [
+        22,
+        12
+      ]
+    },
+    {
+      "asset": "building/door_arch_down.png",
+      "anchor": [
+        2048,
+        1216
+      ],
+      "pivot": [
+        102.01980198019803,
+        146.93877551020407
+      ],
+      "position": [
+        1946,
+        1069
+      ],
+      "depth": 1217,
+      "layer": "objects",
+      "building": "ward_core"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        1088,
+        1248
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1024,
+        1088
+      ],
+      "depth": 1248,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        1472,
+        1248
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1408,
+        1088
+      ],
+      "depth": 1248,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        2368,
+        1248
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2304,
+        1168
+      ],
+      "depth": 1248,
+      "layer": "objects"
+    },
+    {
+      "asset": "traps/sticky.png",
+      "anchor": [
+        2560,
+        1248
+      ],
+      "pivot": [
+        64.0,
+        40.0
+      ],
+      "position": [
+        2496,
+        1208
+      ],
+      "depth": 1248,
+      "layer": "objects",
+      "cell": [
+        22,
+        13
+      ]
+    },
+    {
+      "asset": "monsters/goblin.png",
+      "anchor": [
+        2048,
+        1248
+      ],
+      "pivot": [
+        43.0,
+        91.0
+      ],
+      "position": [
+        2005,
+        1157
+      ],
+      "depth": 1250,
+      "layer": "objects",
+      "cell": [
+        18,
+        9
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "interiors/barracks.png",
+      "anchor": [
+        1280,
+        1408
+      ],
+      "pivot": [
+        320.0,
+        544.0
+      ],
+      "position": [
+        960,
+        864
+      ],
+      "depth": 1260,
+      "layer": "objects",
+      "building": "barracks"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        1024,
+        1280
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        960,
+        1120
+      ],
+      "depth": 1280,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        1536,
+        1280
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1472,
+        1200
+      ],
+      "depth": 1280,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        1024,
+        1280
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        960,
+        1200
+      ],
+      "depth": 1280,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        1536,
+        1280
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1472,
+        1120
+      ],
+      "depth": 1280,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        2304,
+        1280
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2240,
+        1200
+      ],
+      "depth": 1280,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        2176,
+        1280
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2112,
+        1200
+      ],
+      "depth": 1280,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        1472,
+        1312
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1408,
+        1232
+      ],
+      "depth": 1312,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        1088,
+        1312
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1024,
+        1232
+      ],
+      "depth": 1312,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        2240,
+        1312
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2176,
+        1232
+      ],
+      "depth": 1312,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        2240,
+        1312
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2176,
+        1232
+      ],
+      "depth": 1312,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_corner.png",
+      "anchor": [
+        2240,
+        1312
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2176,
+        1232
+      ],
+      "depth": 1312,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        1152,
+        1344
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1088,
+        1264
+      ],
+      "depth": 1344,
+      "layer": "objects"
+    },
+    {
+      "asset": "traps/spikes.png",
+      "anchor": [
+        2112,
+        1344
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2048,
+        1264
+      ],
+      "depth": 1344,
+      "layer": "objects",
+      "cell": [
+        17,
+        11
+      ]
+    },
+    {
+      "asset": "building/door_arch_up.png",
+      "anchor": [
+        1408,
+        1344
+      ],
+      "pivot": [
+        93.98019801980197,
+        146.93877551020407
+      ],
+      "position": [
+        1314,
+        1197
+      ],
+      "depth": 1345,
+      "layer": "objects",
+      "building": "barracks"
+    },
+    {
+      "asset": "monsters/slime.png",
+      "anchor": [
+        1472,
+        1344
+      ],
+      "pivot": [
+        45.0,
+        66.0
+      ],
+      "position": [
+        1427,
+        1278
+      ],
+      "depth": 1346,
+      "layer": "objects",
+      "cell": [
+        12,
+        6
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        1216,
+        1376
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1152,
+        1296
+      ],
+      "depth": 1376,
+      "layer": "objects"
+    },
+    {
+      "asset": "traps/sticky.png",
+      "anchor": [
+        2048,
+        1376
+      ],
+      "pivot": [
+        64.0,
+        40.0
+      ],
+      "position": [
+        1984,
+        1336
+      ],
+      "depth": 1376,
+      "layer": "objects",
+      "cell": [
+        16,
+        11
+      ]
+    },
+    {
+      "asset": "monsters/goblin.png",
+      "anchor": [
+        1408,
+        1376
+      ],
+      "pivot": [
+        43.0,
+        91.0
+      ],
+      "position": [
+        1365,
+        1285
+      ],
+      "depth": 1378,
+      "layer": "objects",
+      "cell": [
+        11,
+        6
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "monsters/goblin.png",
+      "anchor": [
+        1536,
+        1376
+      ],
+      "pivot": [
+        43.0,
+        91.0
+      ],
+      "position": [
+        1493,
+        1285
+      ],
+      "depth": 1378,
+      "layer": "objects",
+      "cell": [
+        12,
+        7
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        1280,
+        1408
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1216,
+        1328
+      ],
+      "depth": 1408,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        1280,
+        1408
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1216,
+        1328
+      ],
+      "depth": 1408,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_corner.png",
+      "anchor": [
+        1280,
+        1408
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1216,
+        1328
+      ],
+      "depth": 1408,
+      "layer": "objects"
+    },
+    {
+      "asset": "monsters/slime.png",
+      "anchor": [
+        1472,
+        1408
+      ],
+      "pivot": [
+        45.0,
+        66.0
+      ],
+      "position": [
+        1427,
+        1342
+      ],
+      "depth": 1410,
+      "layer": "objects",
+      "cell": [
+        11,
+        7
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "monsters/slime.png",
+      "anchor": [
+        1728,
+        1472
+      ],
+      "pivot": [
+        45.0,
+        66.0
+      ],
+      "position": [
+        1683,
+        1406
+      ],
+      "depth": 1474,
+      "layer": "objects",
+      "cell": [
+        12,
+        10
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        832,
+        1504
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        768,
+        1344
+      ],
+      "depth": 1504,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        832,
+        1504
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        768,
+        1344
+      ],
+      "depth": 1504,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_corner.png",
+      "anchor": [
+        832,
+        1504
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        768,
+        1344
+      ],
+      "depth": 1504,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        1984,
+        1504
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1920,
+        1344
+      ],
+      "depth": 1504,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        1984,
+        1504
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1920,
+        1344
+      ],
+      "depth": 1504,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_corner.png",
+      "anchor": [
+        1984,
+        1504
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1920,
+        1344
+      ],
+      "depth": 1504,
+      "layer": "objects"
+    },
+    {
+      "asset": "monsters/goblin.png",
+      "anchor": [
+        1664,
+        1504
+      ],
+      "pivot": [
+        43.0,
+        91.0
+      ],
+      "position": [
+        1621,
+        1413
+      ],
+      "depth": 1506,
+      "layer": "objects",
+      "cell": [
+        11,
+        10
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        768,
+        1536
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        704,
+        1376
+      ],
+      "depth": 1536,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        896,
+        1536
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        832,
+        1376
+      ],
+      "depth": 1536,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        1920,
+        1536
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1856,
+        1376
+      ],
+      "depth": 1536,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        2048,
+        1536
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1984,
+        1376
+      ],
+      "depth": 1536,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/door_arch_up.png",
+      "anchor": [
+        1792,
+        1536
+      ],
+      "pivot": [
+        93.98019801980197,
+        146.93877551020407
+      ],
+      "position": [
+        1698,
+        1389
+      ],
+      "depth": 1537,
+      "layer": "objects",
+      "building": "recovery_nest"
+    },
+    {
+      "asset": "interiors/watchtower.png",
+      "anchor": [
+        832,
+        1632
+      ],
+      "pivot": [
+        192.0,
+        576.0
+      ],
+      "position": [
+        640,
+        1056
+      ],
+      "depth": 1548,
+      "layer": "objects",
+      "building": "watchtower"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        704,
+        1568
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        640,
+        1408
+      ],
+      "depth": 1568,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        960,
+        1568
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        896,
+        1488
+      ],
+      "depth": 1568,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        704,
+        1568
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        640,
+        1488
+      ],
+      "depth": 1568,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        960,
+        1568
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        896,
+        1408
+      ],
+      "depth": 1568,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        2112,
+        1568
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2048,
+        1408
+      ],
+      "depth": 1568,
+      "layer": "objects"
+    },
+    {
+      "asset": "traps/sticky.png",
+      "anchor": [
+        1280,
+        1568
+      ],
+      "pivot": [
+        64.0,
+        40.0
+      ],
+      "position": [
+        1216,
+        1528
+      ],
+      "depth": 1568,
+      "layer": "objects",
+      "cell": [
+        7,
+        8
+      ]
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        768,
+        1600
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        704,
+        1520
+      ],
+      "depth": 1600,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        2176,
+        1600
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2112,
+        1440
+      ],
+      "depth": 1600,
+      "layer": "objects"
+    },
+    {
+      "asset": "traps/spikes.png",
+      "anchor": [
+        1216,
+        1600
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1152,
+        1520
+      ],
+      "depth": 1600,
+      "layer": "objects",
+      "cell": [
+        6,
+        8
+      ]
+    },
+    {
+      "asset": "traps/spikes.png",
+      "anchor": [
+        1344,
+        1600
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1280,
+        1520
+      ],
+      "depth": 1600,
+      "layer": "objects",
+      "cell": [
+        7,
+        9
+      ]
+    },
+    {
+      "asset": "building/door_arch_up.png",
+      "anchor": [
+        896,
+        1600
+      ],
+      "pivot": [
+        93.98019801980197,
+        146.93877551020407
+      ],
+      "position": [
+        802,
+        1453
+      ],
+      "depth": 1601,
+      "layer": "objects",
+      "building": "watchtower"
+    },
+    {
+      "asset": "monsters/slime.png",
+      "anchor": [
+        960,
+        1600
+      ],
+      "pivot": [
+        45.0,
+        66.0
+      ],
+      "position": [
+        915,
+        1534
+      ],
+      "depth": 1602,
+      "layer": "objects",
+      "cell": [
+        4,
+        6
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "interiors/recovery_nest.png",
+      "anchor": [
+        1984,
+        1760
+      ],
+      "pivot": [
+        320.0,
+        480.0
+      ],
+      "position": [
+        1664,
+        1280
+      ],
+      "depth": 1612,
+      "layer": "objects",
+      "building": "recovery_nest"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        832,
+        1632
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        768,
+        1552
+      ],
+      "depth": 1632,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_corner.png",
+      "anchor": [
+        832,
+        1632
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        768,
+        1552
+      ],
+      "depth": 1632,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        1728,
+        1632
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1664,
+        1472
+      ],
+      "depth": 1632,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        2240,
+        1632
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2176,
+        1552
+      ],
+      "depth": 1632,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        1728,
+        1632
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1664,
+        1552
+      ],
+      "depth": 1632,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        2240,
+        1632
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        2176,
+        1472
+      ],
+      "depth": 1632,
+      "layer": "objects"
+    },
+    {
+      "asset": "traps/sticky.png",
+      "anchor": [
+        1280,
+        1632
+      ],
+      "pivot": [
+        64.0,
+        40.0
+      ],
+      "position": [
+        1216,
+        1592
+      ],
+      "depth": 1632,
+      "layer": "objects",
+      "cell": [
+        6,
+        9
+      ]
+    },
+    {
+      "asset": "monsters/goblin.png",
+      "anchor": [
+        896,
+        1632
+      ],
+      "pivot": [
+        43.0,
+        91.0
+      ],
+      "position": [
+        853,
+        1541
+      ],
+      "depth": 1634,
+      "layer": "objects",
+      "cell": [
+        3,
+        6
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        2176,
+        1664
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2112,
+        1584
+      ],
+      "depth": 1664,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        1792,
+        1664
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1728,
+        1584
+      ],
+      "depth": 1664,
+      "layer": "objects"
+    },
+    {
+      "asset": "monsters/slime.png",
+      "anchor": [
+        960,
+        1664
+      ],
+      "pivot": [
+        45.0,
+        66.0
+      ],
+      "position": [
+        915,
+        1598
+      ],
+      "depth": 1666,
+      "layer": "objects",
+      "cell": [
+        3,
+        7
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        2112,
+        1696
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        2048,
+        1616
+      ],
+      "depth": 1696,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        1856,
+        1696
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1792,
+        1616
+      ],
+      "depth": 1696,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        2048,
+        1728
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1984,
+        1648
+      ],
+      "depth": 1728,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        1920,
+        1728
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1856,
+        1648
+      ],
+      "depth": 1728,
+      "layer": "objects"
+    },
+    {
+      "asset": "monsters/slime.png",
+      "anchor": [
+        1216,
+        1728
+      ],
+      "pivot": [
+        45.0,
+        66.0
+      ],
+      "position": [
+        1171,
+        1662
+      ],
+      "depth": 1730,
+      "layer": "objects",
+      "cell": [
+        4,
+        10
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        1984,
+        1760
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1920,
+        1680
+      ],
+      "depth": 1760,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        1984,
+        1760
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1920,
+        1680
+      ],
+      "depth": 1760,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_corner.png",
+      "anchor": [
+        1984,
+        1760
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1920,
+        1680
+      ],
+      "depth": 1760,
+      "layer": "objects"
+    },
+    {
+      "asset": "monsters/goblin.png",
+      "anchor": [
+        1152,
+        1760
+      ],
+      "pivot": [
+        43.0,
+        91.0
+      ],
+      "position": [
+        1109,
+        1669
+      ],
+      "depth": 1762,
+      "layer": "objects",
+      "cell": [
+        3,
+        10
+      ],
+      "facing": "down"
+    },
+    {
+      "asset": "building/back_nw.png",
+      "anchor": [
+        1408,
+        1792
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1344,
+        1632
+      ],
+      "depth": 1792,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        1408,
+        1792
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1344,
+        1632
+      ],
+      "depth": 1792,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_corner.png",
+      "anchor": [
+        1408,
+        1792
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1344,
+        1632
+      ],
+      "depth": 1792,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/door_arch_up.png",
+      "anchor": [
+        1280,
+        1792
+      ],
+      "pivot": [
+        93.98019801980197,
+        146.93877551020407
+      ],
+      "position": [
+        1186,
+        1645
+      ],
+      "depth": 1793,
+      "layer": "objects",
+      "building": "bait_treasure"
+    },
+    {
+      "asset": "interiors/entrance.png",
+      "anchor": [
+        848,
+        1816
+      ],
+      "pivot": [
+        181.26,
+        225.0
+      ],
+      "position": [
+        667,
+        1591
+      ],
+      "depth": 1821,
+      "layer": "objects",
+      "building": "entrance"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        1472,
+        1824
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1408,
+        1664
+      ],
+      "depth": 1824,
+      "layer": "objects"
+    },
+    {
+      "asset": "interiors/bait_treasure.png",
+      "anchor": [
+        1408,
+        1920
+      ],
+      "pivot": [
+        192.0,
+        352.0
+      ],
+      "position": [
+        1216,
+        1568
+      ],
+      "depth": 1836,
+      "layer": "objects",
+      "building": "bait_treasure"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        1536,
+        1856
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1472,
+        1776
+      ],
+      "depth": 1856,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        1280,
+        1856
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1216,
+        1776
+      ],
+      "depth": 1856,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/back_ne.png",
+      "anchor": [
+        1536,
+        1856
+      ],
+      "pivot": [
+        64.0,
+        160.0
+      ],
+      "position": [
+        1472,
+        1696
+      ],
+      "depth": 1856,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        1472,
+        1888
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1408,
+        1808
+      ],
+      "depth": 1888,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        1344,
+        1888
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1280,
+        1808
+      ],
+      "depth": 1888,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_se.png",
+      "anchor": [
+        1408,
+        1920
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1344,
+        1840
+      ],
+      "depth": 1920,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_sw.png",
+      "anchor": [
+        1408,
+        1920
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1344,
+        1840
+      ],
+      "depth": 1920,
+      "layer": "objects"
+    },
+    {
+      "asset": "building/front_corner.png",
+      "anchor": [
+        1408,
+        1920
+      ],
+      "pivot": [
+        64.0,
+        80.0
+      ],
+      "position": [
+        1344,
+        1840
+      ],
+      "depth": 1920,
+      "layer": "objects"
+    },
+    {
+      "asset": "bridge/entrance_bridge.png",
+      "anchor": [
+        723,
+        1878
+      ],
+      "pivot": [
+        867.2,
+        88.40000000000009
+      ],
+      "position": [
+        -144,
+        1790
+      ],
+      "depth": 1878,
+      "layer": "entrance_bridge"
+    }
+  ]
+}

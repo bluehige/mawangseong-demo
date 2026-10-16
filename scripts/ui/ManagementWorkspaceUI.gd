@@ -128,6 +128,11 @@ func kit_line(parent: Control, text: String, id: String = "", color: Color = PAP
 	return label
 
 func build(model: Dictionary, pending_reason: String) -> void:
+	if preload("res://scripts/map_builder/ApprovedMapLayout.gd").enabled():
+		var approved := preload("res://scripts/map_builder/ApprovedMapView.gd").new()
+		approved.setup(root)
+		root.ui_layer.add_child(approved)
+		return
 	if preload("res://scripts/map_builder/DefenseLayout.gd").enabled():
 		var graybox := preload("res://scripts/map_builder/DefenseGrayboxView.gd").new()
 		graybox.setup(root)
