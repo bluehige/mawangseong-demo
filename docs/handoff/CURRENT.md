@@ -1,3 +1,15 @@
+## 2026-10-16 V130R 2D — 시작 카메라·한글 폰트, 사용자 확인 대기
+
+[2D 인계·계산표·캡처·검증](V130R_STEP2D_CAMERA_FONT_2026-10-16.md). 사용자10/16 18:33 지시에 따라 0086 완료 `056d3c5a2a5e20485ae2c9d62588cc84e0815471` 위, 같은 `codex/v130r-defense-layout`에서 진행했다. 구현·검증 **31f051d5ec7b71bd3abc93a8390ce894f0309aa4 / TARGETED_PASS**. 이후 인계/CURRENT만 영어 로컬 문서 커밋한다. 로컬 main 부재·원격 최신 권위 미확정 유지.
+
+시작은 승인된 `game_step2b/radial_edge.png` 직전 카메라 **중심(1930,1390), 1920×1080 배율0.75**다. 다른 해상도는 `0.75×min(폭/1920,높이/1080)`,1280×720=0.5로 같은 지도 범위를 유지한다. 종횡비가 다르면 긴 축에 칸을 추가 표시한다. 키2 복귀·F 전체·미니맵 사각형 갱신을 확인했다. 0085 옥좌·입구 맞춤 계산은 시작 기본값에서 제외하고 함수는 보존했다. 제목/이름은 기존 MapleStory Bold, 수치/본문/툴팁은 Light로 바꿨고 정보 제목 폭을 조절했다.
+
+직접 **5,184**, 실제 화면/입력 **5,192**, 캡처·보존 감사 **11 checks**, 실패0. `C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/game_step2d/`에 `start_1920.png`, `start_1280.png`, `compare_start.png`, `font_info.png`, `font_bar.png`와 축소본/근거를 저장했다. 축소본5장을 한 장씩 확인했고 기준 지도 패치는 픽셀100% 일치했다. 기존 혼합1,386파일 해시변경0, 사용자 세이브 미사용, 시험 배치 바이트 비변경, Godot시작0·동시최대1·종료0. **push·merge·태그·Steam·전체 회귀·전체 플레이·별도 검수·export 미실행. 사용자 확인 대기.** 아래2C의 원형/인접 정보창 규칙은 유지하며2B의 시작 맞춤/기존 폰트는 이번 지시로 대체한다.
+
+수동 재현: `powershell -ExecutionPolicy Bypass -File tools/run_v130r_step2d.ps1`. 기존 Godot이 있으면 실행을 거절하며 개인 APPDATA/LOCALAPPDATA를 격리한다.
+
+---
+
 ## 2026-10-16 V130R 2단계 보정 2 — 원형 메뉴·인접 정보창, 사용자 확인 대기
 
 [2C 인계·수정 규칙·필수 캡처·검증](V130R_STEP2C_RADIAL_2026-10-16.md). 사용자 지시에 따라0085 `40c1c8d602388a19530f3060998b0b37c9f8a3ca`에서 같은 `codex/v130r-defense-layout`을 계속했다. 구현·검증 **307537d5bff87a58ba42fad4d01b1b85aa057cb8 / TARGETED_PASS**, 이후 인계/CURRENT만 영어 로컬 문서 커밋한다. main 부재·원격 최신 권위 미확정 유지. push·merge·태그·Steam 조치 없음.
