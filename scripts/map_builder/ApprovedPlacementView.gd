@@ -52,6 +52,9 @@ var radial_backdrop: Polygon2D
 var context_layout := {}
 var context_tween: Tween
 var monster_ui: Node
+var battle
+var battle_ui: Node
+var finish_pending := false
 
 func setup(game: Node) -> void:
 	root = game; name = "ApprovedMapManagement"
@@ -188,14 +191,21 @@ func build_chrome() -> void:
 		var title := label_at(tabs,["건설","몬스터 배치","전투"][i],Vector2(i*190+57,24),18,true)
 		if i==2:
 			tab_icon.modulate = Color(.45,.45,.5); title.modulate = Color(.5,.5,.56)
-			tab.tooltip_text = "아직 사용할 수 없는 단계"
+			tab_icon.modulate = Color.WHITE; title.modulate = Color.WHITE
+			tab.tooltip_text = "현재 배치로 DAY %d 전투 시작" % int(placement.day)
+			tab.mouse_filter = Control.MOUSE_FILTER_STOP
+			tab.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+			tab.gui_input.connect(func(event):
+				if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and event.pressed:
+					start_battle.call_deferred(); tab.accept_event())
 		else:
 			tab.mouse_filter = Control.MOUSE_FILTER_STOP
 			tab.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 			var mode := "build" if i==0 else "place"
 			tab.gui_input.connect(func(event):
 				if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and event.pressed:
-					monster_ui.set_mode(mode); tab.accept_event())
+						if battle==null: monster_ui.set_mode(mode)
+						tab.accept_event())
 	var tools := panel_image(chrome,local_ui("tools"))
 	image_button(tools,"place_auto",Vector2(8,5),56,show_full,"전체 보기 · F")
 	image_button(tools,"frame_selected",Vector2(72,5),56,show_default,"시작 화면 · 2")
@@ -629,6 +639,12 @@ func apply_action(next: Dictionary) -> bool:
 	return true
 
 func _input(event: InputEvent) -> void:
+	if battle!=null:
+		if handle_key(event): get_viewport().set_input_as_handled(); return
+		# Direct movement also works when the adjacent skill popup covers a road.
+		if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_RIGHT and event.pressed:
+			if battle_ui.map_input(event): get_viewport().set_input_as_handled()
+		return
 	if is_instance_valid(monster_ui) and monster_ui.input_event(event): return
 	if build_kind=="": return
 	if event is InputEventMouseMotion:
@@ -651,6 +667,10 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _gui_input(event: InputEvent) -> void:
+	if battle!=null:
+		if battle_ui.map_input(event): accept_event()
+		else: super._gui_input(event)
+		return
 	if monster_ui.mode=="place":
 		if monster_ui.map_input(event): accept_event()
 		else: super._gui_input(event)
@@ -668,7 +688,27 @@ func _gui_input(event: InputEvent) -> void:
 	else: super._gui_input(event)
 
 func handle_key(event: InputEvent) -> bool:
+	if battle!=null and event is InputEventKey and event.pressed:
+		if event.keycode==KEY_SPACE: battle.set_pause_state(not root.combat_paused); return true
 	if event is InputEventKey and event.pressed:
 		if event.keycode==KEY_ESCAPE and monster_ui.mode=="place": monster_ui.cancel_drag(); monster_ui.close_info(); return true
 		if event.keycode==KEY_ESCAPE: cancel_build(); clear_context(); return true
 	return super.handle_key(event)
+
+func start_battle() -> bool:
+	if battle!=null: return false
+	if monster_ui.assignments.is_empty():
+		status_text.text = "몬스터 배치 탭에서 수비대를 배치하세요"; return false
+	monster_ui.set_mode("battle"); monster_ui.unit_layer.hide()
+	battle = load("res://scripts/game/ApprovedBattleController.gd").new()
+	battle.begin(self)
+	battle_ui = load("res://scripts/ui/ApprovedBattleUI.gd").new(); add_child(battle_ui); battle_ui.setup(self,battle)
+	return true
+
+func _physics_process(delta: float) -> void:
+	if battle!=null and not finish_pending: battle.physics_process(delta)
+
+func show_battle_result(win: bool, reason: String) -> void:
+	var controller = battle
+	controller.settle_result(win,reason)
+	preload("res://scripts/ui/ApprovedBattleUI.gd").prepare_result_controls(root.ui_layer)
