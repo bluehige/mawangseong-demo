@@ -117,6 +117,12 @@ func direct() -> void:
 	for setting in ["debug/approved_map_step2","debug/approved_map_step5","debug/approved_map_step6"]: ProjectSettings.set_setting(setting,false)
 	expect(game._restore_campaign_payload(stored.active_run.legacy_payload) and GameState.is_hungry("slime"),"new file roundtrip restores hunger")
 	game.campaign_save_enabled = false; game.campaign_save_v6_enabled = false; game.campaign_autosave_pending = false
+	# Outpost/legacy result screens can reach next day without a defense ledger.
+	var prior_day: int = GameState.day
+	GameState.food = 0; GameState.food_income = Food.income(prior_day); GameState.food_state = Food.fresh()
+	game._advance_after_result()
+	expect(GameState.day==prior_day+1,"legacy result callback advances day")
+	expect(GameState.food_state.last_day==prior_day and GameState.food_state.last.income==Food.income(prior_day),"legacy result without defense ledger still settles daily rations")
 	# Release the legacy renderer/Continue state before a fresh spatial battle fixture.
 	game._shutdown_audio_for_exit(); preview.queue_free(); await get_tree().process_frame
 	await boot()

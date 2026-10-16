@@ -13644,6 +13644,7 @@ func _advance_after_result() -> void:
 		management_scene.monster_ui.inspected_id = result_growth_choice_monster_id
 		management_scene.monster_ui.list_mode = "owned"
 		management_scene.monster_ui.active_tab = "training"
+	_settle_monster_food()
 	GameState.advance_day()
 	_tutorial_emit_action("day_advanced", {"day": GameState.day})
 	if onboarding_enabled and not GameState.onboarding_complete and GameState.day <= GameState.max_day:
