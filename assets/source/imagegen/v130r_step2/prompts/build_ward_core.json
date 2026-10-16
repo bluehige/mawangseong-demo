@@ -1,0 +1,12 @@
+{
+  "id": "build_ward_core",
+  "label": "결계핵",
+  "category": "build",
+  "prompt": "Create ONE isolated square game UI SYMBOL, no button frame and no backing plate. Style reference 1 supplies the exact hand-painted damp cave blue-grey stone, aged bronze, honey wood, cool cyan/teal, ivory palette. If reference 2 contains a UI frame it is ONLY a material/line-weight reference: do NOT draw any frame in this symbol image. Cohesive chunky painted 2D fantasy UI, thick near-black navy outlines, simple broad bright readable shapes, subtle upper-left highlights. Cute-horror comedy mountain cave castle of a rookie demon, scary shape but endearingly homemade. Not realistic, not flat generic vector, not pixel art. Center subject on a SQUARE canvas occupying about 78 percent of width AND/OR height; fully contained, transparent margin all four sides; actual native transparent PNG exterior, no painted background/checkerboard, no cast floor shadow, no ground tile. Designed to be placed INSIDE a circular frame at only 64px overall. Use a single strong silhouette, maximum 2-3 large visual components, avoid tiny filigree. NO text, letters, numbers, typography, logos, blood, lava, hell, fire. Subject: A single large luminous CYAN FACETED CRYSTAL floating just above a squat dark slate three-prong stone cradle. A compact cyan protective arc wraps its lower sides. WARD CORE. Strong upright diamond silhouette, clean broad facets, teal light not fire. No runes, no characters, no surrounding scene.",
+  "generated_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a141b1-72da-7ac1-8549-11dd400e7eb4\\exec-874448a0-80b6-47d4-a041-fc3a37e1f42c.png",
+  "references": [
+    "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/assets_v1/A_style/style_reference.png",
+    "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/ui_icons_v1/source/frame_normal.png"
+  ],
+  "source": "source/build_ward_core.png"
+}

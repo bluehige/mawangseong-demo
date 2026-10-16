@@ -1,0 +1,9 @@
+{
+  "id": "frame_selected",
+  "prompt": "Edit the supplied NORMAL circular game UI frame into its SELECTED state. Keep the exact same circular geometry, size, placement, four rivets, segmented damp blue-grey cave stone, dark opaque slate empty interior, outline and painterly upper-left lighting. Only change the rim highlight into a clearly luminous warm amber-gold selection ring, including a modest thin cyan inner edge, with no spill outside the existing silhouette. Selection should remain obvious at 64px through a bright double rim, not color alone. Preserve an EMPTY center with no symbol. No text, letters, digits, logos. Preserve the genuine transparent background outside the circle, no square background. One square image, one circular frame.",
+  "generated_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a141b1-72da-7ac1-8549-11dd400e7eb4\\exec-57efbf96-319e-4f84-8cc5-450bb207848f.png",
+  "references": [
+    "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/ui_icons_v1/source/frame_normal.png"
+  ],
+  "source": "source/frame_selected.png"
+}

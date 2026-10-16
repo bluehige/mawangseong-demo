@@ -1,0 +1,10 @@
+{
+  "id": "build_spike_trap",
+  "prompt": "Create ONE isolated square game UI SYMBOL, no button frame and no backing plate. Style reference 1 supplies the exact hand-painted damp cave blue-grey stone, aged bronze, honey wood, cool cyan/teal, ivory palette. If reference 2 contains a UI frame it is ONLY a material/line-weight reference: do NOT draw any frame in this symbol image. Cohesive chunky painted 2D fantasy UI, thick near-black navy outlines, simple broad bright readable shapes, subtle upper-left highlights. Cute-horror comedy mountain cave castle of a rookie demon, scary shape but endearingly homemade. Not realistic, not flat generic vector, not pixel art. Center subject on a SQUARE canvas occupying about 78 percent of width AND/OR height; fully contained, transparent margin all four sides; actual native transparent PNG exterior, no painted background/checkerboard, no cast floor shadow, no ground tile. Designed to be placed INSIDE a circular frame at only 64px overall. Use a single strong silhouette, maximum 2-3 large visual components, avoid tiny filigree. NO text, letters, numbers, typography, logos, blood, lava, hell, fire. Subject: THREE large clean ivory-grey conical spikes of varied height emerging from ONE compact slate square trap plate seen in simple 3/4 view, a tiny harmless torn cloth caught on one spike. SPIKE TRAP, unmistakable three-point upward silhouette, no blood, no extra debris.",
+  "generated_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a141b1-72da-7ac1-8549-11dd400e7eb4\\exec-fac7974f-aab1-4f5c-a297-fb489548a144.png",
+  "references": [
+    "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/assets_v1/A_style/style_reference.png",
+    "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/ui_icons_v1/source/frame_normal.png"
+  ],
+  "source": "source/build_spike_trap.png"
+}

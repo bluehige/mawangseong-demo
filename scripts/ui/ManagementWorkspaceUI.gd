@@ -128,6 +128,11 @@ func kit_line(parent: Control, text: String, id: String = "", color: Color = PAP
 	return label
 
 func build(model: Dictionary, pending_reason: String) -> void:
+	if preload("res://scripts/map_builder/ApprovedPlacement.gd").enabled():
+		var placement := preload("res://scripts/map_builder/ApprovedPlacementView.gd").new()
+		placement.setup(root)
+		root.ui_layer.add_child(placement)
+		return
 	if preload("res://scripts/map_builder/ApprovedMapLayout.gd").enabled():
 		var approved := preload("res://scripts/map_builder/ApprovedMapView.gd").new()
 		approved.setup(root)

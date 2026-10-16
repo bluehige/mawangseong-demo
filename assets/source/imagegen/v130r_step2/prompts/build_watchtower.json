@@ -1,0 +1,12 @@
+{
+  "id": "build_watchtower",
+  "label": "감시탑",
+  "category": "build",
+  "prompt": "Create ONE isolated square game UI SYMBOL, no button frame and no backing plate. Style reference 1 supplies the exact hand-painted damp cave blue-grey stone, aged bronze, honey wood, cool cyan/teal, ivory palette. If reference 2 contains a UI frame it is ONLY a material/line-weight reference: do NOT draw any frame in this symbol image. Cohesive chunky painted 2D fantasy UI, thick near-black navy outlines, simple broad bright readable shapes, subtle upper-left highlights. Cute-horror comedy mountain cave castle of a rookie demon, scary shape but endearingly homemade. Not realistic, not flat generic vector, not pixel art. Center subject on a SQUARE canvas occupying about 78 percent of width AND/OR height; fully contained, transparent margin all four sides; actual native transparent PNG exterior, no painted background/checkerboard, no cast floor shadow, no ground tile. Designed to be placed INSIDE a circular frame at only 64px overall. Use a single strong silhouette, maximum 2-3 large visual components, avoid tiny filigree. NO text, letters, numbers, typography, logos, blood, lava, hell, fire. Subject: A squat homemade WOODEN LOOKOUT TOWER with two sturdy supports, one elevated little platform and a broad irregular slate cap roof; one single large friendly yellow watchful eye peers from the platform opening. WATCHTOWER icon, vertical tower silhouette, not a flag or helmet, no scenery.",
+  "generated_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a141b1-72da-7ac1-8549-11dd400e7eb4\\exec-14c9e71f-f4b6-467d-b4d4-05af89863efe.png",
+  "references": [
+    "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/assets_v1/A_style/style_reference.png",
+    "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/ui_icons_v1/source/frame_normal.png"
+  ],
+  "source": "source/build_watchtower.png"
+}

@@ -1,0 +1,151 @@
+{
+  "icons": [
+    {
+      "id": "build_barracks",
+      "label": "병영",
+      "category": "build"
+    },
+    {
+      "id": "build_recovery_nest",
+      "label": "회복 둥지",
+      "category": "build"
+    },
+    {
+      "id": "build_ward_core",
+      "label": "결계핵",
+      "category": "build"
+    },
+    {
+      "id": "build_watchtower",
+      "label": "감시탑",
+      "category": "build"
+    },
+    {
+      "id": "build_decoy_treasure",
+      "label": "미끼 보물실",
+      "category": "build"
+    },
+    {
+      "id": "build_spike_trap",
+      "label": "가시 함정",
+      "category": "build"
+    },
+    {
+      "id": "build_sticky_trap",
+      "label": "끈끈이 함정",
+      "category": "build"
+    },
+    {
+      "id": "menu_info",
+      "label": "정보",
+      "category": "menu"
+    },
+    {
+      "id": "menu_upgrade",
+      "label": "강화",
+      "category": "menu"
+    },
+    {
+      "id": "menu_move",
+      "label": "이동",
+      "category": "menu"
+    },
+    {
+      "id": "menu_dismantle_refund",
+      "label": "해체(환불)",
+      "category": "menu"
+    },
+    {
+      "id": "menu_assign_defenders",
+      "label": "수비 배치",
+      "category": "menu"
+    },
+    {
+      "id": "tactic_rally",
+      "label": "집결",
+      "category": "tactic"
+    },
+    {
+      "id": "tactic_focus_attack",
+      "label": "집중 공격",
+      "category": "tactic"
+    },
+    {
+      "id": "tactic_emergency_retreat",
+      "label": "비상 후퇴",
+      "category": "tactic"
+    },
+    {
+      "id": "tactic_hold_ground",
+      "label": "사수",
+      "category": "tactic"
+    },
+    {
+      "id": "tactic_lure_retreat",
+      "label": "후퇴 유도",
+      "category": "tactic"
+    },
+    {
+      "id": "speed_pause",
+      "label": "일시정지",
+      "category": "speed"
+    },
+    {
+      "id": "speed_1",
+      "label": "x1 (화살표 1)",
+      "category": "speed"
+    },
+    {
+      "id": "speed_2",
+      "label": "x2 (화살표 2)",
+      "category": "speed"
+    },
+    {
+      "id": "speed_3",
+      "label": "x3 (화살표 3)",
+      "category": "speed"
+    },
+    {
+      "id": "place_auto",
+      "label": "자동 배치",
+      "category": "placement"
+    },
+    {
+      "id": "place_clear_all",
+      "label": "전부 해제",
+      "category": "placement"
+    },
+    {
+      "id": "skill_block",
+      "label": "막기",
+      "category": "skill"
+    },
+    {
+      "id": "skill_counter",
+      "label": "반격",
+      "category": "skill"
+    },
+    {
+      "id": "skill_direct_control",
+      "label": "직접 조종",
+      "category": "skill"
+    }
+  ],
+  "frames": [
+    {
+      "id": "frame_normal",
+      "label": "원형 기본",
+      "category": "frame"
+    },
+    {
+      "id": "frame_selected",
+      "label": "선택됨",
+      "category": "frame"
+    },
+    {
+      "id": "frame_disabled",
+      "label": "사용 불가",
+      "category": "frame"
+    }
+  ]
+}
