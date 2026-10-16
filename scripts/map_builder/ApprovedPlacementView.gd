@@ -6,6 +6,10 @@ const ScreenLayout = preload("res://scripts/map_builder/ApprovedPlacementLayout.
 const KIT := "res://assets/ui/kit/icons/icon_"
 const MINIMAP_BOUNDS := Rect2(-144,135,4000,2319)
 const UI_ART := "res://assets/maps/v130r_step2/ui/"
+const TITLE_FONT = preload("res://assets/fonts/NEXON_Maplestory_Bold.otf")
+const BODY_FONT = preload("res://assets/fonts/NEXON_Maplestory_Light.otf")
+const START_CENTER := Vector2(1930,1390)
+const START_ZOOM := .75
 const ICONS := {"barracks":"build_barracks","recovery_nest":"build_recovery_nest","ward_core":"build_ward_core","watchtower":"build_watchtower","bait_treasure":"build_decoy_treasure","spikes":"build_spike_trap","sticky":"build_sticky_trap"}
 var placement: Dictionary
 var baseline: Dictionary
@@ -89,10 +93,10 @@ func cell_highlight(parent: Node, cell: Vector2i, tint: Color) -> Sprite2D:
 	parent.add_child(sprite)
 	return sprite
 
-func label_at(parent: Node, text: String, point: Vector2, font_size: int = 18) -> Label:
+func label_at(parent: Node, text: String, point: Vector2, font_size: int = 18, heading: bool = false) -> Label:
 	var label := Label.new(); label.text = text; label.position = point
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_override("font",FONT); label.add_theme_font_size_override("font_size",font_size)
+	label.add_theme_font_override("font",TITLE_FONT if heading else BODY_FONT); label.add_theme_font_size_override("font_size",font_size)
 	label.add_theme_color_override("font_color",Color("eee9d9"))
 	label.add_theme_color_override("font_shadow_color",Color.BLACK)
 	label.add_theme_constant_override("shadow_offset_x",1); label.add_theme_constant_override("shadow_offset_y",2)
@@ -159,7 +163,8 @@ func build_chrome() -> void:
 	for side in [SIDE_LEFT,SIDE_TOP,SIDE_RIGHT,SIDE_BOTTOM]:
 		tooltip_panel.set_texture_margin(side,40); tooltip_panel.set_content_margin(side,12)
 	tooltip_theme.set_stylebox("panel","TooltipPanel",tooltip_panel)
-	tooltip_theme.set_font("font","TooltipLabel",FONT); tooltip_theme.set_font_size("font_size","TooltipLabel",16)
+	tooltip_theme.default_font = BODY_FONT
+	tooltip_theme.set_font("font","TooltipLabel",BODY_FONT); tooltip_theme.set_font_size("font_size","TooltipLabel",16)
 	chrome.theme = tooltip_theme
 	var hud := panel_image(chrome,local_ui("hud"))
 	label_at(hud,"DAY 7  ·  성 3",Vector2(18,21),18)
@@ -171,7 +176,7 @@ func build_chrome() -> void:
 		tab.modulate = Color(1.25,1.12,.75) if i==0 else Color(.5,.5,.58)
 		var icon: String = ["build","monster","battle_start"][i]
 		var tab_icon := art_at(tabs,KIT+icon+"_64.png",Rect2(i*190+17,17,36,36))
-		var title := label_at(tabs,["건설","몬스터 배치","전투"][i],Vector2(i*190+57,24),18)
+		var title := label_at(tabs,["건설","몬스터 배치","전투"][i],Vector2(i*190+57,24),18,true)
 		if i>0:
 			tab_icon.modulate = Color(.45,.45,.5); title.modulate = Color(.5,.5,.56)
 			tab.tooltip_text = "아직 사용할 수 없는 단계"
@@ -190,7 +195,7 @@ func build_chrome() -> void:
 				pointer_down = true; press_position = button.get_global_rect().get_center(); click_armed = false
 				button.accept_event())
 		palette_buttons[kind] = button
-		var title := label_at(bar,Placement.NAMES[kind],Vector2(x-2,139),15)
+		var title := label_at(bar,Placement.NAMES[kind],Vector2(x-2,139),15,true)
 		title.size.x = 112; title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		var price: Dictionary = placement.catalog[kind].cost
 		costs[kind] = resource_line(bar,price,Vector2(x+(110-price.size()*56)/2,37),56)
@@ -232,7 +237,7 @@ func cost_text(cost: Dictionary) -> String:
 
 func build_minimap() -> void:
 	var panel := panel_image(chrome,local_ui("minimap")); panel.name = "Minimap"
-	label_at(panel,"미니맵",Vector2(18,10),16)
+	label_at(panel,"미니맵",Vector2(18,10),16,true)
 	mini_clip = Control.new(); mini_clip.position = Vector2(16,40); mini_clip.size = Vector2(248,164)
 	mini_clip.clip_contents = true; panel.add_child(mini_clip)
 	mini_viewport = SubViewport.new(); mini_viewport.name = "AssembledMapOverview"
@@ -286,8 +291,10 @@ func minimap_input(event: InputEvent) -> void:
 		mini_picture.accept_event()
 
 func show_default() -> void:
-	start_solution = ScreenLayout.solve(size,start_targets(),ui_rects)
-	if not start_solution.is_empty(): set_camera(start_solution.center,start_solution.zoom)
+	# Match Step2B gui(): set_camera(Vector2(1930,1390),.75) before radial_edge.
+	# Scale with the shorter viewport ratio; wider aspects reveal extra cells.
+	start_solution = {"center":START_CENTER,"zoom":START_ZOOM*ScreenLayout.unit(size)}
+	set_camera(start_solution.center,start_solution.zoom)
 
 func start_targets() -> Array[Rect2]:
 	var result: Array[Rect2] = []
@@ -420,7 +427,7 @@ func select_building(id: String) -> void:
 		var icon: String = names[i]
 		var callback := context_action.bind(icon)
 		var button := image_button(radial,icon,Vector2.ZERO,64,callback,["정보","강화","이동","해체·환불","수비 지점"][i])
-		var title := label_at(button,["정보","강화","이동","해체","수비"][i],Vector2(-8,63),14)
+		var title := label_at(button,["정보","강화","이동","해체","수비"][i],Vector2(-8,63),14,true)
 		title.size.x = 80; title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		button.set_meta("action_index",i)
 		if b.fixed and i in [1,2,3]: button.disabled = true; button.modulate = Color(.4,.4,.4)
@@ -455,7 +462,9 @@ func show_info(mode: String) -> void:
 	var next := Placement.upgrade(placement,b.id) if mode=="menu_upgrade" else {}
 	var after := Placement.building(next,b.id) if next.get("ok",false) else {}
 	var level := "Lv%d → Lv%d" % [b.level,after.level] if not after.is_empty() else "Lv%d" % b.level
-	label_at(info,Placement.NAMES[b.kind]+"  "+level,Vector2(22,18),21)
+	var title := label_at(info,Placement.NAMES[b.kind]+"  "+level,Vector2(22,18),20,true)
+	while title.get_minimum_size().x>270 and title.get_theme_font_size("font_size")>12:
+		title.add_theme_font_size_override("font_size",title.get_theme_font_size("font_size")-1)
 	var capacity := "%d → %d명" % [b.capacity,after.capacity] if not after.is_empty() and after.capacity!=b.capacity else "%d명" % b.capacity
 	label_at(info,"수비 정원  "+capacity,Vector2(22,58),18)
 	var effect := effect_lines(b)
