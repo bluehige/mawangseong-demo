@@ -6,6 +6,8 @@ const BattleUnit = preload("res://scripts/units/ApprovedBattleUnit.gd")
 const Members = preload("res://scripts/map_builder/ApprovedMonsterPlacement.gd")
 const MapLayout = preload("res://scripts/map_builder/ApprovedMapLayout.gd")
 const Presentation = preload("res://scripts/map_builder/ApprovedActorPresentation.gd")
+const Occlusion = preload("res://scripts/map_builder/ApprovedBattleOcclusion.gd")
+var occlusion: RefCounted
 var map := BattleMap.new()
 var view: Control
 var actors: Node2D
@@ -59,6 +61,7 @@ func begin(map_view: Control) -> void:
 	root.monster_units.clear(); root.enemy_units.clear(); root.selected_unit = null
 	actors = Node2D.new(); actors.name = "LiveBattleSimulation"; root.unit_root.add_child(actors)
 	visuals = Node2D.new(); visuals.name = "LiveBattleActors"; view.world.add_child(visuals)
+	occlusion = Occlusion.new(); occlusion.build(view,visuals)
 	# VFX share the same world transform as live units and map pieces.
 	effects_home = root.effect_root.get_parent(); root.effect_root.reparent(view.world,false)
 	root.effect_root.position = Vector2.ZERO; root.effect_root.z_index = 3501

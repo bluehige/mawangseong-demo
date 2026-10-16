@@ -11,6 +11,10 @@ var idle_bounds := Rect2()
 var idle_frame: Texture2D
 var body_factor := 1.0
 var legacy_factor := 1.0
+var silhouette: Sprite2D
+var vitals_link: Line2D
+var head_raster_key: Array = []
+var head_raster_y := 0.0
 
 func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: String) -> void:
 	super.setup(source_id,stats,unit_faction,room_id)
@@ -26,12 +30,21 @@ func attach_map_visuals(parent: Node2D) -> void:
 	vitals = Node2D.new(); parent.add_child(vitals); vitals.z_index = 3800
 	for child in [name_label,health]: child.reparent(vitals,false)
 	vitals.scale = Vector2.ONE*Presentation.ui_scale(unit_id)
+	vitals_link = Line2D.new(); parent.add_child(vitals_link); vitals_link.z_index = 3799
+	vitals_link.default_color = Color(.3,1,.8,.55) if faction=="monster" else Color(1,.47,.44,.55)
+	silhouette = Sprite2D.new(); parent.add_child(silhouette); silhouette.z_index = 3700
+	var material := ShaderMaterial.new()
+	material.shader = preload("res://scripts/units/approved_battle_silhouette.gdshader")
+	silhouette.material = material
+	battle_runtime.occlusion.bind(self)
 	map_visual.position = position
 	refresh_depth_slot()
 
 func _exit_tree() -> void:
 	if is_instance_valid(map_visual): map_visual.queue_free()
 	if is_instance_valid(vitals): vitals.queue_free()
+	if is_instance_valid(silhouette): silhouette.queue_free()
+	if is_instance_valid(vitals_link): vitals_link.queue_free()
 
 func _ready() -> void:
 	super._ready()
@@ -56,6 +69,9 @@ func _ready() -> void:
 
 func _configure_combat_sprite(source_sprite_path: String) -> void:
 	super._configure_combat_sprite(source_sprite_path)
+	# Atlas frames carry padding; mip sampling across their trimmed edges can
+	# erase a few head pixels and detach labels from the measured alpha outline.
+	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	idle_frame = sprite.sprite_frames.get_frame_texture("idle_down",0)
 	idle_bounds = Presentation.visible_bounds(idle_frame)
 	body_factor = Presentation.body_scale(idle_bounds,unit_id)
@@ -98,14 +114,15 @@ func _apply_visual_pose() -> void:
 	var anchor := (Vector2(bounds.get_center().x,bounds.end.y)-frame.get_size()/2)*sprite.scale
 	if sprite.flip_h: anchor.x *= -1
 	visual_body.position = -anchor.rotated(sprite.rotation)+motion_offset*ratio
+	update_silhouette()
 	_refresh_combat_ui_anchors()
 
 func combat_anchor_local(anchor_name: String) -> Vector2:
 	if idle_frame==null: return Vector2.ZERO
-	var height := idle_bounds.size.y*body_factor
+	var rect := visible_body_rect()
 	match anchor_name:
-		"head": return Vector2(0,-height-8)
-		"body": return Vector2(0,-height/2)
+		"head": return Vector2(rect.get_center().x,rect.position.y)-position
+		"body": return rect.get_center()-position
 	return Vector2.ZERO
 
 func _refresh_combat_ui_anchors() -> void:
@@ -119,19 +136,91 @@ func vitals_rect() -> Rect2:
 	return vitals_rect_at(vitals.position)
 
 func vitals_rect_at(point: Vector2) -> Rect2:
-	return Rect2(point+Vector2(-58,-26)*vitals.scale,Vector2(116,38)*vitals.scale)
+	return Rect2(point+Vector2(-58,-26)*vitals.scale,Vector2(116,34)*vitals.scale)
+
+func desired_vitals_position(zoom: float) -> Vector2:
+	var body := visible_body_rect()
+	var top := raster_head_world_y()
+	return Vector2(body.get_center().x,top-6.0/zoom-8*vitals.scale.y)
+
+func raster_head_world_y() -> float:
+	# At this zoom a one-pixel antenna may fall between screen samples. Match
+	# the actual linear alpha sampling rather than anchoring to an invisible tip.
+	var frame: Texture2D = sprite.sprite_frames.get_frame_texture(sprite.animation,sprite.frame)
+	if frame==null: return position.y
+	var screen := sprite.get_global_transform_with_canvas()
+	var map_screen: Transform2D = battle_runtime.view.world.get_global_transform_with_canvas()
+	var key := [frame.get_instance_id(),screen,map_screen,sprite.flip_h,sprite.flip_v]
+	if key==head_raster_key: return head_raster_y
+	head_raster_key = key
+	var rect: Rect2 = map_screen*visible_body_rect()
+	var inverse := screen.affine_inverse()
+	var image := Presentation.pixels(frame)
+	var data: PackedByteArray = image.data
+	var width: int = image.width; var height: int = image.height
+	var margin: Vector2 = frame.margin.position if frame is AtlasTexture else Vector2.ZERO
+	var top := rect.position.y
+	var found := false
+	for y in range(floori(rect.position.y),ceili(rect.end.y)):
+		for x in range(floori(rect.position.x),ceili(rect.end.x)):
+			var point: Vector2 = inverse*Vector2(x+.5,y+.5)
+			if sprite.flip_h: point.x *= -1
+			if sprite.flip_v: point.y *= -1
+			point += frame.get_size()/2-margin
+			if point.x<0 or point.y<0 or point.x>=width or point.y>=height: continue
+			point -= Vector2(.5,.5)
+			var start := Vector2i(point.floor()); var weight := point-Vector2(start)
+			var alpha := 0.0
+			for row in range(2):
+				for column in range(2):
+					var px := clampi(start.x+column,0,width-1); var py := clampi(start.y+row,0,height-1)
+					alpha += data[(py*width+px)*4+3]*(weight.x if column==1 else 1-weight.x)*(weight.y if row==1 else 1-weight.y)
+			if alpha>=.5: top = y; found = true; break
+		if found: break
+	head_raster_y = (map_screen.affine_inverse()*Vector2(rect.get_center().x,top)).y
+	return head_raster_y
 
 func set_vitals_position(point: Vector2) -> void:
 	vitals.position = point
 	name_label.position = Vector2(-58,-26)
 	health.position.y = 0
+	var head := position+combat_anchor_local("head")
+	var edge := Vector2(point.x,point.y+8*vitals.scale.y)
+	vitals_link.points = PackedVector2Array([head,edge])
+	vitals_link.visible = is_alive() and point.distance_to(desired_vitals_position(battle_runtime.view.camera_scale))>1
+	vitals_link.width = 1.5/battle_runtime.view.camera_scale
 
 func visible_body_rect() -> Rect2:
-	return Rect2(position-Vector2(idle_bounds.size.x*body_factor/2,idle_bounds.size.y*body_factor),idle_bounds.size*body_factor)
+	if sprite==null or sprite.sprite_frames==null: return Rect2(position,Vector2.ZERO)
+	var frame: Texture2D = sprite.sprite_frames.get_frame_texture(sprite.animation,sprite.frame)
+	if frame==null: return Rect2(position,Vector2.ZERO)
+	var transform := Transform2D(0,position+visual_body.position)*sprite.transform
+	var rect := Rect2(); var first := true
+	for pixel in Presentation.visible_outline(frame):
+		var point: Vector2 = pixel-frame.get_size()/2
+		if sprite.flip_h: point.x *= -1
+		if sprite.flip_v: point.y *= -1
+		point = transform*point
+		if first: rect = Rect2(point,Vector2.ZERO); first = false
+		else: rect = rect.expand(point)
+	return rect
+
+func update_silhouette() -> void:
+	if silhouette==null or sprite.sprite_frames==null: return
+	silhouette.texture = sprite.sprite_frames.get_frame_texture(sprite.animation,sprite.frame)
+	silhouette.texture_filter = sprite.texture_filter
+	silhouette.transform = Transform2D(0,position+visual_body.position)*sprite.transform
+	silhouette.flip_h = sprite.flip_h; silhouette.flip_v = sprite.flip_v
+	silhouette.visible = is_alive() and sprite.visible
+	silhouette.material.set_shader_parameter("foot_depth",float(Presentation.depth(position)))
+	var inverse: Transform2D = battle_runtime.view.world.global_transform.affine_inverse()
+	silhouette.material.set_shader_parameter("map_x",Vector3(inverse.x.x,inverse.y.x,inverse.origin.x))
+	silhouette.material.set_shader_parameter("map_y",Vector3(inverse.x.y,inverse.y.y,inverse.origin.y))
 
 func refresh_depth_slot() -> void:
 	z_index = Presentation.depth(position)
 	if map_visual!=null: map_visual.position = position; map_visual.z_index = z_index
+	update_silhouette()
 
 func _physics_process(delta: float) -> void:
 	super._physics_process(delta)

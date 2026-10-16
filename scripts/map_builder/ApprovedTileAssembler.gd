@@ -3,6 +3,7 @@ extends RefCounted
 const Layout = preload("res://scripts/map_builder/ApprovedMapLayout.gd")
 const ART := "res://assets/maps/v130r_step2/"
 const Placement = preload("res://scripts/map_builder/ApprovedPlacement.gd")
+const Presentation = preload("res://scripts/map_builder/ApprovedActorPresentation.gd")
 
 static func populate(view: Control, s: Dictionary) -> void:
 	for child in view.world.get_children(): child.free()
@@ -56,7 +57,11 @@ static func populate(view: Control, s: Dictionary) -> void:
 			highlight.set_meta("defense_site",id)
 	for i in range(objects.size()): objects[i]["insertion"] = i
 	objects.sort_custom(func(a,b): return a.depth<b.depth or (a.depth==b.depth and a.insertion<b.insertion))
-	for r in objects: piece(view,r.asset,r.anchor)
+	for r in objects:
+		var sprite := piece(view,r.asset,r.anchor)
+		# Keep management's existing overlays; battle activates this shared depth.
+		sprite.set_meta("map_depth",Presentation.depth(Vector2(0,r.depth)))
+		sprite.set_meta("map_asset",r.asset)
 	piece(view,"bridge/entrance_bridge.png",view.project(Vector2(-1.7,9)))
 
 static func record(asset: String, anchor: Vector2, extra: float = 0) -> Dictionary:

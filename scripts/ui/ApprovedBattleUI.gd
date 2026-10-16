@@ -138,8 +138,8 @@ func refresh() -> void:
 	view.update_wallet()
 
 func _process(delta: float) -> void:
-	position_skills(); refresh_clock += delta
-	if refresh_clock>=.1: refresh_clock = 0; refresh(); layout_vitals()
+	position_skills(); layout_vitals(); refresh_clock += delta
+	if refresh_clock>=.1: refresh_clock = 0; refresh()
 
 func layout_vitals() -> void:
 	var units: Array = battle.root.monster_units+battle.root.enemy_units
@@ -151,22 +151,20 @@ func layout_vitals() -> void:
 		occupied.append(Rect2(view.world.to_local(skills.global_position),Vector2(252,148 if bool(selected.get_meta("food_hungry",false)) else 98)*skills.scale*view.ui_unit/view.camera_scale).grow(8))
 	for unit in units:
 		unit.vitals.visible = unit.is_alive()
-		if not unit.is_alive(): continue
-		var desired: Vector2 = unit.position+unit.combat_anchor_local("head")-Vector2(0,10)*unit.vitals.scale
+		unit.update_silhouette()
+		if not unit.is_alive(): unit.vitals_link.hide(); continue
+		var desired: Vector2 = unit.desired_vitals_position(view.camera_scale)
 		var chosen := desired
 		var extent: Vector2 = unit.vitals_rect().size+Vector2(8,8)
 		for row in range(units.size()*2+1):
-			var found := false
-			for column in [0,-1,1]:
-				# Alternate above/below; body overlap never changes foot depth.
-				var level := ceili(row/2.0)*(1 if row%2==0 else -1)
-				var point: Vector2 = desired+Vector2(column*extent.x,level*extent.y)
-				var rect: Rect2 = unit.vitals_rect_at(point).grow(3)
-				var blocked := false
-				for other in occupied:
-					if rect.intersects(other): blocked = true; break
-				if not blocked: chosen = point; found = true; occupied.append(rect); break
-			if found: break
+			# Alternate above/below while keeping the label on its own body's X.
+			var level := ceili(row/2.0)*(1 if row%2==0 else -1)
+			var point: Vector2 = desired+Vector2(0,level*extent.y)
+			var rect: Rect2 = unit.vitals_rect_at(point).grow(3)
+			var blocked := false
+			for other in occupied:
+				if rect.intersects(other): blocked = true; break
+			if not blocked: chosen = point; occupied.append(rect); break
 		unit.set_vitals_position(chosen)
 
 static func prepare_result_controls(node: Node) -> void:

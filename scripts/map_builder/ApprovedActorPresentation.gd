@@ -6,6 +6,15 @@ const BOSS_MULTIPLIER := 1.35
 const BOSSES := ["official_hero_leon","selen_trainee_paladin","official_paladin_selen","guild_commissioner_roman"]
 static var profiles: Dictionary = {}
 static var alpha_bounds: Dictionary = {}
+static var alpha_outlines: Dictionary = {}
+static var alpha_pixels: Dictionary = {}
+
+static func pixels(texture: Texture2D) -> Dictionary:
+	var key := texture.get_instance_id()
+	if not alpha_pixels.has(key):
+		var image := texture.get_image(); image.convert(Image.FORMAT_RGBA8)
+		alpha_pixels[key] = {"data":image.get_data(),"width":image.get_width(),"height":image.get_height()}
+	return alpha_pixels[key]
 
 static func size_class(id: String) -> String:
 	if id in BOSSES: return "boss"
@@ -23,10 +32,33 @@ static func visible_bounds(texture: Texture2D) -> Rect2:
 	var key := texture.get_instance_id()
 	if not alpha_bounds.has(key):
 		alpha_bounds[key] = Rect2(texture.get_image().get_used_rect())
+		# AtlasTexture.get_image() omits the transparent frame margin, while
+		# AnimatedSprite2D renders it. Restore those original frame coordinates.
+		if texture is AtlasTexture: alpha_bounds[key].position += texture.margin.position
 	return alpha_bounds[key]
 
 static func body_scale(bounds: Rect2, id: String = "") -> float:
 	return BODY_HEIGHT/maxf(1,bounds.size.y)*multiplier(id)
+
+static func visible_outline(texture: Texture2D) -> PackedVector2Array:
+	var key := texture.get_instance_id()
+	if not alpha_outlines.has(key):
+		var image := pixels(texture)
+		var data: PackedByteArray = image.data
+		var width: int = image.width; var height: int = image.height
+		var points := PackedVector2Array()
+		var margin: Vector2 = texture.margin.position if texture is AtlasTexture else Vector2.ZERO
+		# Exact alpha>0 support, including isolated/one-pixel tips that polygon
+		# contour simplification can remove. Cache once per animation frame.
+		for x in range(width):
+			var top := 0; var bottom := height-1
+			while top<height and data[(top*width+x)*4+3]==0: top += 1
+			if top==height: continue
+			while bottom>top and data[(bottom*width+x)*4+3]==0: bottom -= 1
+			bottom += 1
+			for point in [Vector2(x,top),Vector2(x+1,top),Vector2(x,bottom),Vector2(x+1,bottom)]: points.append(point+margin)
+		alpha_outlines[key] = Geometry2D.convex_hull(points)
+	return alpha_outlines[key]
 
 static func ui_scale(id: String) -> float:
 	return BODY_HEIGHT/66.0*multiplier(id)
