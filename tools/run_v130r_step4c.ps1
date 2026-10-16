@@ -41,4 +41,3 @@ try {
     $env:APPDATA = $taskAppData
     $env:LOCALAPPDATA = $taskLocalData
 }
-
