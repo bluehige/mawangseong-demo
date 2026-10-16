@@ -34,4 +34,4 @@ func bind(unit: Node) -> void:
 	material.set_shader_parameter("wall_origin",bounds.position)
 	material.set_shader_parameter("wall_size",bounds.size)
 	material.set_shader_parameter("chroma_key",unit.requires_sprite_chroma)
-	material.set_shader_parameter("silhouette_color",Color(.3,1,.8,.42) if unit.faction=="monster" else Color(1,.47,.44,.42))
+	material.set_shader_parameter("silhouette_color",Color(.4,.78,1,.4) if unit.faction=="monster" else Color(1,.3,.3,.4))

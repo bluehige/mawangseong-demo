@@ -88,7 +88,7 @@ func spawn_monsters() -> void:
 		unit.set_meta("food_hungry",GameState.is_hungry(species))
 		unit.display_name = row.display_name; unit.name_label.text = row.display_name+(" · 굶주림" if GameState.is_hungry(species) else "")
 		unit.set_meta("instance_id",id); unit.set_meta("base_attack_range",unit.attack_range)
-		unit.position = map.world(Members.cell(view.placement,assignments[id]))
+		unit.position = defense_home(assignments[id])
 		homes[unit.get_instance_id()] = unit.position
 		root.monster_roster[species] = root.monster_roster.get(species,{"level":1,"exp":0}).duplicate(true)
 		root.monster_roster[species]["room"] = building
@@ -131,6 +131,12 @@ func physics_process(delta: float) -> void:
 	for unit in root.monster_units+root.enemy_units:
 		if unit.is_alive(): try_attack(unit,root.enemy_units if unit.faction==Constants.FACTION_MONSTER else root.monster_units)
 	check_combat_end()
+
+func defense_home(assignment: Dictionary) -> Vector2:
+	# Stable slot-specific offsets stay strictly inside the assigned diamond.
+	var offsets := [Vector2(-24,0),Vector2(0,-12),Vector2(0,12),Vector2(24,0),
+		Vector2(-12,-6),Vector2(12,-6),Vector2(-12,6),Vector2(12,6)]
+	return map.world(Members.cell(view.placement,assignment))+offsets[int(assignment.slot)%offsets.size()]
 
 func home(unit: Node) -> Vector2: return homes.get(unit.get_instance_id(),unit.position)
 func leash_radius(_unit: Node) -> float: return 3.0*71.554175 # Three orthogonal cells.

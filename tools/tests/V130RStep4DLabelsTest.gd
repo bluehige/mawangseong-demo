@@ -1,5 +1,5 @@
 extends "res://tools/tests/V130RStep4CScaleTest.gd"
-const D_OUT := "res://tmp/v130r_step4d/"
+var D_OUT := "res://tmp/v130r_step4d/"
 var label_manifest: Array = []
 
 func rect_data(rect: Rect2) -> Array:

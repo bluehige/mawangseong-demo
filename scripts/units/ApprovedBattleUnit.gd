@@ -208,8 +208,18 @@ func visible_body_rect() -> Rect2:
 func update_silhouette() -> void:
 	if silhouette==null or sprite.sprite_frames==null: return
 	silhouette.texture = sprite.sprite_frames.get_frame_texture(sprite.animation,sprite.frame)
+	var uv := Rect2(0,0,1,1)
+	var source: Texture2D = silhouette.texture
+	if silhouette.texture is AtlasTexture:
+		var atlas: AtlasTexture = silhouette.texture
+		uv = Rect2(atlas.region.position/atlas.atlas.get_size(),atlas.region.size/atlas.atlas.get_size())
+		source = atlas.atlas
+	silhouette.material.set_shader_parameter("actor_texture",source)
+	silhouette.material.set_shader_parameter("frame_uv",Vector4(uv.position.x,uv.position.y,uv.end.x,uv.end.y))
 	silhouette.texture_filter = sprite.texture_filter
-	silhouette.transform = Transform2D(0,position+visual_body.position)*sprite.transform
+	# Use the exact live pose, including parent rotation/scale and atlas padding.
+	silhouette.transform = Transform2D(0,position)*visual_body.transform*sprite.transform
+	silhouette.centered = sprite.centered; silhouette.offset = sprite.offset
 	silhouette.flip_h = sprite.flip_h; silhouette.flip_v = sprite.flip_v
 	silhouette.visible = is_alive() and sprite.visible
 	silhouette.material.set_shader_parameter("foot_depth",float(Presentation.depth(position)))
