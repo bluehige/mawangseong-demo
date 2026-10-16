@@ -2,6 +2,9 @@ extends "res://scripts/map_builder/ApprovedMapView.gd"
 ## Branch management UI: generated raster controls, model-only placement edits.
 const Placement = preload("res://scripts/map_builder/ApprovedPlacement.gd")
 const Assembly = preload("res://scripts/map_builder/ApprovedTileAssembler.gd")
+const ScreenLayout = preload("res://scripts/map_builder/ApprovedPlacementLayout.gd")
+const KIT := "res://assets/ui/kit/icons/icon_"
+const MINIMAP_BOUNDS := Rect2(-144,135,4000,2319)
 const UI_ART := "res://assets/maps/v130r_step2/ui/"
 const ICONS := {"barracks":"build_barracks","recovery_nest":"build_recovery_nest","ward_core":"build_ward_core","watchtower":"build_watchtower","bait_treasure":"build_decoy_treasure","spikes":"build_spike_trap","sticky":"build_sticky_trap"}
 var placement: Dictionary
@@ -17,7 +20,7 @@ var preview_layer: Node2D
 var sites_layer: Node2D
 var radial: Control
 var info: Control
-var wallet: Label
+var wallet: Control
 var status_text: Label
 var palette_buttons := {}
 var pointer_down := false
@@ -28,10 +31,20 @@ var panel_mode := ""
 var last_save_error: Error = OK
 var sites_generation := 0
 var sites_pending := false
+var ui_unit := 1.0
+var ui_rects := {}
+var costs := {}
+var mini_viewport: SubViewport
+var mini_picture: TextureRect
+var mini_outline: NinePatchRect
+var mini_clip: Control
+var start_solution := {}
+var context_rects: Array[Rect2] = []
+var resource_rows: Array[Control] = []
 
 func setup(game: Node) -> void:
 	root = game; name = "ApprovedMapManagement"
-	size = Vector2(1920,1080); clip_contents = true
+	size = game.get_viewport().get_visible_rect().size; clip_contents = true
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	state = Layout.read()
@@ -44,6 +57,7 @@ func setup(game: Node) -> void:
 	render_map()
 	build_chrome()
 	show_default()
+	game.get_viewport().size_changed.connect(resize_workspace)
 	# Existing menu uses drawn controls. This branch's image controls own input.
 	call_deferred("hide_legacy_menu")
 
@@ -60,6 +74,7 @@ func render_map() -> void:
 	sites_layer = Node2D.new(); sites_layer.name = "ValidPlacementCells"; world.add_child(sites_layer)
 	preview_layer = Node2D.new(); preview_layer.name = "PlacementGhost"; world.add_child(preview_layer)
 	root.graph.layout["approved_map_step2"] = placement
+	if is_instance_valid(mini_viewport): call_deferred("rebuild_minimap")
 
 func cell_highlight(parent: Node, cell: Vector2i, tint: Color) -> Sprite2D:
 	var sprite := Sprite2D.new()
@@ -85,8 +100,10 @@ func image_button(parent: Node, icon: String, point: Vector2, width: float, call
 	button.position = point; button.size = Vector2.ONE*width; button.tooltip_text = tooltip
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.pressed.connect(func(): callback.call_deferred())
-	button.mouse_entered.connect(func(): button.modulate = Color(1.18,1.18,1.1))
-	button.mouse_exited.connect(func(): button.modulate = Color.WHITE)
+	button.mouse_entered.connect(func():
+		if not button.disabled: button.modulate = Color(1.18,1.18,1.1))
+	button.mouse_exited.connect(func():
+		if not button.disabled: button.modulate = Color.WHITE)
 	parent.add_child(button); return button
 
 func panel_image(parent: Node, rect: Rect2) -> TextureRect:
@@ -97,40 +114,104 @@ func panel_image(parent: Node, rect: Rect2) -> TextureRect:
 	panel.stretch_mode = TextureRect.STRETCH_SCALE
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP; parent.add_child(panel); return panel
 
+func art_at(parent: Node, path: String, rect: Rect2) -> TextureRect:
+	var image := TextureRect.new(); image.texture = texture(path)
+	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	image.position = rect.position; image.size = rect.size
+	image.mouse_filter = Control.MOUSE_FILTER_IGNORE; parent.add_child(image)
+	return image
+
+func resource_line(parent: Node, values: Dictionary, point: Vector2, step: float, affordable: bool = true) -> Control:
+	var row := Control.new(); row.position = point; row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(row); row.set_meta("values",values.duplicate()); row.set_meta("affordable",affordable)
+	var i := 0
+	for key in ["gold","mana","food"]:
+		if not values.has(key): continue
+		var icon := art_at(row,KIT+key+"_64.png",Rect2(i*step,0,24,24)); icon.name = key+"Icon"
+		var number := label_at(row,str(values[key]),Vector2(i*step+25,1),16); number.name = key+"Number"
+		i += 1
+	resource_rows.append(row)
+	return row
+
+func resize_workspace() -> void:
+	if not is_inside_tree(): return
+	size = get_viewport_rect().size
+	clear_context()
+	chrome.free(); palette_buttons.clear(); costs.clear(); resource_rows.clear()
+	mini_viewport = null; mini_picture = null
+	build_chrome(); show_default()
+
 func build_chrome() -> void:
-	chrome = Control.new(); chrome.name = "MapControls"; chrome.mouse_filter = Control.MOUSE_FILTER_IGNORE; add_child(chrome)
-	label_at(chrome,"성 관리  ·  E 32×18",Vector2(30,22),22)
-	wallet = label_at(chrome,"",Vector2(30,55),18)
-	image_button(chrome,"place_auto",Vector2(1720,18),56,show_full,"전체 보기 · F")
-	image_button(chrome,"frame_selected",Vector2(1790,18),56,show_default,"기본 2배 · 2 · 안전 맞춤")
-	image_button(chrome,"place_clear_all",Vector2(1860,18),44,func(): get_tree().quit(),"테스트 창 닫기")
-	var bar := Control.new(); bar.name = "BuildBar"; bar.mouse_filter = Control.MOUSE_FILTER_IGNORE; chrome.add_child(bar)
+	ui_unit = ScreenLayout.unit(size); ui_rects = ScreenLayout.panels(size)
+	chrome = Control.new(); chrome.name = "MapControls"; chrome.scale = Vector2.ONE*ui_unit
+	chrome.mouse_filter = Control.MOUSE_FILTER_IGNORE; add_child(chrome)
+	var tooltip_theme := Theme.new()
+	var tooltip_panel := StyleBoxTexture.new(); tooltip_panel.texture = texture("res://assets/ui/uiux/obsidian_panel.png")
+	for side in [SIDE_LEFT,SIDE_TOP,SIDE_RIGHT,SIDE_BOTTOM]:
+		tooltip_panel.set_texture_margin(side,40); tooltip_panel.set_content_margin(side,12)
+	tooltip_theme.set_stylebox("panel","TooltipPanel",tooltip_panel)
+	tooltip_theme.set_font("font","TooltipLabel",FONT); tooltip_theme.set_font_size("font_size","TooltipLabel",16)
+	chrome.theme = tooltip_theme
+	var hud := panel_image(chrome,local_ui("hud"))
+	label_at(hud,"DAY 7  ·  성 3",Vector2(18,21),18)
+	wallet = resource_line(hud,placement.resources,Vector2(175,21),98,false)
+	var tabs := Control.new(); tabs.position = local_ui("tabs").position; chrome.add_child(tabs)
+	for i in range(3):
+		var tab := art_at(tabs,"res://assets/ui/uiux/obsidian_button.png",Rect2(i*190,0,184,74))
+		tab.stretch_mode = TextureRect.STRETCH_SCALE
+		tab.modulate = Color(1.25,1.12,.75) if i==0 else Color(.5,.5,.58)
+		var icon: String = ["build","monster","battle_start"][i]
+		var tab_icon := art_at(tabs,KIT+icon+"_64.png",Rect2(i*190+17,17,36,36))
+		var title := label_at(tabs,["건설","몬스터 배치","전투"][i],Vector2(i*190+57,24),18)
+		if i>0:
+			tab_icon.modulate = Color(.45,.45,.5); title.modulate = Color(.5,.5,.56)
+			tab.tooltip_text = "아직 사용할 수 없는 단계"
+	var tools := panel_image(chrome,local_ui("tools"))
+	image_button(tools,"place_auto",Vector2(8,5),56,show_full,"전체 보기 · F")
+	image_button(tools,"frame_selected",Vector2(72,5),56,show_default,"시작 화면 · 2")
+	image_button(tools,"place_clear_all",Vector2(140,11),44,func(): get_tree().quit(),"테스트 창 닫기")
+	var bar := panel_image(chrome,local_ui("build")); bar.name = "BuildBar"
 	var index := 0
 	for kind in ICONS:
-		var x: float = 592+index*106
-		var button := image_button(bar,ICONS[kind],Vector2(x,966),82,func(): pass,Placement.NAMES[kind])
+		var x: float = 20+index*120
+		var button := image_button(bar,ICONS[kind],Vector2(x+11,60),82,func(): pass,Placement.NAMES[kind])
 		button.gui_input.connect(func(event):
 			if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and event.pressed:
 				begin_build(kind)
 				pointer_down = true; press_position = button.get_global_rect().get_center(); click_armed = false
 				button.accept_event())
 		palette_buttons[kind] = button
-		var title := label_at(bar,Placement.NAMES[kind],Vector2(x-8,1044),15)
-		title.size.x = 98; title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		var multi_cost: bool = placement.catalog[kind].cost.size()>1
-		var price_text := cost_text(placement.catalog[kind].cost).replace(" · ","\n")
-		var price := label_at(bar,price_text,Vector2(x-9,924 if multi_cost else 945),14)
-		price.size.x = 100; price.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		var title := label_at(bar,Placement.NAMES[kind],Vector2(x-2,139),15)
+		title.size.x = 112; title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		var price: Dictionary = placement.catalog[kind].cost
+		costs[kind] = resource_line(bar,price,Vector2(x+(110-price.size()*56)/2,37),56)
 		index += 1
-	status_text = label_at(chrome,"",Vector2(30,902),18)
-	scale_label = label_at(chrome,"",Vector2(30,1050),14)
+	status_text = label_at(bar,"",Vector2(22,10),16)
+	status_text.size.x = 832; status_text.clip_text = true
+	scale_label = label_at(chrome,"",Vector2(28,size.y/ui_unit-32),14)
+	scale_label.hide()
 	radial = Control.new(); radial.name = "BuildingRadial"; radial.mouse_filter = Control.MOUSE_FILTER_IGNORE; chrome.add_child(radial)
 	info = Control.new(); info.name = "BuildingInfo"; info.mouse_filter = Control.MOUSE_FILTER_IGNORE; chrome.add_child(info)
+	build_minimap()
 	update_wallet()
+
+func local_ui(key: String) -> Rect2:
+	var r: Rect2 = ui_rects[key]
+	return Rect2(r.position/ui_unit,r.size/ui_unit)
 
 func update_wallet() -> void:
 	if wallet==null: return
-	wallet.text = "금화 %d  ·  마나 %d  ·  식량 %d" % [placement.resources.gold,placement.resources.mana,placement.resources.food]
+	for key in placement.resources:
+		var number := wallet.get_node_or_null(key+"Number")
+		if number!=null: number.text = str(placement.resources[key])
+	for row in resource_rows:
+		if not is_instance_valid(row) or not row.get_meta("affordable",false): continue
+		var values: Dictionary = row.get_meta("values")
+		for key in values:
+			var enough: bool = placement.resources.get(key,0)>=values[key]
+			row.get_node(key+"Number").modulate = Color.WHITE if enough else Color(1,.27,.25)
+			row.get_node(key+"Icon").modulate = Color.WHITE if enough else Color(.32,.32,.38)
 	for kind in palette_buttons:
 		var rule: Dictionary = placement.catalog[kind]
 		palette_buttons[kind].modulate = Color.WHITE if Placement.can_pay(placement,rule.cost) and placement.stage>=rule.stage else Color(.5,.5,.5)
@@ -141,40 +222,101 @@ func cost_text(cost: Dictionary) -> String:
 		parts.append(str({"gold":"금","mana":"마","food":"식"}.get(key,key))+str(cost[key]))
 	return " · ".join(parts) if not parts.is_empty() else "0"
 
+func build_minimap() -> void:
+	var panel := panel_image(chrome,local_ui("minimap")); panel.name = "Minimap"
+	label_at(panel,"미니맵",Vector2(18,10),16)
+	mini_clip = Control.new(); mini_clip.position = Vector2(16,40); mini_clip.size = Vector2(248,164)
+	mini_clip.clip_contents = true; panel.add_child(mini_clip)
+	mini_viewport = SubViewport.new(); mini_viewport.name = "AssembledMapOverview"
+	mini_viewport.size = Vector2i(1000,580); mini_viewport.world_2d = World2D.new()
+	mini_viewport.disable_3d = true; mini_viewport.gui_disable_input = true
+	mini_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE; panel.add_child(mini_viewport)
+	mini_picture = TextureRect.new(); mini_picture.position = Vector2(0,10); mini_picture.size = Vector2(248,143.778)
+	mini_picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE; mini_picture.texture = mini_viewport.get_texture()
+	mini_picture.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	mini_picture.gui_input.connect(minimap_input); mini_clip.add_child(mini_picture)
+	mini_outline = NinePatchRect.new()
+	# Scale the existing GPT frame before nine-slice assembly, so its painted
+	# brass rim remains within each 8px slice even at the smallest viewport box.
+	var frame := texture("res://assets/ui/uiux/obsidian_panel.png").get_image()
+	frame.resize(256,256,Image.INTERPOLATE_LANCZOS)
+	mini_outline.texture = ImageTexture.create_from_image(frame)
+	mini_outline.draw_center = false
+	for side in [SIDE_LEFT,SIDE_TOP,SIDE_RIGHT,SIDE_BOTTOM]: mini_outline.set_patch_margin(side,8)
+	mini_outline.modulate = Color(2.5,2.4,1.7); mini_outline.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mini_picture.add_child(mini_outline)
+	rebuild_minimap()
+
+func rebuild_minimap() -> void:
+	if not is_instance_valid(mini_viewport): return
+	for child in mini_viewport.get_children(): child.free()
+	var miniature := world.duplicate() as Node2D
+	for layer in ["ValidPlacementCells","PlacementGhost"]:
+		var child := miniature.get_node_or_null(layer)
+		if child!=null: child.free()
+	var ratio := Vector2(mini_viewport.size)/MINIMAP_BOUNDS.size
+	miniature.scale = ratio; miniature.position = -MINIMAP_BOUNDS.position*ratio
+	# The overview owns a fixed, full-size background, independent of panning.
+	var cave: Sprite2D = miniature.get_node_or_null("DynamicCaveBackground")
+	if cave!=null:
+		cave.position = MINIMAP_BOUNDS.position; cave.scale = MINIMAP_BOUNDS.size/cave.texture.get_size()
+	mini_viewport.add_child(miniature)
+	mini_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	update_minimap_outline()
+
+func update_minimap_outline() -> void:
+	if not is_instance_valid(mini_picture): return
+	var visible := Rect2(camera_center-size/2/camera_scale,size/camera_scale)
+	var clipped := visible.intersection(MINIMAP_BOUNDS)
+	mini_outline.position = (clipped.position-MINIMAP_BOUNDS.position)/MINIMAP_BOUNDS.size*mini_picture.size
+	mini_outline.size = clipped.size/MINIMAP_BOUNDS.size*mini_picture.size
+
+func minimap_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and event.pressed:
+		clear_context(); cancel_build()
+		set_camera(MINIMAP_BOUNDS.position+event.position/mini_picture.size*MINIMAP_BOUNDS.size,camera_scale)
+		mini_picture.accept_event()
+
 func show_default() -> void:
-	# Both approved ends exceed 1920x1080 at raw .75. Fit their artwork and
-	# reserve the lower icon strip; retain .75 as the requested 2x zoom target.
-	set_camera(Vector2(1856,1260),.43)
-	scale_label.text = "2배 · 안전 맞춤  |  휠 확대  ·  빈 바닥 드래그 이동  ·  F 전체  ·  Esc 취소"
+	start_solution = ScreenLayout.solve(size,start_targets(),ui_rects)
+	if not start_solution.is_empty(): set_camera(start_solution.center,start_solution.zoom)
+
+func start_targets() -> Array[Rect2]:
+	var result: Array[Rect2] = []
+	for asset in ["interiors/throne.png","interiors/entrance.png"]:
+		var sprite: Sprite2D = world.get_node(asset.replace("/","_").trim_suffix(".png"))
+		var used := sprite.texture.get_image().get_used_rect()
+		result.append(Rect2(sprite.position+Vector2(used.position),Vector2(used.size)))
+	return result
+
+func show_full() -> void:
+	set_camera(MINIMAP_BOUNDS.get_center(),minf(size.x/MINIMAP_BOUNDS.size.x,size.y/MINIMAP_BOUNDS.size.y))
 
 func set_camera(center: Vector2, factor: float) -> void:
-	camera_scale = clampf(factor,.4,1.5)
+	camera_scale = clampf(factor,.05*ui_unit,1.5*ui_unit)
 	camera_center = center
 	var half := size/2/camera_scale
-	for axis in range(2):
-		var low: float = CAMERA_BOUNDS.position[axis]+half[axis]
-		var high: float = CAMERA_BOUNDS.end[axis]-half[axis]
-		camera_center[axis] = clampf(camera_center[axis],low,high) if low<=high else CAMERA_BOUNDS.get_center()[axis]
+	camera_center = camera_center.clamp(CAMERA_BOUNDS.position,CAMERA_BOUNDS.end)
 	world.scale = Vector2.ONE*camera_scale
 	world.position = size/2-camera_center*camera_scale
 	var cave: Sprite2D = world.get_node_or_null("DynamicCaveBackground")
 	if cave!=null:
-		var cover := maxf(1.0,.48/camera_scale)
-		var extent := Vector2(4000,2250)*cover
+		var extent := Vector2(4000,2250).max(size/camera_scale)*1.02
 		cave.scale = extent/cave.texture.get_size()
 		var bg_center := Vector2(1856,1260)
 		for axis in range(2):
 			bg_center[axis] = clampf(bg_center[axis],camera_center[axis]+half[axis]-extent[axis]/2,camera_center[axis]-half[axis]+extent[axis]/2)
 		cave.position = bg_center-extent/2
-	if scale_label!=null: scale_label.text = "휠 확대 · 빈 바닥 드래그 이동 · F 전체 · 2 안전 맞춤 · Esc 취소"
+	if scale_label!=null: scale_label.text = "휠 확대 · 드래그 이동 · F 전체 · 2 시작 · Esc 취소"
 	if is_instance_valid(radial): update_context_position()
+	update_minimap_outline()
 
 func screen_cell(cell: Vector2) -> Vector2:
 	return world.position+Layout.project(cell)*camera_scale
 
 func zoom_at(point: Vector2, factor: float) -> void:
 	var before := camera_center+(point-size/2)/camera_scale
-	var next := clampf(camera_scale*factor,.4,1.5)
+	var next := clampf(camera_scale*factor,.05*ui_unit,1.5*ui_unit)
 	set_camera(before-(point-size/2)/next,next)
 
 func cell_at(point: Vector2) -> Vector2i:
@@ -243,6 +385,7 @@ func commit_preview() -> void:
 func cancel_build() -> void:
 	sites_generation += 1; sites_pending = false
 	build_kind = ""; moving_id = ""; preview = {}; pointer_down = false; click_armed = false
+	if is_instance_valid(status_text): status_text.text = ""
 	for parent in [sites_layer,preview_layer]:
 		if is_instance_valid(parent):
 			for child in parent.get_children(): child.free()
@@ -261,11 +404,12 @@ func select_building(id: String) -> void:
 	if b.is_empty(): return
 	var names := ["menu_info","menu_upgrade","menu_move","menu_dismantle_refund","menu_assign_defenders"]
 	for i in range(names.size()):
-		var angle := -PI/2+i*TAU/5
-		var pos := Vector2(cos(angle)*116,sin(angle)*76)-Vector2.ONE*32
 		var icon: String = names[i]
 		var callback := context_action.bind(icon)
-		var button := image_button(radial,icon,pos,64,callback,["정보","강화","이동","해체·환불","수비 지점"][i])
+		var button := image_button(radial,icon,Vector2.ZERO,64,callback,["정보","강화","이동","해체·환불","수비 지점"][i])
+		var title := label_at(button,["정보","강화","이동","해체","수비"][i],Vector2(-8,63),14)
+		title.size.x = 80; title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		button.set_meta("action_index",i)
 		if b.fixed and i in [1,2,3]: button.disabled = true; button.modulate = Color(.4,.4,.4)
 	update_context_position()
 
@@ -285,32 +429,127 @@ func show_info(mode: String) -> void:
 	panel_mode = mode
 	for child in info.get_children(): child.free()
 	var b := Placement.building(placement,selected_id)
-	panel_image(info,Rect2(0,0,292,184))
-	label_at(info,Placement.NAMES[b.kind]+"  ·  Lv"+str(b.level),Vector2(18,14),20)
-	label_at(info,"수비 %d  ·  범위 %.1f칸" % [b.capacity,b.aura],Vector2(18,49),17)
+	panel_image(info,Rect2(0,0,360,268))
+	var next := Placement.upgrade(placement,b.id) if mode=="menu_upgrade" else {}
+	var after := Placement.building(next,b.id) if next.get("ok",false) else {}
+	var level := "Lv%d → Lv%d" % [b.level,after.level] if not after.is_empty() else "Lv%d" % b.level
+	label_at(info,Placement.NAMES[b.kind]+"  "+level,Vector2(22,18),21)
+	var capacity := "%d → %d명" % [b.capacity,after.capacity] if not after.is_empty() and after.capacity!=b.capacity else "%d명" % b.capacity
+	label_at(info,"수비 정원  "+capacity,Vector2(22,58),18)
+	var effect := effect_lines(b)
+	label_at(info,effect[0],Vector2(22,91),16)
+	label_at(info,effect[1],Vector2(22,119),16)
 	if mode=="menu_dismantle_refund":
-		label_at(info,"환불 "+cost_text(Placement.refund(b,placement)),Vector2(18,81),17)
-		image_button(info,"menu_dismantle_refund",Vector2(214,106),58,confirm_dismantle,"해체 확인")
+		label_at(info,"해체 환불",Vector2(22,159),16)
+		resource_line(info,Placement.refund(b,placement),Vector2(22,190),88,false)
+		image_button(info,"menu_dismantle_refund",Vector2(280,183),58,confirm_dismantle,"해체 확인")
 	elif mode=="menu_upgrade":
-		label_at(info,"Lv%d → %d  ·  %s" % [b.level,b.level+1,cost_text(Placement.upgrade_cost(placement,b))],Vector2(18,81),17)
-		image_button(info,"menu_upgrade",Vector2(214,106),58,confirm_upgrade,"강화 확인")
+		label_at(info,"강화 비용" if not after.is_empty() else " · ".join(next.get("errors",["강화 제한"])),Vector2(22,159),16)
+		resource_line(info,Placement.upgrade_cost(placement,b),Vector2(22,190),88)
+		var confirm := image_button(info,"menu_upgrade",Vector2(280,183),58,confirm_upgrade,"강화 확인")
+		confirm.disabled = after.is_empty()
+		if confirm.disabled: confirm.modulate = Color(.4,.4,.4)
 	else:
-		label_at(info,"문 "+placement.doors[b.id].side+"  ·  %d×%d" % [b.rect.size.x,b.rect.size.y],Vector2(18,81),17)
 		for c in placement.influence.get(b.id,[]): cell_highlight(preview_layer,c,Color(.6,.45,1,.12))
-	image_button(info,"place_clear_all",Vector2(18,118),42,func():
+	image_button(info,"place_clear_all",Vector2(22,222),30,func():
 		for child in info.get_children(): child.free()
-		panel_mode = "", "닫기")
+		panel_mode = ""; update_context_position(), "닫기")
+	update_wallet()
 	update_context_position()
+
+func effect_lines(b: Dictionary) -> Array[String]:
+	# Explain the existing facility role, while keeping visual influence distinct
+	# from the later combat connection. This preview does not apply combat buffs.
+	var scope := "영향 범위  반경 %s칸" % str(b.aura) if b.aura>0 else "영향 범위  시설 내부"
+	var effect: String = {"barracks":"주둔 아군 공격·방어 지원","recovery_nest":"주둔·인접 아군 체력 회복",
+		"ward_core":"모든 아군 받는 피해 감소","watchtower":"범위 내 적 둔화·아군 피해 증가",
+		"bait_treasure":"도둑을 유인하는 방어 거점","throne":"마왕을 지키는 최종 방어선",
+		"entrance":"침입자가 들어오는 성문","vault":"금화를 지키는 방어 거점"}.get(b.kind,"")
+	if b.kind=="ward_core": scope = "영향 범위  성 전체"
+	return [scope,effect]
+
+func building_screen_rect(b: Dictionary) -> Rect2:
+	var r: Rect2i = b.rect
+	var points := [Vector2(r.position),Vector2(r.end),Vector2(r.position.x,r.end.y),Vector2(r.end.x,r.position.y)]
+	var bounds := Rect2(screen_cell(points[0])/ui_unit,Vector2.ZERO)
+	for point in points: bounds = bounds.expand(screen_cell(point)/ui_unit)
+	# Full walls rise 100 world pixels above the footprint. Include the interior
+	# alpha rectangle as well (chair, steps, entrance arch, props).
+	bounds.position.y -= 100*camera_scale/ui_unit; bounds.size.y += 100*camera_scale/ui_unit
+	var asset := "interiors/"+str(b.kind)+".png"
+	var details: Dictionary = state.assets[asset]
+	var anchor := Layout.project(Vector2(.25,9)) if b.kind=="entrance" else Layout.project(Vector2(r.position.x,r.end.y))
+	var pivot := Vector2(details.pivot[0],details.pivot[1])
+	var used := texture(Layout.ART+asset).get_image().get_used_rect()
+	bounds = bounds.merge(Rect2((world.position+(anchor-pivot+Vector2(used.position))*camera_scale)/ui_unit,Vector2(used.size)*camera_scale/ui_unit))
+	return bounds.grow(8)
 
 func update_context_position() -> void:
 	if selected_id=="": return
 	var b := Placement.building(placement,selected_id)
 	if b.is_empty(): return
-	var center := screen_cell(Vector2(b.rect.position)+Vector2(b.rect.size)/2)
-	radial.position = Vector2(clampf(center.x,154,1766),clampf(center.y,145,840))
-	# Follow the building; switch to its other side only to remain onscreen.
-	var px := center.x-440 if center.x>960 else center.x+150
-	info.position = Vector2(clampf(px,12,1616),clampf(center.y-175,90,748))
+	var center := screen_cell(Vector2(b.rect.position)+Vector2(b.rect.size)/2)/ui_unit
+	var safe := Rect2(Vector2(12,104),size/ui_unit-Vector2(24,116))
+	var blocked: Array[Rect2] = []
+	for building in placement.buildings: blocked.append(building_screen_rect(building))
+	for key in ui_rects: blocked.append(local_ui(key).grow(6))
+	context_rects.clear(); radial.position = Vector2.ZERO
+	if info.get_child_count()>0:
+		var panel_size := Vector2(360,268)
+		# Search top-left positions, subtracting the Minkowski-expanded obstacles.
+		# This preserves positions spanning adjacent empty-space partitions.
+		var free: Array[Rect2] = [Rect2(safe.position,safe.size-panel_size)]
+		for obstacle in blocked:
+			var next: Array[Rect2] = []
+			var forbidden := Rect2(obstacle.position-panel_size,obstacle.size+panel_size)
+			for region in free: next.append_array(ScreenLayout.cut(region,forbidden))
+			free = next
+		var best := INF; var found := false
+		for region in free:
+			for direction in [-1,1]:
+				var preferred := center+Vector2(-410 if direction<0 else 90,-134)
+				var point := preferred.clamp(region.position,region.end)
+				var score := point.distance_to(preferred)+absf(point.y+134-center.y)*.5
+				if score<best: best = score; info.position = point; found = true
+		info.visible = found
+		if found: blocked.append(Rect2(info.position,Vector2(360,268)).grow(8))
+		elif camera_scale>.2*ui_unit:
+			# Extremely close views can contain no free panel-sized region. Reveal
+			# surrounding space rather than hiding a requested information window.
+			set_camera(camera_center,camera_scale*.85)
+			return
+	for button in radial.get_children():
+		var preferred: float = -PI/2+int(button.get_meta("action_index"))*TAU/5
+		var best := INF; var chosen := Vector2.ZERO; var found := false
+		# Radius and angle are both searched. Geometry rejects walls, doorways,
+		# neighboring buildings, UI and previously placed action labels.
+		for radius in range(110,1111,30):
+			if radius>best: break
+			for i in range(72):
+				var angle := i*TAU/72
+				var point := center+Vector2(cos(angle),sin(angle))*radius-Vector2(40,40)
+				var rect := Rect2(point,Vector2(80,84))
+				if not ScreenLayout.free_rect(rect,safe,blocked): continue
+				var score := radius+absf(wrapf(angle-preferred,-PI,PI))*45
+				if score<best: best = score; chosen = point; found = true
+		if not found:
+			var free: Array[Rect2] = [Rect2(safe.position,safe.size-Vector2(80,84))]
+			for obstacle in blocked:
+				var next: Array[Rect2] = []
+				for region in free:
+					next.append_array(ScreenLayout.cut(region,Rect2(obstacle.position-Vector2(80,84),obstacle.size+Vector2(80,84))))
+				free = next
+			for region in free:
+				var point := center.clamp(region.position,region.end)
+				var score := point.distance_to(center)
+				if score<best: best = score; chosen = point; found = true
+		button.visible = found
+		if found:
+			button.position = chosen+Vector2(8,0)
+			var rect := Rect2(chosen,Vector2(80,84))
+			context_rects.append(rect); blocked.append(rect.grow(4))
+	if context_rects.size()<5 and camera_scale>.2*ui_unit:
+		set_camera(camera_center,camera_scale*.85)
 
 func confirm_dismantle() -> void:
 	apply_action(Placement.dismantle(placement,selected_id))
@@ -335,11 +574,14 @@ func _input(event: InputEvent) -> void:
 		if event.button_index==MOUSE_BUTTON_RIGHT and event.pressed:
 			cancel_build(); get_viewport().set_input_as_handled(); return
 		if event.button_index!=MOUSE_BUTTON_LEFT: return
-		if event.pressed and (event.position.y>=935 or (event.position.x>1700 and event.position.y<85)): return
-		if event.pressed and event.position.y<935:
+		var over_ui := false
+		for rect in ui_rects.values():
+			if rect.has_point(event.position): over_ui = true
+		if over_ui: return
+		if event.pressed:
 			pointer_down = true; click_armed = true; press_position = event.position; update_preview(event.position)
 		elif not event.pressed:
-			if event.position.y<935 and (click_armed or event.position.distance_to(press_position)>8):
+			if click_armed or event.position.distance_to(press_position)>8:
 				update_preview(event.position); commit_preview()
 			pointer_down = false; click_armed = false
 		get_viewport().set_input_as_handled()
