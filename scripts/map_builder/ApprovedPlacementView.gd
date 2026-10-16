@@ -3,6 +3,8 @@ extends "res://scripts/map_builder/ApprovedMapView.gd"
 const Placement = preload("res://scripts/map_builder/ApprovedPlacement.gd")
 const Assembly = preload("res://scripts/map_builder/ApprovedTileAssembler.gd")
 const ScreenLayout = preload("res://scripts/map_builder/ApprovedPlacementLayout.gd")
+const Monsters = preload("res://scripts/map_builder/ApprovedMonsterPlacement.gd")
+const MonsterUI = preload("res://scripts/map_builder/ApprovedMonsterPlacementUI.gd")
 const KIT := "res://assets/ui/kit/icons/icon_"
 const MINIMAP_BOUNDS := Rect2(-144,135,4000,2319)
 const UI_ART := "res://assets/maps/v130r_step2/ui/"
@@ -49,6 +51,7 @@ var selection_layer: Node2D
 var radial_backdrop: Polygon2D
 var context_layout := {}
 var context_tween: Tween
+var monster_ui: Node
 
 func setup(game: Node) -> void:
 	root = game; name = "ApprovedMapManagement"
@@ -61,6 +64,10 @@ func setup(game: Node) -> void:
 	baseline = Placement.initial(game)
 	placement = Placement.load_copy(baseline)
 	if not placement.get("ok",false): placement = baseline
+	monster_ui = MonsterUI.new(); monster_ui.view = self; add_child(monster_ui)
+	monster_ui.members = Monsters.roster()
+	var copy := Monsters.load_copy(placement,monster_ui.members)
+	placement = copy.layout; monster_ui.assignments = copy.defenders
 	world = Node2D.new(); world.name = "DynamicApprovedPieces"; add_child(world)
 	render_map()
 	build_chrome()
@@ -83,6 +90,7 @@ func render_map() -> void:
 	preview_layer = Node2D.new(); preview_layer.name = "PlacementGhost"; world.add_child(preview_layer)
 	selection_layer = Node2D.new(); selection_layer.name = "SelectedBuildingOutline"; world.add_child(selection_layer)
 	root.graph.layout["approved_map_step2"] = placement
+	if is_instance_valid(monster_ui): monster_ui.render_units(); monster_ui.refresh_cards()
 	if is_instance_valid(mini_viewport): call_deferred("rebuild_minimap")
 
 func cell_highlight(parent: Node, cell: Vector2i, tint: Color) -> Sprite2D:
@@ -173,13 +181,21 @@ func build_chrome() -> void:
 	for i in range(3):
 		var tab := art_at(tabs,"res://assets/ui/uiux/obsidian_button.png",Rect2(i*190,0,184,74))
 		tab.stretch_mode = TextureRect.STRETCH_SCALE
+		tab.name = ["BuildTab","PlaceTab","CombatTab"][i]
 		tab.modulate = Color(1.25,1.12,.75) if i==0 else Color(.5,.5,.58)
 		var icon: String = ["build","monster","battle_start"][i]
 		var tab_icon := art_at(tabs,KIT+icon+"_64.png",Rect2(i*190+17,17,36,36))
 		var title := label_at(tabs,["건설","몬스터 배치","전투"][i],Vector2(i*190+57,24),18,true)
-		if i>0:
+		if i==2:
 			tab_icon.modulate = Color(.45,.45,.5); title.modulate = Color(.5,.5,.56)
 			tab.tooltip_text = "아직 사용할 수 없는 단계"
+		else:
+			tab.mouse_filter = Control.MOUSE_FILTER_STOP
+			tab.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+			var mode := "build" if i==0 else "place"
+			tab.gui_input.connect(func(event):
+				if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and event.pressed:
+					monster_ui.set_mode(mode); tab.accept_event())
 	var tools := panel_image(chrome,local_ui("tools"))
 	image_button(tools,"place_auto",Vector2(8,5),56,show_full,"전체 보기 · F")
 	image_button(tools,"frame_selected",Vector2(72,5),56,show_default,"시작 화면 · 2")
@@ -207,6 +223,7 @@ func build_chrome() -> void:
 	radial = Control.new(); radial.name = "BuildingRadial"; radial.mouse_filter = Control.MOUSE_FILTER_IGNORE; chrome.add_child(radial)
 	info = Control.new(); info.name = "BuildingInfo"; info.mouse_filter = Control.MOUSE_FILTER_IGNORE; chrome.add_child(info)
 	build_minimap()
+	monster_ui.build_controls(hud,tabs,bar)
 	update_wallet()
 
 func local_ui(key: String) -> Rect2:
@@ -228,6 +245,7 @@ func update_wallet() -> void:
 	for kind in palette_buttons:
 		var rule: Dictionary = placement.catalog[kind]
 		palette_buttons[kind].modulate = Color.WHITE if Placement.can_pay(placement,rule.cost) and placement.stage>=rule.stage else Color(.5,.5,.5)
+	if is_instance_valid(monster_ui): monster_ui.update_food()
 
 func cost_text(cost: Dictionary) -> String:
 	var parts: PackedStringArray = []
@@ -394,7 +412,7 @@ func update_preview(point: Vector2) -> void:
 func commit_preview() -> void:
 	if not preview.get("ok",false): return
 	placement = preview; cancel_build(); render_map(); update_wallet()
-	last_save_error = Placement.save_copy(placement)
+	last_save_error = monster_ui.persist()
 	status_text.text = "저장됨" if last_save_error==OK else "테스트 저장 실패: "+str(last_save_error)
 
 func cancel_build() -> void:
@@ -448,9 +466,7 @@ func context_action(icon: String) -> void:
 	if icon=="menu_move":
 		var id := selected_id; begin_build(b.kind,id); return
 	if icon=="menu_assign_defenders":
-		for child in preview_layer.get_children(): child.free()
-		for c in placement.defense_points[b.id]: cell_highlight(preview_layer,c,Color(1,.8,.25,.85))
-		status_text.text = "수비 지점 %d · 몬스터 배치는 다음 단계" % b.capacity
+		monster_ui.set_mode("place")
 		return
 	show_info(icon)
 
@@ -608,11 +624,12 @@ func confirm_upgrade() -> void:
 func apply_action(next: Dictionary) -> bool:
 	if not next.get("ok",false): status_text.text = " · ".join(next.get("errors",[])); return false
 	placement = next; clear_context(); cancel_build(); render_map(); update_wallet()
-	last_save_error = Placement.save_copy(placement)
+	last_save_error = monster_ui.persist()
 	status_text.text = "저장됨" if last_save_error==OK else "테스트 저장 실패"
 	return true
 
 func _input(event: InputEvent) -> void:
+	if is_instance_valid(monster_ui) and monster_ui.input_event(event): return
 	if build_kind=="": return
 	if event is InputEventMouseMotion:
 		update_preview(event.position)
@@ -634,6 +651,10 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _gui_input(event: InputEvent) -> void:
+	if monster_ui.mode=="place":
+		if monster_ui.map_input(event): accept_event()
+		else: super._gui_input(event)
+		return
 	if build_kind!="": return
 	if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT:
 		if event.pressed:
@@ -648,5 +669,6 @@ func _gui_input(event: InputEvent) -> void:
 
 func handle_key(event: InputEvent) -> bool:
 	if event is InputEventKey and event.pressed:
+		if event.keycode==KEY_ESCAPE and monster_ui.mode=="place": monster_ui.cancel_drag(); monster_ui.close_info(); return true
 		if event.keycode==KEY_ESCAPE: cancel_build(); clear_context(); return true
 	return super.handle_key(event)

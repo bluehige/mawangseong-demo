@@ -45,20 +45,11 @@ static func populate(view: Control, s: Dictionary) -> void:
 	for trap in s.traps:
 		var cell := Vector2(trap.cell[0]+.5,trap.cell[1]+.5)
 		objects.append(record("traps/"+str(trap.kind)+".png",Layout.project(cell)))
-	# Stage-one occupants remain visual samples. Newly computed defense sites
-	# are empty GPT highlights; assigning units/combat belongs to the next stage.
-	var original := Layout.cells(view.state,"m")
+	# Every site is empty until an individual roster member occupies it.
 	for id in s.defense_points:
 		for c in s.defense_points[id]:
-			var b := Placement.building(s,id)
-			var unchanged := false
-			for old in view.state.buildings:
-				if old.id==b.id and b.rect==Rect2i(old.rect[0],old.rect[1],old.rect[2],old.rect[3]): unchanged = true
-			if unchanged and c in original:
-				objects.append(record("monsters/"+(["slime","goblin"][(c.x+c.y)%2])+".png",Layout.project(Vector2(c)+Vector2(.5,.5)),2))
-			else:
-				var highlight: Sprite2D = view.cell_highlight(view.world,c,Color(.9,.65,.15,.7))
-				highlight.set_meta("defense_site",id)
+			var highlight: Sprite2D = view.cell_highlight(view.world,c,Color(.9,.65,.15,.35))
+			highlight.set_meta("defense_site",id)
 	for i in range(objects.size()): objects[i]["insertion"] = i
 	objects.sort_custom(func(a,b): return a.depth<b.depth or (a.depth==b.depth and a.insertion<b.insertion))
 	for r in objects: piece(view,r.asset,r.anchor)
