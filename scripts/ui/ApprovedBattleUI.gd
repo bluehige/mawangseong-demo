@@ -1,6 +1,7 @@
 extends Node
 ## GPT raster command controls; no text-only buttons or procedural decoration.
 const ART := "res://assets/maps/v130r_step4/"
+const Presentation = preload("res://scripts/map_builder/ApprovedActorPresentation.gd")
 const TACTICS := ["rally","focus_attack","emergency_retreat","hold_ground","lure_retreat"]
 const TITLES := ["집결 · 길 칸 선택","집중 공격 · 적 선택","비상 후퇴 · 회복 둥지","사수 · 수비 칸 복귀","후퇴 유도 · 길 칸 선택"]
 var view: Control
@@ -83,9 +84,12 @@ func position_skills() -> void:
 	if not is_instance_valid(selected) or not selected.is_alive(): skills.hide(); return
 	var point: Vector2 = view.world.to_global(selected.position)/view.ui_unit
 	var screen: Vector2 = view.size/view.ui_unit
+	var factor: float = view.camera_scale/view.ui_unit*Presentation.ui_scale(selected.unit_id)
+	skills.scale = Vector2.ONE*factor
 	# Follow the monster, and choose the side away from the nearest screen edge.
-	var x: float = point.x+42 if point.x+300<screen.x else point.x-294
-	var y: float = clampf(point.y-116,190,screen.y-232)
+	var x: float = point.x+42*factor if point.x+300*factor<screen.x else point.x-294*factor
+	x = clampf(x,8,maxf(8,screen.x-252*factor-8))
+	var y: float = clampf(point.y-116*factor,190,maxf(190,screen.y-220-148*factor))
 	skills.position = Vector2(x,y)
 	var label: Label = skills.find_child("SelectedVitals",true,false)
 	if label!=null: label.text = selected.display_name+" · HP %d/%d" % [selected.hp,selected.max_hp]
@@ -112,7 +116,7 @@ func map_input(event: InputEvent) -> bool:
 		battle.issue_command(pending_command,point,target); pending_command = ""; return true
 	var unit: Node; var distance := 80.0
 	for candidate in battle.root.monster_units:
-		var d: float = (candidate.position-Vector2(0,40)).distance_to(point)
+		var d: float = candidate.visible_body_rect().get_center().distance_to(point)
 		if candidate.is_alive() and d<distance: distance = d; unit = candidate
 	if unit!=null: select_unit(unit); return true
 	return false
@@ -143,18 +147,21 @@ func layout_vitals() -> void:
 		if a.selected!=b.selected: return a.selected
 		return a.position.y<b.position.y if a.position.y!=b.position.y else a.get_instance_id()<b.get_instance_id())
 	var occupied: Array[Rect2] = []
-	if skills.visible:
-		occupied.append(Rect2(view.world.to_local(skills.global_position),Vector2(252,148 if bool(selected.get_meta("food_hungry",false)) else 98)*view.ui_unit/view.camera_scale).grow(8))
+	if skills.visible and is_instance_valid(selected):
+		occupied.append(Rect2(view.world.to_local(skills.global_position),Vector2(252,148 if bool(selected.get_meta("food_hungry",false)) else 98)*skills.scale*view.ui_unit/view.camera_scale).grow(8))
 	for unit in units:
 		unit.vitals.visible = unit.is_alive()
 		if not unit.is_alive(): continue
-		var desired: Vector2 = unit.position+unit.combat_anchor_local("head")-Vector2(0,10)
+		var desired: Vector2 = unit.position+unit.combat_anchor_local("head")-Vector2(0,10)*unit.vitals.scale
 		var chosen := desired
-		for row in range(units.size()+1):
+		var extent: Vector2 = unit.vitals_rect().size+Vector2(8,8)
+		for row in range(units.size()*2+1):
 			var found := false
 			for column in [0,-1,1]:
-				var point: Vector2 = desired+Vector2(column*120,-row*40)
-				var rect := Rect2(point+Vector2(-58,-26),Vector2(116,38)).grow(2)
+				# Alternate above/below; body overlap never changes foot depth.
+				var level := ceili(row/2.0)*(1 if row%2==0 else -1)
+				var point: Vector2 = desired+Vector2(column*extent.x,level*extent.y)
+				var rect: Rect2 = unit.vitals_rect_at(point).grow(3)
 				var blocked := false
 				for other in occupied:
 					if rect.intersects(other): blocked = true; break

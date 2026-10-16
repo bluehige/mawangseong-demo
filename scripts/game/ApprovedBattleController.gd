@@ -417,15 +417,17 @@ func spawn_contact_effect(id: String, point: Vector2, seconds: float, growth: fl
 
 func presentation_height(point: Vector2) -> float:
 	var closest := nearest_visible_unit(point)
-	return closest.idle_bounds.size.y*closest.body_factor if closest!=null else Presentation.BODY_SIZE.y
+	return closest.idle_bounds.size.y*closest.body_factor if closest!=null else Presentation.BODY_HEIGHT
 
 func spawn_damage_number(point: Vector2, damage: int, faction: String, _anchor_target = null) -> void:
 	if damage<=0 or not running: return
 	var number := Label.new(); number.text = "−%d" % damage
 	number.add_theme_font_override("font",preload("res://assets/fonts/NEXON_Maplestory_Bold.otf"))
 	number.add_theme_font_size_override("font_size",22)
+	var closest := nearest_visible_unit(point)
+	number.scale = Vector2.ONE*Presentation.ui_scale(closest.unit_id if closest!=null else "")
 	number.add_theme_color_override("font_color",Color("ff9c9c") if faction=="monster" else Color("ffe795"))
-	number.position = point+Vector2(-12,-80); number.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	number.position = point+Vector2(-12,-presentation_height(point)); number.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.effect_root.add_child(number)
 	var tween := _create_combat_tween()
 	tween.tween_property(number,"position:y",number.position.y-30,.6)

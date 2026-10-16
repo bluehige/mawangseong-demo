@@ -25,6 +25,7 @@ func attach_map_visuals(parent: Node2D) -> void:
 	for child in [visual_body,selection_art]: child.reparent(map_visual,false)
 	vitals = Node2D.new(); parent.add_child(vitals); vitals.z_index = 3800
 	for child in [name_label,health]: child.reparent(vitals,false)
+	vitals.scale = Vector2.ONE*Presentation.ui_scale(unit_id)
 	map_visual.position = position
 	refresh_depth_slot()
 
@@ -56,13 +57,13 @@ func _ready() -> void:
 func _configure_combat_sprite(source_sprite_path: String) -> void:
 	super._configure_combat_sprite(source_sprite_path)
 	idle_frame = sprite.sprite_frames.get_frame_texture("idle_down",0)
-	idle_bounds = Presentation.Art.visible_bounds(idle_frame)
+	idle_bounds = Presentation.visible_bounds(idle_frame)
 	body_factor = Presentation.body_scale(idle_bounds,unit_id)
 	legacy_factor = float(combat_visual_profile.get("render_scale",0))
 	if legacy_factor<=0: legacy_factor = FLYING_VISUAL_SCALE if _is_flying_unit() else GROUNDED_VISUAL_SCALE
 	if health!=null:
 		health.value = 100.0*hp/maxi(1,max_hp)
-		health.size = Vector2(Presentation.BODY_SIZE.x*Presentation.multiplier(unit_id),8*Presentation.multiplier(unit_id))
+		health.size = Vector2(76,8)
 		health.position.x = -health.size.x/2
 		health.tint_progress = Color(.45,1,.6) if faction=="monster" else Color(1,.35,.3)
 
@@ -78,21 +79,25 @@ func _apply_visual_pose() -> void:
 	if sprite==null or idle_frame==null: return
 	# Preserve motion/squash/recoil from Unit, but normalize the visible idle body.
 	var ratio := body_factor/legacy_factor
-	sprite.scale *= ratio
-	var frame: Texture2D = sprite.sprite_frames.get_frame_texture(sprite.animation,sprite.frame)
-	if frame==null: frame = idle_frame
-	var bounds := Presentation.Art.visible_bounds(frame)
-	var anchor := (bounds.get_center()-frame.get_size()/2)*sprite.scale
-	if sprite.flip_h: anchor.x *= -1
-	var old_body := visual_body.position*ratio
-	var foot_y := (bounds.end.y-frame.get_height()/2)*sprite.scale.y
-	visual_body.position = Vector2(-anchor.x,-foot_y)
-	# Existing profile position is the idle foot plus an animation offset.
 	var motion: Dictionary = combat_visual_profile.get("motion_entry",{})
 	var foot: Array = motion.get("down_foot_anchor",motion.get("foot_anchor",[])) if down else motion.get("foot_anchor",[])
 	var source: Array = combat_visual_profile.get("source_frame_px",[])
+	var motion_offset := Vector2.ZERO
 	if foot.size()==2 and source.size()==2:
-		visual_body.position += old_body+Vector2((float(foot[0])-.5)*float(source[0])*sprite.scale.x,(float(foot[1])-.5)*float(source[1])*sprite.scale.y)
+		motion_offset = visual_body.position+Vector2((float(foot[0])-.5)*float(source[0])*sprite.scale.x,(float(foot[1])-.5)*float(source[1])*sprite.scale.y)
+	sprite.scale *= ratio
+	var frame: Texture2D = sprite.sprite_frames.get_frame_texture(sprite.animation,sprite.frame)
+	if frame==null: frame = idle_frame
+	var bounds := Presentation.visible_bounds(frame)
+	if not down:
+		# Different source frames and squash/rotation must not turn a readable
+		# actor back into a tiny attack pose (or overshoot during a skill pulse).
+		var extent := absf(sin(sprite.rotation))*bounds.size.x*sprite.scale.x+absf(cos(sprite.rotation))*bounds.size.y*sprite.scale.y
+		var target := Presentation.BODY_HEIGHT*Presentation.multiplier(unit_id)
+		sprite.scale *= clampf(extent,target,target*1.06)/maxf(1,extent)
+	var anchor := (Vector2(bounds.get_center().x,bounds.end.y)-frame.get_size()/2)*sprite.scale
+	if sprite.flip_h: anchor.x *= -1
+	visual_body.position = -anchor.rotated(sprite.rotation)+motion_offset*ratio
 	_refresh_combat_ui_anchors()
 
 func combat_anchor_local(anchor_name: String) -> Vector2:
@@ -111,7 +116,10 @@ func _sync_combat_label_visibility() -> void:
 	if name_label!=null: name_label.visible = is_alive()
 
 func vitals_rect() -> Rect2:
-	return Rect2(vitals.position+Vector2(-58,-26),Vector2(116,38))
+	return vitals_rect_at(vitals.position)
+
+func vitals_rect_at(point: Vector2) -> Rect2:
+	return Rect2(point+Vector2(-58,-26)*vitals.scale,Vector2(116,38)*vitals.scale)
 
 func set_vitals_position(point: Vector2) -> void:
 	vitals.position = point

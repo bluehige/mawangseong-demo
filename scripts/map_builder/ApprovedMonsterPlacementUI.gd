@@ -137,7 +137,7 @@ func render_units() -> void:
 		var sheet: Texture2D = view.texture(row.stats.get("sprite",row.stats.get("sprite_sheet","")))
 		var atlas := ActorArt.frame(sheet,0)
 		sprite.texture = atlas
-		var used := ActorArt.visible_bounds(atlas)
+		var used := Presentation.visible_bounds(atlas)
 		var factor := Presentation.body_scale(used,row.species_id)
 		sprite.scale = Vector2.ONE*factor
 		sprite.offset = -(Vector2(used.position)+Vector2(used.size.x/2.0,used.size.y))

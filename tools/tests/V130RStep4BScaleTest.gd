@@ -7,16 +7,15 @@ func scale_contract() -> void:
 		unit.velocity = Vector2.ZERO; unit.attack_anim_timer = 0; unit.hit_anim_timer = 0; unit.skill_anim_timer = 0
 		unit.presentation_skill_anim_timer = 0; unit._play_animation("idle_down"); unit._apply_visual_pose()
 		var size: Vector2 = unit.idle_bounds.size*unit.body_factor
-		var box: Vector2 = ScaleRules.BODY_SIZE*ScaleRules.multiplier(unit.unit_id)
+		var height: float = ScaleRules.BODY_HEIGHT*ScaleRules.multiplier(unit.unit_id)
 		expect((unit.idle_bounds.size*unit.sprite.scale).distance_to(size)<.01,"actual sprite transform matches visible target "+unit.unit_id)
-		expect(size.x<=box.x+.01 and size.y<=box.y+.01,"visible body inside one-cell box "+unit.unit_id)
-		expect(is_equal_approx(size.x,box.x) or is_equal_approx(size.y,box.y),"visible body fills one dimension "+unit.unit_id)
-		expect(is_equal_approx(unit.health.size.x,box.x),"HP width follows body "+unit.unit_id)
+		expect(is_equal_approx(size.y,height),"alpha body fills target height "+unit.unit_id)
+		expect(is_equal_approx(unit.health.size.x*unit.vitals.scale.x,76*ScaleRules.ui_scale(unit.unit_id)),"HP width follows body "+unit.unit_id)
 		unit.refresh_depth_slot()
 		expect(unit.map_visual.z_index==ScaleRules.depth(unit.position),"foot Y depth "+unit.unit_id)
 		if unit.faction=="monster" and unit.has_meta("instance_id"):
 			var placed: Sprite2D = view.monster_ui.units[unit.get_meta("instance_id")]
-			var placed_size := ScaleRules.Art.visible_bounds(placed.texture).size*placed.scale
+			var placed_size := ScaleRules.visible_bounds(placed.texture).size*placed.scale
 			expect(placed_size.distance_to(size)<.01,"placement equals live visible body "+unit.unit_id)
 		var stable: Vector2 = unit.sprite.scale
 		unit._apply_visual_pose(); unit._apply_visual_pose()
@@ -34,7 +33,7 @@ func scale_direct() -> void:
 	scale_contract()
 	var normal = game.enemy_units[0]
 	var boss = game.enemy_units[-1]
-	expect(ScaleRules.multiplier(boss.unit_id)==1.25 and ScaleRules.multiplier(normal.unit_id)==1,"boss-only 1.25 multiplier")
+	expect(ScaleRules.multiplier(boss.unit_id)==1.35 and ScaleRules.multiplier(normal.unit_id)==1,"boss 1.35 multiplier")
 	expect(boss.name_label.text=="셀렌" and game.enemy_units[-2].name_label.text=="레온","boss identities are not truncated")
 	var point: Vector2 = normal.position
 	battle.spawn_impact(point)
@@ -49,7 +48,7 @@ func scale_direct() -> void:
 	expect(behind.map_visual.z_index<front.map_visual.z_index,"overlapping units sorted back to front")
 	# Save quantitative comparison; the camera is exactly the same world transform.
 	var pudding = game.monster_units[0]
-	evidence["scale"] = {"body_box_world":[76,88],"zoom":view.camera_scale,"pudding_visible_world":str(pudding.idle_bounds.size*pudding.body_factor),"boss_multiplier":1.25,"monsters":game.monster_units.size(),"enemies":game.enemy_units.size()}
+	evidence["scale"] = {"body_height_world":ScaleRules.BODY_HEIGHT,"zoom":view.camera_scale,"pudding_visible_world":str(pudding.idle_bounds.size*pudding.body_factor),"boss_multiplier":ScaleRules.BOSS_MULTIPLIER,"monsters":game.monster_units.size(),"enemies":game.enemy_units.size()}
 
 func scale_shot(name: String) -> void:
 	await get_tree().process_frame
