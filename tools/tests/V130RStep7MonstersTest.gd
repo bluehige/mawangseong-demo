@@ -82,6 +82,10 @@ func catalog() -> void:
 			expect(FileAccess.file_exists(path),"portrait "+species+" "+emotion)
 	for species in ["spore_healer","stone_sentinel","war_drummer","moon_tracker","mimic_porter","kobold_scout"]:
 		expect(DataRegistry.monster(species).specialization_ids.size()==2,"existing specializations "+species)
+	for species in ["slime","goblin","imp","kobold_scout"]:
+		expect(DataRegistry.monster(species).bond_memory_ids.get("4","")=="bond_%s_rank_4" % species,"original rank4 memory preserved "+species)
+	for species in ["spore_healer","stone_sentinel","war_drummer","moon_tracker","mimic_porter","river_frog"]:
+		expect(not DataRegistry.monster(species).bond_memory_ids.has("4"),"no invented rank4 memory "+species)
 	var source := "연못 반환 요구서 37번째인데요."
 	expect(LanguageSettings.english_translation.translate_text(source)!=source,"English standalone join line registered")
 	expect(LanguageSettings.chinese_translation.translate_text(source)!=source,"Chinese standalone join line registered")

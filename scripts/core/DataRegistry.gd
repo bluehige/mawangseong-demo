@@ -642,7 +642,7 @@ func _load_v130r_monsters() -> void:
 		definition["placeholder_art"] = false
 		definition["upkeep_food"] = costs[species].upkeep_food
 		var memories := {}
-		for rank in range(1,4):
+		for rank in range(1,5):
 			var id := "bond_%s_rank_%d" % [species,rank]
 			if memory_entries.has(id): memories[str(rank)] = id
 		if not memories.is_empty(): definition["bond_memory_ids"] = memories

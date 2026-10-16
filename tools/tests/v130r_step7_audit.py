@@ -33,7 +33,7 @@ def main():
     duos = direct['evidence']['duos']
     duo_text = ['# 합동기 해금 직접 검사', '', '실제 `_grant_monster_bond`로 유대25→45, 유효한 기억1개 이상을 얻었다.',
                 '함께 출전3일·역할 조합5회는 서비스 API로 기록한 시험 데이터다. 개인 세이브를 읽거나 수정하지 않았다.', '',
-                '| 합동기 | 기억 이벤트 | 결과 |', '|---|---|---|']
+                '| 합동기 | 합동기 ID | 결과 |', '|---|---|---|']
     mapping = {'link_spore_jelly_shelter': '포자 젤리 피난처', 'link_stone_march': '석상 행진곡', 'link_false_beacon_vault': '가짜 등대 금고'}
     for key in duos['catalog']:
         duo_text.append(f'| {mapping[key]} | {key} | 유효 기억 획득→기억 이벤트 자격→해금 PASS |')
