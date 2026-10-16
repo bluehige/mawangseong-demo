@@ -137,7 +137,7 @@ func render_units() -> void:
 		sprite.offset = -(Vector2(used.position)+Vector2(used.size.x/2.0,used.size.y))
 		sprite.centered = false
 		var c := Model.cell(view.placement,assignments[id])
-		sprite.position = Layout.project(Vector2(c)+Vector2(.5,.5))
+		sprite.position = view.project(Vector2(c)+Vector2(.5,.5))
 		# Source idle faces down/right; mirrored it faces the entrance at the left.
 		sprite.flip_h = true
 		unit_layer.add_child(sprite); units[id] = sprite
@@ -222,7 +222,7 @@ func refresh() -> void:
 
 func persist() -> Error:
 	assignments = Model.sanitize(view.placement,assignments,members)
-	var error := Model.save_copy(view.placement,assignments)
+	var error := Model.save_copy(view.placement,assignments,view.save_path())
 	view.last_save_error = error
 	if error!=OK and is_instance_valid(count_label): count_label.text = "테스트 저장 실패 · "+str(error)
 	return error

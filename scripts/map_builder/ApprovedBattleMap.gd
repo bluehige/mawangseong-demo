@@ -14,7 +14,7 @@ var water_cuts: Array[int] = []
 func setup(source: Dictionary) -> void:
 	layout = source.duplicate(true)
 	water_cuts.clear()
-	for x in range(Buildings.SIZE.x):
+	for x in range(Buildings.dimensions(layout).x):
 		if layout.water.has(Vector2i(x,0)) and (x==0 or not layout.water.has(Vector2i(x-1,0))): water_cuts.append(x)
 	# A 5x5 recovery building with a 2.5 centre-radius otherwise covers no
 	# external road at some door orientations. Its own defense cells belong to
@@ -23,7 +23,7 @@ func setup(source: Dictionary) -> void:
 		if b.aura<=0: continue
 		for c in layout.defense_points.get(b.id,[]):
 			if c not in layout.influence[b.id]: layout.influence[b.id].append(c)
-	astar.region = Rect2i(Vector2i.ZERO,Buildings.SIZE)
+	astar.region = Rect2i(Vector2i.ZERO,Buildings.dimensions(layout))
 	astar.diagonal_mode = AStarGrid2D.DIAGONAL_MODE_NEVER
 	astar.default_compute_heuristic = AStarGrid2D.HEURISTIC_MANHATTAN
 	astar.default_estimate_heuristic = AStarGrid2D.HEURISTIC_MANHATTAN
@@ -54,11 +54,12 @@ func setup(source: Dictionary) -> void:
 			if id!=other and line_for(cell(center(id)))==line_for(cell(center(other))): rooms[id].exits.append(other)
 
 func line_for(c: Vector2i) -> String:
+	if water_cuts.size()==1: return "1" if c.x<water_cuts[0]+2 else "final"
 	if water_cuts.size()<2: return "1"
 	return "1" if c.x<water_cuts[0]+2 else "2" if c.x<water_cuts[1]+2 else "final"
 
-func cell(point: Vector2) -> Vector2i: return Vector2i(Layout.unproject(point).floor())
-func world(c: Vector2i) -> Vector2: return Layout.project(Vector2(c)+Vector2(.5,.5))
+func cell(point: Vector2) -> Vector2i: return Vector2i(Layout.unproject(point,Buildings.dimensions(layout).x).floor())
+func world(c: Vector2i) -> Vector2: return Layout.project(Vector2(c)+Vector2(.5,.5),Buildings.dimensions(layout).x)
 func is_road(c: Vector2i) -> bool: return layout.road_cells.has(c)
 func is_walkable(point: Vector2) -> bool: return is_road(cell(point))
 func tile_cell_center(c: Vector2i) -> Vector2: return world(c)

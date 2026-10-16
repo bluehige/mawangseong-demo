@@ -13625,6 +13625,9 @@ func _count_downed_enemies() -> int:
 	return combat_scene.count_downed_enemies()
 
 func _advance_after_result() -> void:
+	if preload("res://scripts/map_builder/ApprovedGradeProgression.gd").enabled():
+		preload("res://scripts/map_builder/ApprovedGradeProgression.gd").continue_after_result(self)
+		return
 	_clear_story_battle_scope()
 	if _is_regular_campaign_final_battle():
 		if bool(result_summary.get("win", false)):

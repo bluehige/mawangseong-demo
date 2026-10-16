@@ -1,0 +1,231 @@
+{
+  "id": "approved_v7d_F",
+  "grade": "F",
+  "size": [
+    22,
+    16
+  ],
+  "rows": [
+    "...KKKKK......~~.TTTTT",
+    "...KKKKK......~~.TTTTT",
+    "...KKKKK......~~.TTTTT",
+    "...KKKKK......~~.TTTTT",
+    "...KKKKK......~~.TTTTT",
+    "....mm....===XBB==mm=.",
+    "....mm....===XBB==mm=.",
+    "EEE=========..~~~~~~~~",
+    "EEE=========..~~~~~~~~",
+    "EEEmm..==.==..~~......",
+    "...m=..mm.==..~~......",
+    "...WWW.LLL==..~~..VVVV",
+    "...WWW.LLL===XBB=mVVVV",
+    "...WWW.LLL===XBB=mVVVV",
+    "..............~~..VVVV",
+    "..............~~......"
+  ],
+  "buildings": [
+    {
+      "code": "E",
+      "rect": [
+        0,
+        7,
+        3,
+        3
+      ],
+      "door": "E",
+      "id": "entrance",
+      "fixed": true,
+      "defense_cells": [],
+      "door_outside": [
+        [
+          3,
+          8
+        ],
+        [
+          3,
+          9
+        ]
+      ]
+    },
+    {
+      "code": "K",
+      "rect": [
+        3,
+        0,
+        5,
+        5
+      ],
+      "door": "S",
+      "id": "barracks",
+      "fixed": false,
+      "defense_cells": [
+        [
+          4,
+          5
+        ],
+        [
+          5,
+          5
+        ],
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "code": "W",
+      "rect": [
+        3,
+        11,
+        3,
+        3
+      ],
+      "door": "N",
+      "id": "watchtower",
+      "fixed": false,
+      "defense_cells": [
+        [
+          3,
+          9
+        ],
+        [
+          4,
+          9
+        ],
+        [
+          3,
+          10
+        ]
+      ]
+    },
+    {
+      "code": "L",
+      "rect": [
+        7,
+        11,
+        3,
+        3
+      ],
+      "door": "N",
+      "id": "bait_treasure",
+      "fixed": false,
+      "defense_cells": [
+        [
+          7,
+          10
+        ],
+        [
+          8,
+          10
+        ]
+      ]
+    },
+    {
+      "code": "T",
+      "rect": [
+        17,
+        0,
+        5,
+        5
+      ],
+      "door": "S",
+      "id": "throne",
+      "fixed": true,
+      "defense_cells": [
+        [
+          18,
+          5
+        ],
+        [
+          19,
+          5
+        ],
+        [
+          18,
+          6
+        ],
+        [
+          19,
+          6
+        ]
+      ],
+      "door_outside": [
+        [
+          18,
+          5
+        ],
+        [
+          19,
+          5
+        ]
+      ]
+    },
+    {
+      "code": "V",
+      "rect": [
+        18,
+        11,
+        4,
+        4
+      ],
+      "door": "W",
+      "id": "vault",
+      "fixed": true,
+      "defense_cells": [
+        [
+          17,
+          12
+        ],
+        [
+          17,
+          13
+        ]
+      ],
+      "door_outside": [
+        [
+          17,
+          12
+        ],
+        [
+          17,
+          13
+        ]
+      ]
+    }
+  ],
+  "traps": [
+    {
+      "kind": "spikes",
+      "cell": [
+        13,
+        5
+      ]
+    },
+    {
+      "kind": "spikes",
+      "cell": [
+        13,
+        6
+      ]
+    },
+    {
+      "kind": "spikes",
+      "cell": [
+        13,
+        12
+      ]
+    },
+    {
+      "kind": "spikes",
+      "cell": [
+        13,
+        13
+      ]
+    }
+  ]
+}

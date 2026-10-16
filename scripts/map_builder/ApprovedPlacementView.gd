@@ -1,5 +1,6 @@
 extends "res://scripts/map_builder/ApprovedMapView.gd"
 ## Branch management UI: generated raster controls, model-only placement edits.
+const Grade = preload("res://scripts/map_builder/ApprovedGradeProgression.gd")
 const Placement = preload("res://scripts/map_builder/ApprovedPlacement.gd")
 const Assembly = preload("res://scripts/map_builder/ApprovedTileAssembler.gd")
 const ScreenLayout = preload("res://scripts/map_builder/ApprovedPlacementLayout.gd")
@@ -64,13 +65,15 @@ func setup(game: Node) -> void:
 	state = Layout.read()
 	terrain_data = JSON.parse_string(FileAccess.get_file_as_string("res://data/maps/v130r_step2/terrain.json"))
 	door_data = JSON.parse_string(FileAccess.get_file_as_string("res://data/maps/v130r_step2/door_directions.json"))
-	baseline = Placement.initial(game)
-	placement = Placement.load_copy(baseline)
+	baseline = Placement.initial(game,"F" if Grade.enabled() else "E")
+	placement = baseline if Grade.enabled() else Placement.load_copy(baseline)
 	if not placement.get("ok",false): placement = baseline
 	monster_ui = MonsterUI.new(); monster_ui.view = self; add_child(monster_ui)
 	monster_ui.members = Monsters.roster()
-	var copy := Monsters.load_copy(placement,monster_ui.members)
+	var copy := Grade.load_session(game) if Grade.enabled() else Monsters.load_copy(placement,monster_ui.members)
 	placement = copy.layout; monster_ui.assignments = copy.defenders
+	state = Layout.read(str(placement.get("grade","E")))
+	monster_ui.food_income = 15 if placement.get("grade","E")=="F" else 23
 	world = Node2D.new(); world.name = "DynamicApprovedPieces"; add_child(world)
 	render_map()
 	build_chrome()
@@ -99,7 +102,7 @@ func render_map() -> void:
 func cell_highlight(parent: Node, cell: Vector2i, tint: Color) -> Sprite2D:
 	var sprite := Sprite2D.new()
 	sprite.texture = texture(UI_ART+"cell_highlight.png")
-	sprite.position = Layout.project(Vector2(cell)+Vector2(.5,.5))
+	sprite.position = project(Vector2(cell)+Vector2(.5,.5))
 	sprite.scale = Vector2(.94,.94); sprite.modulate = tint
 	parent.add_child(sprite)
 	return sprite
@@ -178,7 +181,8 @@ func build_chrome() -> void:
 	tooltip_theme.set_font("font","TooltipLabel",BODY_FONT); tooltip_theme.set_font_size("font_size","TooltipLabel",16)
 	chrome.theme = tooltip_theme
 	var hud := panel_image(chrome,local_ui("hud"))
-	label_at(hud,"DAY 7  ·  성 3",Vector2(18,21),18)
+	var day_label := label_at(hud,"DAY %d  ·  %s등급" % [placement.day,placement.get("grade","E")],Vector2(18,21),18)
+	day_label.name = "GradeDayLabel"
 	wallet = resource_line(hud,placement.resources,Vector2(175,21),98,false)
 	var tabs := Control.new(); tabs.position = local_ui("tabs").position; chrome.add_child(tabs)
 	for i in range(3):
@@ -321,7 +325,9 @@ func minimap_input(event: InputEvent) -> void:
 func show_default() -> void:
 	# Match Step2B gui(): set_camera(Vector2(1930,1390),.75) before radial_edge.
 	# Scale with the shorter viewport ratio; wider aspects reveal extra cells.
-	start_solution = {"center":START_CENTER,"zoom":START_ZOOM*ScreenLayout.unit(size)}
+	var center := START_CENTER
+	if placement.get("grade","E")=="F": center = project(Vector2(Placement.dimensions(placement))/2)
+	start_solution = {"center":center,"zoom":START_ZOOM*ScreenLayout.unit(size)}
 	set_camera(start_solution.center,start_solution.zoom)
 
 func start_targets() -> Array[Rect2]:
@@ -333,7 +339,9 @@ func start_targets() -> Array[Rect2]:
 	return result
 
 func show_full() -> void:
-	set_camera(MINIMAP_BOUNDS.get_center(),minf(size.x/MINIMAP_BOUNDS.size.x,size.y/MINIMAP_BOUNDS.size.y))
+	var center := MINIMAP_BOUNDS.get_center()
+	if placement.get("grade","E")=="F": center += Vector2(120,-90)
+	set_camera(center,minf(size.x/MINIMAP_BOUNDS.size.x,size.y/MINIMAP_BOUNDS.size.y))
 
 func set_camera(center: Vector2, factor: float) -> void:
 	camera_scale = clampf(factor,.05*ui_unit,1.5*ui_unit)
@@ -355,7 +363,7 @@ func set_camera(center: Vector2, factor: float) -> void:
 	update_minimap_outline()
 
 func screen_cell(cell: Vector2) -> Vector2:
-	return world.position+Layout.project(cell)*camera_scale
+	return world.position+project(cell)*camera_scale
 
 func zoom_at(point: Vector2, factor: float) -> void:
 	var before := camera_center+(point-size/2)/camera_scale
@@ -363,7 +371,7 @@ func zoom_at(point: Vector2, factor: float) -> void:
 	set_camera(before-(point-size/2)/next,next)
 
 func cell_at(point: Vector2) -> Vector2i:
-	return Vector2i(Layout.unproject((point-world.position)/camera_scale).floor())
+	return Vector2i(Layout.unproject((point-world.position)/camera_scale,Placement.dimensions(placement).x).floor())
 
 func begin_build(kind: String, moving: String = "") -> void:
 	clear_context(); build_kind = kind; moving_id = moving; hover_cell = Vector2i(-999,-999)
@@ -377,8 +385,8 @@ func show_sites(kind: String, moving: String, generation: int) -> void:
 	for child in sites_layer.get_children(): child.free()
 	sites_pending = true
 	var count := 0
-	for y in range(18):
-		for x in range(32):
+	for y in range(Placement.dimensions(placement).y):
+		for x in range(Placement.dimensions(placement).x):
 			if generation!=sites_generation or not is_inside_tree(): return
 			var c := Vector2i(x,y)
 			var attempt := Placement.preview(placement,kind,c,moving)
@@ -415,7 +423,7 @@ func update_preview(point: Vector2) -> void:
 	# Keep the ghost visible even over an invalid surface.
 	var asset := "traps/"+build_kind+".png" if build_kind in ["spikes","sticky"] else "interiors/"+build_kind+".png"
 	if not valid or build_kind in ["spikes","sticky"]:
-		var anchor := Layout.project(Vector2(cell)+Vector2(.5,.5)) if side==Vector2i.ONE else Layout.project(Vector2(cell.x,cell.y+side.y))
+		var anchor := project(Vector2(cell)+Vector2(.5,.5)) if side==Vector2i.ONE else project(Vector2(cell.x,cell.y+side.y))
 		var ghost := Assembly.piece(self,asset,anchor,preview_layer); ghost.modulate = Color(1,1,1,.42) if valid else Color(1,.5,.5,.42)
 	if valid: status_text.text = Placement.NAMES[build_kind]+" · 배치 가능"
 
@@ -539,7 +547,7 @@ func building_screen_rect(b: Dictionary) -> Rect2:
 	bounds.position.y -= 100*camera_scale/ui_unit; bounds.size.y += 100*camera_scale/ui_unit
 	var asset := "interiors/"+str(b.kind)+".png"
 	var details: Dictionary = state.assets[asset]
-	var anchor := Layout.project(Vector2(.25,9)) if b.kind=="entrance" else Layout.project(Vector2(r.position.x,r.end.y))
+	var anchor := project(Vector2(.25,9)) if b.kind=="entrance" else project(Vector2(r.position.x,r.end.y))
 	var pivot := Vector2(details.pivot[0],details.pivot[1])
 	var used := texture(Layout.ART+asset).get_image().get_used_rect()
 	bounds = bounds.merge(Rect2((world.position+(anchor-pivot+Vector2(used.position))*camera_scale)/ui_unit,Vector2(used.size)*camera_scale/ui_unit))
@@ -551,7 +559,7 @@ func facility_screen_rect() -> Rect2:
 	var r: Rect2i = b.rect
 	var asset := "interiors/"+str(b.kind)+".png"
 	var details: Dictionary = state.assets[asset]
-	var anchor := Layout.project(Vector2(.25,9)) if b.kind=="entrance" else Layout.project(Vector2(r.position.x,r.end.y))
+	var anchor := project(Vector2(.25,9)) if b.kind=="entrance" else project(Vector2(r.position.x,r.end.y))
 	var pivot := Vector2(details.pivot[0],details.pivot[1])
 	var used := texture(Layout.ART+asset).get_image().get_used_rect()
 	return Rect2((world.position+(anchor-pivot+Vector2(used.position))*camera_scale)/ui_unit,Vector2(used.size)*camera_scale/ui_unit)
@@ -710,5 +718,27 @@ func _physics_process(delta: float) -> void:
 
 func show_battle_result(win: bool, reason: String) -> void:
 	var controller = battle
+	if Grade.enabled(): Grade.stash(root,placement,monster_ui.assignments)
 	controller.settle_result(win,reason)
 	preload("res://scripts/ui/ApprovedBattleUI.gd").prepare_result_controls(root.ui_layer)
+
+func project(cell: Vector2) -> Vector2:
+	return Layout.project(cell,Placement.dimensions(placement).x)
+
+func save_path() -> String:
+	return Grade.SAVE_PATH if Grade.enabled() else Monsters.SAVE_PATH
+
+func set_preview_day(day: int) -> Dictionary:
+	if battle!=null: return {"ok":false,"errors":["battle active"]}
+	var result := Grade.advance(root,placement,monster_ui.assignments,day)
+	if not result.ok: return result
+	clear_context(); cancel_build()
+	placement = result.layout; monster_ui.assignments = result.defenders
+	state = Layout.read(str(placement.grade))
+	monster_ui.food_income = 15 if placement.grade=="F" else 23
+	GameState.day = day
+	render_map(); update_wallet(); monster_ui.update_food(); show_default()
+	var title := chrome.find_child("GradeDayLabel",true,false) as Label
+	if title!=null: title.text = "DAY %d  ·  %s등급" % [placement.day,placement.grade]
+	if Grade.enabled(): Grade.stash(root,placement,monster_ui.assignments)
+	return result

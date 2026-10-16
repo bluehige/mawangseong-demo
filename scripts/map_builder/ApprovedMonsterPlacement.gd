@@ -102,17 +102,17 @@ static func sanitize(layout: Dictionary, assignments: Dictionary, members: Dicti
 		used[point] = true; clean[id] = {"building":str(assignments[id].building),"slot":int(assignments[id].slot)}
 	return clean
 
-static func save_copy(layout: Dictionary, assignments: Dictionary) -> Error:
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(SAVE_PATH.get_base_dir()))
-	var file := FileAccess.open(SAVE_PATH+".tmp",FileAccess.WRITE)
+static func save_copy(layout: Dictionary, assignments: Dictionary, path: String = SAVE_PATH) -> Error:
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(path.get_base_dir()))
+	var file := FileAccess.open(path+".tmp",FileAccess.WRITE)
 	if file==null: return FileAccess.get_open_error()
 	file.store_string(JSON.stringify({"schema":"v130r_step3_1","layout":Buildings.snapshot(layout),"defenders":assignments},"\t")); file.close()
-	return DirAccess.rename_absolute(ProjectSettings.globalize_path(SAVE_PATH+".tmp"),ProjectSettings.globalize_path(SAVE_PATH))
+	return DirAccess.rename_absolute(ProjectSettings.globalize_path(path+".tmp"),ProjectSettings.globalize_path(path))
 
-static func load_copy(baseline: Dictionary, members: Dictionary) -> Dictionary:
+static func load_copy(baseline: Dictionary, members: Dictionary, path: String = SAVE_PATH) -> Dictionary:
 	var result := {"layout":baseline,"defenders":{}}
-	if not FileAccess.file_exists(SAVE_PATH): return result
-	var data = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH))
+	if not FileAccess.file_exists(path): return result
+	var data = JSON.parse_string(FileAccess.get_file_as_string(path))
 	if not data is Dictionary or data.get("schema","")!="v130r_step3_1": return result
 	var layout := Buildings.restore(data.get("layout",{}),baseline)
 	if not layout.get("ok",false): return result

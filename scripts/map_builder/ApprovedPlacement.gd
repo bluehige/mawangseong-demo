@@ -12,10 +12,11 @@ const SAVE_PATH := "res://tmp/v130r_step2/copies/layout_test.json"
 static func enabled() -> bool:
 	return bool(ProjectSettings.get_setting("debug/approved_map_step2",false))
 
-static func initial(game: Node) -> Dictionary:
-	var plan := Layout.read()
-	var state := {"buildings":[],"traps":[],"water":{},"catalog":{},"stage":3,"day":7,"resources":{"gold":1245,"mana":320,"food":18},"serial":0}
+static func initial(game: Node, grade: String = "E") -> Dictionary:
+	var plan := Layout.read(grade)
+	var state := {"grade":grade,"size":Vector2i(plan.size[0],plan.size[1]),"buildings":[],"traps":[],"water":{},"catalog":{},"stage":1 if grade=="F" else 3,"day":1 if grade=="F" else 7,"resources":{"gold":1245,"mana":320,"food":18},"serial":0}
 	state["stage_rules"] = JSON.parse_string(FileAccess.get_file_as_string("res://data/castle_evolution_stages.json"))
+	state["plan_defense"] = {}
 	for t in plan.traps: state.traps.append({"kind":str(t.kind),"cell":[int(t.cell[0]),int(t.cell[1])]})
 	for c in Layout.cells(plan,"~B"): state.water[c] = true
 	for id in ROLES:
@@ -35,6 +36,10 @@ static func initial(game: Node) -> Dictionary:
 		if b.id=="vault": cap = 2
 		var paid: Dictionary = state.catalog.get(b.id,{}).get("cost",{}).duplicate()
 		var row := {"id":b.id,"kind":b.id,"rect":Rect2i(r[0],r[1],r[2],r[3]),"fixed":b.fixed,"capacity":cap,"aura":float(state.catalog.get(b.id,{}).get("aura",0.0)),"level":1,"preferred":b.door,"paid":paid}
+		if b.has("defense_cells"):
+			var points: Array = []
+			for c in b.defense_cells: points.append(Vector2i(c[0],c[1]))
+			state.plan_defense[b.id] = {"rect":row.rect,"cells":points}
 		if b.fixed:
 			row["socket_front"] = []
 			for c in b.get("door_outside",[[3,8],[3,9]]): row.socket_front.append([int(c[0]),int(c[1])])
@@ -43,6 +48,9 @@ static func initial(game: Node) -> Dictionary:
 
 static func inside(c: Vector2i) -> bool:
 	return Rect2i(Vector2i.ZERO,SIZE).has_point(c)
+
+static func dimensions(s: Dictionary) -> Vector2i:
+	return s.get("size",SIZE)
 
 static func occupied(rows: Array) -> Dictionary:
 	var result := {}
@@ -60,8 +68,8 @@ static func candidates(row: Dictionary) -> Array:
 
 static func clear_anchors(state: Dictionary, occ: Dictionary) -> Dictionary:
 	var clear := {}
-	for y in range(SIZE.y-1):
-		for x in range(SIZE.x-1):
+	for y in range(dimensions(state).y-1):
+		for x in range(dimensions(state).x-1):
 			var a := Vector2i(x,y)
 			var valid := true
 			for d in Roads.footprint_offsets():
@@ -75,7 +83,7 @@ static func rebuild(source: Dictionary) -> Dictionary:
 	var occ := occupied(s.buildings)
 	for i in range(s.buildings.size()):
 		var b: Dictionary = s.buildings[i]
-		if not Rect2i(Vector2i.ZERO,SIZE).encloses(b.rect): s.errors.append("부지 밖")
+		if not Rect2i(Vector2i.ZERO,dimensions(s)).encloses(b.rect): s.errors.append("부지 밖")
 		for prior in s.buildings.slice(0,i):
 			if b.rect.intersects(prior.rect): s.errors.append("시설과 겹침")
 		for c in occ:
@@ -99,13 +107,17 @@ static func rebuild(source: Dictionary) -> Dictionary:
 	# Deterministic grade-E trunk. Derive its junction from the water cuts and
 	# fixed door sockets, not from the approved cached road cells or draw list.
 	var cuts: Array = []
-	for x in range(SIZE.x):
+	for x in range(dimensions(s).x):
 		if s.water.has(Vector2i(x,0)) and (x==0 or not s.water.has(Vector2i(x-1,0))): cuts.append(x)
-	if cuts.size()!=2: s.errors.append("등급 E 고정 물길 오류"); return s
-	var junction_x: int = (int(cuts[0])+int(cuts[1]))/2
+	var is_f: bool = s.get("grade","E")=="F"
+	if cuts.size()!=(1 if is_f else 2): s.errors.append("등급 고정 물길 오류"); return s
+	var junction_x: int = int(cuts[0])-4 if is_f else (int(cuts[0])+int(cuts[1]))/2
 	var entry: Vector2i = s.doors.entrance.anchor
 	var joint := Vector2i(junction_x,entry.y)
 	var paths := [Defense.line(entry,joint)]
+	if is_f:
+		joint.y = 7
+		paths = [Defense.line(entry,Vector2i(entry.x,7)),Defense.line(Vector2i(entry.x,7),joint)]
 	for id in ["throne","vault"]:
 		var target: Vector2i = s.doors[id].anchor
 		if id=="throne": target += Vector2i.RIGHT
@@ -174,6 +186,11 @@ static func assign_defenders(s: Dictionary, occ: Dictionary) -> void:
 			var ed: int = Defense.manhattan(e,a)
 			return cd<ed or (cd==ed and (c.y<e.y or (c.y==e.y and c.x<e.x))))
 		wanted.append_array(options)
+		# Claude's F m cells are authoritative for facilities at their plan sites.
+		# Relocated/new buildings continue to use the common dynamic door rule.
+		var hint: Dictionary = s.get("plan_defense",{}).get(b.kind,{})
+		if s.get("grade","E")=="F" and not hint.is_empty() and b.rect==hint.rect:
+			wanted = hint.cells+wanted
 		var points: Array = []
 		for c in wanted:
 			if points.size()>=b.capacity: break
@@ -183,8 +200,8 @@ static func assign_defenders(s: Dictionary, occ: Dictionary) -> void:
 		if points.size()!=b.capacity: s.errors.append("수비 정원 자리 부족")
 		var aura: Array = []
 		var center: Vector2 = Vector2(b.rect.get_center())
-		for y in range(SIZE.y):
-			for x in range(SIZE.x):
+		for y in range(dimensions(s).y):
+			for x in range(dimensions(s).x):
 				var c := Vector2i(x,y)
 				if b.aura>0 and Vector2(c).distance_to(center)<=b.aura and not s.water.has(c): aura.append(c)
 		s.influence[b.id] = aura
@@ -289,11 +306,12 @@ static func snapshot(s: Dictionary) -> Dictionary:
 		var row: Dictionary = b.duplicate(true)
 		row.rect = [b.rect.position.x,b.rect.position.y,b.rect.size.x,b.rect.size.y]
 		rows.append(row)
-	return {"schema":"v130r_step2_placement_1","grade":"E","buildings":rows,"traps":s.traps,"resources":s.resources,"stage":s.stage,"day":s.day,"serial":s.serial}
+	return {"schema":"v130r_step2_placement_1","grade":s.get("grade","E"),"buildings":rows,"traps":s.traps,"resources":s.resources,"stage":s.stage,"day":s.day,"serial":s.serial}
 
 static func restore(data: Variant, baseline: Dictionary) -> Dictionary:
 	# Legacy v5/v6 or a campaign JSON has no branch extension: safe baseline.
 	if not data is Dictionary or data.get("schema","")!="v130r_step2_placement_1": return baseline.duplicate(true)
+	if str(data.get("grade","E"))!=str(baseline.get("grade","E")): return {"ok":false,"errors":["배치 등급 불일치"]}
 	var s := baseline.duplicate(true)
 	if not data.get("buildings") is Array: return {"ok":false,"errors":["배치 저장 형식 오류"]}
 	s.buildings = []
