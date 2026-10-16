@@ -26,14 +26,14 @@ func setup(owner_view: Control, controller) -> void:
 	for i in range(4):
 		var id: String = ["pause","1","2","3"][i]
 		speed_buttons[id] = button(bar,ART+"speed_"+id+".png",Vector2(460+i*66,19),58,func(): choose_speed(id),"일시정지" if i==0 else "속도 ×"+id)
-	battle_status = view.label_at(view.chrome,"",Vector2(24,105),20,true)
-	health_status = view.label_at(view.chrome,"",Vector2(24,140),18)
+	battle_status = view.label_at(view.chrome,"",Vector2(24,130 if view.food_enabled() else 105),20,true)
+	health_status = view.label_at(view.chrome,"",Vector2(24,165 if view.food_enabled() else 140),18)
 	skills = Control.new(); skills.name = "SelectedMonsterSkills"; skills.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	view.chrome.add_child(skills)
 	for i in range(3):
 		view.monster_ui.tabs.get_child(i*3).modulate = Color(1.25,1.12,.75) if i==2 else Color(.45,.45,.5)
 	view.ui_rects.build = Rect2(Vector2(590,956)*view.ui_unit,Vector2(740,100)*view.ui_unit)
-	view.ui_rects["battle_status"] = Rect2(Vector2(20,100)*view.ui_unit,Vector2(490,85)*view.ui_unit)
+	view.ui_rects["battle_status"] = Rect2(Vector2(20,125 if view.food_enabled() else 100)*view.ui_unit,Vector2(490,85)*view.ui_unit)
 
 func button(parent: Control, path: String, point: Vector2, width: float, action: Callable, hint: String) -> TextureButton:
 	var control := TextureButton.new(); control.texture_normal = view.texture(path)
@@ -61,8 +61,11 @@ func select_unit(unit: Node) -> void:
 	if not is_instance_valid(unit) or not unit.is_alive(): skills.hide(); return
 	unit.set_selected(true); skills.show()
 	var slots: Array = battle.skill_slots_for(unit)
-	var panel: Control = view.panel_image(skills,Rect2(0,0,252,98)); panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var panel: Control = view.panel_image(skills,Rect2(0,0,252,148 if bool(unit.get_meta("food_hungry",false)) else 98)); panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	view.label_at(panel,unit.display_name+" · HP %d/%d" % [unit.hp,unit.max_hp],Vector2(12,5),15,true).name = "SelectedVitals"
+	if bool(unit.get_meta("food_hungry",false)):
+		var hungry_text: Label = view.label_at(panel,"굶주림 · 공격 −20%\n회복 둥지 회복 불가",Vector2(12,99),16)
+		hungry_text.name = "HungryStatus"; hungry_text.modulate = Color(1,.65,.4)
 	var count := 0
 	for slot in range(slots.size()):
 		if slots[slot]==null: continue
@@ -141,7 +144,7 @@ func layout_vitals() -> void:
 		return a.position.y<b.position.y if a.position.y!=b.position.y else a.get_instance_id()<b.get_instance_id())
 	var occupied: Array[Rect2] = []
 	if skills.visible:
-		occupied.append(Rect2(view.world.to_local(skills.global_position),Vector2(252,98)*view.ui_unit/view.camera_scale).grow(8))
+		occupied.append(Rect2(view.world.to_local(skills.global_position),Vector2(252,148 if bool(selected.get_meta("food_hungry",false)) else 98)*view.ui_unit/view.camera_scale).grow(8))
 	for unit in units:
 		unit.vitals.visible = unit.is_alive()
 		if not unit.is_alive(): continue
@@ -177,12 +180,28 @@ static func prepare_result_controls(node: Node) -> void:
 			for key in ["normal_font","italics_font","mono_font"]: node.add_theme_font_override(key,preload("res://assets/fonts/NEXON_Maplestory_Light.otf"))
 			node.add_theme_font_override("bold_font",preload("res://assets/fonts/NEXON_Maplestory_Bold.otf"))
 	if node is Button:
-		node.tooltip_text = node.text; node.text = ""
+		if node.text!="": node.tooltip_text = node.text
+		node.text = ""
 		if node.has_method("set_label"): node.set_label("")
 		if "selected_marker" in node: node.selected_marker = false
 		if "jewel" in node: node.jewel = false
-		node.icon = preload("res://assets/maps/v130r_step2/ui/menu_info.png")
-		if "다음" in node.tooltip_text or "계속" in node.tooltip_text: node.icon = preload("res://assets/maps/v130r_step4/speed_1.png")
+		if node.icon==null: node.icon = preload("res://assets/maps/v130r_step2/ui/menu_info.png")
+		if "다음" in node.tooltip_text or "계속" in node.tooltip_text or node.name=="LegacyNextButton": node.icon = preload("res://assets/maps/v130r_step4/speed_1.png")
 		elif "타이틀" in node.tooltip_text: node.icon = preload("res://assets/ui/kit/icons/icon_close_128.png")
 		node.expand_icon = true
 	for child in node.get_children(): prepare_result_controls(child)
+
+static func food_result_panel(root: Node) -> void:
+	var ledger: Dictionary = root.result_summary.get("food_ledger",{})
+	if ledger.is_empty(): return
+	var panel := TextureRect.new(); panel.name = "FoodSettlementPanel"
+	panel.texture = preload("res://assets/ui/uiux/obsidian_panel.png")
+	panel.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	panel.position = Vector2(1120,190); panel.size = Vector2(730,340)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP; root.ui_layer.add_child(panel)
+	var title := Label.new(); title.text = "식량 · 하루 정산"; title.position = Vector2(28,22)
+	title.add_theme_font_override("font",preload("res://assets/fonts/NEXON_Maplestory_Bold.otf")); title.add_theme_font_size_override("font_size",28); panel.add_child(title)
+	var body := RichTextLabel.new(); body.name = "FoodSettlementDetails"
+	body.position = Vector2(28,72); body.size = Vector2(670,245); body.bbcode_enabled = false
+	body.add_theme_font_override("normal_font",preload("res://assets/fonts/NEXON_Maplestory_Light.otf")); body.add_theme_font_size_override("normal_font_size",23)
+	body.text = "\n\n".join(preload("res://scripts/systems/MonsterFoodService.gd").lines(ledger)); panel.add_child(body)

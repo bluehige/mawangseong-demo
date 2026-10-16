@@ -96,6 +96,8 @@ func _build_shared_frame(parent: Control, speaker_id: String, speaker_name: Stri
 	var strip := KitPanelScript.new()
 	strip.name = "DialogueTextPanel" if legacy else "StoryDialogueTextPanel"
 	strip.top_jewel = true
+	var raster_only := bool(ProjectSettings.get_setting("debug/approved_map_step6",false))
+	strip.raster_only = raster_only
 	parent.add_child(strip)
 	strip.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	strip.anchor_top = 0.76 if not combat else 0.78
@@ -148,6 +150,15 @@ func _build_shared_frame(parent: Control, speaker_id: String, speaker_name: Stri
 	strip.surface.material.set_shader_parameter("top_color", top_color)
 	strip.surface.material.set_shader_parameter("bottom_color", bottom_color)
 	_toolbar(parent, legacy)
+	if raster_only:
+		strip.surface.hide()
+		var painting := TextureRect.new()
+		painting.texture = preload("res://assets/ui/uiux/obsidian_panel.png")
+		painting.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		painting.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		painting.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		strip.add_child(painting); strip.move_child(painting,0)
+		preload("res://scripts/ui/ApprovedBattleUI.gd").prepare_result_controls(parent)
 	if combat:
 		var paused: Label = hud.label(parent, LanguageSettings.story_ui("combat_paused"), Vector2(32, 32), Vector2(750, 48), 24, Kit.Tokens.HIGHLIGHT, HORIZONTAL_ALIGNMENT_LEFT, "StoryCombatPausedLabel", UIFontScript.ROLE_EMPHASIS)
 		paused.mouse_filter = Control.MOUSE_FILTER_IGNORE

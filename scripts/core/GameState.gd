@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 
 const TUTORIAL_FINAL_DAY := 3
 const REGULAR_CAMPAIGN_FINAL_DAY := 30
@@ -14,7 +14,9 @@ var infamy: int = 620
 
 var gold_income: int = 32
 var mana_income: int = 18
-var food_income: int = 6
+const Food = preload("res://scripts/systems/MonsterFoodService.gd")
+var food_state: Dictionary = Food.fresh()
+var food_income: int = 15
 var infamy_income: int = 15
 
 var demon_lord_hp: int = BASE_DEMON_LORD_MAX_HP
@@ -35,7 +37,8 @@ func reset() -> void:
 	infamy = 620
 	gold_income = 32
 	mana_income = 18
-	food_income = 6
+	food_income = 15
+	food_state = Food.fresh()
 	infamy_income = 15
 	demon_lord_max_hp = BASE_DEMON_LORD_MAX_HP
 	demon_lord_hp = demon_lord_max_hp
@@ -56,6 +59,7 @@ func campaign_snapshot() -> Dictionary:
 		"gold_income": gold_income,
 		"mana_income": mana_income,
 		"food_income": food_income,
+		"food_state": food_state.duplicate(true),
 		"infamy_income": infamy_income,
 		"demon_lord_hp": demon_lord_hp,
 		"demon_lord_max_hp": demon_lord_max_hp,
@@ -109,7 +113,10 @@ func restore_campaign_snapshot(snapshot: Dictionary) -> bool:
 	infamy = int(snapshot.get("infamy"))
 	gold_income = int(snapshot.get("gold_income"))
 	mana_income = int(snapshot.get("mana_income"))
-	food_income = int(snapshot.get("food_income"))
+	food_state = Food.migrate(snapshot.get("food_state",{}),day)
+	var old_base := Food.income(day) if snapshot.has("food_state") else 6
+	food_income = Food.income(day)+maxi(0,int(snapshot.get("food_income"))-old_base)
+	food = mini(food,Food.capacity(day))
 	infamy_income = int(snapshot.get("infamy_income"))
 	demon_lord_max_hp = restored_max_hp
 	demon_lord_hp = restored_hp
@@ -141,15 +148,17 @@ func pay(cost: Dictionary) -> bool:
 func add_rewards(reward: Dictionary) -> void:
 	gold += int(reward.get("gold", 0))
 	mana += int(reward.get("mana", 0))
-	food += int(reward.get("food", 0))
+	food = clampi(food+int(reward.get("food",0)),0,Food.capacity(day))
 	infamy += int(reward.get("infamy", 0))
 	SignalBus.resources_changed.emit()
 
 func advance_day() -> void:
+	var bonus := maxi(0,food_income-Food.income(day))
 	day += 1
+	food_income = Food.income(day)+bonus
 	gold += gold_income
 	mana += mana_income
-	food += food_income
+	# Rations and food income are settled once on the result/day-end boundary.
 	infamy += infamy_income
 	SignalBus.resources_changed.emit()
 
@@ -159,3 +168,12 @@ func damage_throne(amount: int) -> void:
 		defeat = true
 	SignalBus.resources_changed.emit()
 
+
+func settle_food(deployed_species: Array) -> Dictionary:
+	var result := Food.settle(food,day,deployed_species,food_state,maxi(0,food_income-Food.income(day)))
+	food = int(result.food); food_state = result.state
+	SignalBus.resources_changed.emit()
+	return result.ledger
+
+func is_hungry(species: String) -> bool:
+	return species in food_state.get("hungry",[])

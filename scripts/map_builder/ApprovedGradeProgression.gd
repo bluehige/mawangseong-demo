@@ -6,6 +6,9 @@ const Plan = preload("res://scripts/map_builder/ApprovedMapLayout.gd")
 const SAVE_PATH := "res://tmp/v130r_step5/copies/progression_test.json"
 const SESSION := "approved_grade_progression"
 
+static func save_path() -> String:
+	return "res://tmp/v130r_step6/copies/food_test.json" if bool(ProjectSettings.get_setting("debug/approved_map_step6",false)) else SAVE_PATH
+
 static func enabled() -> bool:
 	return bool(ProjectSettings.get_setting("debug/approved_map_step5",false))
 
@@ -72,6 +75,7 @@ static func advance(game: Node, source: Dictionary, defenders: Dictionary, day: 
 			for c in cells:
 				if next.water.has(c) or used.has(c): continue
 				used[c] = true; next.traps.append({"kind":trap.kind,"cell":[c.x,c.y]}); break
+	if source.has("food_state"): next.food_state = source.food_state.duplicate(true)
 	next.stage = stage; next.day = day
 	next = Buildings.rebuild(next)
 	if not next.ok: return next
@@ -95,7 +99,7 @@ static func load_session(game: Node) -> Dictionary:
 	var raw = game.get_meta(SESSION,{})
 	var baseline := Buildings.initial(game,"F")
 	if raw.is_empty() and OS.get_cmdline_user_args().has("--fresh-grade-f"): return {"layout":baseline,"defenders":{}}
-	if raw.is_empty() and FileAccess.file_exists(SAVE_PATH): raw = JSON.parse_string(FileAccess.get_file_as_string(SAVE_PATH))
+	if raw.is_empty() and FileAccess.file_exists(save_path()): raw = JSON.parse_string(FileAccess.get_file_as_string(save_path()))
 	if not raw is Dictionary or not raw.get("layout") is Dictionary: return {"layout":baseline,"defenders":{}}
 	var grade := str(raw.layout.get("grade","F"))
 	if grade not in ["F","E"]: return {"layout":baseline,"defenders":{}}
@@ -107,10 +111,11 @@ static func continue_after_result(game: Node) -> void:
 	var session := load_session(game)
 	# Battle rewards are already settled by the existing result service.
 	session.layout.resources = {"gold":GameState.gold,"mana":GameState.mana,"food":GameState.food}
+	if bool(ProjectSettings.get_setting("debug/approved_map_step6",false)): session.layout.food_state = GameState.food_state.duplicate(true)
 	var result := advance(game,session.layout,session.defenders,int(session.layout.day)+1)
 	if not result.ok:
 		push_error(str(result.errors)); return
 	stash(game,result.layout,result.defenders)
-	Members.save_copy(result.layout,result.defenders,SAVE_PATH)
+	Members.save_copy(result.layout,result.defenders,save_path())
 	GameState.day = int(result.layout.day)
 	game._set_screen("management",false)

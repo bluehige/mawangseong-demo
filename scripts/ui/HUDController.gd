@@ -134,7 +134,7 @@ func build_top_bar() -> void:
 		return
 	resource_value_labels["gold"] = _resource_chip(Rect2(16, 10, 250, 62), "금화", "%d" % GameState.gold, Color("#ffd36a"), "resource_gold")
 	resource_value_labels["mana"] = _resource_chip(Rect2(278, 10, 250, 62), "마력", "%d" % GameState.mana, Color("#67b7ff"), "resource_mana")
-	resource_value_labels["food"] = _resource_chip(Rect2(540, 10, 250, 62), "식량", "%d / 30" % GameState.food, Color("#d8a77f"), "resource_food")
+	resource_value_labels["food"] = _resource_chip(Rect2(540, 10, 250, 62), "식량", "%d / %d" % [GameState.food,GameState.Food.capacity(GameState.day)], Color("#d8a77f"), "resource_food")
 	resource_value_labels["infamy"] = _resource_chip(Rect2(802, 10, 250, 62), "악명", "%d" % GameState.infamy, Color("#be72ff"), "resource_infamy")
 	var day_panel = panel(Rect2(1184, 10, 185, 62), Color("#0d0b10e8"), Color("#6e5630"), "", "resource_small")
 	label(day_panel, "DAY %02d  밤" % GameState.day, Vector2(8, 14), Vector2(169, 34), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
@@ -151,7 +151,7 @@ func _build_desktop_status_rail(compact: bool) -> void:
 	var item_width := rail_rect.size.x / 4.0
 	resource_value_labels["gold"] = _resource_rail_item(resource_rail, Rect2(0, 0, item_width, rail_rect.size.y), "금화", "%d" % GameState.gold, Color("#d9b45d"), compact)
 	resource_value_labels["mana"] = _resource_rail_item(resource_rail, Rect2(item_width, 0, item_width, rail_rect.size.y), "마력", "%d" % GameState.mana, Color("#67b7ff"), compact)
-	resource_value_labels["food"] = _resource_rail_item(resource_rail, Rect2(item_width * 2.0, 0, item_width, rail_rect.size.y), "식량", "%d / 30" % GameState.food, Color("#d8a77f"), compact)
+	resource_value_labels["food"] = _resource_rail_item(resource_rail, Rect2(item_width * 2.0, 0, item_width, rail_rect.size.y), "식량", "%d / %d" % [GameState.food,GameState.Food.capacity(GameState.day)], Color("#d8a77f"), compact)
 	resource_value_labels["infamy"] = _resource_rail_item(resource_rail, Rect2(item_width * 3.0, 0, item_width, rail_rect.size.y), "악명", "%d" % GameState.infamy, Color("#be72ff"), compact)
 	for index in range(1, 4):
 		var divider := ColorRect.new()
@@ -1079,7 +1079,7 @@ func _update_resource_values() -> void:
 	var values := {
 		"gold": "%d" % GameState.gold,
 		"mana": "%d" % GameState.mana,
-		"food": "%d / 30" % GameState.food,
+		"food": "%d / %d" % [GameState.food,GameState.Food.capacity(GameState.day)],
 		"infamy": "%d" % GameState.infamy
 	}
 	for key in values:

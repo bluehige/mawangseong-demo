@@ -1,7 +1,10 @@
 extends "res://scripts/ui/kit/KitPanel.gd"
 ## Dialogue-only corner jewels; the shared kit keeps its existing decoration.
 
+var raster_only := false
+
 func _draw() -> void:
+	if raster_only: return
 	super()
 	for x in [12.0, size.x - 12.0]:
 		var center := Vector2(x, 0)

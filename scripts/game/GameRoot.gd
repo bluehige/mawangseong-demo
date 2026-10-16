@@ -2111,14 +2111,9 @@ func _apply_update3_dream_max_hp() -> void:
 	GameState.demon_lord_hp = int(result.get("throne_hp", GameState.demon_lord_hp))
 
 func _apply_update3_daily_heart_upkeep() -> int:
-	var result := CastleHeartServiceScript.apply_daily_upkeep(update3_active_run, GameState.day, GameState.food)
-	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
-	var paid := int(result.get("paid", 0))
-	if paid > 0:
-		GameState.food = int(result.get("food", GameState.food))
-		SignalBus.resources_changed.emit()
-		_log("포식 심장 일일 유지비로 식량 %d을 사용했습니다." % paid)
-	return paid
+	# The old additional food tax is superseded by individual monster rations.
+	return 0
+
 
 func _prepare_update3_heart_battle() -> void:
 	_sync_update3_heart_awaken()
@@ -6600,6 +6595,7 @@ func _build_contract_board_ui() -> void:
 	secondary_workspace = load("res://scripts/ui/CampaignWorkspaceUI.gd").new()
 	secondary_workspace.setup(self,hud)
 	secondary_workspace.build_contract(selection_open)
+	if bool(ProjectSettings.get_setting("debug/approved_map_step6",false)): preload("res://scripts/ui/ApprovedBattleUI.gd").prepare_result_controls(ui_layer)
 
 
 
@@ -6768,6 +6764,12 @@ func _confirm_contract_selection() -> void:
 		return
 	var errors := ContractRosterServiceScript.validate_contract_selection(contract_board_pending_ids, _available_update2_contracts())
 	if not errors.is_empty() or selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
+		return
+	if bool(ProjectSettings.get_setting("debug/approved_map_step6",false)):
+		selected_contract_ids = contract_board_pending_ids.duplicate()
+		var ids: Array = []
+		for contract_id in selected_contract_ids: ids.append(str(DataRegistry.update2_contract(contract_id).instance_id))
+		load("res://scripts/map_builder/ApprovedRecruitment.gd").begin(self,ids)
 		return
 	selected_contract_ids = contract_board_pending_ids.duplicate()
 	for contract_id in selected_contract_ids:
@@ -7947,6 +7949,8 @@ func _update2_challenge_seal_condition_met(seal: Dictionary) -> bool:
 
 func _onboarding_complete_dialogue_action(action: String, return_screen: String) -> void:
 	match action:
+		"v130r_join":
+			load("res://scripts/map_builder/ApprovedRecruitment.gd").finish(self)
 		ONBOARDING_ACTION_DAY1_MANAGEMENT:
 			_onboarding_enter_management_day(1, true)
 		_:
@@ -9035,7 +9039,7 @@ func _apply_update3_event_resource_effects(effects_value) -> void:
 	var effects: Dictionary = effects_value
 	GameState.gold = maxi(0, GameState.gold + int(effects.get("gold", 0)))
 	GameState.mana = maxi(0, GameState.mana + int(effects.get("mana", 0)))
-	GameState.food = maxi(0, GameState.food + int(effects.get("food", 0)))
+	GameState.food = clampi(GameState.food+int(effects.get("food",0)),0,GameState.Food.capacity(GameState.day))
 	GameState.infamy = maxi(0, GameState.infamy + int(effects.get("infamy", 0)))
 	SignalBus.resources_changed.emit()
 
@@ -13748,6 +13752,7 @@ func _advance_day_from_management() -> void:
 		return
 	if not _ensure_required_main_route_for_current_layout("날짜 진행"):
 		return
+	_settle_monster_food()
 	GameState.advance_day()
 	_tutorial_emit_action("day_advanced", {"day": GameState.day})
 	_log("하루를 넘겼습니다. DAY %d." % GameState.day)
@@ -14520,14 +14525,14 @@ func _facility_base_definition(facility_id: String) -> Dictionary:
 				"role_summary": "몬스터를 가장 많이 세워 한 방에서 버티는 전투 거점입니다.",
 				"effect_summary": "체력 %d / 몬스터 %d명 배치. 이 방에 배치된 아군은 인접 방 방어 중에도 공격 +%d%%, 받는 피해 -%d%%." % [_facility_stage_preview_hp(450), _facility_stage_preview_capacity(4), _barracks_stage_attack_bonus_percent(), _barracks_stage_damage_reduction_percent()],
 				"recommend_summary": "입구와 왕좌 사이의 필수 길목, 또는 여러 길이 합쳐지는 방에 적합합니다.",
-				"caution_summary": "식량을 쓰기 때문에 초반에 많이 늘리면 몬스터 운용 여유가 줄어듭니다.",
+				"caution_summary": "배치된 몬스터는 정산 때 유지비를 사용합니다. 대기 중에는 식량을 쓰지 않습니다.",
 				"type": "support",
 				"hp": 450,
 				"max_monsters": 4,
 				"icon": "res://assets/ui/room_v2/room_v2_barracks.png",
 				"icon_offset": [0, -8],
 				"icon_size": 54,
-				"cost": {"gold": 100, "food": 2}
+				"cost": {"gold": 100}
 			}
 		"treasure":
 			return {
@@ -16526,3 +16531,14 @@ func _story_live_combat_events() -> Dictionary:
 		"oath_active": int(combat_scene.final_oath_activations) > 0 and leon_alive and leon_shield,
 		"oath_ended": int(combat_scene.final_oath_activations) > 0 and leon_alive and not leon_shield
 	}
+
+func _settle_monster_food() -> Dictionary:
+	var deployed: Array = []
+	if current_screen==Constants.SCREEN_COMBAT:
+		for unit in monster_units:
+			if is_instance_valid(unit) and str(unit.unit_id) not in deployed: deployed.append(str(unit.unit_id))
+	if deployed.is_empty():
+		for species in monster_roster:
+			if _monster_available_for_defense(species) and _monster_deployed_for_defense(species): deployed.append(species)
+	var ledger := GameState.settle_food(deployed)
+	return ledger

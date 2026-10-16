@@ -23,6 +23,7 @@ static func initial(game: Node, grade: String = "E") -> Dictionary:
 		var definition: Dictionary = game._facility_base_definition(ROLES[id])
 		var side := 3 if id in ["watchtower","bait_treasure"] else 5
 		state.catalog[id] = {"name":NAMES[id],"size":Vector2i(side,side),"capacity":int(definition.get("max_monsters",1)),"cost":definition.get("cost",{}).duplicate(),"unique":ROLES[id] in game.UNIQUE_FACILITIES,"stage":3 if id=="ward_core" else 1,"aura":Defense.AURA.get(ROLES[id],0.0)}
+		state.catalog[id].cost.erase("food")
 		for stage in state.stage_rules.values():
 			if ROLES[id] in stage.unlocked_facilities:
 				state.catalog[id].stage = int(stage.index); break
@@ -306,7 +307,7 @@ static func snapshot(s: Dictionary) -> Dictionary:
 		var row: Dictionary = b.duplicate(true)
 		row.rect = [b.rect.position.x,b.rect.position.y,b.rect.size.x,b.rect.size.y]
 		rows.append(row)
-	return {"schema":"v130r_step2_placement_1","grade":s.get("grade","E"),"buildings":rows,"traps":s.traps,"resources":s.resources,"stage":s.stage,"day":s.day,"serial":s.serial}
+	return {"food_state":s.get("food_state",{}).duplicate(true),"schema":"v130r_step2_placement_1","grade":s.get("grade","E"),"buildings":rows,"traps":s.traps,"resources":s.resources,"stage":s.stage,"day":s.day,"serial":s.serial}
 
 static func restore(data: Variant, baseline: Dictionary) -> Dictionary:
 	# Legacy v5/v6 or a campaign JSON has no branch extension: safe baseline.
@@ -333,6 +334,10 @@ static func restore(data: Variant, baseline: Dictionary) -> Dictionary:
 		s.buildings.append(row)
 	for key in ["stage","day","serial"]: s[key] = int(data.get(key,baseline[key]))
 	s.resources = integer_values(data.get("resources",baseline.resources))
+	if data.has("food_state"):
+		s.food_state = preload("res://scripts/systems/MonsterFoodService.gd").migrate(data.food_state,int(s.day))
+		s.resources.food = mini(int(s.resources.get("food",0)),preload("res://scripts/systems/MonsterFoodService.gd").capacity(int(s.day)))
+	for row in s.buildings: row.paid.erase("food")
 	s.traps = []
 	for trap in data.get("traps",baseline.traps):
 		if not trap is Dictionary or not trap.get("cell") is Array or trap.cell.size()!=2 or trap.get("kind","") not in ["spikes","sticky"]: return {"ok":false,"errors":["함정 저장 형식 오류"]}

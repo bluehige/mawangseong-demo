@@ -1698,7 +1698,9 @@ func spawn_monsters() -> void:
 		var fallback_room_id: String = roster.get("room", DataRegistry.monster(monster_id).get("recommended_room", "entrance"))
 		var room_id := _confirmed_monster_spawn_room(str(monster_id), fallback_room_id)
 		var stats = root._scaled_monster_stats(monster_id)
+		if GameState.is_hungry(str(monster_id)): stats.atk = maxi(1,roundi(float(stats.atk)*.8))
 		var unit = root._create_unit(monster_id, stats, Constants.FACTION_MONSTER, room_id)
+		unit.set_meta("food_hungry",GameState.is_hungry(str(monster_id)))
 		var count = int(spawn_counts.get(room_id, 0))
 		unit.global_position = root._clamp_to_combat_walkable(root._room_actor_point(room_id, count, true))
 		spawn_counts[room_id] = count + 1
@@ -5104,7 +5106,7 @@ func update_room_effects(delta: float) -> void:
 				recovery_room = _assigned_active_facility_room(unit, "recovery")
 				if recovery_room != "" and root.graph.exits(recovery_room).has(unit.current_room):
 					recovery_rate = 3.0 * _castle_facility_scale("recovery_power_scale") * _v122_active_facility_power("recovery")
-		if recovery_rate > 0.0:
+		if recovery_rate > 0.0 and not bool(unit.get_meta("food_hungry",false)):
 			var key = unit.get_instance_id()
 			var carry = float(recovery_heal_accumulator.get(key, 0.0)) + recovery_rate * delta
 			var heal_amount = int(floor(carry))
@@ -6048,6 +6050,7 @@ func finish_combat(win: bool, reason: String) -> void:
 	elif win and root.has_method("_finalize_battle_growth"):
 		growth_summary = root._finalize_battle_growth(true)
 		GameState.add_rewards(root.rewards_pending)
+	var food_ledger: Dictionary = root._settle_monster_food() if root.has_method("_settle_monster_food") else {}
 	var challenge_seal_result_line := ""
 	if root.has_method("_resolve_update2_challenge_seal"):
 		challenge_seal_result_line = root._resolve_update2_challenge_seal(win)
@@ -6075,6 +6078,7 @@ func finish_combat(win: bool, reason: String) -> void:
 		if monster.is_alive():
 			alive_monsters += 1
 	lines.append(reason)
+	lines.append_array(preload("res://scripts/systems/MonsterFoodService.gd").lines(food_ledger))
 	if challenge_seal_result_line != "":
 		lines.append(challenge_seal_result_line)
 	lines.append("격퇴한 적: %d / 탈출: %d / 스폰: %d" % [count_downed_enemies(), root.thieves_escaped_this_battle, root.spawned_count])
@@ -6136,6 +6140,7 @@ func finish_combat(win: bool, reason: String) -> void:
 		"win": win,
 		"lines": lines,
 		"growth": growth_summary,
+		"food_ledger": food_ledger.duplicate(true),
 		"resource_balance": _result_resource_balance(resources_before_settlement),
 		"v122_ledger": v122_ledger_summary,
 		"metrics": {

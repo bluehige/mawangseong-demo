@@ -2,7 +2,7 @@ extends RefCounted
 ## Individual branch-preview defenders. Only an isolated test copy is written.
 const Buildings = preload("res://scripts/map_builder/ApprovedPlacement.gd")
 const SAVE_PATH := "res://tmp/v130r_step3/copies/placement_test.json"
-const COSTS := {"slime":1,"goblin":1,"imp":1,"kobold_scout":1,"spore_healer":2,"war_drummer":2,"ghost_housemaid":2,"bat_courier":2,"spider_tailor":2,"stone_sentinel":3,"mimic_porter":3,"moon_tracker":3,"graveyard_hound":3,"armored_beetle":3}
+const COSTS = preload("res://scripts/systems/MonsterFoodService.gd").COSTS
 const SUPPORT := ["spore_healer","ghost_housemaid","spider_tailor"]
 const RANGED := ["imp","moon_tracker","bat_courier"]
 const TANKS := ["slime","stone_sentinel","armored_beetle"]

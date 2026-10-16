@@ -74,6 +74,23 @@ func setup(game: Node) -> void:
 	placement = copy.layout; monster_ui.assignments = copy.defenders
 	state = Layout.read(str(placement.get("grade","E")))
 	monster_ui.food_income = 15 if placement.get("grade","E")=="F" else 23
+	if food_enabled():
+		placement.food_state = GameState.Food.migrate(placement.get("food_state",{}),int(placement.day))
+		GameState.food_state = placement.food_state.duplicate(true)
+		GameState.food_income = GameState.Food.income(int(placement.day))
+		monster_ui.food_income = GameState.food_income
+		monster_ui.joined = placement.food_state.owned.duplicate()
+		# Restore the same two contracts; restarting cannot grant a new pair.
+		if not placement.food_state.contracts.is_empty(): root.selected_contract_ids.assign(placement.food_state.contracts)
+		elif root.selected_contract_ids.is_empty():
+			for id in monster_ui.joined:
+				if not monster_ui.members.has(id): continue
+				var species: String = monster_ui.members[id].species_id
+				if DataRegistry.update2_contracts.has(species) and root.selected_contract_ids.size()<2: root.selected_contract_ids.append(species)
+		if not monster_ui.unlock_all:
+			var owned: Array = monster_ui.unlocked()
+			for id in monster_ui.assignments.keys():
+				if id not in owned: monster_ui.assignments.erase(id)
 	world = Node2D.new(); world.name = "DynamicApprovedPieces"; add_child(world)
 	render_map()
 	build_chrome()
@@ -81,6 +98,7 @@ func setup(game: Node) -> void:
 	game.get_viewport().size_changed.connect(resize_workspace)
 	# Existing menu uses drawn controls. This branch's image controls own input.
 	call_deferred("hide_legacy_menu")
+	if food_enabled(): call_deferred("check_recruits")
 
 func hide_legacy_menu() -> void:
 	var menu: Node = root.ui_layer.find_child("CommonGameMenuButton",true,false)
@@ -720,13 +738,20 @@ func show_battle_result(win: bool, reason: String) -> void:
 	var controller = battle
 	if Grade.enabled(): Grade.stash(root,placement,monster_ui.assignments)
 	controller.settle_result(win,reason)
+	if food_enabled():
+		var session := Grade.load_session(root)
+		session.layout.food_state = GameState.food_state.duplicate(true)
+		session.layout.resources.food = GameState.food
+		Grade.stash(root,session.layout,session.defenders)
+		Monsters.save_copy(session.layout,session.defenders,Grade.save_path())
 	preload("res://scripts/ui/ApprovedBattleUI.gd").prepare_result_controls(root.ui_layer)
+	if food_enabled(): preload("res://scripts/ui/ApprovedBattleUI.gd").food_result_panel(root)
 
 func project(cell: Vector2) -> Vector2:
 	return Layout.project(cell,Placement.dimensions(placement).x)
 
 func save_path() -> String:
-	return Grade.SAVE_PATH if Grade.enabled() else Monsters.SAVE_PATH
+	return Grade.save_path() if Grade.enabled() else Monsters.SAVE_PATH
 
 func set_preview_day(day: int) -> Dictionary:
 	if battle!=null: return {"ok":false,"errors":["battle active"]}
@@ -735,10 +760,38 @@ func set_preview_day(day: int) -> Dictionary:
 	clear_context(); cancel_build()
 	placement = result.layout; monster_ui.assignments = result.defenders
 	state = Layout.read(str(placement.grade))
-	monster_ui.food_income = 15 if placement.grade=="F" else 23
+	monster_ui.food_income = GameState.Food.income(day) if food_enabled() else 15 if placement.grade=="F" else 23
 	GameState.day = day
 	render_map(); update_wallet(); monster_ui.update_food(); show_default()
 	var title := chrome.find_child("GradeDayLabel",true,false) as Label
 	if title!=null: title.text = "DAY %d  ·  %s등급" % [placement.day,placement.grade]
 	if Grade.enabled(): Grade.stash(root,placement,monster_ui.assignments)
 	return result
+
+func food_enabled() -> bool:
+	return bool(ProjectSettings.get_setting("debug/approved_map_step6",false))
+
+func request_join(id: String) -> void:
+	if not food_enabled(): return
+	var recruits = load("res://scripts/map_builder/ApprovedRecruitment.gd")
+	var eligible: Array = recruits.eligible(root,monster_ui.members,int(placement.day))
+	if id in eligible:
+		Grade.stash(root,placement,monster_ui.assignments)
+		recruits.begin(root,[id]); return
+	var species: String = monster_ui.members[id].species_id
+	if DataRegistry.update2_contracts.has(species):
+		Grade.stash(root,placement,monster_ui.assignments)
+		root._set_screen(Constants.SCREEN_CONTRACT_BOARD)
+		preload("res://scripts/ui/ApprovedBattleUI.gd").prepare_result_controls(root.ui_layer)
+	else:
+		status_text.text = "기존 합류 조건: "+recruits.condition(species)
+
+func check_recruits() -> void:
+	if not is_instance_valid(monster_ui) or monster_ui.unlock_all or battle!=null: return
+	var recruits = load("res://scripts/map_builder/ApprovedRecruitment.gd")
+	var pending: Array = []
+	for id in recruits.eligible(root,monster_ui.members,int(placement.day)):
+		if monster_ui.members[id].species_id not in recruits.CORE and id not in monster_ui.joined: pending.append(id)
+	if pending.is_empty(): return
+	Grade.stash(root,placement,monster_ui.assignments)
+	recruits.begin(root,pending)

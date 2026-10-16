@@ -51,6 +51,9 @@ func begin(map_view: Control) -> void:
 	root.rewards_pending = {"gold":0,"mana":0,"food":0,"infamy":0}
 	GameState.day = int(view.placement.day); GameState.gold = int(view.placement.resources.gold)
 	GameState.mana = int(view.placement.resources.mana); GameState.food = int(view.placement.resources.food)
+	if view.food_enabled():
+		GameState.food_state = GameState.Food.migrate(view.placement.get("food_state",{}),GameState.day)
+		GameState.food_income = GameState.Food.income(GameState.day)
 	GameState.defeat = false; GameState.victory = false
 	root.battle_resource_start = _resource_balance_snapshot()
 	root.monster_units.clear(); root.enemy_units.clear(); root.selected_unit = null
@@ -76,9 +79,11 @@ func spawn_monsters() -> void:
 		var row: Dictionary = members[id]; var species := str(row.species_id)
 		var building := str(assignments[id].building)
 		var stats: Dictionary = row.stats.duplicate(true)
+		if GameState.is_hungry(species): stats.atk = maxi(1,roundi(float(stats.atk)*.8))
 		# Preview uses the same initial roster level as placement, not personal saves.
 		var unit = make_unit(species,stats,Constants.FACTION_MONSTER,building)
-		unit.display_name = row.display_name; unit.name_label.text = row.display_name
+		unit.set_meta("food_hungry",GameState.is_hungry(species))
+		unit.display_name = row.display_name; unit.name_label.text = row.display_name+(" · 굶주림" if GameState.is_hungry(species) else "")
 		unit.set_meta("instance_id",id); unit.set_meta("base_attack_range",unit.attack_range)
 		unit.position = map.world(Members.cell(view.placement,assignments[id]))
 		homes[unit.get_instance_id()] = unit.position
@@ -244,7 +249,7 @@ func update_room_effects(delta: float) -> void:
 	for unit in root.monster_units:
 		if not unit.is_alive(): continue
 		unit.attack_range = float(unit.get_meta("base_attack_range",unit.attack_range))*(1.18 if _unit_in_facility_room(unit,"watch_post") else 1.0)
-		if _unit_in_facility_room(unit,"recovery"):
+		if _unit_in_facility_room(unit,"recovery") and not bool(unit.get_meta("food_hungry",false)):
 			var key: int = unit.get_instance_id(); var carry := float(recovery_heal_accumulator.get(key,0))+8.0*delta
 			var amount := floori(carry); recovery_heal_accumulator[key] = carry-amount
 			if amount>0: unit.heal(amount)

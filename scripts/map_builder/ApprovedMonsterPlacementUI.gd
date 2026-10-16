@@ -16,6 +16,7 @@ var roster_panel: Control
 var build_bar: Control
 var tabs: Control
 var cards := {}
+var food_detail: Label
 var food_label: Label
 var warning: Control
 var count_label: Label
@@ -60,6 +61,7 @@ func build_controls(hud: Control, tab_parent: Control, bar: Control) -> void:
 	food_label.size = Vector2(160,28)
 	warning = view.art_at(view.chrome,view.KIT+"warning_64.png",Rect2(27,89,28,28))
 	warning.name = "FoodWarning"
+	if view.food_enabled(): food_detail = view.label_at(view.chrome,"",Vector2(200,91),16)
 	var warning_text: Label = view.label_at(warning,"굶주림 위험",Vector2(32,3),17,true)
 	warning_text.modulate = Color(1,.55,.4)
 	roster_panel = view.panel_image(view.chrome,Rect2(24,866,1560,204)); roster_panel.name = "MonsterRoster"
@@ -106,8 +108,9 @@ func refresh_cards() -> void:
 		if locked and lock==null:
 			lock = view.art_at(card,view.KIT+"lock_64.png",Rect2(30,24,36,36)); lock.name = "RecruitLock"
 		elif not locked and lock!=null: lock.free()
+		if view.food_enabled() and GameState.is_hungry(str(members[id].species_id)): card.modulate = Color(1,.55,.35)
 		card.tooltip_text = ("미합류 · " if locked else "배치 중 · " if assignments.has(id) else "대기 · ")+members[id].stats.role
-	if is_instance_valid(count_label): count_label.text = "배치 %d / %d  ·  명단 %d" % [assignments.size(),total_slots(),members.size()]
+	if is_instance_valid(count_label): count_label.text = "배치 %d / %d  ·  합류 %d" % [assignments.size(),total_slots(),active.size()]
 	update_food()
 
 func total_slots() -> int:
@@ -119,9 +122,11 @@ func update_food() -> void:
 	if not is_instance_valid(food_label): return
 	var cost := Model.upkeep(assignments,members)
 	food_label.text = "식량 %d (−%d/일)" % [view.placement.resources.food,cost]
+	if view.food_enabled(): food_label.text = "%d/%d (−%d/일)" % [view.placement.resources.food,GameState.Food.capacity(int(view.placement.day)),cost]
 	food_label.modulate = Color(1,.5,.35) if cost>food_income else Color.WHITE
-	food_label.tooltip_text = "식량 수입 %d/일 · 대기 유지비 0 · 실제 정산은 다음 단계" % food_income
+	food_label.tooltip_text = "식량 수입 %d/일 · 대기 유지비 0 · 정산: 수입 → 유지비 → 창고" % food_income
 	warning.visible = cost>food_income
+	if is_instance_valid(food_detail): food_detail.text = "수입 +%d/일 · 대기 0 · 창고 %d" % [food_income,GameState.Food.capacity(int(view.placement.day))]
 
 func render_units() -> void:
 	assignments = Model.sanitize(view.placement,assignments,members)
@@ -171,7 +176,8 @@ func target_at(c: Vector2i) -> Dictionary:
 	return {}
 
 func begin_drag(id: String, point: Vector2) -> void:
-	if id not in unlocked(): return
+	if id not in unlocked():
+		view.request_join(id); return
 	close_info(); view.dragging = false; drag_id = id; drag_origin = point; drag_started = false
 
 func cancel_drag() -> void:
@@ -224,6 +230,10 @@ func refresh() -> void:
 
 func persist() -> Error:
 	assignments = Model.sanitize(view.placement,assignments,members)
+	if view.food_enabled():
+		view.placement.food_state = GameState.food_state.duplicate(true)
+		view.placement.food_state.owned = joined.duplicate()
+		preload("res://scripts/map_builder/ApprovedGradeProgression.gd").stash(view.root,view.placement,assignments)
 	var error := Model.save_copy(view.placement,assignments,view.save_path())
 	view.last_save_error = error
 	if error!=OK and is_instance_valid(count_label): count_label.text = "테스트 저장 실패 · "+str(error)
