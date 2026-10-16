@@ -141,6 +141,24 @@ func direct() -> void:
 	expect(battle.request_unit_skill(pudding,0),"existing slime shield casts")
 	expect(pudding.shield_timer>0 and not pudding.skill_ready("slime_shield"),"skill status and cooldown retained")
 	for id in ["rally","focus_attack","emergency_retreat","hold_ground","lure_retreat"]: expect(battle.issue_command(id),"tactic "+id)
+	# Verify command behavior, not only command acceptance.
+	unit.position = initial_home; unit.stop_navigation()
+	enemy.down = false; enemy.hp = enemy.max_hp; enemy.position = initial_home+Vector2(30,0)
+	battle.spawn_enemy("explorer",{}); var focused: Node = game.enemy_units[-1]
+	focused.position = initial_home+Vector2(40,0)
+	battle.issue_command("focus_attack",initial_home,focused)
+	expect(battle._combat_action_target(unit,[enemy,focused],80)==focused,"focus prefers explicitly selected enemy over nearest")
+	unit.attack_cooldown = 0; var focused_hp: int = focused.hp; var nearest_hp: int = enemy.hp
+	battle.try_attack(unit,[enemy,focused])
+	expect(focused.hp<focused_hp and enemy.hp==nearest_hp,"focus attack damages selected enemy only")
+	battle.issue_command("hold_ground"); unit.position = initial_home
+	battle.update_monster_path(unit)
+	expect(unit.path_points.is_empty(),"hold ground does not chase a nearby enemy")
+	battle.issue_command("emergency_retreat",battle.map.center("throne"))
+	battle.update_monster_path(unit); var retreat_path: Array = unit.path_points.duplicate()
+	unit.attack_cooldown = 0; battle.try_attack(unit,[enemy,focused])
+	expect(not retreat_path.is_empty() and unit.path_points==retreat_path,"retreat route cannot be cancelled by ordinary attacks")
+	battle.command_until = 0; battle.command = "hold_ground"
 	for speed in [1,2,3]: battle.set_speed(speed); expect(game.combat_speed==speed,"speed "+str(speed))
 	battle.set_pause_state(true); expect(not pudding.is_physics_processing(),"pause freezes Unit status and movement")
 	battle.set_speed(1)

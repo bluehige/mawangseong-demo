@@ -135,6 +135,8 @@ func local_target(unit: Node) -> Node:
 
 func update_monster_path(unit: Node) -> void:
 	if unit==direct_unit: return
+	if root.combat_time<command_until and command=="hold_ground":
+		try_auto_monster_skill(unit); return_home(unit); return
 	if root.combat_time<command_until and command in ["rally","emergency_retreat","lure_retreat"]:
 		move_unit_to_point(unit,command_point,true); return
 	if unit.position.distance_to(home(unit))>leash_radius(unit)+2:
@@ -195,6 +197,7 @@ func move_unit_to_point(unit: Node, point: Vector2, _preserve_goal: bool = false
 	unit.set_path(map.path_to_point(unit.position,desired))
 
 func _move_to_attack_target(unit: Node, target: Node, _preserve_goal: bool = false) -> void:
+	if unit.faction==Constants.FACTION_MONSTER and command=="focus_attack" and is_instance_valid(command_target) and command_target.is_alive() and command_target.position.distance_to(home(unit))<=leash_radius(unit): target = command_target
 	move_unit_to_point(unit,target.position,true)
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET,"교전",target.display_name)
 
@@ -206,7 +209,13 @@ func _hold_attack_position(unit: Node, target: Node) -> bool:
 
 func try_attack(attacker: Node, opponents: Array) -> void:
 	if attacker==direct_unit and not attacker.path_points.is_empty(): return
+	if attacker.faction==Constants.FACTION_MONSTER and root.combat_time<command_until and command in ["rally","emergency_retreat","lure_retreat"] and not attacker.path_points.is_empty(): return
 	super.try_attack(attacker,opponents)
+
+func _combat_action_target(attacker: Node, opponents: Array, max_distance: float) -> Node:
+	if attacker.faction==Constants.FACTION_MONSTER and command=="focus_attack" and is_instance_valid(command_target) and command_target in opponents and command_target.is_alive() and command_target.is_targetable_by(attacker):
+		if attacker.position.distance_to(command_target.position)<=max_distance: return command_target
+	return super._combat_action_target(attacker,opponents,max_distance)
 
 func _path_from_world_to_room(from: Vector2, id: String, _unit: Node = null) -> Array: return map.path_to_point(from,map.center(id))
 func _v122_uses_zone_facility_effects() -> bool: return false
