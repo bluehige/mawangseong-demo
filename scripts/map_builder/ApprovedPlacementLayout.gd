@@ -88,11 +88,16 @@ static func free_rect(rect: Rect2, safe: Rect2, obstacles: Array[Rect2]) -> bool
 static func radial_group(center: Vector2, radius: float, screen: Vector2, obstacles: Array[Rect2], with_info: bool) -> Dictionary:
 	# A candidate is always one rigid circle/arc, never five independent searches.
 	var safe := Rect2(Vector2(12,12),screen-Vector2(24,24))
-	for span in [TAU,PI*1.5,PI*1.25,PI]:
+	var edge := minf(minf(center.x,screen.x-center.x),minf(center.y,screen.y-center.y))
+	var spans := [PI,TAU] if edge<radius+88 else [TAU,PI]
+	for span in spans:
 		var step: float = TAU/5 if span==TAU else span/4
 		if 2*radius*sin(step/2)<100: continue
 		for turn in range(72):
-			var start := -PI/2+turn*TAU/72
+			# A semicircle opens toward the workspace before rotating as a group.
+			var inward := (screen/2-center).angle()-PI/2
+			var offset := float((turn+1)/2)*TAU/72*(1 if turn%2==1 else -1)
+			var start := -PI/2+turn*TAU/72 if span==TAU else inward+offset
 			var rects: Array[Rect2] = []
 			var valid := true
 			for i in range(5):
@@ -111,6 +116,7 @@ static func radial_group(center: Vector2, radius: float, screen: Vector2, obstac
 				var x: float = center.x+radius+56 if side>0 else center.x-radius-56-360
 				var panel := Rect2(Vector2(x,center.y-134),Vector2(360,268))
 				if not free_rect(panel,safe,obstacles): continue
+				if rects.any(func(rect): return panel.intersects(rect.grow(4))): continue
 				result["panel"] = panel
 				return result
 	return {}

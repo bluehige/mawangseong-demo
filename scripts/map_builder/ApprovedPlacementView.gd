@@ -519,15 +519,25 @@ func building_screen_rect(b: Dictionary) -> Rect2:
 	bounds = bounds.merge(Rect2((world.position+(anchor-pivot+Vector2(used.position))*camera_scale)/ui_unit,Vector2(used.size)*camera_scale/ui_unit))
 	return bounds.grow(8)
 
-func context_center() -> Vector2:
+func facility_screen_rect() -> Rect2:
+	# Use the actual facility silhouette, not its surrounding room floor/walls.
 	var b := Placement.building(placement,selected_id)
-	return screen_cell(Vector2(b.rect.position)+Vector2(b.rect.size)/2)/ui_unit
+	var r: Rect2i = b.rect
+	var asset := "interiors/"+str(b.kind)+".png"
+	var details: Dictionary = state.assets[asset]
+	var anchor := Layout.project(Vector2(.25,9)) if b.kind=="entrance" else Layout.project(Vector2(r.position.x,r.end.y))
+	var pivot := Vector2(details.pivot[0],details.pivot[1])
+	var used := texture(Layout.ART+asset).get_image().get_used_rect()
+	return Rect2((world.position+(anchor-pivot+Vector2(used.position))*camera_scale)/ui_unit,Vector2(used.size)*camera_scale/ui_unit)
+
+func context_center() -> Vector2:
+	return facility_screen_rect().get_center()
 
 func context_radius() -> float:
-	var bounds := building_screen_rect(Placement.building(placement,selected_id))
-	var center := context_center()
-	var extent := (bounds.position-center).abs().max((bounds.end-center).abs())
-	return maxf(150,maxf(extent.x,extent.y)+40)
+	var bounds := facility_screen_rect()
+	var exterior := maxf(bounds.size.x,bounds.size.y)/2
+	# Eight pixels of breathing room; only the five labels impose a minimum.
+	return maxf(exterior+8,100/(2*sin(PI/5)))
 
 func solve_context(center: Vector2, radius: float) -> Dictionary:
 	var blocked: Array[Rect2] = []
@@ -580,7 +590,7 @@ func update_context_position() -> void:
 	if info.visible: info.position = context_layout.panel.position
 	# The existing GPT obsidian painting is clipped to one round backing.
 	var points := PackedVector2Array(); var uv := PackedVector2Array()
-	var disc_radius := radius+52
+	var disc_radius := radius
 	var source_size := radial_backdrop.texture.get_size()
 	for i in range(72):
 		var direction := Vector2.from_angle(i*TAU/72)
