@@ -186,6 +186,7 @@ func resize_workspace() -> void:
 func build_chrome() -> void:
 	ui_unit = ScreenLayout.unit(size); ui_rects = ScreenLayout.panels(size)
 	chrome = Control.new(); chrome.name = "MapControls"; chrome.scale = Vector2.ONE*ui_unit
+	chrome.z_as_relative = false; chrome.z_index = 4090
 	chrome.mouse_filter = Control.MOUSE_FILTER_IGNORE; add_child(chrome)
 	radial_backdrop = Polygon2D.new(); radial_backdrop.name = "RadialObsidianDisc"
 	radial_backdrop.texture = texture("res://assets/ui/uiux/obsidian_panel.png")

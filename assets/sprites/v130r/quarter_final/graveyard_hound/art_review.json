@@ -1,0 +1,1498 @@
+{
+  "species_id": "graveyard_hound",
+  "status": "ACCEPTED_NOT_INTEGRATED",
+  "selection": {
+    "status": "ACCEPTED_NOT_INTEGRATED",
+    "sources": [
+      {
+        "file": "attempt_1.png"
+      }
+    ],
+    "repairs": [
+      {
+        "file": "attempt_3.png",
+        "cols": 1,
+        "rows": 1,
+        "mapping": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              "ne",
+              4,
+              3
+            ]
+          ]
+        ]
+      }
+    ],
+    "criteria": {
+      "T": true,
+      "F": true,
+      "H": true,
+      "E": true,
+      "S": true
+    },
+    "evidence": "넓은 털 정수리·등·짧은 발·낮은 왼쪽 주둥이·타원. NE 등/꼬리.",
+    "notes": [
+      "Attempt1 NE final hurt-recover front face rejected. Attempt2 genuine rear but large front bone pendant wrongly moved onto back, rejected. Attempt3 shows only small bone beads at back; large front pendant hidden; tail lantern and cyan flame maintained.",
+      "No style painting or background removal. Native original maxalpha254 and repair255 preserved."
+    ]
+  },
+  "uniform_scale": 1.2424242424242424,
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "logical_anchor": [
+    192,
+    345
+  ],
+  "atlas_anchor": [
+    156.5,
+    289
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "integrated": false,
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "visual_evidence": "넓은 털 정수리·등·짧은 발·낮은 왼쪽 주둥이·타원. NE 등/꼬리.",
+  "directions": {
+    "sw": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/graveyard_hound/graveyard_hound_sheet.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              25,
+              22,
+              171,
+              197
+            ],
+            "source_bbox": [
+              0,
+              0,
+              146,
+              175
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              63,
+              78,
+              181,
+              217
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.45288538059492,
+            "contact_y": 289,
+            "sha256": "a2d25452b513c972e6e591be08d511fb9b4163799e8997d67b050b873700696e"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              219,
+              22,
+              367,
+              198
+            ],
+            "source_bbox": [
+              0,
+              0,
+              148,
+              176
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              376,
+              77,
+              184,
+              219
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.25652391060058,
+            "contact_y": 289,
+            "sha256": "509a0143105b539291fa90eccab98f30e4024c688cd22b8d97c1c29485eed02e"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              399,
+              22,
+              548,
+              202
+            ],
+            "source_bbox": [
+              0,
+              0,
+              149,
+              180
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              681,
+              73,
+              185,
+              224
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.06042565587052,
+            "contact_y": 289,
+            "sha256": "5162af56971e57eb598817506801e6793b7a431cc64facc0d521962a87e523ec"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              590,
+              55,
+              741,
+              199
+            ],
+            "source_bbox": [
+              0,
+              0,
+              151,
+              144
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 9,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1020,
+              116,
+              188,
+              179
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.82268278641334,
+            "contact_y": 289,
+            "sha256": "2e342463813c5ec68b50c5e4ecdde93cb7750868576cda6b96b119b4d00eb1f3"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              19,
+              212,
+              174,
+              392
+            ],
+            "source_bbox": [
+              0,
+              0,
+              155,
+              180
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 8,
+            "foreign_major_components": [],
+            "index": 4,
+            "rect": [
+              71,
+              384,
+              193,
+              224
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.95531451351226,
+            "contact_y": 289,
+            "sha256": "496613e9d05bb7c47265b26831de44c99fbcb6ade2d98b294b928f13c00e3a60"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              215,
+              212,
+              366,
+              396
+            ],
+            "source_bbox": [
+              0,
+              0,
+              151,
+              184
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 5,
+            "rect": [
+              390,
+              380,
+              188,
+              229
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.0389873864338,
+            "contact_y": 289,
+            "sha256": "1835d5c2b3a3f27c8c3a4a3e38370f9829293842b18ffc71986ff42e299dd79d"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              407,
+              214,
+              557,
+              392
+            ],
+            "source_bbox": [
+              0,
+              0,
+              150,
+              178
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 6,
+            "rect": [
+              710,
+              387,
+              186,
+              221
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.2849995257517,
+            "contact_y": 289,
+            "sha256": "3ce908b4282d3fbabe48195085592cd640dc750399773903e3b8804bd1428f03"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              598,
+              215,
+              750,
+              397
+            ],
+            "source_bbox": [
+              0,
+              0,
+              152,
+              182
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 7,
+            "rect": [
+              1030,
+              382,
+              189,
+              226
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.7596874462491,
+            "contact_y": 289,
+            "sha256": "48cb61ce76da89ad806ea63e7978e12da4c3a1d7576e4fb18d4b38ee545eca46"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              21,
+              409,
+              180,
+              586
+            ],
+            "source_bbox": [
+              0,
+              0,
+              159,
+              177
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 12,
+            "foreign_major_components": [],
+            "index": 8,
+            "rect": [
+              56,
+              703,
+              198,
+              220
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.6311565449369,
+            "contact_y": 289,
+            "sha256": "fac56ff97a43da11d3640712349461352c45882e76b4d3ee8724d7160ed4b128"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              211,
+              410,
+              373,
+              585
+            ],
+            "source_bbox": [
+              0,
+              0,
+              162,
+              175
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 13,
+            "foreign_major_components": [],
+            "index": 9,
+            "rect": [
+              376,
+              705,
+              201,
+              217
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.62967556787783,
+            "contact_y": 289,
+            "sha256": "9b36ba0463044cd6225116b83e606af47d39b501c80f2eb75a00db57c76a6bb2"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              389,
+              410,
+              560,
+              591
+            ],
+            "source_bbox": [
+              0,
+              0,
+              171,
+              181
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 8,
+            "foreign_major_components": [],
+            "index": 10,
+            "rect": [
+              706,
+              700,
+              212,
+              225
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.64603619553458,
+            "contact_y": 289,
+            "sha256": "705b6ede5430caa4f84503ce422130cde9426c323c519170c62843ca12a468ab"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              607,
+              412,
+              749,
+              584
+            ],
+            "source_bbox": [
+              0,
+              0,
+              142,
+              172
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 7,
+            "foreign_major_components": [],
+            "index": 11,
+            "rect": [
+              1021,
+              709,
+              176,
+              214
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.5125057639408,
+            "contact_y": 289,
+            "sha256": "94bf1f23d69ef89f3252cf0b3710d04446396709fe85fb3a5a25ba8cf64f4d27"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              15,
+              608,
+              176,
+              786
+            ],
+            "source_bbox": [
+              0,
+              0,
+              161,
+              178
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 12,
+            "rect": [
+              71,
+              1014,
+              200,
+              221
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.34112420808196,
+            "contact_y": 289,
+            "sha256": "dd4fae846f7f0b73ce39678629533bcf5a01ce73dcdf0fe6314061762e3ecc4b"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              202,
+              609,
+              368,
+              785
+            ],
+            "source_bbox": [
+              0,
+              0,
+              166,
+              176
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 8,
+            "foreign_major_components": [],
+            "index": 13,
+            "rect": [
+              374,
+              1017,
+              206,
+              219
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.41099042709868,
+            "contact_y": 289,
+            "sha256": "23a1670226f6d99e9332d89b6732956b010dc4acea8e4190f2d7082d440995f3"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              390,
+              610,
+              566,
+              785
+            ],
+            "source_bbox": [
+              0,
+              0,
+              176,
+              175
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 14,
+            "foreign_major_components": [],
+            "index": 14,
+            "rect": [
+              677,
+              1019,
+              219,
+              217
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.97533626949172,
+            "contact_y": 289,
+            "sha256": "0edae7cc1496680e35f2c34b31596e0c31485761b1946779885ce8b0d5e7c1f8"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              590,
+              619,
+              754,
+              784
+            ],
+            "source_bbox": [
+              0,
+              0,
+              164,
+              165
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 8,
+            "foreign_major_components": [],
+            "index": 15,
+            "rect": [
+              994,
+              1032,
+              204,
+              205
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.01237861487567,
+            "contact_y": 289,
+            "sha256": "225866d872f5514b984dac751e1ff419b917bf2f04dd424f073fc6e76f02df39"
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/graveyard_hound/graveyard_hound_hurt_sw.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              17,
+              808,
+              168,
+              984
+            ],
+            "source_bbox": [
+              0,
+              0,
+              151,
+              176
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              52,
+              76,
+              188,
+              219
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.70531028095093,
+            "contact_y": 289,
+            "sha256": "f4ea4ff0fbcf735ec17e089e0fd450590a6872f991940f65b90c1655a89bf702"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              215,
+              812,
+              359,
+              987
+            ],
+            "source_bbox": [
+              0,
+              0,
+              144,
+              175
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 9,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              390,
+              78,
+              179,
+              217
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.79664535414764,
+            "contact_y": 289,
+            "sha256": "ee288811c32e386d1efe8cbbf91cc7fb817555591354de0d2d06874356f42aec"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              400,
+              829,
+              548,
+              983
+            ],
+            "source_bbox": [
+              0,
+              0,
+              148,
+              154
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              671,
+              105,
+              184,
+              191
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.8447897379121,
+            "contact_y": 289,
+            "sha256": "fb5a6277a6d4969b8640d95a4700efbbf72f4189f9c86f311370a68f6830b201"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              598,
+              809,
+              747,
+              987
+            ],
+            "source_bbox": [
+              0,
+              0,
+              149,
+              178
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1011,
+              74,
+              185,
+              221
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.1767616329912,
+            "contact_y": 289,
+            "sha256": "99c4ad0cfe294a0e8544e22e9f16a6c9b741c48fe46fcd6f5e6580cf9dea21d0"
+          }
+        ]
+      }
+    },
+    "ne": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/graveyard_hound/graveyard_hound_sheet_ne.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              799,
+              29,
+              944,
+              199
+            ],
+            "source_bbox": [
+              0,
+              0,
+              145,
+              170
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 12,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              70,
+              85,
+              180,
+              211
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.75063764291997,
+            "contact_y": 289,
+            "sha256": "a03fdd80c91fccd4c7f823f2936938915eaa22aa801223e31768929d3857e29b"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              988,
+              23,
+              1134,
+              198
+            ],
+            "source_bbox": [
+              0,
+              0,
+              146,
+              175
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              378,
+              78,
+              181,
+              217
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.43813553378993,
+            "contact_y": 289,
+            "sha256": "da9a4474e19fc4971753beec6ae6c57718ccb9878a838d36edf8ca173b18e71a"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              1164,
+              36,
+              1324,
+              199
+            ],
+            "source_bbox": [
+              0,
+              0,
+              160,
+              163
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              671,
+              93,
+              199,
+              203
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.22586913510457,
+            "contact_y": 289,
+            "sha256": "cd30ef369b032e1524243407600f759deabdadb12df019e1773baf1dcc265913"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              1360,
+              62,
+              1510,
+              207
+            ],
+            "source_bbox": [
+              0,
+              0,
+              150,
+              145
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 11,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1027,
+              117,
+              186,
+              180
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.83657458928786,
+            "contact_y": 289,
+            "sha256": "f9aa580b6c206180d22997a0b17eb4dd63aab9e5cb90664b3621fb63b8c72468"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              787,
+              222,
+              936,
+              399
+            ],
+            "source_bbox": [
+              0,
+              0,
+              149,
+              177
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 7,
+            "foreign_major_components": [],
+            "index": 4,
+            "rect": [
+              72,
+              388,
+              185,
+              220
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.03098170959314,
+            "contact_y": 289,
+            "sha256": "ad317e69258b5ed64564c1e5af1226f297c074463a4164e0c701e8b48151718d"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              990,
+              223,
+              1132,
+              394
+            ],
+            "source_bbox": [
+              0,
+              0,
+              142,
+              171
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 5,
+            "rect": [
+              408,
+              398,
+              176,
+              212
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.41494139555263,
+            "contact_y": 289,
+            "sha256": "6e130504def1387068b574f805317834992a307c9486d70661629a4af5522c6a"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              1182,
+              223,
+              1324,
+              392
+            ],
+            "source_bbox": [
+              0,
+              0,
+              142,
+              169
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 18,
+            "foreign_major_components": [],
+            "index": 6,
+            "rect": [
+              719,
+              401,
+              176,
+              210
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.75080798235263,
+            "contact_y": 289,
+            "sha256": "72b5698f626c95ea7e5bba3dc665459edf25cce057bd1acda75777c79e99c01d"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              1371,
+              222,
+              1513,
+              394
+            ],
+            "source_bbox": [
+              0,
+              0,
+              142,
+              172
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 7,
+            "rect": [
+              1025,
+              395,
+              176,
+              214
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.54671656509976,
+            "contact_y": 289,
+            "sha256": "bb51b9ac41072a82ef1777a88def0c1019a4ece3ac2ad56ff9f806ad28f763ab"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              790,
+              415,
+              935,
+              587
+            ],
+            "source_bbox": [
+              0,
+              0,
+              145,
+              172
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 8,
+            "rect": [
+              75,
+              710,
+              180,
+              214
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.45738577926085,
+            "contact_y": 289,
+            "sha256": "e1284e482123cabd74f99711b8bc67efff5e8451255056a5dc1566a468342d3a"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              970,
+              412,
+              1131,
+              588
+            ],
+            "source_bbox": [
+              0,
+              0,
+              161,
+              176
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 14,
+            "foreign_major_components": [],
+            "index": 9,
+            "rect": [
+              363,
+              705,
+              200,
+              219
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.3576564703706,
+            "contact_y": 289,
+            "sha256": "67a486a908519e0ba644a438a00024a9650b20c580f3e4f75c7d82e112a821bb"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              1154,
+              415,
+              1330,
+              587
+            ],
+            "source_bbox": [
+              0,
+              0,
+              176,
+              172
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 9,
+            "foreign_major_components": [],
+            "index": 10,
+            "rect": [
+              659,
+              710,
+              219,
+              214
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.9221589177276,
+            "contact_y": 289,
+            "sha256": "df072bd02296b6cbf90c1d10537dfcedcb98c71f754f06243218ad228d95a22d"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              1370,
+              416,
+              1511,
+              586
+            ],
+            "source_bbox": [
+              0,
+              0,
+              141,
+              170
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 11,
+            "rect": [
+              999,
+              712,
+              175,
+              211
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.3480189611904,
+            "contact_y": 289,
+            "sha256": "88e886a26c7004b45c94226f2ae570f011a5a7bc5c0ea33943e3ebe0c7c907cb"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              787,
+              617,
+              955,
+              785
+            ],
+            "source_bbox": [
+              0,
+              0,
+              168,
+              168
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 15,
+            "foreign_major_components": [],
+            "index": 12,
+            "rect": [
+              73,
+              1026,
+              209,
+              209
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.87245426719048,
+            "contact_y": 289,
+            "sha256": "f4ac45818e6971cb33c5b74f66cce76a7b0b8f2e5e5ce3d75cf388e4a0fe6982"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              974,
+              609,
+              1142,
+              784
+            ],
+            "source_bbox": [
+              0,
+              0,
+              168,
+              175
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 10,
+            "foreign_major_components": [],
+            "index": 13,
+            "rect": [
+              372,
+              1022,
+              209,
+              217
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.014284147612,
+            "contact_y": 289,
+            "sha256": "3b3e6995436724ca794e9156fa87eb5f6dbaabe53aa2b8cac00127f0c2addeb9"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              1162,
+              609,
+              1340,
+              784
+            ],
+            "source_bbox": [
+              0,
+              0,
+              178,
+              175
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 9,
+            "foreign_major_components": [],
+            "index": 14,
+            "rect": [
+              680,
+              1020,
+              221,
+              217
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.86870651921083,
+            "contact_y": 289,
+            "sha256": "78c7b0d99b99f4c2ac604dbd3cc8eda93c8f9784eee6798421db75e5368a38f1"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              1373,
+              620,
+              1521,
+              786
+            ],
+            "source_bbox": [
+              0,
+              0,
+              148,
+              166
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 14,
+            "foreign_major_components": [],
+            "index": 15,
+            "rect": [
+              1019,
+              1031,
+              184,
+              206
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.14956017674004,
+            "contact_y": 289,
+            "sha256": "603722a3b956eaba7bbcd9c76ba57711dd22bd0784ec90a2c152bb41c063a739"
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/graveyard_hound/graveyard_hound_hurt_ne.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              796,
+              811,
+              946,
+              988
+            ],
+            "source_bbox": [
+              0,
+              0,
+              150,
+              177
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 7,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              83,
+              76,
+              186,
+              220
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.06739103593037,
+            "contact_y": 289,
+            "sha256": "cff3556616a93c67a081f4b838d7812d0eb3c4fd479ee2f8b992a2b0e2e6a70a"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              976,
+              808,
+              1129,
+              988
+            ],
+            "source_bbox": [
+              0,
+              0,
+              153,
+              180
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              375,
+              72,
+              190,
+              224
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.1138762686196,
+            "contact_y": 289,
+            "sha256": "4f0768628dbf2d3849f7853629857a8e586b16fb9a12660ca09319aae8213d59"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_1.png",
+            "source_slice": [
+              1172,
+              832,
+              1317,
+              985
+            ],
+            "source_bbox": [
+              0,
+              0,
+              145,
+              153
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 8,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              680,
+              105,
+              180,
+              190
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.49836281486088,
+            "contact_y": 289,
+            "sha256": "986b7d7d17d2f9786c620c69328481177456f6ae185156aa18b593554bedd096"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/graveyard_hound/attempt_3.png",
+            "source_slice": [
+              267,
+              189,
+              1045,
+              1046
+            ],
+            "source_bbox": [
+              0,
+              0,
+              778,
+              857
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 22,
+            "foreign_major_components": [],
+            "relative_scale": 0.19928400954653938,
+            "normalization": "Uniform repair source size matched to replaced pose body height, no warping.",
+            "index": 3,
+            "rect": [
+              1013,
+              82,
+              193,
+              212
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.5209390455392,
+            "contact_y": 289,
+            "sha256": "d357e4fcd2c362989be5806e9e6943440c6192e2a42e1c24195db5a7ec620248"
+          }
+        ]
+      }
+    }
+  },
+  "processing": "Whole rectangular crop, uniform LANCZOS resizing, contact translation and assembly only. Native alpha retained. Contact is alpha>=192 bottom8px weighted center, not anatomical foot tracking."
+}

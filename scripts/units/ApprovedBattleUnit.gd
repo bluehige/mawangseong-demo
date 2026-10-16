@@ -15,6 +15,19 @@ var silhouette: Sprite2D
 var vitals_link: Line2D
 var head_raster_key: Array = []
 var head_raster_y := 0.0
+var quarter_art := false
+var facing := Vector2(-1,1)
+var hidden_until := 0.0
+var quiet_seconds := 0.0
+var stealth_broken_at := 0.0
+var new_skill_clock := 0.0
+var reassemble_pending := -1.0
+var reassemble_used := false
+var root_timer := 0.0
+var first_paper_hit := true
+var incoming_source: Node
+var incoming_area := false
+var incoming_fire := false
 
 func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: String) -> void:
 	super.setup(source_id,stats,unit_faction,room_id)
@@ -68,7 +81,22 @@ func _ready() -> void:
 	health.mouse_filter = Control.MOUSE_FILTER_IGNORE; add_child(health)
 
 func _configure_combat_sprite(source_sprite_path: String) -> void:
-	super._configure_combat_sprite(source_sprite_path)
+	quarter_art = faction=="monster" and source_sprite_path.contains("/quarter_final/")
+	if quarter_art:
+		sprite_path = source_sprite_path
+		combat_visual_profile = {}
+		sprite.material = null
+		var frames := warm_animation_frames(source_sprite_path).duplicate() as SpriteFrames
+		var ne := warm_animation_frames(source_sprite_path.replace("_sheet.png","_sheet_ne.png"))
+		for animation in ne.get_animation_names():
+			if animation=="default": continue
+			var name := animation+"_ne"
+			frames.add_animation(name); frames.set_animation_loop(name,ne.get_animation_loop(animation))
+			frames.set_animation_speed(name,ne.get_animation_speed(animation))
+			for index in range(ne.get_frame_count(animation)): frames.add_frame(name,ne.get_frame_texture(animation,index))
+		sprite.sprite_frames = frames
+	else:
+		super._configure_combat_sprite(source_sprite_path)
 	# Atlas frames carry padding; mip sampling across their trimmed edges can
 	# erase a few head pixels and detach labels from the measured alpha outline.
 	sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -92,6 +120,7 @@ func _clamp_to_dungeon_point(point: Vector2) -> Vector2:
 
 func _apply_visual_pose() -> void:
 	super._apply_visual_pose()
+	if quarter_art: sprite.flip_h = facing.x>0 if facing.y>=0 else facing.x<0
 	if sprite==null or idle_frame==null: return
 	# Preserve motion/squash/recoil from Unit, but normalize the visible idle body.
 	var ratio := body_factor/legacy_factor
@@ -233,6 +262,7 @@ func refresh_depth_slot() -> void:
 	update_silhouette()
 
 func _physics_process(delta: float) -> void:
+	root_timer = maxf(0,root_timer-delta*simulation_speed)
 	super._physics_process(delta)
 	if health!=null:
 		health.value = 100.0*hp/maxi(1,max_hp); health.visible = is_alive()
@@ -246,3 +276,82 @@ func create_temporary_trap(c: Vector2i, kind: String, seconds: float, source_id:
 
 func trap_duration_multiplier(c: Vector2i) -> float:
 	return battle_runtime.trap_duration_multiplier(c)
+
+func face_direction(direction: Vector2) -> void:
+	if direction.length()>0.01: facing = direction
+	sprite.flip_h = facing.x>0 if facing.y>=0 else facing.x<0
+
+func _update_animation() -> void:
+	if not quarter_art: super._update_animation(); return
+	if not down:
+		if skill_anim_timer>0 or attack_anim_timer>0: face_direction(action_direction)
+		elif velocity.length()>1: face_direction(velocity)
+	var animation := "down" if down else "skill_down" if skill_anim_timer>0 or presentation_skill_anim_timer>0 else "attack_down" if attack_anim_timer>0 else "move_down" if velocity.length()>1 else "idle_down"
+	if facing.y<0: animation += "_ne"
+	_play_animation(animation)
+	_apply_visual_pose()
+
+func stealthed() -> bool:
+	return unit_id=="under_bed_shadow" and (hidden_until>new_skill_clock or quiet_seconds>=5.0)
+
+func break_stealth() -> void:
+	hidden_until = 0; quiet_seconds = 0; stealth_broken_at = new_skill_clock
+
+func is_targetable_by(observer: Node = null) -> bool:
+	if not is_alive(): return false
+	if float(get_meta("revealed_until",0))>new_skill_clock: return true
+	if stealthed():
+		if observer==null: return false
+		var definition: Dictionary = DataRegistry.enemies.get(observer.unit_id,{})
+		return bool(definition.get("ignore_stealth_and_false_goals",false)) or bool(observer.get_meta("ignore_monster_stealth",false))
+	return super.is_targetable_by(observer)
+
+func effective_atk() -> int:
+	var factor := 1.0
+	if unit_id=="river_frog" and get_cell_tags().get("water_adjacent",false): factor = 1.1
+	if unit_id=="candle_wisp" and get_cell_tags().get("water_adjacent",false): factor = .8
+	if float(get_meta("curse_until",0))>new_skill_clock: factor *= .85
+	return roundi(super.effective_atk()*factor)
+
+func effective_attack_interval() -> float:
+	return super.effective_attack_interval()/(1.2 if unit_id=="rat_union" and hp<=max_hp*.5 else 1.0)
+
+func damage_taken_multiplier_from(attacker: UnitActor) -> float:
+	var factor := super.damage_taken_multiplier_from(attacker)
+	if unit_id=="hollow_armor" and ("hero" in str(attacker.unit_id) or attacker.unit_id=="official_hero_leon"): factor *= .8
+	return factor
+
+func receive_damage(amount: int) -> int:
+	var adjusted := float(amount)
+	if float(get_meta("curse_until",0))>new_skill_clock: adjusted *= 1.2
+	if unit_id=="crumpled_map" and amount>0:
+		if incoming_fire: adjusted *= 1.3
+		if first_paper_hit: adjusted *= .5; first_paper_hit = false
+	if unit_id=="mole_digger" and incoming_area: adjusted *= .75
+	incoming_fire = false; incoming_area = false
+	var lost := super.receive_damage(roundi(adjusted))
+	if lost>0: break_stealth()
+	return lost
+
+func apply_root(seconds: float) -> void:
+	root_timer = maxf(root_timer,_heart_control_duration(seconds))
+
+func effective_move_speed(extra_multiplier: float = 1.0) -> float:
+	return 0.0 if root_timer>0 else super.effective_move_speed(extra_multiplier)
+
+func receive_context_damage(amount: int, source: Node = null, area: bool = false, fire: bool = false) -> int:
+	incoming_source = source; incoming_area = area; incoming_fire = fire
+	if source!=null and unit_id=="hollow_armor" and ("hero" in str(source.unit_id) or source.unit_id=="official_hero_leon"): amount = roundi(amount*.8)
+	return receive_magic_damage(amount) if fire else receive_damage(amount)
+
+func cleanse_one_negative_status() -> bool:
+	if root_timer>0: root_timer = 0; return true
+	return super.cleanse_one_negative_status()
+
+func negative_status_count() -> int:
+	return super.negative_status_count()+(1 if root_timer>0 else 0)
+
+func cleanse_all_negative_status() -> int:
+	var extra := 1 if root_timer>0 else 0
+	root_timer = 0
+	return super.cleanse_all_negative_status()+extra

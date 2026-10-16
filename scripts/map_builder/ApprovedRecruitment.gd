@@ -30,6 +30,7 @@ static func eligible(game: Node, members: Dictionary, day: int) -> Array:
 			allowed = id in game.update3_profile.get("guaranteed_contract_instance_ids",[]) or (front!="" and int(game.update3_profile.get("fronts",{}).get("clear_counts",{}).get(front,0))>=1) or (ending!="" and ending in ending_codes)
 		elif species in ["spider_tailor","bat_courier"]:
 			allowed = game._update4_council_mode_active()
+		elif DataRegistry.monster(species).has("join_day"): allowed = day>=int(DataRegistry.monster(species).join_day)
 		elif FALLBACK.has(species): allowed = day>=int(FALLBACK[species])
 		if allowed: ids.append(id)
 	return ids
@@ -44,7 +45,17 @@ static func begin(game: Node, ids: Array) -> void:
 		var row: Dictionary = members[id]
 		if row.species_id in CORE: continue
 		pending.append(id)
-		entries.append({"speaker":row.character_id,"speaker_name":row.display_name,"emotion":"base","text":LINES.get(row.species_id,"보급과 수비, 함께 맡을게요. 오늘부터 잘 부탁해요!"),"dialogue_header":"동료 합류 · "+row.display_name})
+		var scenes: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/v130r/join_scenes.json"))
+		var scene: Dictionary = scenes.get(str(row.stats.get("join_scene_id","")),{})
+		if not scene.is_empty():
+			for index in range(scene.lines.size()):
+				var text: String = scene.lines[index]
+				var close := text.find("]:")
+				var heading := text.substr(1,close-1).split("|")
+				var emotion: String = {"기쁨":"happy","단호":"determined","결의":"determined"}.get(heading[1],"base")
+				entries.append({"speaker":scene.speaker_character_ids[index],"speaker_name":heading[0],"emotion":emotion,"text":text.substr(close+2).strip_edges(),"dialogue_header":"동료 합류 · "+row.display_name})
+		else:
+			entries.append({"speaker":row.character_id,"speaker_name":row.display_name,"emotion":"base","text":LINES.get(row.species_id,"보급과 수비, 함께 맡을게요. 오늘부터 잘 부탁해요!"),"dialogue_header":"동료 합류 · "+row.display_name})
 	if pending.is_empty(): game._set_screen(Constants.SCREEN_MANAGEMENT); return
 	game.set_meta("approved_join_pending",pending)
 	game._onboarding_begin_dialogue(entries,Constants.SCREEN_MANAGEMENT,"v130r_join")

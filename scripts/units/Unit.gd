@@ -1708,7 +1708,7 @@ static func warm_animation_frames(path: String) -> SpriteFrames:
 	var fallback_texture := _load_png(path)
 	if fallback_texture == null:
 		return null
-	var frames := _build_sheet_animation_frames(fallback_texture) if path.ends_with("_sheet.png") else _build_animation_frames(path, fallback_texture)
+	var frames := _build_sheet_animation_frames(fallback_texture) if path.ends_with("_sheet.png") or path.ends_with("_sheet_ne.png") else _build_animation_frames(path, fallback_texture)
 	_animation_frames_cache[path] = frames
 	return frames
 

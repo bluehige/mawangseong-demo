@@ -7,6 +7,7 @@ const SAVE_PATH := "res://tmp/v130r_step5/copies/progression_test.json"
 const SESSION := "approved_grade_progression"
 
 static func save_path() -> String:
+	if bool(ProjectSettings.get_setting("debug/approved_map_step7",false)): return "res://tmp/v130r_step7/copies/monsters_test.json"
 	return "res://tmp/v130r_step6/copies/food_test.json" if bool(ProjectSettings.get_setting("debug/approved_map_step6",false)) else SAVE_PATH
 
 static func enabled() -> bool:

@@ -1,0 +1,1475 @@
+{
+  "species_id": "mimic_porter",
+  "status": "ACCEPTED_NOT_INTEGRATED",
+  "selection": {
+    "status": "ACCEPTED_NOT_INTEGRATED",
+    "sources": [
+      {
+        "file": "attempt_1.png"
+      }
+    ],
+    "criteria": {
+      "T": true,
+      "F": true,
+      "H": true,
+      "E": true,
+      "S": true
+    },
+    "evidence": "넓은 상자 뚜껑·짧은 앞벽·낮은 이빨 입·타원·남서. NE는 경첩 뒤.",
+    "notes": [
+      "No invented eyes. Red banner and gold arrow rune preserved; generated rune shape varies slightly."
+    ]
+  },
+  "uniform_scale": 1.0190168826364805,
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "logical_anchor": [
+    192,
+    345
+  ],
+  "atlas_anchor": [
+    156.5,
+    289
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "integrated": false,
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "visual_evidence": "넓은 상자 뚜껑·짧은 앞벽·낮은 이빨 입·타원·남서. NE는 경첩 뒤.",
+  "directions": {
+    "sw": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/mimic_porter/mimic_porter_sheet.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              35,
+              39,
+              209,
+              201
+            ],
+            "source_bbox": [
+              0,
+              0,
+              174,
+              162
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              105,
+              130,
+              177,
+              165
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.28988323281948,
+            "contact_y": 289,
+            "sha256": "a550341d497b166edce819c8e13b9cd08d1647a6fdc7905db683553f45d9da0f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              228,
+              40,
+              403,
+              202
+            ],
+            "source_bbox": [
+              0,
+              0,
+              175,
+              162
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              412,
+              130,
+              178,
+              165
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.07873299738566,
+            "contact_y": 289,
+            "sha256": "1d4f230d8b147f31939df5b0f3003982977a0b31fdfc7eb1d7411e9c5743f71f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              420,
+              58,
+              594,
+              202
+            ],
+            "source_bbox": [
+              0,
+              0,
+              174,
+              144
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              665,
+              148,
+              177,
+              147
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.42282032374732,
+            "contact_y": 289,
+            "sha256": "a7449fe476fa3d916cb4bbae39bbec4ffce6243bd423ebd7e0b302a0e14d9817"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              613,
+              81,
+              781,
+              199
+            ],
+            "source_bbox": [
+              0,
+              0,
+              168,
+              118
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1055,
+              175,
+              171,
+              120
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.62353515625,
+            "contact_y": 289,
+            "sha256": "b8ffc2a395a558c8e5840801ea3b57aee98c402fdce09065b024fb7ec13d8099"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              29,
+              222,
+              210,
+              384
+            ],
+            "source_bbox": [
+              0,
+              0,
+              181,
+              162
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 4,
+            "rect": [
+              84,
+              444,
+              184,
+              165
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.33663065642762,
+            "contact_y": 289,
+            "sha256": "c9e936c4a8042cf184412239fd9efde7bbdaf4b8085a8bb8c76d5cf062eee951"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              230,
+              222,
+              399,
+              383
+            ],
+            "source_bbox": [
+              0,
+              0,
+              169,
+              161
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 5,
+            "rect": [
+              402,
+              445,
+              172,
+              164
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.88300739239003,
+            "contact_y": 289,
+            "sha256": "0147a5675300442d418797b19963b2acbb2bf5783bb72827629fe797858cb079"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              423,
+              222,
+              594,
+              380
+            ],
+            "source_bbox": [
+              0,
+              0,
+              171,
+              158
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 6,
+            "rect": [
+              724,
+              450,
+              174,
+              161
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.14329793039755,
+            "contact_y": 289,
+            "sha256": "2f146ed64792e757fc73450fe1653c3ff47a98153785b9bdd046ad315719bf17"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              615,
+              225,
+              788,
+              380
+            ],
+            "source_bbox": [
+              0,
+              0,
+              173,
+              155
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 7,
+            "rect": [
+              1038,
+              453,
+              176,
+              158
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.23840053364955,
+            "contact_y": 289,
+            "sha256": "49ef5a7144af3aeb9764333ea7c843a35e90c82bc57344f128812c1fcea41232"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              32,
+              412,
+              218,
+              568
+            ],
+            "source_bbox": [
+              0,
+              0,
+              186,
+              156
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 8,
+            "rect": [
+              89,
+              763,
+              190,
+              159
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.64261724737776,
+            "contact_y": 289,
+            "sha256": "d43bbef9f84cdc84d0622876d845954d3e6f276138d107edc6b39b1cd6810853"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              229,
+              401,
+              416,
+              574
+            ],
+            "source_bbox": [
+              0,
+              0,
+              187,
+              173
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 9,
+            "rect": [
+              344,
+              746,
+              191,
+              176
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.73769756552628,
+            "contact_y": 289,
+            "sha256": "b15a22782760c01556249320df790b66cf2658b4632cce4a98254476d5017170"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              432,
+              411,
+              596,
+              564
+            ],
+            "source_bbox": [
+              0,
+              0,
+              164,
+              153
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 10,
+            "rect": [
+              713,
+              770,
+              167,
+              156
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.2104385771371,
+            "contact_y": 289,
+            "sha256": "a892e602ee06c95b0c8d1e2d3fbc7796656288934c3fd74574faa4899ee925cc"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              611,
+              412,
+              792,
+              563
+            ],
+            "source_bbox": [
+              0,
+              0,
+              181,
+              151
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 11,
+            "rect": [
+              1034,
+              769,
+              184,
+              154
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.39495592094084,
+            "contact_y": 289,
+            "sha256": "2ffd158310edeb7bc2a8e58b27164688356561d2fdb32fde37e9b2a360147207"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              30,
+              599,
+              203,
+              760
+            ],
+            "source_bbox": [
+              0,
+              0,
+              173,
+              161
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 12,
+            "rect": [
+              100,
+              1070,
+              176,
+              164
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.94827296764174,
+            "contact_y": 289,
+            "sha256": "d342f793febe50680fec34fd1fae92129847451fff00914c327b7367b7125356"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              230,
+              607,
+              400,
+              750
+            ],
+            "source_bbox": [
+              0,
+              0,
+              170,
+              143
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 7,
+            "foreign_major_components": [],
+            "index": 13,
+            "rect": [
+              390,
+              1098,
+              173,
+              146
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.97642683713926,
+            "contact_y": 289,
+            "sha256": "e12e1e224583eff017dfd324e43ce739e8dfa66ea3210b28a1364ee07081d491"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              416,
+              597,
+              593,
+              761
+            ],
+            "source_bbox": [
+              0,
+              0,
+              177,
+              164
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 17,
+            "foreign_major_components": [],
+            "index": 14,
+            "rect": [
+              657,
+              1068,
+              180,
+              167
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.54194172229762,
+            "contact_y": 289,
+            "sha256": "7595e59d15350a3582be0c432b262594e22c3c2f42be12fa1bdaf84b1e06e7c3"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              608,
+              614,
+              787,
+              761
+            ],
+            "source_bbox": [
+              0,
+              0,
+              179,
+              147
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 15,
+            "rect": [
+              1034,
+              1085,
+              182,
+              150
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.40882446579394,
+            "contact_y": 289,
+            "sha256": "eaf346df91a8c6b2784037f0cbf70fccafaddb5bace2d147a4deb3df0e375854"
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/mimic_porter/mimic_porter_hurt_sw.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              21,
+              786,
+              206,
+              949
+            ],
+            "source_bbox": [
+              0,
+              0,
+              185,
+              163
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              33,
+              129,
+              189,
+              166
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.3344665818313,
+            "contact_y": 289,
+            "sha256": "e40434317cd38237579377026181c789f822dd62bb1729fbd8e59b4e364ba75e"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              234,
+              788,
+              397,
+              954
+            ],
+            "source_bbox": [
+              0,
+              0,
+              163,
+              166
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              373,
+              126,
+              166,
+              169
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.70057145772745,
+            "contact_y": 289,
+            "sha256": "e672263be88d1fb9232a9e782dfc8b0d931dd1ca206e9ac1e00a775a5484762f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              420,
+              817,
+              595,
+              952
+            ],
+            "source_bbox": [
+              0,
+              0,
+              175,
+              135
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              665,
+              156,
+              178,
+              138
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.41565906838454,
+            "contact_y": 289,
+            "sha256": "99f5b15137f579619781e18e52126659cf1958715f2a6f28c81b0f5c7101098c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              622,
+              784,
+              783,
+              945
+            ],
+            "source_bbox": [
+              0,
+              0,
+              161,
+              161
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1051,
+              136,
+              164,
+              164
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.01736570672264,
+            "contact_y": 289,
+            "sha256": "4b23fd8694fd6de81b70f8ccc9bcdbfd4e6c27278696da4f81ae14ef44b2162b"
+          }
+        ]
+      }
+    },
+    "ne": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/mimic_porter/mimic_porter_sheet_ne.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              803,
+              45,
+              979,
+              201
+            ],
+            "source_bbox": [
+              0,
+              0,
+              176,
+              156
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              36,
+              137,
+              179,
+              159
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.36652047251658,
+            "contact_y": 289,
+            "sha256": "84e1b4c8f6e0f0b787bc85e8c9388466a6afbf24cb645699dca67fd9ca7b1bd5"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1005,
+              45,
+              1184,
+              201
+            ],
+            "source_bbox": [
+              0,
+              0,
+              179,
+              156
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              352,
+              138,
+              182,
+              159
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.09702466089306,
+            "contact_y": 289,
+            "sha256": "fbf7c6ecb6e3ee5f5707d95f5216bc84222d5544d852b39933fe7f6274469079"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1203,
+              75,
+              1376,
+              199
+            ],
+            "source_bbox": [
+              0,
+              0,
+              173,
+              124
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 14,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              713,
+              171,
+              176,
+              126
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.81145768468724,
+            "contact_y": 289,
+            "sha256": "1347126f6a8e491a1bc7ddd1c5762c8cb54b16bd741f51981eae81ce33b020b0"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1394,
+              88,
+              1553,
+              201
+            ],
+            "source_bbox": [
+              0,
+              0,
+              159,
+              113
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 12,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1020,
+              181,
+              162,
+              115
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.88217570567713,
+            "contact_y": 289,
+            "sha256": "9bc945294ff8a6e9d168768cbeeab99ca30180aac297b1a8871797eac39c6273"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              811,
+              222,
+              984,
+              383
+            ],
+            "source_bbox": [
+              0,
+              0,
+              173,
+              161
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 4,
+            "rect": [
+              47,
+              445,
+              176,
+              164
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.88534988288797,
+            "contact_y": 289,
+            "sha256": "39ccfb01bdbf30ac84c8ecb333d9f27cd4a98bd1bbd042d2a2df81dafdcf97d4"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1001,
+              221,
+              1163,
+              384
+            ],
+            "source_bbox": [
+              0,
+              0,
+              162,
+              163
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 5,
+            "rect": [
+              362,
+              444,
+              165,
+              166
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.3729493106411,
+            "contact_y": 289,
+            "sha256": "153749ee84cc8b3beda54423cebb71ded945a8b0e2b4833bd86a73c05398f71f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1193,
+              225,
+              1364,
+              384
+            ],
+            "source_bbox": [
+              0,
+              0,
+              171,
+              159
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 6,
+            "rect": [
+              679,
+              448,
+              174,
+              162
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.28167341430498,
+            "contact_y": 289,
+            "sha256": "2b8f82122a61a56358a26ec49f8fcf534810e062c0bc559a9947e176ffbc21d3"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1386,
+              225,
+              1559,
+              384
+            ],
+            "source_bbox": [
+              0,
+              0,
+              173,
+              159
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 7,
+            "rect": [
+              992,
+              449,
+              176,
+              162
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.1478896370504,
+            "contact_y": 289,
+            "sha256": "ecf4fa420c819ad5331c8ba666cc611fd4b4beb784921384c1dbb9933fa00536"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              807,
+              414,
+              983,
+              573
+            ],
+            "source_bbox": [
+              0,
+              0,
+              176,
+              159
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 8,
+            "rect": [
+              96,
+              761,
+              179,
+              162
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.07436993904105,
+            "contact_y": 289,
+            "sha256": "0591ef79b9eb3e89ab2135549d195aba667f5415b4dbb40d7a5b091ad17a6e20"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1002,
+              404,
+              1173,
+              567
+            ],
+            "source_bbox": [
+              0,
+              0,
+              171,
+              163
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 15,
+            "foreign_major_components": [],
+            "index": 9,
+            "rect": [
+              330,
+              762,
+              174,
+              166
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.11163714860422,
+            "contact_y": 289,
+            "sha256": "63635e7ddb73d9d9a6ac582e7c0fed2e70c2ea0700117410b5e18a70c74891d7"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1194,
+              439,
+              1369,
+              570
+            ],
+            "source_bbox": [
+              0,
+              0,
+              175,
+              131
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 10,
+            "rect": [
+              705,
+              790,
+              178,
+              133
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.60930640913082,
+            "contact_y": 289,
+            "sha256": "9080ec2ddd1ddb7d65dcb2e2d1d702b8ecd991b62582738e73e23adfbf1d1064"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1386,
+              411,
+              1561,
+              573
+            ],
+            "source_bbox": [
+              0,
+              0,
+              175,
+              162
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 11,
+            "rect": [
+              976,
+              758,
+              178,
+              165
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.12117684019887,
+            "contact_y": 289,
+            "sha256": "416abb0cbb55f25dc99bb0e0bc071513ede0229e347352634e005b2c136ae23f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              809,
+              605,
+              985,
+              764
+            ],
+            "source_bbox": [
+              0,
+              0,
+              176,
+              159
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 12,
+            "rect": [
+              38,
+              1075,
+              179,
+              162
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.02674115950197,
+            "contact_y": 289,
+            "sha256": "0b61391e21d7b926e1aa70e7a6490a81d5f8cc2c137a7f0330696ad9238ff126"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1006,
+              614,
+              1184,
+              760
+            ],
+            "source_bbox": [
+              0,
+              0,
+              178,
+              146
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 14,
+            "foreign_major_components": [],
+            "index": 13,
+            "rect": [
+              346,
+              1089,
+              181,
+              149
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.1943285481932,
+            "contact_y": 289,
+            "sha256": "3d2b68254770ae6330341fea06b0737069d66fef749f66879563a6e2c9ff7c50"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1195,
+              601,
+              1363,
+              765
+            ],
+            "source_bbox": [
+              0,
+              0,
+              168,
+              164
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 14,
+            "rect": [
+              670,
+              1070,
+              171,
+              167
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.91646712998113,
+            "contact_y": 289,
+            "sha256": "7e131da27f060cc39021e80ba61de2e1ccf31283b0d55bec77def4a19d4b80da"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1393,
+              609,
+              1565,
+              762
+            ],
+            "source_bbox": [
+              0,
+              0,
+              172,
+              153
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 15,
+            "rect": [
+              980,
+              1081,
+              175,
+              156
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.17521352185457,
+            "contact_y": 289,
+            "sha256": "35324cf0991c50ff075be25697a1f878cd6408cad2a8915588b02c971aae927b"
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/mimic_porter/mimic_porter_hurt_ne.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              807,
+              795,
+              978,
+              952
+            ],
+            "source_bbox": [
+              0,
+              0,
+              171,
+              157
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              44,
+              136,
+              174,
+              160
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.91381050082407,
+            "contact_y": 289,
+            "sha256": "74b2c9c6e57e74996455307885d759f358402a1f9855ef8f8375dc91b75d203b"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1001,
+              797,
+              1158,
+              951
+            ],
+            "source_bbox": [
+              0,
+              0,
+              157,
+              154
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              401,
+              139,
+              160,
+              157
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.55322997416022,
+            "contact_y": 289,
+            "sha256": "864cf5a31b61ac440579f33f0970d288d65dc85e161c872422ee805f78436194"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1200,
+              823,
+              1369,
+              952
+            ],
+            "source_bbox": [
+              0,
+              0,
+              169,
+              129
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 10,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              704,
+              165,
+              172,
+              131
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.99426442267438,
+            "contact_y": 289,
+            "sha256": "b40a89d4baaa4c10b37a3a68e48f6f5afeaa02b89c3a9cf5d7b1ea2680f8a190"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/mimic_porter/attempt_1.png",
+            "source_slice": [
+              1403,
+              784,
+              1556,
+              947
+            ],
+            "source_bbox": [
+              0,
+              0,
+              153,
+              163
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              992,
+              130,
+              156,
+              166
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.24447063089195,
+            "contact_y": 289,
+            "sha256": "21313fac00cb330d76e8d7eb72b46ea388022b7ea509c32e29949e1c345c7c7a"
+          }
+        ]
+      }
+    }
+  },
+  "processing": "Whole rectangular crop, uniform LANCZOS resizing, contact translation and assembly only. Native alpha retained. Contact is alpha>=192 bottom8px weighted center, not anatomical foot tracking."
+}

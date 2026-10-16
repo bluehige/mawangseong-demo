@@ -111,6 +111,15 @@ func _configure_ui_catalog(language: String, path: String, translation) -> void:
 	# Language-neutral composition templates still contain localized names/counts.
 	for template in ["%s %d", "%s %d/%d", "%s Lv.%d", "%s x%d", "%s × %d", "%s %d→%d", "%s (%s)", "[%s]", "• %s", "—  %s"]:
 		values[template] = "%s %d级" if language == LOCALE_CHINESE and template == "%s Lv.%d" else template
+	var supplement_path := "res://data/v130r/localization_"+("zh_cn" if language==LOCALE_CHINESE else "en")+".json"
+	var supplement = JSON.parse_string(FileAccess.get_file_as_string(supplement_path))
+	if supplement is Dictionary:
+		values.merge(supplement.get("messages",{}),true)
+		for source in supplement.get("messages",{}):
+			var translated: String = supplement.messages[source]
+			if str(source).begins_with("[") and "]:" in str(source) and "]:" in translated:
+				values[str(source).split("]:",true,1)[1].strip_edges()] = translated.split("]:",true,1)[1].strip_edges()
+
 	translation.configure(values, language)
 	TranslationServer.add_translation(translation)
 

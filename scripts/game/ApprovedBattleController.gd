@@ -35,6 +35,7 @@ var effects_home: Node
 var original_controller
 var original_graph
 var original_rooms: Dictionary
+var monster_skills = preload("res://scripts/combat/V130RMonsterSkills.gd").new()
 
 func begin(map_view: Control) -> void:
 	view = map_view; root = view.root
@@ -67,6 +68,7 @@ func begin(map_view: Control) -> void:
 	root.effect_root.position = Vector2.ZERO; root.effect_root.z_index = 3501
 	root.effect_root.show()
 	spawn_monsters()
+	monster_skills.setup(self)
 	root.wave_manager.setup(GameState.day,DataRegistry.waves)
 	running = true
 
@@ -92,6 +94,7 @@ func spawn_monsters() -> void:
 		homes[unit.get_instance_id()] = unit.position
 		root.monster_roster[species] = root.monster_roster.get(species,{"level":1,"exp":0}).duplicate(true)
 		root.monster_roster[species]["room"] = building
+		unit.face_direction(map.center("entrance")-unit.position)
 		root.monster_units.append(unit)
 
 func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
@@ -112,6 +115,7 @@ func physics_process(delta: float) -> void:
 	if not running or root.current_screen!=Constants.SCREEN_COMBAT or root.combat_paused: return
 	var sim_delta: float = delta*root.combat_speed
 	root.combat_time += sim_delta
+	monster_skills.tick(sim_delta)
 	_update_sfx_cooldowns(delta); damage_presentation.tick(delta)
 	spawn_ready_enemies(sim_delta); refresh_unit_rooms()
 	for unit in root.monster_units+root.enemy_units:
@@ -177,9 +181,12 @@ func return_home(unit: Node) -> void:
 	if unit.position.distance_to(home(unit))>2:
 		move_unit_to_point(unit,home(unit),true)
 		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM,"수비 칸 복귀")
-	else: unit.stop_navigation()
+	else:
+		unit.stop_navigation()
+		unit.face_direction(map.center("entrance")-unit.position)
 
 func update_enemy_path(unit: Node) -> void:
+	if monster_skills.update_false_goal(unit): return
 	if unit.unit_id=="thief" and float(root.thief_steal_timers.get(unit,0))<-100:
 		unit.goal_room = "entrance"
 	var target: Node = unit.forced_attack_target(root.monster_units,260)
@@ -268,13 +275,15 @@ func update_room_effects(delta: float) -> void:
 		var reached: bool = enemy.position.distance_to(map.center(enemy.goal_room))<18
 		if not reached: continue
 		if enemy.goal_room=="throne" and enemy.attack_cooldown<=0 and TargetingService.nearest(enemy,root.monster_units,enemy.attack_range)==null:
-			var damage: int = maxi(8,enemy.atk)
+			var damage: int = maxi(8,enemy.effective_atk())
 			if not root.monster_units.any(func(u): return u.is_alive()): damage *= 3
 			GameState.damage_throne(damage); enemy.attack_cooldown = enemy.effective_attack_interval()
 		elif enemy.unit_id=="thief": tick_theft(enemy,delta)
 		elif str(enemy.get_meta("goal_type",""))=="facility" and enemy.attack_cooldown<=0:
 			map.rooms[enemy.goal_room]["disabled_until"] = root.combat_time+ENGINEER_DISABLE_SECONDS
 			enemy.attack_cooldown = enemy.effective_attack_interval()
+			enemy.goal_room = "throne"
+			move_unit_to_room(enemy,"throne")
 
 func tick_theft(enemy: Node, delta: float) -> void:
 	if enemy.goal_room=="entrance":
@@ -288,10 +297,11 @@ func tick_theft(enemy: Node, delta: float) -> void:
 		return
 	if TargetingService.nearest(enemy,root.monster_units,enemy.attack_range)!=null: return
 	if not root.thief_steal_timers.has(enemy): root.thieves_reached_treasure_this_battle += 1
-	var time: float = float(root.thief_steal_timers.get(enemy,0))+delta
+	var time: float = float(root.thief_steal_timers.get(enemy,0))+delta*monster_skills.slow_theft(enemy)
 	root.thief_steal_timers[enemy] = time
 	if time>=5:
 		var stolen: int = mini(100,GameState.gold); GameState.gold -= stolen
+		enemy.set_meta("stolen_gold",int(enemy.get_meta("stolen_gold",0))+stolen)
 		root.treasure_gold_stolen_this_battle += stolen; root.thieves_completed_theft_this_battle += 1
 		root.thief_steal_timers[enemy] = -999.0; enemy.goal_room = "entrance"
 
@@ -303,7 +313,7 @@ func apply_cell_traps(enemy: Node) -> void:
 	trap_next_hits[key] = root.combat_time+2.0
 	var damage := 0
 	if kind=="spikes": damage = enemy.receive_damage(14)
-	else: enemy.apply_slow(2.0*trap_duration_multiplier(c),.55)
+	else: enemy.apply_slow(2.0*trap_duration_multiplier(c)+monster_skills.sticky_extra(c),.55)
 	trap_events.append({"time":root.combat_time,"kind":kind,"cell":str(c),"damage":damage,"enemy":enemy.unit_id})
 	# Existing GPT tile artwork flashes; no procedural geometry or new drawing.
 	var flash: Sprite2D = view.cell_highlight(visuals,c,Color(1,.5,.15,.8) if kind=="spikes" else Color(.35,1,.6,.8))
@@ -315,7 +325,7 @@ func create_temporary_trap(c: Vector2i, kind: String, seconds: float, source_id:
 	var sprite := Sprite2D.new()
 	sprite.texture = load("res://assets/maps/v130r_step1/traps/"+kind+".png")
 	sprite.position = map.world(c); visuals.add_child(sprite); sprite.modulate = Color(.7,1,.8,.8)
-	var trap := {"ok":true,"cell":c,"kind":kind,"remaining":seconds*trap_duration_multiplier(c),"source_id":source_id,"sprite":sprite}
+	var trap := {"ok":true,"cell":c,"kind":kind,"remaining":seconds*trap_duration_multiplier(c)+monster_skills.sticky_extra(c),"source_id":source_id,"sprite":sprite}
 	temporary_traps.append(trap); rebuild_trap_tags(); return trap.duplicate()
 
 func add_trap_duration_modifier(cells: Array, multiplier: float, seconds: float, source_id: String) -> void:
@@ -345,6 +355,9 @@ func rebuild_trap_tags() -> void:
 
 func request_unit_skill(unit: Node, slot: int, notify_ai: bool = false) -> bool:
 	if not is_instance_valid(unit) or not running or root.combat_paused: return false
+	var slots: Array = skill_slots_for(unit)
+	if slot>=0 and slot<slots.size() and monster_skills.definitions.has(str(slots[slot])):
+		return monster_skills.cast(unit,str(slots[slot]),notify_ai)
 	var previous = root.selected_unit; root.selected_unit = unit
 	var intent := _prepare_selected_skill(slot,notify_ai); root.selected_unit = previous
 	if intent.is_empty(): return false
@@ -478,3 +491,26 @@ func call_deferred_result(win: bool, reason: String) -> void:
 
 func settle_result(win: bool, reason: String) -> void:
 	super.finish_combat(win,reason)
+
+func try_auto_monster_skill(unit: Node) -> bool:
+	if DataRegistry.monster(unit.unit_id).get("instance_id","").begins_with("mon_v130r_"):
+		if root.combat_time<float(unit.get_meta("new_auto_next",0)): return false
+		unit.set_meta("new_auto_next",root.combat_time+.35)
+		for id in skill_slots_for(unit):
+			if id=="toll_shakedown": continue
+			if monster_skills.cast(unit,str(id),true): return true
+		return false
+	return super.try_auto_monster_skill(unit)
+
+func _perform_standard_attack(attacker: Node, target: Node, fighting_retreat: bool = false, contact_callback: Callable = Callable()) -> Dictionary:
+	var stealth_attack: bool = attacker.unit_id=="under_bed_shadow" and attacker.stealthed()
+	if stealth_attack and monster_skills.cast(attacker,"peekaboo",true):
+		attacker.attack_cooldown = attacker.effective_attack_interval()
+		return {"applied":true}
+	var result := super._perform_standard_attack(attacker,target,fighting_retreat,contact_callback)
+	if result.get("applied",false): monster_skills.on_hit(attacker,target)
+	return result
+
+func on_unit_downed(unit: Node) -> void:
+	monster_skills.on_downed(unit)
+	super.on_unit_downed(unit)

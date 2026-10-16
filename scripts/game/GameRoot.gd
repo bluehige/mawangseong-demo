@@ -1879,6 +1879,7 @@ func _grant_monster_bond(monster_id: String, amount: int) -> Dictionary:
 	if rank_after > rank_before:
 		var custom_memory_ids: Dictionary = DataRegistry.monster(monster_id).get("bond_memory_ids", {})
 		unlocked_memory_id = str(custom_memory_ids.get(str(rank_after), "")) if not custom_memory_ids.is_empty() else "bond_%s_rank_%d" % [monster_id, rank_after]
+		if unlocked_memory_id != "" and DataRegistry.memory_entry(unlocked_memory_id).is_empty(): unlocked_memory_id = ""
 		if unlocked_memory_id != "":
 			var memory_ids: Array = monster_roster[monster_id].get("unlocked_memory_ids", [])
 			if not memory_ids.has(unlocked_memory_id):

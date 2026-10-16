@@ -1,0 +1,1475 @@
+{
+  "species_id": "armored_beetle",
+  "status": "ACCEPTED_NOT_INTEGRATED",
+  "selection": {
+    "status": "ACCEPTED_NOT_INTEGRATED",
+    "sources": [
+      {
+        "file": "attempt_1.png"
+      }
+    ],
+    "criteria": {
+      "T": true,
+      "F": true,
+      "H": true,
+      "E": true,
+      "S": true
+    },
+    "evidence": "큰 겹등딱지 윗면·압축 다리·낮은 보라 눈·타원. NE 뒤껍질.",
+    "notes": [
+      "Six legs partly occluded by broad shell. SW skill brace tucks face under front shell, not direction flip. Small rivet count/locations vary."
+    ]
+  },
+  "uniform_scale": 0.9697129292116905,
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "logical_anchor": [
+    192,
+    345
+  ],
+  "atlas_anchor": [
+    156.5,
+    289
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "integrated": false,
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "visual_evidence": "큰 겹등딱지 윗면·압축 다리·낮은 보라 눈·타원. NE 뒤껍질.",
+  "directions": {
+    "sw": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/armored_beetle/armored_beetle_sheet.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              34,
+              76,
+              202,
+              229
+            ],
+            "source_bbox": [
+              0,
+              0,
+              168,
+              153
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              57,
+              146,
+              163,
+              148
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.47374043697016,
+            "contact_y": 289,
+            "sha256": "9cb4275d5503bbccabf590d158a3e9afa26cd51dc25fa40ac18b3cdc3f667508"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              228,
+              75,
+              394,
+              227
+            ],
+            "source_bbox": [
+              0,
+              0,
+              166,
+              152
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              373,
+              147,
+              161,
+              147
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.12245413230096,
+            "contact_y": 289,
+            "sha256": "a245d7b446f3976e57799e5dd128182428b154f3e4874fca9910563f46b2f0a7"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              420,
+              93,
+              571,
+              230
+            ],
+            "source_bbox": [
+              0,
+              0,
+              151,
+              137
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              690,
+              161,
+              146,
+              133
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.8254382053305,
+            "contact_y": 289,
+            "sha256": "ccc4d47e7439331896b110b34d351774d462f8c91d4f9d69f894e4ec93939446"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              597,
+              102,
+              754,
+              229
+            ],
+            "source_bbox": [
+              0,
+              0,
+              157,
+              127
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1022,
+              171,
+              152,
+              123
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.68614569536425,
+            "contact_y": 289,
+            "sha256": "1ef0ef8acb922cb6b671ee79cb56a91b2d568df63a43386acb38cfec0d01974c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              34,
+              271,
+              208,
+              419
+            ],
+            "source_bbox": [
+              0,
+              0,
+              174,
+              148
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 4,
+            "rect": [
+              55,
+              464,
+              169,
+              144
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.52362597195454,
+            "contact_y": 289,
+            "sha256": "7a1c2fec81a1b22bd5a62bbdd9c4debacf970045c28e49a5aa6f67e10c34a2c1"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              226,
+              273,
+              399,
+              421
+            ],
+            "source_bbox": [
+              0,
+              0,
+              173,
+              148
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 5,
+            "rect": [
+              364,
+              463,
+              168,
+              144
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.86394362735058,
+            "contact_y": 289,
+            "sha256": "ce038f79990649717e9f11d576e3c918b6eb3fc18247e9b0d6d0dd66c2e186ca"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              411,
+              269,
+              585,
+              422
+            ],
+            "source_bbox": [
+              0,
+              0,
+              174,
+              153
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 1,
+            "foreign_major_components": [],
+            "index": 6,
+            "rect": [
+              696,
+              459,
+              169,
+              148
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.67089322925864,
+            "contact_y": 289,
+            "sha256": "a3abb3212d95411146c173159effec4264157f670b0d89984392f7f15a240817"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              602,
+              268,
+              767,
+              422
+            ],
+            "source_bbox": [
+              0,
+              0,
+              165,
+              154
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 7,
+            "rect": [
+              1003,
+              458,
+              160,
+              149
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.6265948523244,
+            "contact_y": 289,
+            "sha256": "eae8cb88b2c58d30a510282d18c45281dbe638db40aa4ac5d4beedc6e4da7844"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              30,
+              459,
+              201,
+              610
+            ],
+            "source_bbox": [
+              0,
+              0,
+              171,
+              151
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 8,
+            "rect": [
+              60,
+              775,
+              166,
+              146
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.28660652324774,
+            "contact_y": 289,
+            "sha256": "ee5b4078bccac2fd5d8c3450ebd7e964becbc8371c0d22cf7227b25102e0a1e8"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              221,
+              455,
+              399,
+              609
+            ],
+            "source_bbox": [
+              0,
+              0,
+              178,
+              154
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 9,
+            "rect": [
+              390,
+              775,
+              173,
+              149
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.48839508742714,
+            "contact_y": 289,
+            "sha256": "aec7e98afb5fe6978920380935a06077a0847580a5ef9b5c782cc2553998f06d"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              408,
+              457,
+              573,
+              609
+            ],
+            "source_bbox": [
+              0,
+              0,
+              165,
+              152
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 10,
+            "rect": [
+              712,
+              776,
+              160,
+              147
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.90854025651785,
+            "contact_y": 289,
+            "sha256": "7357904b7031e3c9b97ec4c9ceabf4a1d03ee07c27e91c675f70c435ec61485f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              597,
+              455,
+              764,
+              611
+            ],
+            "source_bbox": [
+              0,
+              0,
+              167,
+              156
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 11,
+            "rect": [
+              1014,
+              770,
+              162,
+              151
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.89772453163948,
+            "contact_y": 289,
+            "sha256": "b6e2bafae467392fd53249f794e2eecba854235544c65e371296bb0e68086341"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              32,
+              638,
+              192,
+              787
+            ],
+            "source_bbox": [
+              0,
+              0,
+              160,
+              149
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 12,
+            "rect": [
+              65,
+              1091,
+              155,
+              144
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.82274173467977,
+            "contact_y": 289,
+            "sha256": "9c846de76895bf8a2af22158315bdf1ff7d6618658b061816e91757592df068c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              227,
+              637,
+              379,
+              781
+            ],
+            "source_bbox": [
+              0,
+              0,
+              152,
+              144
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 8,
+            "foreign_major_components": [],
+            "index": 13,
+            "rect": [
+              402,
+              1102,
+              147,
+              140
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.2065207861017,
+            "contact_y": 289,
+            "sha256": "40224f42df787d7265043c6c7314bb0c5a231a059aac81673e052383204dcf16"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              411,
+              649,
+              565,
+              788
+            ],
+            "source_bbox": [
+              0,
+              0,
+              154,
+              139
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 14,
+            "rect": [
+              716,
+              1101,
+              149,
+              135
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.34211848966515,
+            "contact_y": 289,
+            "sha256": "c372646f6a4a3f2348cb8cde5c020935aa113246fb6179d3d3bd042a5ed1d7d3"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              595,
+              643,
+              752,
+              789
+            ],
+            "source_bbox": [
+              0,
+              0,
+              157,
+              146
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 15,
+            "rect": [
+              997,
+              1093,
+              152,
+              142
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.1672794117647,
+            "contact_y": 289,
+            "sha256": "ab1028092efc24f930df4b8d43c4bf6d6c93dd6f9910ef3ba747bf72059ff31f"
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/armored_beetle/armored_beetle_hurt_sw.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              29,
+              824,
+              205,
+              978
+            ],
+            "source_bbox": [
+              0,
+              0,
+              176,
+              154
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              65,
+              145,
+              171,
+              149
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.08529555050342,
+            "contact_y": 289,
+            "sha256": "9d4ea0cd645bbc8578ae55c6b4ce90d709e1a0f5d30b6b7865121f0c43147b0c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              220,
+              826,
+              383,
+              977
+            ],
+            "source_bbox": [
+              0,
+              0,
+              163,
+              151
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              400,
+              148,
+              158,
+              146
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.005210861896,
+            "contact_y": 289,
+            "sha256": "4eebea273ba09d1d6766fc2f3f003eb5e0607ee3771808c927582ddcfff9d8e4"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              414,
+              835,
+              573,
+              977
+            ],
+            "source_bbox": [
+              0,
+              0,
+              159,
+              142
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              682,
+              157,
+              154,
+              138
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.48210633946832,
+            "contact_y": 289,
+            "sha256": "4c148181053a07d67a89eb2f6859ff1b85681bc054414aca553e8867f95def22"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              596,
+              827,
+              757,
+              978
+            ],
+            "source_bbox": [
+              0,
+              0,
+              161,
+              151
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1006,
+              148,
+              156,
+              146
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.699835593917,
+            "contact_y": 289,
+            "sha256": "b1fa51632ca5f3af41e719c48d35ecce9b8f3b8bbe40155a94ff243624d0bf94"
+          }
+        ]
+      }
+    },
+    "ne": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/armored_beetle/armored_beetle_sheet_ne.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              785,
+              73,
+              957,
+              230
+            ],
+            "source_bbox": [
+              0,
+              0,
+              172,
+              157
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              43,
+              142,
+              167,
+              152
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.3033140519638,
+            "contact_y": 289,
+            "sha256": "0ad73bfcc55f788981f60c62a8b8aa6a0f5c429efdbbe99845eb3231e3b80b81"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              976,
+              72,
+              1148,
+              230
+            ],
+            "source_bbox": [
+              0,
+              0,
+              172,
+              158
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              356,
+              142,
+              167,
+              153
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.06506057268723,
+            "contact_y": 289,
+            "sha256": "0454f984e7fdeb4ababf64d44db8b91c3f522541f0d4fb79cfd25bf22d6ec233"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              1171,
+              98,
+              1326,
+              230
+            ],
+            "source_bbox": [
+              0,
+              0,
+              155,
+              132
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              716,
+              167,
+              150,
+              128
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.65253214157116,
+            "contact_y": 289,
+            "sha256": "3665301a5972d9d607d9c9d5080886b1a31b42a30924fa2226f112a56a6d7cd1"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              1352,
+              102,
+              1505,
+              226
+            ],
+            "source_bbox": [
+              0,
+              0,
+              153,
+              124
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1025,
+              175,
+              148,
+              120
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.945161463795,
+            "contact_y": 289,
+            "sha256": "62123fcae52478ae99a7e3be157a812d96e039108b7428bf1952765d255f14f7"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              784,
+              278,
+              953,
+              423
+            ],
+            "source_bbox": [
+              0,
+              0,
+              169,
+              145
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 4,
+            "rect": [
+              51,
+              466,
+              164,
+              141
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.7920957144258,
+            "contact_y": 289,
+            "sha256": "edfc11012715b2e1914e721b795d1fa73cc8d448664543c902909fa467b11538"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              987,
+              271,
+              1148,
+              424
+            ],
+            "source_bbox": [
+              0,
+              0,
+              161,
+              153
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 5,
+            "rect": [
+              396,
+              459,
+              156,
+              148
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.20676263244542,
+            "contact_y": 289,
+            "sha256": "42934099b2f4c473f3f00354c20d4bf7bf08ae28d80c87e5f84664e1fede416c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              1165,
+              272,
+              1342,
+              425
+            ],
+            "source_bbox": [
+              0,
+              0,
+              177,
+              153
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 6,
+            "rect": [
+              696,
+              459,
+              172,
+              148
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.00164433116828,
+            "contact_y": 289,
+            "sha256": "f9cbee1f2b54b6f386dd849dc45173a33f62035c7820d8e5feeaa303fa8139b4"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              1356,
+              273,
+              1511,
+              413
+            ],
+            "source_bbox": [
+              0,
+              0,
+              155,
+              140
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 9,
+            "foreign_major_components": [],
+            "index": 7,
+            "rect": [
+              1083,
+              473,
+              150,
+              136
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.30759670654032,
+            "contact_y": 289,
+            "sha256": "3e223c73df44fa8da439faf190b895c5605ee5b310dc555456c22b6e0aef0111"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              785,
+              461,
+              957,
+              611
+            ],
+            "source_bbox": [
+              0,
+              0,
+              172,
+              150
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 8,
+            "rect": [
+              69,
+              776,
+              167,
+              145
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.26229439933377,
+            "contact_y": 289,
+            "sha256": "c8da3ab8415001f41d3c75efd6e7e256152dc1a016f8f77a691874105a9a1b45"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              988,
+              460,
+              1151,
+              610
+            ],
+            "source_bbox": [
+              0,
+              0,
+              163,
+              150
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 9,
+            "rect": [
+              385,
+              776,
+              158,
+              145
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.98514020360778,
+            "contact_y": 289,
+            "sha256": "d9bc4a32543151bccaca8d2b3d2d433d89b423eca51da35366314746f5792501"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              1179,
+              467,
+              1331,
+              611
+            ],
+            "source_bbox": [
+              0,
+              0,
+              152,
+              144
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 10,
+            "rect": [
+              708,
+              781,
+              147,
+              140
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.7120312234855,
+            "contact_y": 289,
+            "sha256": "ad381c8e5b046b31119488119508d77c9ed086b2f7c66f5c5d5a7f4ee33f97aa"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              1353,
+              460,
+              1508,
+              605
+            ],
+            "source_bbox": [
+              0,
+              0,
+              155,
+              145
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 11,
+            "rect": [
+              1055,
+              790,
+              150,
+              141
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.8962959602604,
+            "contact_y": 289,
+            "sha256": "1f8a377f5c87d81fbe15cb49334b93337b4d7842164a16b0dbafec8d93f1a13b"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              799,
+              646,
+              954,
+              786
+            ],
+            "source_bbox": [
+              0,
+              0,
+              155,
+              140
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 12,
+            "rect": [
+              79,
+              1107,
+              150,
+              136
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.65871149580562,
+            "contact_y": 289,
+            "sha256": "ef1943df3966b9786234d86a5e04091cba4f15897cda2cdcf676b3c5fbd81d54"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              983,
+              654,
+              1134,
+              788
+            ],
+            "source_bbox": [
+              0,
+              0,
+              151,
+              134
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 13,
+            "rect": [
+              403,
+              1107,
+              146,
+              130
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.6843325198042,
+            "contact_y": 289,
+            "sha256": "c9e6cc194ad974a7687b4f46390abf9df2452aaf1a1899a356f94600a2461ba6"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              1166,
+              655,
+              1314,
+              787
+            ],
+            "source_bbox": [
+              0,
+              0,
+              148,
+              132
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 14,
+            "rect": [
+              714,
+              1108,
+              144,
+              128
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.3343629633335,
+            "contact_y": 289,
+            "sha256": "ee65f7cece4e93ea8590d38296fbe13090ed8e03e4254d02b471919e75134e95"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              1344,
+              642,
+              1506,
+              792
+            ],
+            "source_bbox": [
+              0,
+              0,
+              162,
+              150
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 15,
+            "rect": [
+              1006,
+              1088,
+              157,
+              145
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.59110586383315,
+            "contact_y": 289,
+            "sha256": "53c10c754f913e6eaac7661c0826c27bdb1f24c3478820c3f1c0b776d1740102"
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/armored_beetle/armored_beetle_hurt_ne.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              790,
+              827,
+              956,
+              970
+            ],
+            "source_bbox": [
+              0,
+              0,
+              166,
+              143
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              44,
+              156,
+              161,
+              139
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.78000745737432,
+            "contact_y": 289,
+            "sha256": "6a38cfaf4da0dfabc16f0b321cf745fe54b3623ab3afa6595b67e2c0f7e5c557"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              988,
+              823,
+              1147,
+              973
+            ],
+            "source_bbox": [
+              0,
+              0,
+              159,
+              150
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              355,
+              151,
+              154,
+              145
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.95727275165626,
+            "contact_y": 289,
+            "sha256": "c6bb828caa67acd2bc074daeb298c27e9bcdd1b8bc19570cbad5b6a178daed61"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              1164,
+              835,
+              1327,
+              970
+            ],
+            "source_bbox": [
+              0,
+              0,
+              163,
+              135
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              690,
+              164,
+              158,
+              131
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.47413110287363,
+            "contact_y": 289,
+            "sha256": "b5327017faeb40b737e9435547e78e194730aad8b08ca2b2afbb6fea8fe60d7f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/armored_beetle/attempt_1.png",
+            "source_slice": [
+              1344,
+              830,
+              1511,
+              973
+            ],
+            "source_bbox": [
+              0,
+              0,
+              167,
+              143
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              983,
+              155,
+              162,
+              139
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.08833527357393,
+            "contact_y": 289,
+            "sha256": "3155c249bf08309c640d8bfb5ac08fd6ef8d1117416dde841fed6192cffe1949"
+          }
+        ]
+      }
+    }
+  },
+  "processing": "Whole rectangular crop, uniform LANCZOS resizing, contact translation and assembly only. Native alpha retained. Contact is alpha>=192 bottom8px weighted center, not anatomical foot tracking."
+}

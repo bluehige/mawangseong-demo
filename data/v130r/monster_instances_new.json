@@ -1,0 +1,170 @@
+{
+  "mon_v130r_pongdang": {
+    "instance_id": "mon_v130r_pongdang",
+    "species_id": "river_frog",
+    "character_id": "CHR_PONGDANG",
+    "display_name": "퐁당",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": [
+      "tongue_snag",
+      "puddle_song"
+    ],
+    "unlocked_memory_ids": []
+  },
+  "mon_v130r_neurit": {
+    "instance_id": "mon_v130r_neurit",
+    "species_id": "glue_snail",
+    "character_id": "CHR_NEURIT",
+    "display_name": "느릿",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": [
+      "slime_trail",
+      "shell_retreat"
+    ],
+    "unlocked_memory_ids": []
+  },
+  "mon_v130r_beongbeong": {
+    "instance_id": "mon_v130r_beongbeong",
+    "species_id": "bridge_troll",
+    "character_id": "CHR_BEONGBEONG",
+    "display_name": "벙벙",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": [
+      "no_passage",
+      "toll_shakedown"
+    ],
+    "unlocked_memory_ids": []
+  },
+  "mon_v130r_shh": {
+    "instance_id": "mon_v130r_shh",
+    "species_id": "under_bed_shadow",
+    "character_id": "CHR_SHH",
+    "display_name": "쉿",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": [
+      "peekaboo",
+      "blanket_hide"
+    ],
+    "unlocked_memory_ids": []
+  },
+  "mon_v130r_teongteong": {
+    "instance_id": "mon_v130r_teongteong",
+    "species_id": "hollow_armor",
+    "character_id": "CHR_TEONGTEONG",
+    "display_name": "텅텅",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": [
+      "hero_pose",
+      "reassemble"
+    ],
+    "unlocked_memory_ids": []
+  },
+  "mon_v130r_noknok": {
+    "instance_id": "mon_v130r_noknok",
+    "species_id": "candle_wisp",
+    "character_id": "CHR_NOKNOK",
+    "display_name": "녹녹",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": [
+      "wax_drip"
+    ],
+    "unlocked_memory_ids": []
+  },
+  "mon_v130r_papa": {
+    "instance_id": "mon_v130r_papa",
+    "species_id": "mole_digger",
+    "character_id": "CHR_PAPA",
+    "display_name": "파파",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": [
+      "tunnel_hop",
+      "undermine"
+    ],
+    "unlocked_memory_ids": []
+  },
+  "mon_v130r_kkogit": {
+    "instance_id": "mon_v130r_kkogit",
+    "species_id": "crumpled_map",
+    "character_id": "CHR_KKOGIT",
+    "display_name": "꼬깃",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": [
+      "wrong_way",
+      "map_spread"
+    ],
+    "unlocked_memory_ids": []
+  },
+  "mon_v130r_jjikjjik": {
+    "instance_id": "mon_v130r_jjikjjik",
+    "species_id": "rat_union",
+    "character_id": "CHR_JJIKJJIK",
+    "display_name": "찍찍단",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": [
+      "swarm"
+    ],
+    "unlocked_memory_ids": []
+  },
+  "mon_v130r_nubi": {
+    "instance_id": "mon_v130r_nubi",
+    "species_id": "curse_doll",
+    "character_id": "CHR_NUBI",
+    "display_name": "누비",
+    "level": 1,
+    "exp": 0,
+    "bond": 0,
+    "bond_rank": 0,
+    "specialization_id": "",
+    "evolution_id": "",
+    "equipped_skill_ids": [
+      "stitch_curse",
+      "proxy_pain"
+    ],
+    "unlocked_memory_ids": []
+  }
+}

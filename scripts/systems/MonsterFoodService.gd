@@ -1,7 +1,14 @@
 extends RefCounted
 ## Deterministic daily rations for unique individuals. No save I/O.
 const VERSION := 1
-const COSTS := {"slime":1,"goblin":1,"imp":1,"kobold_scout":1,"spore_healer":2,"war_drummer":2,"ghost_housemaid":2,"bat_courier":2,"spider_tailor":2,"stone_sentinel":3,"mimic_porter":3,"moon_tracker":3,"graveyard_hound":3,"armored_beetle":3}
+static var COSTS: Dictionary = load_costs()
+
+static func load_costs() -> Dictionary:
+	var result := {}
+	var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/v130r/upkeep.json"))
+	for species in data.monsters: result[species] = int(data.monsters[species].upkeep_food)
+	return result
+
 
 static func stage(day: int) -> int:
 	return 1 if day<15 else 2 if day<20 else 3 if day<27 else 4

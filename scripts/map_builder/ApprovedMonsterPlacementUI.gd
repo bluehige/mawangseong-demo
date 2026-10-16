@@ -32,7 +32,7 @@ var ghost: TextureRect
 var skills: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/skills.json"))
 
 func _ready() -> void:
-	skills.merge(JSON.parse_string(FileAccess.get_file_as_string("res://data/regular_version/update4/skills.json")))
+	skills = DataRegistry.skills.duplicate(true)
 	unlock_all = OS.get_cmdline_user_args().has("--unlock-all")
 
 func unlocked() -> Array:
@@ -42,6 +42,9 @@ func unlocked() -> Array:
 	return ids
 
 func portrait(id: String) -> String:
+	var species: String = members[id].species_id
+	var path := "res://assets/sprites/v130r/%s/portrait_%s_card.png" % [species,species]
+	if FileAccess.file_exists(path): return path
 	return "res://assets/sprites/portraits/"+PORTRAITS[members[id].species_id]+".png"
 
 func role_icon(row: Dictionary) -> String:
@@ -70,13 +73,13 @@ func build_controls(hud: Control, tab_parent: Control, bar: Control) -> void:
 	var index := 0
 	for id in members:
 		var row: Dictionary = members[id]
-		var card: Control = view.panel_image(roster_panel,Rect2(18+index*99,44,95,145)); card.name = id
-		view.art_at(card,portrait(id),Rect2(7,6,81,76))
-		view.art_at(card,view.KIT+role_icon(row)+"_64.png",Rect2(4,83,23,23))
-		view.label_at(card,row.display_name,Vector2(28,84),16,true)
-		view.art_at(card,view.KIT+"food_64.png",Rect2(8,109,22,22))
-		view.label_at(card,str(row.upkeep),Vector2(31,110),16)
-		view.label_at(card,"Lv"+str(row.level),Vector2(51,110),14)
+		var card: Control = view.panel_image(roster_panel,Rect2(18+(index%12)*115,44+(index/12)*73,111,69)); card.name = id
+		view.art_at(card,portrait(id),Rect2(4,4,45,59))
+		view.art_at(card,view.KIT+role_icon(row)+"_64.png",Rect2(50,3,17,17))
+		view.label_at(card,row.display_name,Vector2(68,3),14,true)
+		view.art_at(card,view.KIT+"food_64.png",Rect2(50,25,18,18))
+		view.label_at(card,str(row.upkeep),Vector2(70,25),15)
+		view.label_at(card,"Lv"+str(row.level),Vector2(52,46),13)
 		card.gui_input.connect(func(event):
 			if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and event.pressed:
 				begin_drag(id,event.global_position); card.accept_event())
@@ -106,7 +109,7 @@ func refresh_cards() -> void:
 		card.modulate = Color(.4,.4,.48) if locked else Color(.68,.85,.75) if assignments.has(id) else Color.WHITE
 		var lock := card.get_node_or_null("RecruitLock")
 		if locked and lock==null:
-			lock = view.art_at(card,view.KIT+"lock_64.png",Rect2(30,24,36,36)); lock.name = "RecruitLock"
+			lock = view.art_at(card,view.KIT+"lock_64.png",Rect2(9,17,32,32)); lock.name = "RecruitLock"
 		elif not locked and lock!=null: lock.free()
 		if view.food_enabled() and GameState.is_hungry(str(members[id].species_id)): card.modulate = Color(1,.55,.35)
 		card.tooltip_text = ("미합류 · " if locked else "배치 중 · " if assignments.has(id) else "대기 · ")+members[id].stats.role
@@ -134,19 +137,24 @@ func render_units() -> void:
 	for id in assignments:
 		var row: Dictionary = members[id]
 		var sprite := Sprite2D.new(); sprite.name = id
-		var sheet: Texture2D = view.texture(row.stats.get("sprite",row.stats.get("sprite_sheet","")))
+		var c := Model.cell(view.placement,assignments[id])
+		var foot: Vector2 = view.project(Vector2(c)+Vector2(.5,.5))
+		var entrance_cell: Vector2i = view.placement.doors.entrance.front[0]
+		var direction: Vector2 = view.project(Vector2(entrance_cell)+Vector2(.5,.5))-foot
+		var path: String = row.stats.sprite_ne if direction.y<0 else row.stats.sprite
+		var sheet: Texture2D = view.texture(path)
 		var atlas := ActorArt.frame(sheet,0)
 		sprite.texture = atlas
 		var used := Presentation.visible_bounds(atlas)
 		var factor := Presentation.body_scale(used,row.species_id)
 		sprite.scale = Vector2.ONE*factor
-		sprite.offset = -(Vector2(used.position)+Vector2(used.size.x/2.0,used.size.y))
-		sprite.centered = false
-		var c := Model.cell(view.placement,assignments[id])
-		sprite.position = view.project(Vector2(c)+Vector2(.5,.5))
-		sprite.z_index = Presentation.depth(sprite.position)
-		# Source idle faces down/right; mirrored it faces the entrance at the left.
-		sprite.flip_h = true
+		sprite.centered = true
+		sprite.flip_h = direction.x>0 if direction.y>=0 else direction.x<0
+		var anchor := Vector2(used.get_center().x,used.end.y)-atlas.get_size()/2
+		if sprite.flip_h: anchor.x *= -1
+		sprite.offset = -anchor
+		sprite.position = foot
+		sprite.z_index = Presentation.depth(foot)
 		unit_layer.add_child(sprite); units[id] = sprite
 	render_sites()
 

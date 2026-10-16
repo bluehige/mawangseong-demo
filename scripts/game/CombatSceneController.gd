@@ -2882,7 +2882,7 @@ func _update_acid_zones(delta: float) -> void:
 	acid_damage_accumulator -= float(ticks)
 	var tick_damage := int(skill.get("damage_per_second", 2)) * ticks
 	for monster in affected.values():
-		var dealt_damage := int(monster.receive_damage(tick_damage))
+		var dealt_damage := int(_receive_context_damage(monster,tick_damage,null,true,false))
 		var source = instance_from_id(int(affected_sources.get(monster.get_instance_id(), 0)))
 		if is_instance_valid(source):
 			_apply_combat_hit_feedback(source, monster, dealt_damage, false, "area")
@@ -4773,12 +4773,16 @@ func _update_hero_dashes(delta: float) -> void:
 			state["finished"] = true
 		hero_dash_states[instance_id] = state
 
+func _receive_context_damage(target: Node, amount: int, source: Node = null, area: bool = false, fire: bool = false) -> int:
+	if target.has_method("receive_context_damage"): return target.receive_context_damage(amount,source,area,fire)
+	return target.receive_magic_damage(amount) if fire else target.receive_damage(amount)
+
 func _apply_hero_dash_impact(unit: Node, dash_end: Vector2, primary_target = null) -> void:
 	var primary_hit := false
 	for monster in root.monster_units:
 		if monster.is_alive() and monster.global_position.distance_to(dash_end) <= HERO_DASH_IMPACT_RADIUS:
 			var hp_before = int(monster.hp)
-			var dealt_damage = monster.receive_damage(HERO_DASH_DAMAGE)
+			var dealt_damage = _receive_context_damage(monster,HERO_DASH_DAMAGE,unit,true,false)
 			hero_dash_damage += int(dealt_damage)
 			_record_damage_contribution(unit, monster, HERO_DASH_DAMAGE, dealt_damage, hp_before)
 			monster.mark_threat(unit)
@@ -4794,7 +4798,7 @@ func _apply_hero_dash_impact(unit: Node, dash_end: Vector2, primary_target = nul
 	# shortens the visual movement at a doorway, keep the promised primary impact.
 	if not primary_hit and is_instance_valid(primary_target) and primary_target.is_alive():
 		var hp_before = int(primary_target.hp)
-		var dealt_damage = primary_target.receive_damage(HERO_DASH_DAMAGE)
+		var dealt_damage = _receive_context_damage(primary_target,HERO_DASH_DAMAGE,unit,true,false)
 		hero_dash_damage += int(dealt_damage)
 		_record_damage_contribution(unit, primary_target, HERO_DASH_DAMAGE, dealt_damage, hp_before)
 		primary_target.mark_threat(unit)
@@ -7602,7 +7606,7 @@ func _resolve_projectile_damage(attacker_instance_id: int, target_instance_id: i
 		return
 	var attacker = instance_from_id(attacker_instance_id)
 	var hp_before = int(target.hp)
-	var dealt_damage = target.receive_magic_damage(damage) if hit_kind == "fireball" else target.receive_damage(damage)
+	var dealt_damage = _receive_context_damage(target,damage,attacker,false,true) if hit_kind == "fireball" else target.receive_damage(damage)
 	_record_damage_contribution(attacker, target, damage, dealt_damage, hp_before, attacker_unit_id)
 	if attacker_unit_id == "imp" and hit_kind == "fireball" and dealt_damage > 0 and root.has_method("_record_update3_duo_link_action"):
 		root._record_update3_duo_link_action("mon_core_pynn", "fire_skill_hit", 1, "pynn_fire:%d:%d" % [target.get_instance_id(), Time.get_ticks_usec()])

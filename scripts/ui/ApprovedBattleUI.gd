@@ -71,6 +71,7 @@ func select_unit(unit: Node) -> void:
 	for slot in range(slots.size()):
 		if slots[slot]==null: continue
 		var definition: Dictionary = DataRegistry.skill(str(slots[slot]))
+		if bool(definition.get("passive",false)): continue
 		var b := button(panel,str(definition.get("icon",ART+"skill_block.png")),Vector2(10+count*60,30),56,
 			func(): battle.request_unit_skill(unit,slot),str(definition.get("display_name",slots[slot])))
 		b.set_meta("slot",slot); b.set_meta("skill_id",str(slots[slot])); skill_buttons.append(b); count += 1

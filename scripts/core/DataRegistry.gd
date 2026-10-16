@@ -177,6 +177,7 @@ func load_all() -> void:
 	update4_monster_codex = update4_catalogs.get("monster_codex", {}).duplicate(true)
 	update4_run_metric_definitions = update4_catalogs.get("run_metric_definitions", {}).duplicate(true)
 	update4_council_endings = update4_catalogs.get("council_endings", {}).duplicate(true)
+	_load_v130r_monsters()
 	_merge_update4_metrics_and_endings()
 	var quarter_blueprints = _load_json("res://data/dungeon_quarter/room_blueprints.json")
 	quarter_modules = quarter_blueprints if not quarter_blueprints.is_empty() else _load_json("res://data/dungeon_quarter/modules.json")
@@ -622,3 +623,46 @@ func _rebuild_quarter_layouts() -> void:
 	elif quarter_default_layout_id == "" and not quarter_layouts.is_empty():
 		quarter_default_layout_id = str(quarter_layouts.keys()[0])
 
+
+func _load_v130r_monsters() -> void:
+	monsters.merge(_load_json("res://data/v130r/monsters_new.json"),true)
+	monster_instances.merge(_load_json("res://data/v130r/monster_instances_new.json"),true)
+	characters.merge(_load_json("res://data/v130r/characters_new.json"),true)
+	skills.merge(_load_json("res://data/v130r/skills_new.json"),true)
+	for skill_id in _load_json("res://data/v130r/skills_new.json"):
+		skills[skill_id]["icon"] = "res://assets/maps/v130r_step4/skill_block.png" if skill_id in ["puddle_song","shell_retreat","blanket_hide","reassemble","proxy_pain"] else "res://assets/maps/v130r_step4/skill_counter.png"
+
+	specializations.merge(_load_json("res://data/v130r/specializations_new.json"),true)
+	memory_entries.merge(_load_json("res://data/v130r/memory_entries_new.json"),true)
+	var costs := _load_json("res://data/v130r/upkeep.json").get("monsters",{}) as Dictionary
+	for species in costs:
+		var definition: Dictionary = monsters[species]
+		definition["sprite"] = "res://assets/sprites/v130r/quarter_final/%s/%s_sheet.png" % [species,species]
+		definition["sprite_ne"] = "res://assets/sprites/v130r/quarter_final/%s/%s_sheet_ne.png" % [species,species]
+		definition["placeholder_art"] = false
+		definition["upkeep_food"] = costs[species].upkeep_food
+		var memories := {}
+		for rank in range(1,4):
+			var id := "bond_%s_rank_%d" % [species,rank]
+			if memory_entries.has(id): memories[str(rank)] = id
+		if not memories.is_empty(): definition["bond_memory_ids"] = memories
+		var specs: Array = []
+		for id in specializations:
+			if str(specializations[id].get("monster_id",specializations[id].get("species_id","")))==species: specs.append(id)
+		if not specs.is_empty(): definition["specialization_ids"] = specs
+		var character_id := str(definition.get("character_id",""))
+		if character_id=="":
+			for member in monster_instances.values():
+				if member.species_id==species: character_id = str(member.get("character_id","")); break
+		if not characters.has(character_id): continue
+		var character: Dictionary = characters[character_id]
+		var folder := "res://assets/sprites/v130r/%s/portrait_%s_" % [species,species]
+		if FileAccess.file_exists(folder+"base.png"):
+			character["portrait"] = {"base":folder+"base.png","fallback":"base","observed_emotions":["happy","determined"],"variants":{"happy":folder+"happy.png","determined":folder+"determined.png"}}
+		else:
+			var short: String = {"spore_healer":"mori","stone_sentinel":"dolkong","war_drummer":"dudum","moon_tracker":"moon","mimic_porter":"mimi"}.get(species,"")
+			if short!="":
+				var portrait: Dictionary = character.get("portrait",{}).duplicate(true)
+				var variants: Dictionary = portrait.get("variants",{}).duplicate(true)
+				for emotion in ["happy","determined"]: variants[emotion] = "res://assets/sprites/v130r/portraits_contract/%s_%s.png" % [short,emotion]
+				portrait["variants"] = variants; character["portrait"] = portrait

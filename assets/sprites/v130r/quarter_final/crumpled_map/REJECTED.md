@@ -1,0 +1,1 @@
+Previous 0101 candidates remain rejected and were not imported. Step7 runtime uses newly generated GPT v2 (32 native poses), not those candidates. Native alpha 0..254, crop/resize/assembly only. See assets/source/imagegen/v130r_step7_crumpled_map/SOURCE.md.

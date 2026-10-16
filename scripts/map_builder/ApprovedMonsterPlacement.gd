@@ -2,17 +2,14 @@ extends RefCounted
 ## Individual branch-preview defenders. Only an isolated test copy is written.
 const Buildings = preload("res://scripts/map_builder/ApprovedPlacement.gd")
 const SAVE_PATH := "res://tmp/v130r_step3/copies/placement_test.json"
-const COSTS = preload("res://scripts/systems/MonsterFoodService.gd").COSTS
-const SUPPORT := ["spore_healer","ghost_housemaid","spider_tailor"]
-const RANGED := ["imp","moon_tracker","bat_courier"]
-const TANKS := ["slime","stone_sentinel","armored_beetle"]
+static var COSTS = preload("res://scripts/systems/MonsterFoodService.gd").COSTS
+const SUPPORT := ["spore_healer","ghost_housemaid","spider_tailor","curse_doll","crumpled_map"]
+const RANGED := ["imp","moon_tracker","bat_courier","candle_wisp","river_frog"]
+const TANKS := ["slime","stone_sentinel","armored_beetle","bridge_troll","hollow_armor","glue_snail"]
 
 static func roster() -> Dictionary:
-	var instances: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/monster_instances.json"))
-	instances.merge(JSON.parse_string(FileAccess.get_file_as_string("res://data/regular_version/update4/monster_instances.json")))
-	var species: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/monsters.json"))
-	species.merge(JSON.parse_string(FileAccess.get_file_as_string("res://data/regular_version/update3/monsters.json")))
-	species.merge(JSON.parse_string(FileAccess.get_file_as_string("res://data/regular_version/update4/monsters.json")))
+	var instances: Dictionary = DataRegistry.monster_instances.duplicate(true)
+	var species: Dictionary = DataRegistry.monsters
 	for id in instances:
 		var row: Dictionary = instances[id]
 		row["stats"] = species[row.species_id].duplicate(true)
@@ -59,6 +56,9 @@ static func preferences(species: String) -> Array:
 	if species in TANKS: return ["barracks","entrance","ward_core","throne","vault"]
 	if species in RANGED: return ["watchtower","throne","ward_core","barracks"]
 	if species in SUPPORT: return ["recovery_nest","ward_core","throne","barracks"]
+	if species=="rat_union": return ["vault","bait_treasure","barracks"]
+	if species=="hollow_armor": return ["throne","ward_core","barracks"]
+	if species=="mole_digger": return ["ward_core","barracks","throne"]
 	if species=="mimic_porter": return ["bait_treasure","vault","barracks"]
 	return ["barracks","vault","bait_treasure","throne"]
 

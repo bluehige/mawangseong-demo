@@ -17,6 +17,7 @@ static func pixels(texture: Texture2D) -> Dictionary:
 	return alpha_pixels[key]
 
 static func size_class(id: String) -> String:
+	if id in ["bridge_troll","hollow_armor","stone_sentinel","armored_beetle"]: return "large"
 	if id in BOSSES: return "boss"
 	if profiles.is_empty(): profiles = JSON.parse_string(FileAccess.get_file_as_string("res://data/v122/combat_visual_profiles.json"))
 	var profile: String = profiles.unit_overrides.get(id,{}).get("profile_id",profiles.default_profile_id)
