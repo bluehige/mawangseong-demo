@@ -132,7 +132,32 @@ func refresh() -> void:
 
 func _process(delta: float) -> void:
 	position_skills(); refresh_clock += delta
-	if refresh_clock>=.1: refresh_clock = 0; refresh()
+	if refresh_clock>=.1: refresh_clock = 0; refresh(); layout_vitals()
+
+func layout_vitals() -> void:
+	var units: Array = battle.root.monster_units+battle.root.enemy_units
+	units.sort_custom(func(a,b):
+		if a.selected!=b.selected: return a.selected
+		return a.position.y<b.position.y if a.position.y!=b.position.y else a.get_instance_id()<b.get_instance_id())
+	var occupied: Array[Rect2] = []
+	if skills.visible:
+		occupied.append(Rect2(view.world.to_local(skills.global_position),Vector2(252,98)*view.ui_unit/view.camera_scale).grow(8))
+	for unit in units:
+		unit.vitals.visible = unit.is_alive()
+		if not unit.is_alive(): continue
+		var desired: Vector2 = unit.position+unit.combat_anchor_local("head")-Vector2(0,10)
+		var chosen := desired
+		for row in range(units.size()+1):
+			var found := false
+			for column in [0,-1,1]:
+				var point: Vector2 = desired+Vector2(column*120,-row*40)
+				var rect := Rect2(point+Vector2(-58,-26),Vector2(116,38)).grow(2)
+				var blocked := false
+				for other in occupied:
+					if rect.intersects(other): blocked = true; break
+				if not blocked: chosen = point; found = true; occupied.append(rect); break
+			if found: break
+		unit.set_vitals_position(chosen)
 
 static func prepare_result_controls(node: Node) -> void:
 	# Keep existing result actions/signals and layout, using the existing GPT kit art.

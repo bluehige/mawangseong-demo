@@ -3,6 +3,7 @@ extends Node
 const Model = preload("res://scripts/map_builder/ApprovedMonsterPlacement.gd")
 const Layout = preload("res://scripts/map_builder/ApprovedMapLayout.gd")
 const ActorArt = preload("res://scripts/ui/UIUXActorArt.gd")
+const Presentation = preload("res://scripts/map_builder/ApprovedActorPresentation.gd")
 const PORTRAITS := {"slime":"uiux3d/pudding_base","goblin":"uiux3d/gob_base","imp":"uiux3d/pynn_base","kobold_scout":"uiux3d/rolo_base","spore_healer":"uiux3d/mori_base","stone_sentinel":"uiux3d/dolkong_base","war_drummer":"uiux3d/dudum_base","moon_tracker":"uiux3d/moon_base","mimic_porter":"uiux3d/mimi_base","ghost_housemaid":"update3/portrait_ghost_housemaid_base","graveyard_hound":"update3/portrait_graveyard_hound_base","armored_beetle":"update3/portrait_armored_beetle_base","spider_tailor":"update4/portrait_spider_tailor_base","bat_courier":"update4/portrait_bat_courier_base"}
 var view: Control
 var members := {}
@@ -132,12 +133,13 @@ func render_units() -> void:
 		var atlas := ActorArt.frame(sheet,0)
 		sprite.texture = atlas
 		var used := ActorArt.visible_bounds(atlas)
-		var factor := minf(76.0/maxf(1,used.size.x),88.0/maxf(1,used.size.y))
+		var factor := Presentation.body_scale(used,row.species_id)
 		sprite.scale = Vector2.ONE*factor
 		sprite.offset = -(Vector2(used.position)+Vector2(used.size.x/2.0,used.size.y))
 		sprite.centered = false
 		var c := Model.cell(view.placement,assignments[id])
 		sprite.position = view.project(Vector2(c)+Vector2(.5,.5))
+		sprite.z_index = Presentation.depth(sprite.position)
 		# Source idle faces down/right; mirrored it faces the entrance at the left.
 		sprite.flip_h = true
 		unit_layer.add_child(sprite); units[id] = sprite

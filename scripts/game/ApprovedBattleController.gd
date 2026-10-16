@@ -5,6 +5,7 @@ const BattleMap = preload("res://scripts/map_builder/ApprovedBattleMap.gd")
 const BattleUnit = preload("res://scripts/units/ApprovedBattleUnit.gd")
 const Members = preload("res://scripts/map_builder/ApprovedMonsterPlacement.gd")
 const MapLayout = preload("res://scripts/map_builder/ApprovedMapLayout.gd")
+const Presentation = preload("res://scripts/map_builder/ApprovedActorPresentation.gd")
 var map := BattleMap.new()
 var view: Control
 var actors: Node2D
@@ -368,6 +369,50 @@ func spawn_projectile(from_position: Vector2, to_position: Vector2, on_arrival: 
 	if on_arrival.is_valid(): tween.tween_callback(on_arrival)
 	if impact_on_arrival: tween.tween_callback(spawn_impact.bind(to_position))
 	tween.tween_callback(sprite.queue_free)
+
+func nearest_visible_unit(point: Vector2) -> Node:
+	var closest: Node
+	var distance := INF
+	for unit in root.monster_units+root.enemy_units:
+		var d: float = unit.position.distance_squared_to(point)
+		if unit.is_alive() and d<distance: distance = d; closest = unit
+	return closest
+
+func effect_body_ratio(point: Vector2) -> float:
+	var closest := nearest_visible_unit(point)
+	return closest.body_factor/closest.legacy_factor if closest!=null else 1.0
+
+func _apply_vfx_profile(sprite: AnimatedSprite2D, effect_id: String, requested_scale: Vector2, _use_live_depth: bool = false) -> void:
+	super._apply_vfx_profile(sprite,effect_id,requested_scale,false)
+	if sprite==null: return
+	var ratio: float = sprite.get_meta("map_body_ratio") if sprite.has_meta("map_body_ratio") else effect_body_ratio(sprite.position)
+	sprite.scale *= ratio
+	# Effects belong to this map's world, not the hidden legacy quarter renderer.
+	sprite.z_index = 3600-root.effect_root.z_index
+
+func spawn_slash(point: Vector2, delay: float = 0.0) -> void:
+	if delay>0:
+		_create_combat_tween().tween_interval(_visual_seconds(delay)).finished.connect(spawn_slash.bind(point))
+		return
+	spawn_contact_effect("slash",point,.10,1.25)
+
+func spawn_impact(point: Vector2) -> void:
+	spawn_contact_effect("impact",point,.16,1.333333)
+
+func spawn_contact_effect(id: String, point: Vector2, seconds: float, growth: float) -> void:
+	var sprite = _make_effect_sprite(id,false,0)
+	if sprite==null: return
+	sprite.set_meta("map_body_ratio",effect_body_ratio(point))
+	sprite.position = point+Vector2(0,-presentation_height(point)/2)
+	_apply_vfx_profile(sprite,id,Vector2(.72,.72),false)
+	root.effect_root.add_child(sprite)
+	var tween = _create_combat_tween().bind_node(sprite)
+	tween.tween_property(sprite,"scale",sprite.scale*growth,_visual_seconds(seconds))
+	tween.tween_callback(_finish_cosmetic_vfx.bind(sprite))
+
+func presentation_height(point: Vector2) -> float:
+	var closest := nearest_visible_unit(point)
+	return closest.idle_bounds.size.y*closest.body_factor if closest!=null else Presentation.BODY_SIZE.y
 
 func spawn_damage_number(point: Vector2, damage: int, faction: String, _anchor_target = null) -> void:
 	if damage<=0 or not running: return
