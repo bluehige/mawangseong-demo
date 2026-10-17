@@ -192,6 +192,24 @@ func objective_checks() -> void:
 	battle.release(); battle = null; await get_tree().process_frame
 	save_json(STEP8+"objective_checks.json",{"checks":checks,"failures":failures})
 
+func preparation_day_checks() -> void:
+	prepare(29,"recommended")
+	game._enter_campaign_management_day(false)
+	await get_tree().process_frame
+	expect(GameState.day==29,"DAY29 entry remains on the preparation day")
+	expect(DataRegistry.waves.day_29.is_empty(),"DAY29 original empty waves restored")
+	expect(not game._has_defense_wave_for_day(29),"DAY29 has no defense wave")
+	expect(bool(game._campaign_day_info().get("management_only",false)),"DAY29 retains the existing management-only schedule")
+	var state: Dictionary = game._management_start_state()
+	expect(not state.can_start and state.reason_code=="management_only","DAY29 retains the preparation-only start gate")
+	var hp: int = GameState.demon_lord_hp
+	var spawned: int = game.spawned_count
+	game._start_combat()
+	await get_tree().process_frame
+	expect(game.enemy_units.is_empty() and game.spawned_count==spawned,"DAY29 combat request does not start a battle or spawn enemies")
+	expect(GameState.day==29 and GameState.demon_lord_hp==hp,"DAY29 preparation keeps the day and throne HP")
+	save_json(STEP8+"day29_preparation_checks.json",{"checks":checks,"failures":failures,"day":GameState.day,"start_state":state})
+
 func run() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(STEP8))
 	config = JSON.parse_string(FileAccess.get_file_as_string(STEP8+"config.json"))
@@ -221,6 +239,7 @@ func run() -> void:
 				var trial_index := index+int(config.get("seed_by_day",{}).get(str(int(day)),0))
 				rows.append(await trial(int(day),trial_index,str(layout_mode),bool(config.get("capture",false))))
 			save_json(STEP8+str(config.get("name","results"))+".json",rows)
+	if config.get("preparation_day",false): await preparation_day_checks()
 	await stop()
 	print("STEP8_DONE rows=",rows.size()," failures=",failures)
 	get_tree().quit(0 if failures.is_empty() else 1)
