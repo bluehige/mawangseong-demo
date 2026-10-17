@@ -1,6 +1,6 @@
 ## 2026-10-18 V130R Step13B 도전과제 UI / TARGETED_PASS · 사용자 확인 대기
 
-[인계](V130R_STEP13B_ACH_UI_2026-10-18.md), [검수 이미지5장·결과](../../_mockup/game_step13b_ach_ui/verification.md). 브랜치 codex/v130r-defense-layout, 기준 cf6d295b, 제품 c09abddf/출처 메타데이터 포함 검증 c363c409.  타이틀 GPT 흑요석 패널/버튼과 HP C 프레임 재사용,8세트 진행도·원본35%그레이스케일+GPT 잠금배지·숨김???/새GPT물음표·해제일·n/N 구현. 최종124검사/실패0,3언어×8세트 글자 넘침0,잠금GPU225픽셀 최대 명도오차0.003412 미만/채도0. APPDATA 격리/사용자 저장 수정0,Godot 동시1/종료0. 전체 회귀·전체 플레이·export·별도 검수 미요청/미실행. 로컬 영어 커밋만/push·태그·Steam·main 변경0. 로컬 main 없음·원격 최신성 미확정 유지. 다음은 외형 사용자 확인 대기.
+repository-policy PASS: c1286cfa에서24파일/4커밋. [인계·정확한24경로](V130R_STEP13B_ACH_UI_2026-10-18.md), [검수 이미지5장·결과](../../_mockup/game_step13b_ach_ui/verification.md). 브랜치 codex/v130r-defense-layout, 기준 cf6d295b, 제품 c09abddf/출처 메타데이터 포함 검증 c363c409.  타이틀 GPT 흑요석 패널/버튼과 HP C 프레임 재사용,8세트 진행도·원본35%그레이스케일+GPT 잠금배지·숨김???/새GPT물음표·해제일·n/N 구현. 최종124검사/실패0,3언어×8세트 글자 넘침0,잠금GPU225픽셀 최대 명도오차0.003412 미만/채도0. APPDATA 격리/사용자 저장 수정0,Godot 동시1/종료0. 전체 회귀·전체 플레이·export·별도 검수 미요청/미실행. 로컬 영어 커밋만/push·태그·Steam·main 변경0. 로컬 main 없음·원격 최신성 미확정 유지. 다음은 외형 사용자 확인 대기.
 
 ---
 
