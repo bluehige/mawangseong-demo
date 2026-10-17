@@ -1,5 +1,7 @@
 ## 2026-10-17 V130R Step13 도전과제 100개 / TARGETED_PASS · 사용자 확인 대기
 
+repository-policy PASS: cbcdcebb에서 최종677경로/3커밋 검사. 이후 정책 결과 기록은 핸드오프 문서만 변경하며 Reviewed SHA 8ac1fce9의 제품은 그대로다.
+
 [인계·정확한 변경 목록·사용자 Steam 절차](V130R_STEP13_ACHIEVEMENTS_2026-10-17.md), [100개 판정](../../_mockup/game_step13_ach/unit_tests.md), [오프라인](../../_mockup/game_step13_ach/offline_test.md), [소급](../../_mockup/game_step13_ach/retro_unlock_test.md), [Windows DLL/export](../../_mockup/game_step13_ach/export_dll_check.md). 기준 `82fec09596abd45bf2c0b723d6a0ab9f96d7720b`, 최종 제품·검증 `8ac1fce9cbd249eabfa94eb0943bbf2c31cddaf7`. 브랜치 codex/v130r-defense-layout, 0114 위. 실제 작업일 10/18. 로컬 main 없음/원격 최신 권위 미확정. 영어 로컬 커밋만 했다.
 
 지정 100개·8세트·숨김8·3언어 아이콘/기획을 가져와 AchievementService/실제 효과 카운터/고유 기록/실패 큐/세이브 소급/메뉴/토스트를 연결했다. 공식 GodotSteam4.23.1·SDK1.65·Godot4.6.3, Windows x64 debug/release DLL과 출처·SHA-256 인계. Steam 없이 타이틀 정상, 원격 stat 최고치/저장 확인·진행 팝업 콜백 분리. 개발 리셋은 debug만. 신규 GPT 그림1(네이티브 투명 프레임), 기존100개 그림 재생성0. 원문 trigger 보존, 기억74개, 바티는 소비한 표시100회. 새 소스에 공식 archive나 빌드 실행 파일은 커밋하지 않았다.

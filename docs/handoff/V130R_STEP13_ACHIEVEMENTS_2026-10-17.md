@@ -126,7 +126,7 @@
 - 실제 마지막 자연 DAY1: 시드 130013, 84.32전투초, 침입자5/함정적중3/스킬11/금고손실0/승리. 승패 주입 없음. 초기 미고정 1패는 위 재현성 한계에 기록했다.
 - 기존 추적 .import 미커밋 1307개를 남겼고 이번 구현의 미커밋 추적 파일은 없다. 캡처/JSON/로그/시험 저장/빌드는 로컬에 보존한다.
 - Godot/MawangCastle 프로세스 종료 0개, 동시 최대 1. 사용자 원본 저장 미접근/미수정. push/PR/태그/Steam 업로드/main 변경 0.
-- repository-policy 결과는 문서 커밋 후 최종 종료 기록으로 추가한다.
+- repository-policy: PASS. `ValidateRepositoryPolicy.ps1 -BaseRef 82fec09596abd45bf2c0b723d6a0ab9f96d7720b -HeadRef codex/v130r-defense-layout`를 문서 커밋 cbcdcebb에서 실행해 최종 677경로/3커밋을 검사했다. 이후에는 이 정책 결과를 기록하는 docs/handoff/ 문서만 변경한다. Reviewed SHA의 제품 내용은 그대로다.
 - **사용자 확인 대기.**
 
 <details>
