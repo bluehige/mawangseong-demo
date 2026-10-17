@@ -310,11 +310,11 @@ func effective_atk() -> int:
 	var factor := 1.0
 	if unit_id=="river_frog" and get_cell_tags().get("water_adjacent",false): factor = 1.1
 	if unit_id=="candle_wisp" and get_cell_tags().get("water_adjacent",false): factor = .8
-	if float(get_meta("curse_until",0))>new_skill_clock: factor *= .85
+	if float(get_meta("curse_until",0))>new_skill_clock: factor *= float(get_meta("curse_attack_multiplier",.85))
 	return roundi(super.effective_atk()*factor)
 
 func effective_attack_interval() -> float:
-	return super.effective_attack_interval()/(1.2 if unit_id=="rat_union" and hp<=max_hp*.5 else 1.0)
+	return super.effective_attack_interval()/(1.2 if unit_id=="rat_union" and hp<=max_hp*.5 else 1.0)*(float(get_meta("spec_interval_multiplier",1)) if new_skill_clock<float(get_meta("spec_interval_until",0)) else 1.0)
 
 func damage_taken_multiplier_from(attacker: UnitActor) -> float:
 	var factor := super.damage_taken_multiplier_from(attacker)
@@ -323,7 +323,7 @@ func damage_taken_multiplier_from(attacker: UnitActor) -> float:
 
 func receive_damage(amount: int) -> int:
 	var adjusted := float(amount)
-	if float(get_meta("curse_until",0))>new_skill_clock: adjusted *= 1.2
+	if float(get_meta("curse_until",0))>new_skill_clock: adjusted *= float(get_meta("curse_damage_multiplier",1.2))
 	if unit_id=="crumpled_map" and amount>0:
 		if incoming_fire: adjusted *= 1.3
 		if first_paper_hit: adjusted *= .5; first_paper_hit = false
@@ -334,10 +334,11 @@ func receive_damage(amount: int) -> int:
 	return lost
 
 func apply_root(seconds: float) -> void:
+	if new_skill_clock<float(get_meta("spec_immunity_until",0)): return
 	root_timer = maxf(root_timer,_heart_control_duration(seconds))
 
 func effective_move_speed(extra_multiplier: float = 1.0) -> float:
-	return 0.0 if root_timer>0 else super.effective_move_speed(extra_multiplier)
+	return 0.0 if root_timer>0 else super.effective_move_speed(extra_multiplier)*(float(get_meta("spec_team_move",1)) if new_skill_clock<float(get_meta("spec_team_until",0)) else 1.0)
 
 func receive_context_damage(amount: int, source: Node = null, area: bool = false, fire: bool = false) -> int:
 	incoming_source = source; incoming_area = area; incoming_fire = fire
@@ -355,3 +356,14 @@ func cleanse_all_negative_status() -> int:
 	var extra := 1 if root_timer>0 else 0
 	root_timer = 0
 	return super.cleanse_all_negative_status()+extra
+
+func effective_def() -> int:
+	return super.effective_def()+int(get_meta("spec_position_def",0))
+
+func _heart_control_duration(seconds: float) -> float:
+	if new_skill_clock<float(get_meta("spec_immunity_until",0)): return 0.0
+	return super._heart_control_duration(seconds)
+
+func _hostile_status_duration(seconds: float) -> float:
+	if new_skill_clock<float(get_meta("spec_immunity_until",0)): return 0.0
+	return super._hostile_status_duration(seconds)

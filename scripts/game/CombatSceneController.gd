@@ -4394,6 +4394,9 @@ func _sync_unit_simulation_speed() -> void:
 				child.speed_scale = root.combat_speed
 
 func _specialization_priority_target(unit: Node, fallback: Node) -> Node:
+	if unit.has_method("stealthed") and unit.new_skill_clock<float(unit.get_meta("spec_team_until",0)):
+		var marked = instance_from_id(int(unit.get_meta("spec_team_target",0)))
+		if is_instance_valid(marked) and marked in root.enemy_units and marked.is_alive(): return marked
 	match _monster_ai_behavior(unit):
 		"thief_hunter":
 			var thieves: Array = []
@@ -6649,8 +6652,8 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 		"false_footprints":
 			var affected = 0
 			for enemy in root.enemy_units:
-				if enemy.is_alive() and caster.global_position.distance_to(enemy.global_position) <= 260.0:
-					enemy.apply_slow(3.0, 0.62)
+				if enemy.is_alive() and caster.global_position.distance_to(enemy.global_position) <= _combat_skill_float(caster.unit_id,skill_id,"radius",260.0):
+					enemy.apply_slow(3.0, _combat_skill_float(caster.unit_id,skill_id,"slow_factor",0.62))
 					enemy.mark_threat(caster)
 					spawn_effect_burst("guard", enemy.global_position, Vector2(0, -18), Vector2(0.85, 0.75), 9.0)
 					affected += 1
@@ -6666,7 +6669,13 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 		"spore_mend":
 			var mend_target = prepared_target
 			var mend_token := "spore_mend:%d:%d" % [caster.get_instance_id(), Time.get_ticks_usec()]
-			var effective_mend: int = royal_support.heal_from(caster,mend_target,46,mend_token)
+			var mend_amount := roundi(46*_combat_skill_float(caster.unit_id,skill_id,"heal_multiplier",1.0))
+			var effective_mend: int = royal_support.heal_from(caster,mend_target,mend_amount,mend_token)
+			var extra_targets := maxi(0,roundi(_combat_skill_float(caster.unit_id,skill_id,"max_targets",1))-1)
+			if extra_targets>0:
+				var friends: Array = root.monster_units.filter(func(u): return u!=mend_target and u.is_alive() and u.hp<u.max_hp and u.position.distance_to(caster.position)<=280)
+				friends.sort_custom(func(a,b): return float(a.hp)/a.max_hp<float(b.hp)/b.max_hp)
+				for ally in friends.slice(0,extra_targets): effective_mend += royal_support.heal_from(caster,ally,mend_amount,mend_token+str(ally.get_instance_id()))
 			if root.has_method("_record_update3_duo_link_action"):
 				root._record_update3_duo_link_action("mon_contract_mori", "effective_heal", effective_mend, mend_token)
 			caster.play_skill()
@@ -6677,10 +6686,12 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 			var cleansed := 0
 			for ally in root.monster_units:
 				if is_instance_valid(ally) and ally.is_alive() and ally.current_room == caster.current_room:
-					royal_support.heal_from(caster,ally,24)
+					royal_support.heal_from(caster,ally,roundi(24*_combat_skill_float(caster.unit_id,skill_id,"heal_multiplier",1)))
 					if not ally.cleanse_one_negative_status():
 						ally.slow_timer = 0.0
 						ally.slow_factor = 1.0
+					var immunity := _combat_skill_float(caster.unit_id,skill_id,"immunity_seconds",0)
+					if immunity>0 and ally.has_method("stealthed"): ally.set_meta("spec_immunity_until",ally.new_skill_clock+immunity)
 					cleansed += 1
 			caster.play_skill()
 			spawn_effect_burst("shield", caster.global_position, Vector2(0, -16), Vector2(1.2, 1.0), 11.0)
@@ -6695,7 +6706,11 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 			var stone_hits := 0
 			var stone_attack_token := "stone_pulse:%d:%d" % [caster.get_instance_id(), Time.get_ticks_usec()]
 			for enemy in root.enemy_units:
-				if is_instance_valid(enemy) and enemy.is_alive() and caster.global_position.distance_to(enemy.global_position) <= 180.0:
+				if is_instance_valid(enemy) and enemy.is_alive() and caster.global_position.distance_to(enemy.global_position) <= _combat_skill_float(caster.unit_id,skill_id,"radius",180.0):
+					var stun := _combat_skill_float(caster.unit_id,skill_id,"stun_seconds",0)
+					if stun>0:
+						enemy.apply_action_interrupt(stun)
+						if enemy.has_method("apply_root"): enemy.apply_root(stun)
 					var stone_damage := _apply_v122_focus_damage(caster, enemy, 32)
 					var hp_before := int(enemy.hp)
 					var dealt: int = enemy.receive_damage(stone_damage)
@@ -6708,15 +6723,22 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 			root._log("돌콩의 석맥 파동이 적 %d명에게 피해와 둔화를 줬습니다." % stone_hits)
 		"war_rhythm":
 			var guarded := 0
-			for ally in root.monster_units:
-				if is_instance_valid(ally) and ally.is_alive() and ally.current_room == caster.current_room:
-					ally.activate_guard(7.0, 2)
-					guarded += 1
+			var replace_buff := bool(preload("res://scripts/systems/SpecializationEffects.gd").flag(root._monster_specialization(caster.unit_id),"rhythm_debuff_instead",false))
+			var radius := _combat_skill_float(caster.unit_id,skill_id,"radius",180.0)
+			if replace_buff:
+				for enemy in root.enemy_units:
+					if enemy.is_alive() and enemy.position.distance_to(caster.position)<=radius and enemy.has_method("stealthed"):
+						enemy.set_meta("spec_interval_until",enemy.new_skill_clock+7)
+						enemy.set_meta("spec_interval_multiplier",_combat_skill_float(caster.unit_id,skill_id,"enemy_attack_interval_multiplier",1))
+			else:
+				for ally in root.monster_units:
+					var in_range: bool = ally.current_room==caster.current_room or (_combat_skill_float(caster.unit_id,skill_id,"radius",0)>0 and ally.position.distance_to(caster.position)<=radius)
+					if is_instance_valid(ally) and ally.is_alive() and in_range:
+						ally.activate_guard(7.0,2); guarded += 1
 			caster.play_skill()
-			if guarded > 0 and root.has_method("_record_update3_duo_link_action"):
-				root._record_update3_duo_link_action("mon_contract_dudum", "buffed_ally", guarded, "war_rhythm:%d:%d" % [caster.get_instance_id(), Time.get_ticks_usec()])
-			spawn_effect_burst("guard", caster.global_position, Vector2(0, -22), Vector2(1.05, 0.95), 12.0)
-			root._log("두둠의 진군 장단이 같은 방 아군 %d명의 방어력을 올렸습니다." % guarded)
+			if guarded>0 and root.has_method("_record_update3_duo_link_action"):
+				root._record_update3_duo_link_action("mon_contract_dudum","buffed_ally",guarded,"war_rhythm:%d:%d" % [caster.get_instance_id(),Time.get_ticks_usec()])
+			spawn_effect_burst("guard",caster.global_position,Vector2(0,-22),Vector2(1.05,.95),12.0)
 		"steady_beat":
 			var recovered := 0
 			for ally in root.monster_units:
@@ -6759,7 +6781,7 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 			for enemy in root.enemy_units:
 				if is_instance_valid(enemy) and enemy.is_alive() and caster.global_position.distance_to(enemy.global_position) <= 250.0:
 					enemy.apply_slow(3.0, 0.66)
-					enemy.apply_taunt(caster, 5.0)
+					enemy.apply_taunt(caster, 5.0+_combat_skill_float(caster.unit_id,skill_id,"duration_bonus",0))
 					lured += 1
 			caster.play_skill()
 			if lured > 0 and root.has_method("_record_update3_duo_link_action"):
@@ -6794,6 +6816,7 @@ func _commit_prepared_skill(intent: Dictionary) -> bool:
 	caster.set_skill_cooldown(skill_id, cooldown)
 	if skill_id in ["fireball","flame_zone"]:crown_flame.ordinary_cast(caster,skill_id,cost)
 	if skill_id!="royal_no_second_cut":record_ledger_skill_use(caster, skill_id)
+	_specialization_after_skill(caster,skill_id,prepared_target)
 	return true
 
 
@@ -7039,7 +7062,7 @@ func perform_bebe_rescue(bebe: Node, target: Node = null) -> Dictionary:
 	var ledger_cleansed := cleanse_ledger_room(cleansed_room, "베베")
 	var shield := 20 + int(_combat_skill_float(bebe.unit_id, "spectral_transfer", "shield_bonus", 0.0))
 	var specialization: Dictionary = root._monster_specialization(bebe.unit_id) if root.has_method("_monster_specialization") else {}
-	shield = maxi(0, shield - int(specialization.get("rescue_shield_penalty", 0)))
+	shield = maxi(0, shield)
 	target.grant_duo_barrier(shield)
 	var route := _bebe_safe_route(bebe, target, 110.0)
 	var moved := not route.is_empty()
@@ -7195,7 +7218,7 @@ func perform_koko_home_guard_bark(tracker: Node) -> Dictionary:
 	var skill: Dictionary = DataRegistry.skill("home_guard_bark")
 	var specialization: Dictionary = root._monster_specialization(str(tracker.unit_id)) if root.has_method("_monster_specialization") else {}
 	var radius := float(skill.get("radius", 145.0))
-	var max_normal := int(skill.get("max_normal_targets", 2)) + int(specialization.get("skill_upgrade", {}).get("max_targets_bonus", 0))
+	var max_normal := int(skill.get("max_normal_targets", 2)) + int(_combat_skill_float(tracker.unit_id,"home_guard_bark","max_targets_bonus",0))
 	var normal_taunt := float(skill.get("normal_taunt_seconds", 2.5))
 	var boss_priority := float(skill.get("boss_priority_seconds", 1.5))
 	var candidates: Array = []
@@ -7212,7 +7235,7 @@ func perform_koko_home_guard_bark(tracker: Node) -> Dictionary:
 		elif normal_affected < max_normal:
 			enemy.apply_taunt(tracker, normal_taunt)
 			normal_affected += 1
-	var shield := maxi(0, int(skill.get("shield", 18)) - int(specialization.get("skill_upgrade", {}).get("bark_shield_penalty", 0)))
+	var shield := maxi(0, int(skill.get("shield", 18)) + int(_combat_skill_float(tracker.unit_id,"home_guard_bark","shield_bonus",0)))
 	tracker.grant_duo_barrier(shield)
 	var bark_reduction := float(specialization.get("bark_damage_reduction", 0.0))
 	if bark_reduction > 0.0 and normal_affected > 0:
@@ -7315,7 +7338,7 @@ func perform_toktok_carapace_ram(toktok: Node, desired_target: Node = null, fixe
 	_apply_combat_hit_feedback(toktok, target, dealt, true, "dash")
 	var boss := _bebe_broom_boss(target)
 	var reduction := int(skill.get("boss_def_reduction", 1)) if boss else int(skill.get("normal_def_reduction", 2))
-	reduction += int(specialization.get("skill_upgrade", {}).get("def_reduction_bonus", 0))
+	reduction += int(_combat_skill_float(toktok.unit_id,"carapace_ram","def_reduction_bonus",0))
 	var duration := float(skill.get("boss_duration", 4.0)) if boss else float(skill.get("normal_duration", 5.0))
 	var defense_before:int=target.effective_def()
 	var armor_applied: bool = target.is_alive() and target.apply_armor_break(reduction, duration, str(toktok.unit_id))
@@ -7349,7 +7372,7 @@ func perform_toktok_patch_plates(toktok: Node, ally_target: Node = null, facilit
 	var stacks := int(toktok.scrap_stacks)
 	var stack_bonus := stacks * int(skill.get("scrap_bonus_per_stack", 8))
 	if ally_target != null and is_instance_valid(ally_target) and ally_target.is_alive() and toktok.global_position.distance_to(ally_target.global_position) <= float(skill.get("range", 120.0)):
-		var shield := int(skill.get("ally_shield", 28)) + stack_bonus + int(specialization.get("ally_shield_bonus", 0))
+		var shield := int(skill.get("ally_shield", 28)) + stack_bonus + int(_combat_skill_float(toktok.unit_id,"patch_plates","ally_shield_bonus",0))
 		ally_target.grant_patch_plate_barrier(shield, float(skill.get("shield_duration", 5.0)))
 		toktok.consume_scrap_stacks()
 		toktok.play_skill(ally_target.global_position)
@@ -7357,7 +7380,7 @@ func perform_toktok_patch_plates(toktok: Node, ally_target: Node = null, facilit
 		root._log("톡톡이 %s에게 판금 보호막 %d를 덧댔습니다." % [ally_target.display_name, shield])
 		return {"ok": true, "kind": "ally", "target": ally_target, "shield": shield, "stacks_used": stacks}
 	if facility_room_id != "" and _toktok_facility_in_range(toktok, facility_room_id):
-		var repair := int(skill.get("facility_repair", 35)) + stack_bonus + int(specialization.get("facility_repair_bonus", 0)) - int(specialization.get("facility_repair_penalty", 0))
+		var repair := int(skill.get("facility_repair", 35)) + stack_bonus + int(_combat_skill_float(toktok.unit_id,"patch_plates","facility_repair_bonus",0))
 		repair = int(round(float(repair) * toktok.repair_output_multiplier()))
 		var facility_hp_before:int=int(root.rooms.get(facility_room_id,{}).get("hp",0))
 		var result: Dictionary = root._repair_update3_facility(facility_room_id, maxi(0, repair), "toktok_patch:%d:%d" % [toktok.get_instance_id(), Time.get_ticks_usec()])
@@ -8126,3 +8149,6 @@ func _vfx_live_global_depth(effect_id: String, world_position: Vector2) -> int:
 		"front_fx":
 			return front_depth + 1
 	return front_depth + 1
+
+func _specialization_after_skill(_caster: Node, _id: String, _victim: Node) -> void:
+	pass

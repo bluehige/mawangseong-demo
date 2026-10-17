@@ -318,6 +318,9 @@ func _hold_bag(thief,loss:Dictionary,completed_at:float)->void:
 	var result:Dictionary=Popo.hold_first_theft(bag_state,str(thief.get_instance_id()),source,DataRegistry.skill("messenger_bag"))
 	if not bool(result.get("held",false)):return
 	bag_state=result.state;loss.status="held"
+	if thief.has_method("stealthed"):
+		thief.set_meta("spec_bag_carrier",carrier.get_instance_id())
+		thief.set_meta("spec_bag_until",thief.new_skill_clock+float(bag_state.pending.remaining))
 	pending_bag={"loss":loss,"carrier":carrier,"thief":thief,"generation":generation,"ends":completed_at+float(bag_state.pending.remaining),"manual":false,"drop":false,"point":thief.global_position}
 	_count("native_bag_holds",1)
 func bag_owns(unit)->bool:

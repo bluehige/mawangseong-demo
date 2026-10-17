@@ -16,7 +16,15 @@
       "skill_id": "slime_shield",
       "duration_bonus": 1.0,
       "reduction_bonus": 0.05
-    }
+    },
+    "badge": "res://assets/ui/specializations/v130r/guardian.png",
+    "skill_mods": {
+      "slime_shield": {
+        "duration_bonus": 1.0,
+        "reduction_bonus": 0.05
+      }
+    },
+    "flags": {}
   },
   "slime_rescue_guard": {
     "display_name": "구조 점액",
@@ -33,7 +41,15 @@
       "skill_id": "slime_shield",
       "duration_bonus": 0.5,
       "reduction_bonus": 0.03
-    }
+    },
+    "badge": "res://assets/ui/specializations/v130r/assault.png",
+    "skill_mods": {
+      "slime_shield": {
+        "duration_bonus": 0.5,
+        "reduction_bonus": 0.03
+      }
+    },
+    "flags": {}
   },
   "goblin_treasure_hunter": {
     "display_name": "도둑 사냥꾼",
@@ -49,7 +65,14 @@
     "skill_upgrade": {
       "skill_id": "quick_slash",
       "damage_multiplier_bonus": 0.15
-    }
+    },
+    "badge": "res://assets/ui/specializations/v130r/assault.png",
+    "skill_mods": {
+      "quick_slash": {
+        "damage_multiplier_bonus": 0.15
+      }
+    },
+    "flags": {}
   },
   "goblin_finisher": {
     "display_name": "마무리 칼날",
@@ -65,7 +88,14 @@
     "skill_upgrade": {
       "skill_id": "quick_slash",
       "damage_multiplier_bonus": 0.3
-    }
+    },
+    "badge": "res://assets/ui/specializations/v130r/guardian.png",
+    "skill_mods": {
+      "quick_slash": {
+        "damage_multiplier_bonus": 0.3
+      }
+    },
+    "flags": {}
   },
   "bebe_night_steward": {
     "display_name": "야간 당번장",
@@ -75,8 +105,21 @@
     "short_effect": "구조 보호막 +12 / 재사용 -2초 / 기본 공격 -10%",
     "description": "구조 성능을 높이는 대신 직접 화력을 포기합니다.",
     "ai_behavior": "rescue_support",
-    "stat_multipliers": {"atk": 0.9},
-    "skill_upgrade": {"skill_id": "spectral_transfer", "shield_bonus": 12, "cooldown_reduction": 2.0}
+    "stat_multipliers": {
+      "atk": 0.9
+    },
+    "skill_upgrade": {
+      "skill_id": "spectral_transfer",
+      "shield_bonus": 12,
+      "cooldown_reduction": 2.0
+    },
+    "skill_mods": {
+      "spectral_transfer": {
+        "shield_bonus": 12,
+        "cooldown_reduction": 2.0
+      }
+    },
+    "flags": {}
   },
   "bebe_poltergeist_cleaner": {
     "display_name": "소동 청소부",
@@ -86,8 +129,24 @@
     "short_effect": "빗자루 피해 +30% / 밀침 +14 / 구조 보호막 -10",
     "description": "구조를 약화하고 지역 제어와 화력을 높입니다.",
     "ai_behavior": "rescue_support",
-	"rescue_shield_penalty": 10,
-    "skill_upgrade": {"skill_id": "haunted_broom_whirl", "damage_multiplier_bonus": 0.3, "knockback_bonus": 14, "rescue_shield_penalty": 10}
+    "rescue_shield_penalty": 10,
+    "skill_upgrade": {
+      "skill_id": "haunted_broom_whirl",
+      "damage_multiplier_bonus": 0.3,
+      "knockback_bonus": 14,
+      "rescue_shield_penalty": 10
+    },
+    "skill_mods": {
+      "haunted_broom_whirl": {
+        "damage_multiplier_bonus": 0.3,
+        "knockback_bonus": 14,
+        "rescue_shield_penalty": 10
+      },
+      "spectral_transfer": {
+        "shield_bonus": -10
+      }
+    },
+    "flags": {}
   },
   "koko_bounty_sniffer": {
     "display_name": "현상금 냄새꾼",
@@ -97,7 +156,23 @@
     "short_effect": "표식 피해 +12% / 지속 +1초 / 보호막 -8",
     "description": "표식 대상을 더 빨리 쓰러뜨리는 대신 짖음의 보호막이 약해집니다.",
     "ai_behavior": "danger_tracker",
-    "skill_upgrade": {"skill_id": "scent_lock", "marked_basic_attack_multiplier_bonus": 0.12, "duration_bonus": 1.0, "bark_shield_penalty": 8}
+    "skill_upgrade": {
+      "skill_id": "scent_lock",
+      "marked_basic_attack_multiplier_bonus": 0.12,
+      "duration_bonus": 1.0,
+      "bark_shield_penalty": 8
+    },
+    "skill_mods": {
+      "scent_lock": {
+        "marked_basic_attack_multiplier_bonus": 0.12,
+        "duration_bonus": 1.0,
+        "bark_shield_penalty": 8
+      },
+      "home_guard_bark": {
+        "shield_bonus": -8
+      }
+    },
+    "flags": {}
   },
   "koko_throne_shepherd": {
     "display_name": "왕좌 양치개",
@@ -109,7 +184,16 @@
     "ai_behavior": "danger_tracker",
     "remove_marked_damage_bonus": true,
     "bark_damage_reduction": 0.12,
-    "skill_upgrade": {"skill_id": "home_guard_bark", "max_targets_bonus": 1}
+    "skill_upgrade": {
+      "skill_id": "home_guard_bark",
+      "max_targets_bonus": 1
+    },
+    "skill_mods": {
+      "home_guard_bark": {
+        "max_targets_bonus": 1
+      }
+    },
+    "flags": {}
   },
   "toktok_shell_breaker": {
     "display_name": "갑각 파쇄자",
@@ -120,7 +204,21 @@
     "description": "단단한 적을 더 빠르게 무너뜨리는 대신 시설 수리량이 줄어듭니다.",
     "ai_behavior": "armor_support",
     "facility_repair_penalty": 12,
-    "skill_upgrade": {"skill_id": "carapace_ram", "def_reduction_bonus": 1, "damage_multiplier_bonus": 0.2}
+    "skill_upgrade": {
+      "skill_id": "carapace_ram",
+      "def_reduction_bonus": 1,
+      "damage_multiplier_bonus": 0.2
+    },
+    "skill_mods": {
+      "carapace_ram": {
+        "def_reduction_bonus": 1,
+        "damage_multiplier_bonus": 0.2
+      },
+      "patch_plates": {
+        "facility_repair_bonus": -12
+      }
+    },
+    "flags": {}
   },
   "toktok_castle_mason": {
     "display_name": "마왕성 석공",
@@ -132,7 +230,20 @@
     "ai_behavior": "armor_support",
     "facility_repair_bonus": 18,
     "ally_shield_bonus": 10,
-    "skill_upgrade": {"skill_id": "carapace_ram", "distance_penalty": 25.0}
+    "skill_upgrade": {
+      "skill_id": "carapace_ram",
+      "distance_penalty": 25.0
+    },
+    "skill_mods": {
+      "carapace_ram": {
+        "distance_penalty": 25.0
+      },
+      "patch_plates": {
+        "facility_repair_bonus": 18,
+        "ally_shield_bonus": 10
+      }
+    },
+    "flags": {}
   },
   "imp_artillery": {
     "display_name": "장거리 화염술",
@@ -149,7 +260,15 @@
       "skill_id": "fireball",
       "damage_bonus": 12,
       "range_bonus": 48.0
-    }
+    },
+    "badge": "res://assets/ui/specializations/v130r/guardian.png",
+    "skill_mods": {
+      "fireball": {
+        "damage_bonus": 12,
+        "range_bonus": 48.0
+      }
+    },
+    "flags": {}
   },
   "imp_trap_weaver": {
     "display_name": "함정 화염술",
@@ -167,6 +286,15 @@
       "damage_bonus": 10,
       "slow_seconds_bonus": 1.0,
       "slow_factor_bonus": 0.12
-    }
+    },
+    "badge": "res://assets/ui/specializations/v130r/assault.png",
+    "skill_mods": {
+      "flame_zone": {
+        "damage_bonus": 10,
+        "slow_seconds_bonus": 1.0,
+        "slow_factor_bonus": 0.12
+      }
+    },
+    "flags": {}
   }
 }

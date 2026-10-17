@@ -16,7 +16,7 @@ func build_raid() -> void:
 		b.disabled = root._raid_choice_locked(id)
 		copy(b, str(mission.get("title",id)), Rect2(20,10,416,78), 26)
 		copy(b, "보상 · " + root._raid_expected_reward_label(mission), Rect2(20,94,416,62), 22, MUTED)
-		copy(b, "완료" if root.completed_raids.has(id) else ("다른 계획 확정" if b.disabled else "위험 · %s / %s" % [mission.get("difficulty",""),mission.get("risk","")]), Rect2(20,160,416,66),20,GOLD)
+		copy(b, "완료" if root.completed_raids.has(id) else ("다른 계획 확정" if b.disabled else "위험 · %s / %s" % [mission.get("difficulty",""),root._raid_risk_label(mission)]), Rect2(20,160,416,66),20,GOLD)
 		if id == root.raid_selected_mission_id:
 			hud.apply_button_state(b,"selected")
 	var mission := DataRegistry.raid_mission(root.raid_selected_mission_id)

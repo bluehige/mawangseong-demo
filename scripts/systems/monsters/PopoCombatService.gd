@@ -31,11 +31,10 @@ static func choose_relay_target(popo_state: Dictionary, allies: Array, danger_ro
 static func apply_night_relay(target: Dictionary, specialization_id: String, skill: Dictionary) -> Dictionary:
 	var move_multiplier := float(skill.get("move_multiplier", 1.15))
 	var attack_multiplier := float(skill.get("attack_interval_multiplier", 0.90))
-	if specialization_id == SPEC_EXPRESS:
-		move_multiplier = 1.20
-		attack_multiplier = 0.86
-	elif specialization_id == SPEC_SEAL_GUARD:
-		move_multiplier = 1.10
+	var spec: Dictionary = DataRegistry.specialization(specialization_id)
+	var effects = preload("res://scripts/systems/SpecializationEffects.gd")
+	move_multiplier = effects.value(spec,"night_relay","move_multiplier",move_multiplier)
+	attack_multiplier = effects.value(spec,"night_relay","attack_interval_multiplier",attack_multiplier)
 	return {"target": target.duplicate(true), "duration": float(skill.get("duration", 5.0)), "popo_buff": {"move_multiplier": move_multiplier, "attack_interval_multiplier": attack_multiplier}, "target_buff": {"move_multiplier": move_multiplier, "attack_interval_multiplier": attack_multiplier}}
 
 
@@ -70,10 +69,8 @@ static func hold_first_theft(state_value, thief_id: String, specialization_id: S
 	if int(state.get("holds_used", 0)) >= int(skill.get("max_holds_per_battle", 1)) or not state.get("pending", {}).is_empty():
 		return {"held": false, "state": state}
 	var hold_seconds := float(skill.get("hold_seconds", 5.0))
-	if specialization_id == SPEC_EXPRESS:
-		hold_seconds = maxf(1.0, hold_seconds - 1.0)
-	elif specialization_id == SPEC_SEAL_GUARD:
-		hold_seconds += 2.0
+	var spec: Dictionary = DataRegistry.specialization(specialization_id)
+	hold_seconds = maxf(1,preload("res://scripts/systems/SpecializationEffects.gd").value(spec,"messenger_bag","hold_seconds",hold_seconds))
 	state["holds_used"] = int(state.get("holds_used", 0)) + 1
 	state["pending"] = {"thief_id": thief_id, "remaining": hold_seconds}
 	return {"held": true, "state": state}

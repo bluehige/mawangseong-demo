@@ -32,6 +32,7 @@ static func advance(game: Node, source: Dictionary, defenders: Dictionary, day: 
 	var changes: Array = []
 	if grade!=str(source.get("grade","E")):
 		next = Buildings.initial(game,grade)
+		next["specializations"] = source.get("specializations",{}).duplicate(true)
 		next.resources = source.resources.duplicate(true); next.serial = source.serial
 		# Preserve fixed facility identity, upgrades and capacity at the new sockets.
 		for b in next.buildings.filter(func(row): return row.fixed):

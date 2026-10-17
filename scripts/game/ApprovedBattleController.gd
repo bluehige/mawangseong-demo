@@ -35,6 +35,7 @@ var effects_home: Node
 var original_controller
 var original_graph
 var original_rooms: Dictionary
+var spec_effects = preload("res://scripts/systems/SpecializationEffects.gd").new()
 var monster_skills = preload("res://scripts/combat/V130RMonsterSkills.gd").new()
 
 func begin(map_view: Control) -> void:
@@ -69,6 +70,7 @@ func begin(map_view: Control) -> void:
 	root.effect_root.show()
 	spawn_monsters()
 	monster_skills.setup(self)
+	spec_effects.setup(self)
 	root.wave_manager.setup(GameState.day,DataRegistry.waves)
 	# Small seeded timing variation belongs to the approved map's wave entries.
 	for entry in root.wave_manager.schedule:
@@ -89,6 +91,7 @@ func spawn_monsters() -> void:
 		var row: Dictionary = members[id]; var species := str(row.species_id)
 		var building := str(assignments[id].building)
 		var stats: Dictionary = row.stats.duplicate(true)
+		root._apply_specialization_stats(species,stats)
 		if GameState.is_hungry(species): stats.atk = maxi(1,roundi(float(stats.atk)*.8))
 		# Preview uses the same initial roster level as placement, not personal saves.
 		var unit = make_unit(species,stats,Constants.FACTION_MONSTER,building)
@@ -133,6 +136,7 @@ func physics_process(delta: float) -> void:
 	var sim_delta: float = delta*root.combat_speed
 	root.combat_time += sim_delta
 	monster_skills.tick(sim_delta)
+	spec_effects.tick(sim_delta)
 	_update_sfx_cooldowns(delta); damage_presentation.tick(delta)
 	spawn_ready_enemies(sim_delta); refresh_unit_rooms()
 	for unit in root.monster_units+root.enemy_units:
@@ -167,6 +171,9 @@ func local_target(unit: Node) -> Node:
 	for enemy in root.enemy_units:
 		if enemy.is_alive() and enemy.position.distance_to(home(unit))<=leash_radius(unit): candidates.append(enemy)
 	if is_instance_valid(command_target) and command_target in candidates: return command_target
+	if unit.new_skill_clock<float(unit.get_meta("spec_team_until",0)):
+		var marked = instance_from_id(int(unit.get_meta("spec_team_target",0)))
+		if is_instance_valid(marked) and marked in candidates: return marked
 	return TargetingService.monster_priority(unit,candidates,map,"throne","vault")
 
 func update_monster_path(unit: Node) -> void:
@@ -224,7 +231,10 @@ func move_unit_to_room(unit: Node, room_id: String) -> void:
 	var point: Vector2 = map.center(room_id)
 	if unit.faction==Constants.FACTION_MONSTER:
 		var target := local_target(unit)
-		point = target.position if target!=null else home(unit)
+		var guarded: Node = _most_wounded_ally(unit) if root._monster_ai_behavior(unit.unit_id)=="ally_guard" else null
+		if guarded!=null and str(guarded.current_room)==room_id:
+			point = guarded.position
+		else: point = target.position if target!=null else home(unit)
 	move_unit_to_point(unit,point,true)
 
 func move_unit_to_point(unit: Node, point: Vector2, _preserve_goal: bool = false) -> void:
@@ -272,10 +282,11 @@ func _unit_in_facility_room(unit: Node, facility_id: String) -> bool:
 	return false
 
 func _facility_attack_multiplier(attacker: Node, _target: Node) -> float:
-	return BARRACKS_ATTACK_MULTIPLIER if attacker.faction==Constants.FACTION_MONSTER and _unit_in_facility_room(attacker,"barracks") else 1.0
+	var base := BARRACKS_ATTACK_MULTIPLIER if attacker.faction==Constants.FACTION_MONSTER and _unit_in_facility_room(attacker,"barracks") else 1.0
+	return base
 
 func _apply_facility_damage_taken_modifier(_attacker: Node, target: Node, damage: int) -> int:
-	var factor := 1.0
+	var factor := spec_effects.damage_multiplier(_attacker,target)
 	if target.faction==Constants.FACTION_MONSTER:
 		if _unit_in_facility_room(target,"barracks"): factor *= BARRACKS_DAMAGE_TAKEN_MULTIPLIER
 		if _unit_in_facility_room(target,"ward_core"):
@@ -500,6 +511,7 @@ func issue_command(id: String, point: Vector2 = Vector2.INF, target: Node = null
 func finish_combat(win: bool, reason: String) -> void:
 	if not running: return
 	running = false
+	spec_effects.refund_tolls()
 	last_result = {"win":win,"reason":reason,"duration":root.combat_time,"spawned":root.spawned_count,"trap_hits":trap_events.size(),"skills":skill_events.size(),"gold_stolen":root.treasure_gold_stolen_this_battle}
 	# Restore the campaign graph before existing result/settlement services run.
 	# All campaign save flags remain disabled by the isolated preview entry.
@@ -537,3 +549,13 @@ func _perform_standard_attack(attacker: Node, target: Node, fighting_retreat: bo
 func on_unit_downed(unit: Node) -> void:
 	monster_skills.on_downed(unit)
 	super.on_unit_downed(unit)
+
+func _specialization_after_skill(caster: Node, id: String, victim: Node) -> void:
+	spec_effects.after_legacy_skill(caster,id,victim)
+
+func _apply_v122_focus_damage(source: Node, target: Node, damage: int) -> int:
+	return roundi(super._apply_v122_focus_damage(source,target,damage)*spec_effects.damage_multiplier(source,target))
+
+func _most_wounded_ally(unit: Node) -> Node:
+	if root._monster_ai_behavior(unit.unit_id)=="ally_guard": return spec_effects.guard_ally(unit)
+	return super._most_wounded_ally(unit)

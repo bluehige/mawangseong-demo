@@ -29,6 +29,8 @@ var drag_id := ""
 var drag_started := false
 var drag_origin := Vector2.ZERO
 var ghost: TextureRect
+const Spec = preload("res://scripts/systems/SpecializationEffects.gd")
+var info_height := 324.0
 var skills: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/skills.json"))
 
 func _ready() -> void:
@@ -215,7 +217,7 @@ func input_event(event: InputEvent) -> bool:
 				if over_ui: target = {}
 				# An invalid map cell releases an existing unit; roster drops do nothing.
 				apply_drop(id,target)
-			elif assignments.has(id): show_info(id)
+			else: show_info(id)
 			cancel_drag(); view.get_viewport().set_input_as_handled(); return true
 	return false
 
@@ -237,6 +239,11 @@ func refresh() -> void:
 	render_units(); refresh_cards(); persist(); view.rebuild_minimap()
 
 func persist() -> Error:
+	var chosen := {}
+	for species in view.root.monster_roster:
+		var spec := str(view.root.monster_roster[species].get("specialization_id",""))
+		if spec!="": chosen[species] = spec
+	view.placement["specializations"] = preload("res://scripts/systems/SpecializationEffects.gd").valid_choices(chosen)
 	assignments = Model.sanitize(view.placement,assignments,members)
 	if view.food_enabled():
 		view.placement.food_state = GameState.food_state.duplicate(true)
@@ -265,7 +272,8 @@ func close_info() -> void:
 func show_info(id: String) -> void:
 	close_info(); selected = id
 	var row: Dictionary = members[id]
-	var height := 386 if row.equipped_skill_ids.size()>2 else 324
+	var height := (386 if row.equipped_skill_ids.size()>2 else 324)+190
+	info_height = height
 	var footer := height-46
 	var panel: TextureRect = view.art_at(detail,"res://assets/maps/v130r_step3/monster_info_panel.png",Rect2(0,0,400,height))
 	panel.stretch_mode = TextureRect.STRETCH_SCALE
@@ -274,7 +282,9 @@ func show_info(id: String) -> void:
 	view.label_at(detail,row.display_name+"  Lv"+str(row.level),Vector2(96,24),22,true)
 	var role: Label = view.label_at(detail,row.stats.role,Vector2(96,56),15)
 	role.size.x = 250; role.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	view.label_at(detail,"체력 %d   공격 %d   방어 %d" % [row.stats.max_hp,row.stats.atk,row.stats.def],Vector2(24,99),18,true)
+	var actual: Dictionary = row.stats.duplicate(true)
+	Spec.apply_stats(view.root._monster_specialization(row.species_id),actual)
+	view.label_at(detail,"체력 %d   공격 %d   방어 %d" % [actual.max_hp,actual.atk,actual.def],Vector2(24,99),18,true)
 	var y := 139
 	for skill_id in row.equipped_skill_ids.slice(0,3):
 		var skill: Dictionary = skills.get(skill_id,{})
@@ -286,6 +296,7 @@ func show_info(id: String) -> void:
 		text.size.x = 302; text.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		text.tooltip_text = description; text.mouse_filter = Control.MOUSE_FILTER_PASS
 		y += 62
+	build_specialization(id,y)
 	view.art_at(detail,view.KIT+"food_64.png",Rect2(24,footer,28,28))
 	view.label_at(detail,"유지비 %d/일" % row.upkeep,Vector2(57,footer+4),17)
 	view.image_button(detail,"place_clear_all",Vector2(314,footer-12),42,func(): close_info(); apply_drop(id,{}),"이 몬스터 해제")
@@ -294,13 +305,51 @@ func show_info(id: String) -> void:
 	position_info()
 
 func position_info() -> void:
-	if selected=="" or not assignments.has(selected): return
-	var r := unit_rect(selected)
+	if selected=="": return
+	var r := unit_rect(selected) if assignments.has(selected) else Rect2(Vector2(1160,530),Vector2(80,90))
 	var bounds: Vector2 = view.size/view.ui_unit
-	var height := 386 if members[selected].equipped_skill_ids.size()>2 else 324
+	var height := info_height
 	var x := r.end.x+12
 	if x+400>bounds.x-12 or (x<1584 and r.position.y+324>866): x = r.position.x-412
 	detail.position = Vector2(clampf(x,12,bounds.x-412),clampf(r.position.y-60,106,866-height-12))
 
 func _process(_delta: float) -> void:
 	position_info()
+
+func build_specialization(id: String, y: float) -> void:
+	var species: String = members[id].species_id
+	if not view.root.monster_roster.has(species): view.root.monster_roster[species] = {"level":members[id].level,"exp":0}
+	var active: Dictionary = view.root._monster_specialization(species)
+	var title: Label = view.label_at(detail,"전문화 · DAY 2 해금 · 선택 후 변경 불가",Vector2(24,y),15,true)
+	title.name = "SpecializationHeading"
+	if not active.is_empty():
+		view.art_at(detail,str(active.badge),Rect2(24,y+30,58,58))
+		view.label_at(detail,str(active.display_name),Vector2(92,y+32),18,true).name = "SelectedSpecializationName"
+		var words := Spec.preview(active,members[id].stats)
+		words.append(str(active.get("short_effect",active.get("description",""))))
+		var text: Label = view.label_at(detail,"\n".join(words.slice(0,4)),Vector2(92,y+62),14)
+		text.tooltip_text = "\n".join(words); text.mouse_filter = Control.MOUSE_FILTER_PASS
+		text.name = "SpecializationStatArrows"; text.size = Vector2(282,100); text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		return
+	var options: Array = view.root._specializations_for_monster(species)
+	for index in range(options.size()):
+		var option: Dictionary = options[index]
+		var x := 24+index*186
+		var button := TextureButton.new(); button.name = "SpecChoose_"+str(option.id)
+		button.texture_normal = view.texture(str(option.badge)); button.ignore_texture_size = true
+		button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+		button.position = Vector2(x,y+28); button.size = Vector2(58,58)
+		button.disabled = not view.root._can_choose_early_specialization(species,str(option.id))
+		button.modulate = Color(.5,.5,.5) if button.disabled else Color.WHITE
+		button.tooltip_text = str(option.display_name)+"\n"+str(option.get("short_effect",""))+"\n"+view.root._specialization_block_reason(species,str(option.id))
+		button.pressed.connect(func(): choose_specialization.call_deferred(id,str(option.id)))
+		detail.add_child(button)
+		view.label_at(detail,str(option.display_name),Vector2(x,y+92),15,true)
+		var text: Label = view.label_at(detail,str(option.get("short_effect","")),Vector2(x,y+115),13)
+		text.size = Vector2(172,54); text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+func choose_specialization(id: String, spec_id: String) -> bool:
+	var species: String = members[id].species_id
+	if not view.root._choose_early_specialization(species,spec_id,false): return false
+	persist(); show_info(id)
+	return true

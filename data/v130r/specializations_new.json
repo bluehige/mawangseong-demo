@@ -8,7 +8,15 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "tongue_snag": {
+        "range": 40,
+        "root_seconds": 0.5
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "frog_choir": {
     "display_name": "웅덩이 합창단",
@@ -19,7 +27,15 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "puddle_song": {
+        "radius_cells": 1,
+        "def_bonus": 1
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "snail_trail_layer": {
     "display_name": "길 칠장이",
@@ -30,7 +46,15 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "slime_trail": {
+        "trap_count": 1,
+        "cooldown": -2
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "snail_fortress": {
     "display_name": "이동식 요새",
@@ -38,10 +62,19 @@
     "role_tag": "이동식 요새",
     "short_effect": "최대 체력 +20%, 집으로 쏙 감소율 70%.",
     "description": "최대 체력 +20%, 집으로 쏙 감소율 70%.",
-    "stat_multipliers": {},
+    "stat_multipliers": {
+      "max_hp": 1.2
+    },
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "shell_retreat": {
+        "reduction": 0.1
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "troll_gatekeeper": {
     "display_name": "관문지기",
@@ -52,7 +85,15 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "no_passage": {
+        "radius_cells": 0.5,
+        "duration": 1
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "troll_tax_collector": {
     "display_name": "세금 징수원",
@@ -63,7 +104,12 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {},
+    "flags": {
+      "toll_recovery_ratio": 1
+    },
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "shadow_nightmare": {
     "display_name": "악몽 담당",
@@ -74,7 +120,15 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "peekaboo": {
+        "duration": 1,
+        "fear_radius_cells": 1
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "shadow_lullaby": {
     "display_name": "자장가 그림자",
@@ -85,7 +139,13 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {},
+    "flags": {
+      "stealth_heal_per_second": 2,
+      "stealth_heal_radius_cells": 2
+    },
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "armor_throne_guard": {
     "display_name": "옥좌 근위대",
@@ -96,7 +156,16 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {},
+    "flags": {
+      "position_defense": {
+        "room": "throne",
+        "radius_cells": 5,
+        "bonus": 5
+      }
+    },
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "armor_wandering_knight": {
     "display_name": "떠돌이 기사",
@@ -107,7 +176,15 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "hero_pose": {
+        "cooldown": -3,
+        "max_targets": 1
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "wisp_beacon": {
     "display_name": "등대지기",
@@ -118,7 +195,13 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {},
+    "flags": {
+      "reveal_radius_cells": 4,
+      "aura_damage_multiplier": 1.05
+    },
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "wisp_bonfire": {
     "display_name": "모닥불",
@@ -129,7 +212,16 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "wax_drip": {
+        "burn_radius_cells": 1,
+        "burn_seconds": 2,
+        "burn_dps": 3
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "mole_foreman": {
     "display_name": "현장 반장",
@@ -140,7 +232,16 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "tunnel_hop": {
+        "ally_guard_seconds": 2,
+        "ally_guard_bonus": 3,
+        "ally_guard_radius_cells": 2
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "mole_saboteur": {
     "display_name": "부실 공사 감별사",
@@ -151,7 +252,14 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "undermine": {
+        "interrupt_seconds": 1
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "map_labyrinth": {
     "display_name": "미궁 지도",
@@ -162,7 +270,16 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "wrong_way": {
+        "duration": 2
+      }
+    },
+    "flags": {
+      "wrong_way_investigator": true
+    },
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "map_guide": {
     "display_name": "진짜 길잡이",
@@ -173,7 +290,15 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "map_spread": {
+        "move_multiplier": 0.1,
+        "radius_cells": 1
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "rats_vault_union": {
     "display_name": "금고 지부",
@@ -184,7 +309,13 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {},
+    "flags": {
+      "recovery_radius_cells": 4,
+      "recovery_gold_multiplier": 1.2
+    },
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "rats_night_shift": {
     "display_name": "야간조",
@@ -195,7 +326,15 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "swarm": {
+        "hits": 2,
+        "cooldown": 2
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "doll_hex_mistress": {
     "display_name": "저주 장인",
@@ -206,7 +345,16 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "stitch_curse": {
+        "duration": 2,
+        "damage_taken_multiplier": 0.1,
+        "attack_multiplier": -0.05
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "doll_guardian": {
     "display_name": "수호 인형",
@@ -217,7 +365,15 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "proxy_pain": {
+        "redirect_ratio": 0.1,
+        "max_targets": 1
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "mori_field_medic": {
     "display_name": "야전 의무병",
@@ -228,7 +384,18 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "spore_mend": {
+        "heal_multiplier": 0.2,
+        "max_targets": 1
+      },
+      "cleansing_bloom": {
+        "heal_multiplier": 0.2
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "mori_purifier": {
     "display_name": "정화사",
@@ -239,7 +406,14 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "cleansing_bloom": {
+        "immunity_seconds": 3
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "dolkong_gate_stone": {
     "display_name": "성문석",
@@ -250,7 +424,16 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {},
+    "flags": {
+      "position_defense": {
+        "tag": "defense_line",
+        "value": "1",
+        "bonus": 5
+      }
+    },
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "dolkong_quake": {
     "display_name": "땅울림",
@@ -261,7 +444,15 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "stone_pulse": {
+        "radius": 71.554175,
+        "stun_seconds": 1
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "dudum_war_band": {
     "display_name": "전투 악단",
@@ -272,7 +463,14 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "war_rhythm": {
+        "radius": 71.554175
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "dudum_lullaby": {
     "display_name": "자장 북",
@@ -283,7 +481,16 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "war_rhythm": {
+        "enemy_attack_interval_multiplier": 0.17647058823529416
+      }
+    },
+    "flags": {
+      "rhythm_debuff_instead": true
+    },
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "lumi_hunter": {
     "display_name": "사냥꾼",
@@ -294,7 +501,12 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {},
+    "flags": {
+      "marked_damage_multiplier": 1.15
+    },
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "lumi_moon_guide": {
     "display_name": "달빛 길잡이",
@@ -305,7 +517,13 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {},
+    "flags": {
+      "team_mark_tracking": true,
+      "team_mark_move_multiplier": 1.1
+    },
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "mimi_bait_master": {
     "display_name": "미끼 장인",
@@ -316,7 +534,14 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "false_treasure": {
+        "duration_bonus": 3
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   },
   "mimi_vault_jaws": {
     "display_name": "금고 이빨",
@@ -327,7 +552,12 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {},
+    "flags": {
+      "lured_first_hit_multiplier": 1.5
+    },
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "rolo_trail_master": {
     "display_name": "흔적 장인",
@@ -338,7 +568,15 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "implemented",
+    "skill_mods": {
+      "false_footprints": {
+        "radius": 71.554175,
+        "slow_factor": -0.1
+      }
+    },
+    "flags": {},
+    "badge": "res://assets/ui/specializations/v130r/assault.png"
   },
   "rolo_raid_captain": {
     "display_name": "원정대장",
@@ -349,6 +587,12 @@
     "stat_multipliers": {},
     "stat_bonuses": {},
     "skill_upgrade": {},
-    "implementation_status": "design_only"
+    "implementation_status": "partial_risk_display_only",
+    "skill_mods": {},
+    "flags": {
+      "raid_infamy_bonus": 0.1,
+      "raid_risk_reduction": 1
+    },
+    "badge": "res://assets/ui/specializations/v130r/guardian.png"
   }
 }

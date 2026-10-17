@@ -10428,7 +10428,7 @@ func _build_raid_detail_panel(parent: Control) -> void:
 	hud.rich_label(parent, str(mission.get("summary", "")), Vector2(54, 146), Vector2(452, 84), 18, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER)
 	_build_raid_stat_row(parent, "비용", _raid_cost_label(mission), 258)
 	_build_raid_stat_row(parent, "보상", _raid_expected_reward_label(mission), 310)
-	_build_raid_stat_row(parent, "위험", "%s / %s" % [mission.get("difficulty", ""), mission.get("risk", "")], 362)
+	_build_raid_stat_row(parent, "위험", "%s / %s" % [mission.get("difficulty", ""), _raid_risk_label(mission)], 362)
 	var modifier: Dictionary = mission.get("next_defense_modifier", {})
 	hud.label(parent, "다음 방어 영향", Vector2(54, 430), Vector2(452, 24), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	hud.rich_label(parent, str(modifier.get("description", "영향 없음")), Vector2(54, 462), Vector2(452, 66), 16, Color("#cfc7d9"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
@@ -10595,6 +10595,7 @@ func _commit_selected_raid() -> void:
 	var success_lines: Array = mission.get("success_lines", [])
 	last_raid_result = {
 		"mission_id": raid_selected_mission_id,
+		"risk_level": _raid_risk_level(mission),
 		"cost": cost.duplicate(true),
 		"reward": reward,
 		"resource_balance": {"before": before, "after": after, "delta": delta},
@@ -10622,7 +10623,8 @@ func _raid_reward_with_bonus(mission: Dictionary) -> Dictionary:
 	var reward: Dictionary = mission.get("reward", {}).duplicate(true)
 	var base_infamy = int(reward.get("infamy", 0))
 	if _raid_fixed_captain_id(mission) == KOBOLD_SCOUT_ID and base_infamy > 0:
-		var bonus = int(ceil(float(base_infamy) * 0.10))
+		var extra := float(preload("res://scripts/systems/SpecializationEffects.gd").flag(_monster_specialization(KOBOLD_SCOUT_ID),"raid_infamy_bonus",0.0))
+		var bonus = int(ceil(float(base_infamy) * (0.10+extra)))
 		reward["infamy"] = base_infamy + bonus
 	return reward
 
@@ -12856,18 +12858,7 @@ func _apply_specialization_stats(monster_id: String, stats: Dictionary) -> void:
 	var rule = _monster_specialization(monster_id)
 	if rule.is_empty():
 		return
-	for stat_name in rule.get("stat_multipliers", {}).keys():
-		var key = str(stat_name)
-		var scaled_value = float(stats.get(key, 0)) * float(rule["stat_multipliers"][stat_name])
-		if key in ["move_speed", "attack_range", "attack_interval"]:
-			stats[key] = scaled_value
-		else:
-			stats[key] = int(round(scaled_value))
-	for stat_name in rule.get("stat_bonuses", {}).keys():
-		var key = str(stat_name)
-		stats[key] = float(stats.get(key, 0)) + float(rule["stat_bonuses"][stat_name])
-		if key not in ["move_speed", "attack_range", "attack_interval"]:
-			stats[key] = int(round(float(stats[key])))
+	preload("res://scripts/systems/SpecializationEffects.gd").apply_stats(rule,stats)
 	var role_tag = str(rule.get("role_tag", stats.get("role", "")))
 	stats["role_tag"] = role_tag
 	stats["role"] = role_tag
@@ -12897,7 +12888,7 @@ func _early_specialization_unlocked() -> bool:
 
 func _early_specialization_count() -> int:
 	var count := 0
-	for monster_id in _defense_monster_ids():
+	for monster_id in monster_roster:
 		if str(monster_roster[monster_id].get("specialization_id", "")) != "":
 			count += 1
 	return count
@@ -12907,14 +12898,14 @@ func _early_specialization_limit() -> int:
 		return 0
 	if GameState.day <= 3:
 		return 1
-	return _defense_monster_ids().size()
+	return monster_roster.size()
 
 func _early_specialization_required_for_current_day() -> bool:
 	return GameState.day in [2, 3] and _early_specialization_unlocked() and _early_specialization_count() == 0
 
 func _specialization_block_reason(monster_id: String, specialization_id: String = "") -> String:
-	if not _monster_available_for_defense(monster_id):
-		return "지원 전용"
+	if not monster_roster.has(monster_id):
+		return "미합류"
 	if not _early_specialization_unlocked():
 		return "DAY 2 해금"
 	if str(monster_roster[monster_id].get("specialization_id", "")) != "":
@@ -12938,11 +12929,11 @@ func _specialization_block_reason(monster_id: String, specialization_id: String 
 func _can_choose_early_specialization(monster_id: String, specialization_id: String) -> bool:
 	return monster_roster.has(monster_id) and _specialization_block_reason(monster_id, specialization_id) == ""
 
-func _choose_early_specialization(monster_id: String, specialization_id: String) -> bool:
+func _choose_early_specialization(monster_id: String, specialization_id: String, refresh_screen: bool = true) -> bool:
 	var reason = _specialization_block_reason(monster_id, specialization_id)
 	if reason != "":
 		_log("전술 특화를 선택할 수 없습니다: %s." % reason)
-		_set_screen(Constants.SCREEN_MONSTER)
+		if refresh_screen: _set_screen(Constants.SCREEN_MONSTER)
 		return false
 	var rule = DataRegistry.specialization(specialization_id)
 	monster_roster[monster_id]["specialization_id"] = specialization_id
@@ -12951,7 +12942,7 @@ func _choose_early_specialization(monster_id: String, specialization_id: String)
 	first_play_observation.record_choice("specialization", specialization_id, GameState.day, {"monster_id": monster_id, "specialization_id": specialization_id})
 	first_play_observation.save_snapshot(GameState.day, false)
 	_log("%s 전술 특화 확정: %s." % [_monster_display_name(monster_id), str(rule.get("display_name", specialization_id))])
-	_set_screen(Constants.SCREEN_MONSTER)
+	if refresh_screen: _set_screen(Constants.SCREEN_MONSTER)
 	return true
 
 func _monster_ai_behavior(monster_id: String) -> String:
@@ -13221,9 +13212,7 @@ func _specialization_skill_upgrade(monster_id: String, skill_id: String) -> Dict
 
 func _combat_skill_float(monster_id: String, skill_id: String, key: String, fallback: float = 0.0) -> float:
 	var value = fallback
-	var specialization_upgrade = _specialization_skill_upgrade(monster_id, skill_id)
-	if not specialization_upgrade.is_empty():
-		value += float(specialization_upgrade.get(key, 0.0))
+	value += preload("res://scripts/systems/SpecializationEffects.gd").delta(_monster_specialization(monster_id),skill_id,key)
 	var promotion_upgrade = _promotion_skill_upgrade(monster_id, skill_id)
 	if not promotion_upgrade.is_empty():
 		value += float(promotion_upgrade.get(key, 0.0))
@@ -16544,3 +16533,13 @@ func _settle_monster_food() -> Dictionary:
 			if _monster_available_for_defense(species) and _monster_deployed_for_defense(species): deployed.append(species)
 	var ledger := GameState.settle_food(deployed)
 	return ledger
+
+func _raid_risk_level(mission: Dictionary) -> int:
+	var base := int(mission.get("risk_level",1 if str(mission.get("risk",""))=="낮음" else 2))
+	var reduction := 0
+	if _raid_fixed_captain_id(mission)==KOBOLD_SCOUT_ID:
+		reduction = int(preload("res://scripts/systems/SpecializationEffects.gd").flag(_monster_specialization(KOBOLD_SCOUT_ID),"raid_risk_reduction",0))
+	return maxi(0,base-reduction)
+
+func _raid_risk_label(mission: Dictionary) -> String:
+	return "%s · 위험 단계 %d" % [str(mission.get("risk","")),_raid_risk_level(mission)]

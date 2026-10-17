@@ -3,6 +3,7 @@ extends "res://scripts/game/ApprovedBattleController.gd"
 func finish_combat(win: bool, reason: String) -> void:
 	if not running: return
 	running = false
+	spec_effects.refund_tolls()
 	last_result = {"win":win,"reason":reason,"duration":root.combat_time,"spawned":root.spawned_count,"skills":skill_events.size(),"throne_hp":GameState.demon_lord_hp,"throne_max":GameState.demon_lord_max_hp}
 	for unit in root.monster_units+root.enemy_units: unit.set_physics_process(false)
 

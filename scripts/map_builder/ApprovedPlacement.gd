@@ -307,13 +307,14 @@ static func snapshot(s: Dictionary) -> Dictionary:
 		var row: Dictionary = b.duplicate(true)
 		row.rect = [b.rect.position.x,b.rect.position.y,b.rect.size.x,b.rect.size.y]
 		rows.append(row)
-	return {"food_state":s.get("food_state",{}).duplicate(true),"schema":"v130r_step2_placement_1","grade":s.get("grade","E"),"buildings":rows,"traps":s.traps,"resources":s.resources,"stage":s.stage,"day":s.day,"serial":s.serial}
+	return {"specializations":s.get("specializations",{}).duplicate(true),"food_state":s.get("food_state",{}).duplicate(true),"schema":"v130r_step2_placement_1","grade":s.get("grade","E"),"buildings":rows,"traps":s.traps,"resources":s.resources,"stage":s.stage,"day":s.day,"serial":s.serial}
 
 static func restore(data: Variant, baseline: Dictionary) -> Dictionary:
 	# Legacy v5/v6 or a campaign JSON has no branch extension: safe baseline.
 	if not data is Dictionary or data.get("schema","")!="v130r_step2_placement_1": return baseline.duplicate(true)
 	if str(data.get("grade","E"))!=str(baseline.get("grade","E")): return {"ok":false,"errors":["배치 등급 불일치"]}
 	var s := baseline.duplicate(true)
+	s["specializations"] = preload("res://scripts/systems/SpecializationEffects.gd").valid_choices(data.get("specializations",{}))
 	if not data.get("buildings") is Array: return {"ok":false,"errors":["배치 저장 형식 오류"]}
 	s.buildings = []
 	for b in data.buildings:

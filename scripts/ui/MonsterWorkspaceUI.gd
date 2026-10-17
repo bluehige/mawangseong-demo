@@ -351,7 +351,10 @@ func _specialization(parent: Control, id: String) -> void:
 	if GameState.day < 4: kit_line(parent,loc("DAY2 해금 · 추가 선택 DAY4","Unlocks DAY2 · More choices DAY4","DAY2解锁 · DAY4可追加选择"),"",MUTED)
 	var active: Dictionary = root._monster_specialization(id)
 	if not active.is_empty():
+		parent.add_child(ManagementKit.image(str(active.get("badge","")),52))
 		kit_line(parent,LanguageSettings.ui_text(str(active.get("display_name",""))),"",GOLD)
+		var base: Dictionary = DataRegistry.monster(id).duplicate(true)
+		kit_line(parent," · ".join(preload("res://scripts/systems/SpecializationEffects.gd").preview(active,base)),"SpecializationStatArrows",GOLD)
 		kit_line(parent,LanguageSettings.ui_text(str(active.get("description",""))))
 		return
 	for option in root._specializations_for_monster(id):

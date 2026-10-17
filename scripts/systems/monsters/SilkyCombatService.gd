@@ -22,11 +22,11 @@ static func place_thread(state_value, requested_anchor: String, available_anchor
 	var target_count := maxi(1, int(skill.get("max_slow_targets", 4)))
 	var slow_multiplier := float(skill.get("slow_multiplier", 0.65))
 	var fire_durability := maxi(1, int(skill.get("fire_hits_to_remove", 2)))
-	if specialization_id == SPEC_WARDEN:
-		slow_multiplier = 0.60
-		fire_durability += 1
-	elif specialization_id == SPEC_TAILOR:
-		target_count = maxi(1, target_count - 1)
+	var spec: Dictionary = DataRegistry.specialization(specialization_id)
+	var effects = preload("res://scripts/systems/SpecializationEffects.gd")
+	slow_multiplier = effects.value(spec,"stitch_stairway","slow_multiplier",slow_multiplier)
+	fire_durability = maxi(1,roundi(effects.value(spec,"stitch_stairway","fire_hits_to_remove",fire_durability)))
+	target_count = maxi(1,roundi(effects.value(spec,"stitch_stairway","max_slow_targets",target_count)))
 	state["thread"] = {"anchor": anchor, "remaining_targets": target_count, "slow_multiplier": slow_multiplier, "slow_seconds": float(skill.get("slow_seconds", 4.0)), "fire_durability": fire_durability, "active": true}
 	return {"ok": true, "error": "", "state": state}
 
@@ -63,11 +63,10 @@ static func emergency_pull(state_value, ally: Dictionary, safe_direction: Vector
 		return {"ok": false, "state": state, "shield": 0, "pull_offset": Vector2.ZERO, "facility_repair": 0}
 	var shield_ratio := float(skill.get("shield_max_hp_ratio", 0.10))
 	var facility_repair := 0
-	if specialization_id == SPEC_WARDEN:
-		shield_ratio = maxf(0.0, shield_ratio - 0.03)
-	elif specialization_id == SPEC_TAILOR:
-		shield_ratio += 0.05
-		facility_repair = 12
+	var spec: Dictionary = DataRegistry.specialization(specialization_id)
+	var effects = preload("res://scripts/systems/SpecializationEffects.gd")
+	shield_ratio = maxf(0,effects.value(spec,"emergency_thread_pull","shield_max_hp_ratio",shield_ratio))
+	facility_repair = roundi(effects.value(spec,"emergency_thread_pull","facility_repair",0))
 	var movable := not bool(ally.get("boss", false)) and not bool(ally.get("fixed", false))
 	var direction := safe_direction.normalized() if safe_direction.length_squared() > 0.001 else Vector2.LEFT
 	var offset := direction * float(skill.get("pull_distance", 120.0)) if movable else Vector2.ZERO

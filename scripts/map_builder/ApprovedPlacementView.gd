@@ -72,6 +72,9 @@ func setup(game: Node) -> void:
 	monster_ui.members = Monsters.roster()
 	var copy := Grade.load_session(game) if Grade.enabled() else Monsters.load_copy(placement,monster_ui.members)
 	placement = copy.layout; monster_ui.assignments = copy.defenders
+	for species in placement.get("specializations",{}):
+		if not root.monster_roster.has(species): root.monster_roster[species] = {"level":1,"exp":0}
+		root.monster_roster[species]["specialization_id"] = placement.specializations[species]
 	state = Layout.read(str(placement.get("grade","E")))
 	monster_ui.food_income = 15 if placement.get("grade","E")=="F" else 23
 	if food_enabled():
