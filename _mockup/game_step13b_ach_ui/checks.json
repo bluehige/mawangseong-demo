@@ -1,0 +1,156 @@
+{
+	"checks": 124,
+	"failures": [],
+	"layouts": [
+		{
+			"issues": [],
+			"locale": "ko",
+			"set": "base_campaign",
+			"texts": 56
+		},
+		{
+			"issues": [],
+			"locale": "ko",
+			"set": "castle_builder",
+			"texts": 50
+		},
+		{
+			"issues": [],
+			"locale": "ko",
+			"set": "monster_family",
+			"texts": 53
+		},
+		{
+			"issues": [],
+			"locale": "ko",
+			"set": "monster_moments",
+			"texts": 56
+		},
+		{
+			"issues": [],
+			"locale": "ko",
+			"set": "challenge_and_secret",
+			"texts": 59
+		},
+		{
+			"issues": [],
+			"locale": "ko",
+			"set": "endings",
+			"texts": 50
+		},
+		{
+			"issues": [],
+			"locale": "ko",
+			"set": "update3_fronts",
+			"texts": 38
+		},
+		{
+			"issues": [],
+			"locale": "ko",
+			"set": "update4_council",
+			"texts": 50
+		},
+		{
+			"issues": [],
+			"locale": "en",
+			"set": "base_campaign",
+			"texts": 56
+		},
+		{
+			"issues": [],
+			"locale": "en",
+			"set": "castle_builder",
+			"texts": 50
+		},
+		{
+			"issues": [],
+			"locale": "en",
+			"set": "monster_family",
+			"texts": 53
+		},
+		{
+			"issues": [],
+			"locale": "en",
+			"set": "monster_moments",
+			"texts": 56
+		},
+		{
+			"issues": [],
+			"locale": "en",
+			"set": "challenge_and_secret",
+			"texts": 59
+		},
+		{
+			"issues": [],
+			"locale": "en",
+			"set": "endings",
+			"texts": 50
+		},
+		{
+			"issues": [],
+			"locale": "en",
+			"set": "update3_fronts",
+			"texts": 38
+		},
+		{
+			"issues": [],
+			"locale": "en",
+			"set": "update4_council",
+			"texts": 50
+		},
+		{
+			"issues": [],
+			"locale": "zh_CN",
+			"set": "base_campaign",
+			"texts": 56
+		},
+		{
+			"issues": [],
+			"locale": "zh_CN",
+			"set": "castle_builder",
+			"texts": 50
+		},
+		{
+			"issues": [],
+			"locale": "zh_CN",
+			"set": "monster_family",
+			"texts": 53
+		},
+		{
+			"issues": [],
+			"locale": "zh_CN",
+			"set": "monster_moments",
+			"texts": 56
+		},
+		{
+			"issues": [],
+			"locale": "zh_CN",
+			"set": "challenge_and_secret",
+			"texts": 59
+		},
+		{
+			"issues": [],
+			"locale": "zh_CN",
+			"set": "endings",
+			"texts": 50
+		},
+		{
+			"issues": [],
+			"locale": "zh_CN",
+			"set": "update3_fronts",
+			"texts": 38
+		},
+		{
+			"issues": [],
+			"locale": "zh_CN",
+			"set": "update4_council",
+			"texts": 50
+		}
+	],
+	"locked_pixels": {
+		"max_chroma": 0.0,
+		"max_luminance_error": 0.00341117298603058,
+		"samples": 225
+	},
+	"profile_unchanged": true
+}

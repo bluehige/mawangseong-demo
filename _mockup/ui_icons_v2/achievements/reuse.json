@@ -1,0 +1,12 @@
+{
+  "panel": "assets/ui/uiux/obsidian_panel.png",
+  "start_menu_button": "assets/ui/uiux/obsidian_button.png",
+  "progress_frame": "assets/ui/v130r/hpbar/C/frame_ally.png",
+  "progress_fill": "assets/ui/v130r/hpbar/C/fill_ally.png",
+  "lock_badge": "assets/ui/kit/icons/icon_lock_128.png",
+  "provenance": [
+    "assets/source/imagegen/uiux_obsidian_20260912/SOURCE.md",
+    "assets/source/imagegen/v130r_hpbar/C/SOURCE.md",
+    "assets/source/imagegen/v1213_ui_icons/SOURCE.md"
+  ]
+}
