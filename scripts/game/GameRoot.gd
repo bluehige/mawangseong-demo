@@ -318,6 +318,7 @@ var story_feature_enabled := false
 var story_combat_overlay_open := false
 var story_combat_previous_paused := false
 var story_auto_remaining := 0.0
+var start_flow = preload("res://scripts/ui/StartFlow.gd").new()
 var continuity = preload("res://scripts/ui/PlayerContinuityUI.gd").new()
 var combat_story_feed = preload("res://scripts/story/CombatStoryFeed.gd").new()
 var story_archive_open := false
@@ -530,6 +531,8 @@ var pause_menu_combat_was_paused := false
 var settings_return_to_pause_menu := false
 
 func _ready() -> void:
+	add_child(start_flow)
+	start_flow.setup(self)
 	continuity.setup(self)
 	get_tree().auto_accept_quit = false
 	randomize()
@@ -860,6 +863,8 @@ func _campaign_save_summary(checkpoint: String) -> Dictionary:
 	var stage_info := _castle_stage_info()
 	return {
 		"day": GameState.day,
+		"play_seconds": start_flow.play_seconds,
+		"map_grade": str(get_meta("approved_grade_progression",{}).get("layout",{}).get("grade","F")),
 		"saved_at_text": Time.get_datetime_string_from_system(false, true),
 		"campaign_final_day": REGULAR_CAMPAIGN_FINAL_DAY,
 		"player_name": _onboarding_player_name(),
@@ -983,6 +988,7 @@ func _campaign_save_payload(checkpoint: String) -> Dictionary:
 			"last_growth_choice_summary": last_growth_choice_summary.duplicate(true)
 		},
 		"onboarding": {
+			"start_flow": start_flow.snapshot(),
 			"stage_id": onboarding_stage_id,
 			"seen_dialogue_ids": onboarding_seen_dialogue_ids.duplicate(true),
 			"dialogue_queue": onboarding_dialogue_queue.duplicate(true),
@@ -1410,6 +1416,7 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 		campaign_save_restore_active = false
 		return false
 	onboarding_enabled = onboarding_flow.loaded
+	if preload("res://scripts/map_builder/ApprovedPlacement.gd").enabled(): start_flow.restore(onboarding.get("start_flow",{}))
 	story_combat_overlay_open = false
 	story_pending_combat_scenes.clear()
 	story_archive_open = false
@@ -1447,6 +1454,7 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	return true
 
 func _continue_campaign_save() -> void:
+	var replay_start_guide: bool = start_flow.replay_on_continue
 	pause_menu_open = false
 	pause_menu_source_screen = ""
 	pause_menu_combat_was_paused = false
@@ -1471,6 +1479,9 @@ func _continue_campaign_save() -> void:
 		_set_screen(Constants.SCREEN_TITLE)
 	elif not v5_envelope.is_empty():
 		_load_update4_context_from_v5(v5_envelope, true)
+	if replay_start_guide and campaign_save_status==CampaignSaveStoreScript.STATUS_VALID:
+		start_flow.replay_guide()
+		start_flow.replay_on_continue = false
 
 
 func _load_update4_context_from_v5(envelope: Dictionary, include_update3: bool) -> void:
@@ -1544,6 +1555,9 @@ func _suspended_interface_tick(delta: float) -> void:
 	if not combat_scene.skill_actions.is_active(): _story_tick_auto(delta)
 
 func _input(event: InputEvent) -> void:
+	if start_flow.input(event):
+		get_viewport().set_input_as_handled()
+		return
 	if combat_scene != null and combat_scene.skill_actions.is_active():
 		if event is InputEventKey and event.pressed and not event.echo:
 			if event.keycode == KEY_ESCAPE: _open_pause_menu()
@@ -1582,7 +1596,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if story_director.is_active() and (current_screen == Constants.SCREEN_DIALOGUE or story_combat_overlay_open):
 		if event is InputEventKey and event.pressed and not event.echo:
-			if _is_dialogue_advance_event(event) and not (get_viewport().gui_get_focus_owner() is BaseButton):
+			if _is_dialogue_advance_event(event) and (event.keycode==KEY_SPACE or not (get_viewport().gui_get_focus_owner() is BaseButton)):
 				_story_advance_dialogue(true)
 				get_viewport().set_input_as_handled()
 		return
@@ -1606,7 +1620,7 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_DIALOGUE:
-		if _is_dialogue_advance_event(event) and not (get_viewport().gui_get_focus_owner() is BaseButton):
+		if _is_dialogue_advance_event(event) and (event.keycode==KEY_SPACE or not (get_viewport().gui_get_focus_owner() is BaseButton)):
 			_onboarding_advance_dialogue()
 			get_viewport().set_input_as_handled()
 			return
@@ -1739,6 +1753,7 @@ func queue_world_overlay_redraw() -> void:
 		world_overlay_layer.queue_redraw()
 
 func _screen_uses_world_render(screen_name: String) -> bool:
+	if bool(ProjectSettings.get_setting("debug/start_flow14",false)) and screen_name==Constants.SCREEN_COMBAT: return false
 	return screen_name in WORLD_RENDER_SCREENS
 
 func _init_roster() -> void:
@@ -4398,6 +4413,7 @@ func _create_controllers() -> void:
 	combat_scene.setup(self, hud)
 
 func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
+	start_flow.before_screen_change(screen_name)
 	if screen_name not in [Constants.SCREEN_MONSTER,Constants.SCREEN_CHRONICLE,Constants.SCREEN_ENDING_ARCHIVE,Constants.SCREEN_SETTINGS]:
 		records_companion_return = false
 	if screen_name != Constants.SCREEN_COMBAT and combat_scene != null:
@@ -4453,6 +4469,8 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 	hud.clear()
 	tutorial_targets.clear()
 	match current_screen:
+		"prologue":
+			start_flow.build_prologue()
 		Constants.SCREEN_TITLE:
 			_build_onboarding_title_ui()
 		Constants.SCREEN_NAME_ENTRY:
@@ -4471,7 +4489,7 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 		Constants.SCREEN_MONSTER:
 			management_scene.build_monster_ui()
 		Constants.SCREEN_COMBAT:
-			combat_scene.build_combat_ui()
+			if not start_flow.restore_battle_view(): combat_scene.build_combat_ui()
 			if story_combat_overlay_open and story_director.is_active():
 				story_presenter.build_combat_overlay()
 		Constants.SCREEN_RESULT:
@@ -4531,7 +4549,7 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 	if pause_menu_open and current_screen == pause_menu_source_screen:
 		call_deferred("_build_pause_menu_overlay")
 	call_deferred("_wire_ui_audio_tree")
-	if current_screen not in [Constants.SCREEN_TITLE, Constants.SCREEN_NAME_ENTRY, Constants.SCREEN_SETTINGS, Constants.SCREEN_DIALOGUE, Constants.SCREEN_COMBAT]:
+	if current_screen not in ["prologue", Constants.SCREEN_TITLE, Constants.SCREEN_NAME_ENTRY, Constants.SCREEN_SETTINGS, Constants.SCREEN_DIALOGUE, Constants.SCREEN_COMBAT]:
 		var menu_parent: Panel = hud.panel(Rect2(1730, 14, 160, 50), Color.TRANSPARENT, Color.TRANSPARENT, "CommonMenuHolder", "flat")
 		menu_parent.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		menu_parent.z_index = 600
@@ -5075,6 +5093,7 @@ func _kill_music_preview_tween() -> void:
 
 func _onboarding_screen_blocks_map_input() -> bool:
 	return current_screen in [
+		"prologue",
 		Constants.SCREEN_TITLE,
 		Constants.SCREEN_NAME_ENTRY,
 		Constants.SCREEN_DIALOGUE,
@@ -5124,35 +5143,13 @@ func _open_campaign_mode_from_title() -> void:
 		_campaign_next_cycle_from_ending()
 
 func _build_title_reset_confirmation() -> void:
-	var is_quick := pending_title_reset_mode == "quick"
-	var backdrop = hud.panel(Rect2(0, 0, 1920, 1080), Color("#000000b8"), Color("#00000000"), "TitleResetConfirmation", "flat")
-	backdrop.name = "TitleResetConfirmation"
-	backdrop.z_index = 500
-	backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
-	var modal = hud.child_panel(backdrop, Rect2(590, 340, 740, 400), Color("#0b0910fa"), Color("#d8b867"), 2)
-	modal.mouse_filter = Control.MOUSE_FILTER_STOP
-	hud.label(modal, "저장 기록을 삭제할까요?", Vector2(36, 34), Vector2(668, 48), 30, Color("#fff4dc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	var summary_text := "DAY %02d · %s\n%s의 진행 기록은 삭제 후 복구할 수 없습니다." % [
-		int(campaign_save_summary.get("day", 1)),
-		str(campaign_save_summary.get("castle_name", "마왕성")),
-		str(campaign_save_summary.get("player_name", "신입 마왕"))
-	]
-	hud.label(modal, summary_text, Vector2(54, 112), Vector2(632, 104), 20, Color("#d8cfdf"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	var confirm_text := "삭제하고 빠른 시작" if is_quick else "삭제하고 새 게임"
-	var confirm_callback := Callable(self, "_onboarding_start_quick_game") if is_quick else Callable(self, "_onboarding_start_new_game")
-	var confirm_button = hud.button(modal, confirm_text, Rect2(54, 258, 300, 72), confirm_callback, 20, "TitleResetConfirmButton")
-	var cancel_button = hud.button(modal, "취소", Rect2(386, 258, 300, 72), Callable(self, "_cancel_title_reset_confirmation"), 20, "TitleResetCancelButton")
-	confirm_button.focus_next = confirm_button.get_path_to(cancel_button)
-	confirm_button.focus_previous = confirm_button.get_path_to(cancel_button)
-	cancel_button.focus_next = cancel_button.get_path_to(confirm_button)
-	cancel_button.focus_previous = cancel_button.get_path_to(confirm_button)
-	cancel_button.call_deferred("grab_focus")
+	start_flow.build_reset_confirmation()
 
 func _title_reset_confirmation_required(mode: String) -> bool:
 	if pending_title_reset_mode == mode:
 		pending_title_reset_mode = ""
 		return false
-	if campaign_save_status != CampaignSaveStoreScript.STATUS_VALID:
+	if campaign_save_status == CampaignSaveStoreScript.STATUS_MISSING:
 		return false
 	pending_title_reset_mode = mode
 	_set_screen(Constants.SCREEN_TITLE)
@@ -5192,6 +5189,7 @@ func _open_settings_screen(from_pause_menu: bool = false) -> void:
 		"audio": AudioSettings.snapshot(),
 		"interface": UISettings.snapshot(),
 		"language": LanguageSettings.snapshot(),
+		"start_flow": start_flow.snapshot(),
 		"tutorial_history": TutorialGuidanceHistory.snapshot(),
 		"controls": InputSettings.snapshot(),
 		"accessibility": CouncilChronicleScript.normalize_accessibility(update4_profile.get("chronicle_update4", {}).get("accessibility", {}))
@@ -5391,7 +5389,7 @@ func _build_settings_general_category(parent: Control) -> void:
 	hud.label(parent, LanguageSettings.text("settings.general.description"), Vector2(40, 76), Vector2(850, 48), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 	_build_language_setting_row(parent, 156.0)
 	_build_tutorial_guidance_setting_row(parent, 310.0)
-	_build_tutorial_practice_setting_row(parent, 466.0)
+	start_flow.button(parent,start_flow.text("replay"),Rect2(40,458,842,60),Callable(start_flow,"replay_guide"),"ReplayStartGuideButton")
 	_build_tutorial_history_setting_row(parent, 574.0)
 	_build_settings_access_toggle(parent,684,"QuickDialogueToggle",continuity.localized("빠른 대사 옵션","Quick dialogue","快速对话"),"quick_dialogue")
 	for entry in [[156,"language"],[310,"info"],[466,"resume"],[574,"log"],[684,"skip"]]: settings_workspace.field_card(parent,entry[0],132 if entry[0] in [156,310] else 98,entry[1])
@@ -5488,6 +5486,10 @@ func _build_combat_speed_setting_row(parent: Control, y: float) -> void:
 		{"label": LanguageSettings.text("settings.display.speed_remember"), "value": "remember"}
 	], "remember" if UISettings.remember_combat_speed else "reset", Callable(self, "_on_combat_speed_preview_changed"), 20, "RememberCombatSpeedOption")
 	hud.label(parent, LanguageSettings.text("settings.display.remember_speed_help"), Vector2(40, y + 54), Vector2(842, 60), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent,continuity.localized("기본 전투 속도","Default battle speed","默认战斗速度"),Vector2(40,y+125),Vector2(450,38),22)
+	hud.option_button(parent,Rect2(520,y+119,362,52),[{"label":"1×","value":"1.0"},{"label":"1.5×","value":"1.5"},{"label":"2×","value":"2.0"},{"label":"3×","value":"3.0"}],String.num(UISettings.preferred_combat_speed,1),func(value):
+		UISettings.set_preferred_combat_speed(float(value),false)
+		UISettings.set_remember_combat_speed(true,false),20,"DefaultCombatSpeedOption")
 
 func _on_combat_speed_preview_changed(value: String) -> void:
 	UISettings.set_remember_combat_speed(value == "remember", false)
@@ -5778,6 +5780,7 @@ func _restore_settings_files(backups: Dictionary) -> void:
 			else: push_warning("Settings rollback failed: "+str(path))
 
 func _cancel_settings_changes() -> void:
+	if settings_open_snapshot.has("start_flow"): start_flow.restore(settings_open_snapshot.start_flow)
 	if not settings_open_snapshot.is_empty():
 		AudioSettings.apply_snapshot(settings_open_snapshot.get("audio", {}), false)
 		UISettings.apply_snapshot(settings_open_snapshot.get("interface", {}), false)
@@ -5925,16 +5928,19 @@ func _close_tutorial_practice() -> void:
 	_set_screen(Constants.SCREEN_SETTINGS)
 
 func _build_onboarding_name_entry_ui() -> void:
+	if start_flow.naming and start_flow.naming_turn<2:
+		start_flow.build_naming_talk()
+		return
 	var view = preload("res://scripts/ui/NameEntryUI.gd").new()
 	view.setup(self,hud)
 	view.build_form()
 
 func _onboarding_name_changed(value: String) -> void:
 	var hint := ui_layer.find_child("NameLengthHint",true,false) as Label
-	if hint == null: return
-	var length := value.strip_edges().length()
-	hint.text = "마왕명 · %d/12자%s" % [length, " · 12자 이내로 줄여 주세요." if length>12 else ""]
-	hint.add_theme_color_override("font_color", Color("#f1a0a7") if length>12 else Color("#c0b2c6"))
+	if hint==null: return
+	hint.text = start_flow.text("name_rules")+" · %d/12" % value.strip_edges().length()
+	hint.add_theme_color_override("font_color", Color("#c0b2c6") if start_flow.valid_name(value) else Color("#f1a0a7"))
+	if is_instance_valid(onboarding_name_confirm_button): onboarding_name_confirm_button.disabled = not start_flow.valid_name(value)
 
 func _onboarding_add_name_entry_tip(parent: Control, panel_rect: Rect2, input_rect: Rect2) -> void:
 	var touch_ui := UISettings.is_touch_ui()
@@ -7194,8 +7200,7 @@ func _onboarding_start_new_game() -> void:
 		return
 	_onboarding_reset_game()
 	_start_first_play_observation("new")
-	_onboarding_set_stage("LV01_NAME_ENTRY")
-	_set_screen(Constants.SCREEN_NAME_ENTRY)
+	start_flow.start_prologue()
 
 func _onboarding_start_quick_game() -> void:
 	if _title_reset_confirmation_required("quick"):
@@ -7362,6 +7367,9 @@ func _onboarding_confirm_name() -> void:
 	if current_screen != Constants.SCREEN_NAME_ENTRY or onboarding_name_input == null:
 		return
 	var player_name = onboarding_name_input.text.strip_edges()
+	if not start_flow.valid_name(player_name):
+		if is_instance_valid(onboarding_bati_comment_label): onboarding_bati_comment_label.text = start_flow.text("name_rules")
+		return
 	if player_name == "":
 		_onboarding_show_name_comment("invalid_empty")
 		return
@@ -7375,13 +7383,12 @@ func _onboarding_confirm_name() -> void:
 	_onboarding_finish_name_entry()
 
 func _onboarding_finish_name_entry() -> void:
-	_onboarding_set_stage("LV02_OPENING_CUTSCENE")
-	_onboarding_begin_dialogue(_onboarding_essential_opening_entries(), Constants.SCREEN_MANAGEMENT, ONBOARDING_ACTION_DAY1_MANAGEMENT)
+	start_flow.confirm_name()
 
 func _close_onboarding_name_keyboard() -> void:
 	if onboarding_name_input != null and is_instance_valid(onboarding_name_input):
 		onboarding_name_input.release_focus()
-	DisplayServer.virtual_keyboard_hide()
+	if DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD): DisplayServer.virtual_keyboard_hide()
 
 func _onboarding_essential_opening_entries() -> Array:
 	var allowed_ids: Dictionary = {}
@@ -7656,6 +7663,11 @@ func _story_close_combat_overlay() -> void:
 
 func _story_run_completion_action(action: String, return_screen: String) -> void:
 	match action:
+		"start_guide":
+			_set_screen(Constants.SCREEN_MANAGEMENT,false)
+			start_flow.after_intro.call_deferred()
+		"start_map_battle":
+			start_flow.resume_battle()
 		"open_intrusion_brief":
 			_open_intrusion_brief()
 		"request_combat_start":
@@ -7964,9 +7976,12 @@ func _update2_challenge_seal_condition_met(seal: Dictionary) -> bool:
 
 func _onboarding_complete_dialogue_action(action: String, return_screen: String) -> void:
 	match action:
+		"start_day1":
+			start_flow.enter_day1()
 		"v130r_story":
 			v130r_story.finish(self)
 			_set_screen(Constants.SCREEN_MANAGEMENT)
+			if start_flow.fresh and not start_flow.intro_complete: start_flow.after_intro.call_deferred()
 		"v130r_first_battle":
 			v130r_story.finish(self)
 			_set_screen(Constants.SCREEN_MANAGEMENT)
@@ -7990,6 +8005,9 @@ func _onboarding_enter_management_day(day: int, show_dialogue: bool) -> void:
 		call_deferred("_open_intrusion_brief")
 
 func _onboarding_emit_management_intro(day: int) -> void:
+	if day==1 and start_flow.fresh:
+		start_flow.management_intro()
+		return
 	if not onboarding_enabled:
 		return
 	if _story_begin_trigger("management_entered", {}, Constants.SCREEN_INTRUSION_BRIEF, "open_intrusion_brief", false, day):
@@ -10879,6 +10897,9 @@ func _tutorial_guidance_visible_for_step(step: Dictionary) -> bool:
 			return true
 
 func _tutorial_build_overlay() -> void:
+	if preload("res://scripts/map_builder/ApprovedPlacement.gd").enabled():
+		_tutorial_clear_overlay()
+		return
 	preload("res://scripts/map_builder/PlotTutorialTargets.gd").register_map_targets(self)
 	if not onboarding_enabled or not tutorial_manager.is_active_for_stage(onboarding_stage_id):
 		_tutorial_clear_overlay()
@@ -11863,7 +11884,7 @@ func _handle_key(event: InputEventKey) -> void:
 			_toggle_quarter_debug_overlay("path")
 
 func _is_dialogue_advance_event(event: InputEventKey) -> bool:
-	return InputSettings.event_matches(event, InputSettings.ACTION_DIALOGUE_ADVANCE) or event.keycode == KEY_KP_ENTER
+	return InputSettings.event_matches(event, InputSettings.ACTION_DIALOGUE_ADVANCE) or event.keycode == KEY_KP_ENTER or (start_flow.fresh and event.keycode in [KEY_SPACE,KEY_ENTER])
 
 func _toggle_quarter_debug_overlay(overlay_id: String) -> void:
 	match overlay_id:

@@ -193,5 +193,4 @@ func show_victory(game: Node) -> void:
 	game.hud.label(panel,cue.speaker_label,Vector2(20,10),Vector2(1040,30),22,Color("#e8bd76"))
 	var text: Label = game.hud.label(panel,cue.text,Vector2(20,44),Vector2(1040,62),23,Color("#f4eadc"))
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; ignore_input(panel)
-	game.get_tree().create_timer(3.5).timeout.connect(func():
-		if is_instance_valid(panel): panel.queue_free())
+	game.get_tree().create_timer(3.5).timeout.connect(Callable(panel,"queue_free"))

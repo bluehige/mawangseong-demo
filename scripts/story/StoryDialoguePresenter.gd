@@ -238,6 +238,9 @@ func _toolbar(parent: Control, legacy: bool) -> void:
 	var allowed: bool = root.campaign_cycle_index >= 2 and root.onboarding_dialogue_queue.size() > 1 if legacy else root.story_director.skip_allowed()
 	var skip = _icon(row, "skip", root.continuity.localized("넘기기 · 읽은 대화만 허용", "Skip · available for previously read dialogue", "跳过 · 仅限已读对白"), Callable(root, "_onboarding_skip_dialogue") if legacy else Callable(root, "_story_skip_dialogue"), "LegacyStorySkipButton" if legacy else "StorySkipButton", root.continuity.localized("넘기기", "Skip", "跳过"))
 	skip.disabled = not allowed
+	if not allowed:
+		skip.tooltip_text = ""
+		skip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var lock := Kit.image("lock", 28)
 	lock.name = "DialogueSkipLock"
 	skip.add_child(lock)

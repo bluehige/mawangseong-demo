@@ -8,39 +8,61 @@
       1920,
       1080
     ],
-    "scope": "게임 실행부터 DAY 03 초반 수련 완료 및 DAY 04 악명 원정 진입까지"
+    "scope": "게임 실행부터 DAY 03 초반 수련 완료 및 DAY 04 악명 원정 진입까지",
+    "start_flow_owner": "scripts/ui/StartFlow.gd",
+    "legacy_tutorial_steps": "Retained for old save schema only; disabled on the free-placement map."
   },
   "flow": [
     {
       "id": "LV00_TITLE_BOOT",
       "phase": "BOOT_TITLE",
       "title": "게임 실행 / 타이틀",
-      "goal": "새 게임 진입. 세계관 톤을 5초 안에 전달한다.",
+      "goal": "시작과 언어 선택만 표시한다.",
       "player_actions": [
-        "새 게임 선택",
-        "환경설정 열기",
-        "종료"
+        "시작",
+        "언어 선택"
       ],
       "introduced": [],
       "completion": "NEW_GAME_SELECTED 이벤트 발생",
+      "next": "LV00_START_MENU"
+    },
+    {
+      "id": "LV00_START_MENU",
+      "phase": "START_MENU",
+      "title": "시작 메뉴",
+      "goal": "새로 하기·이어서 하기·설정·도전과제 자리·나가기를 표시한다.",
+      "next": "LV00_PROLOGUE"
+    },
+    {
+      "id": "LV00_PROLOGUE",
+      "phase": "PROLOGUE",
+      "title": "이름을 얻기 전",
+      "goal": "검은 화면의 일곱 문장을 클릭·스페이스로 읽거나 건너뛴다.",
       "next": "LV01_NAME_ENTRY"
     },
     {
       "id": "LV01_NAME_ENTRY",
       "phase": "NAME_ENTRY",
       "title": "마왕명 등록",
-      "goal": "플레이어가 마왕명을 입력하고 이후 대사에 표시될 이름을 확정한다.",
+      "goal": "바티의 두 질문 뒤 이름을 정한다.",
       "player_actions": [
-        "마왕명 입력",
-        "무작위 이름",
-        "확정"
+        "이름 입력",
+        "기본 이름 제안",
+        "확인"
       ],
       "introduced": [
         "CHR_DARKLORD_PLAYER",
         "CHR_BATI"
       ],
       "completion": "마왕명 저장, OP_FLAG_NAME_CONFIRMED true",
-      "next": "LV02_OPENING_CUTSCENE"
+      "next": "LV02_NAME_CONFIRMED"
+    },
+    {
+      "id": "LV02_NAME_CONFIRMED",
+      "phase": "NAME_CONFIRMED",
+      "title": "마왕명 확정",
+      "goal": "바티가 입력한 이름을 한 번 확인한다.",
+      "next": "LV03_DAY01_MANAGEMENT_TUTORIAL"
     },
     {
       "id": "LV02_OPENING_CUTSCENE",
@@ -56,19 +78,20 @@
         "CHR_GOLDIN"
       ],
       "completion": "왕좌의 방 HP 개념 노출, DAY 01 관리 화면 해금",
-      "next": "LV03_DAY01_MANAGEMENT_TUTORIAL"
+      "next": "LV03_DAY01_MANAGEMENT_TUTORIAL",
+      "legacy_save_only": true
     },
     {
       "id": "LV03_DAY01_MANAGEMENT_TUTORIAL",
       "phase": "MANAGEMENT",
       "day": 1,
       "title": "DAY 01 관리 화면 튜토리얼",
-      "goal": "방 구조, 몬스터 배치, 전체 지침, 방 지침을 최소 조작으로 가르친다.",
+      "goal": "관리 진입 본편 대사와 조건부 0111 오버레이 뒤 새 지도 안내를 진행한다.",
       "player_actions": [
-        "슬라임 선택",
-        "입구/가시 복도 배치",
-        "전체 지침: 사수",
-        "전투 시작"
+        "옥좌·입구·금고 확인",
+        "건설 바에서 건물 하나 짓기(이미 있으면 생략)",
+        "몬스터 배치 탭에서 푸딩·곱·핀 배치",
+        "전투 탭 선택"
       ],
       "introduced": [
         "CHR_PUDDING",

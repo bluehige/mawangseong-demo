@@ -95,7 +95,8 @@ func setup(game: Node) -> void:
 			for id in monster_ui.assignments.keys():
 				if id not in owned: monster_ui.assignments.erase(id)
 	world = Node2D.new(); world.name = "DynamicApprovedPieces"; add_child(world)
-	var story_owned: Array = ["slime","goblin","imp","kobold_scout"]
+	var story_owned: Array = []
+	for id in monster_ui.unlocked(): story_owned.append(monster_ui.members[id].species_id)
 	for id in monster_ui.joined:
 		if monster_ui.members.has(id): story_owned.append(monster_ui.members[id].species_id)
 	root.set_meta("v130r_owned_species",story_owned)
@@ -258,7 +259,10 @@ func build_chrome() -> void:
 	var tools := panel_image(chrome,local_ui("tools"))
 	image_button(tools,"place_auto",Vector2(8,5),56,show_full,"전체 보기 · F")
 	image_button(tools,"frame_selected",Vector2(72,5),56,show_default,"시작 화면 · 2")
-	image_button(tools,"place_clear_all",Vector2(140,11),44,func(): get_tree().quit(),"테스트 창 닫기")
+	if bool(ProjectSettings.get_setting("debug/start_flow14",false)):
+		var menu_button := image_button(tools,"place_clear_all",Vector2(140,11),44,Callable(root,"_open_pause_menu"),root.continuity.localized("게임 메뉴","Game menu","游戏菜单"))
+		menu_button.texture_normal = preload("res://scripts/ui/kit/UIKitIcons.gd").get_icon("menu",64)
+	else: image_button(tools,"place_clear_all",Vector2(140,11),44,func(): get_tree().quit(),"테스트 창 닫기")
 	var bar := panel_image(chrome,local_ui("build")); bar.name = "BuildBar"
 	var index := 0
 	for kind in ICONS:
@@ -748,6 +752,8 @@ func _gui_input(event: InputEvent) -> void:
 	else: super._gui_input(event)
 
 func handle_key(event: InputEvent) -> bool:
+	if battle!=null and root.start_flow.guide_key=="command" and event is InputEventKey and event.pressed and event.keycode==KEY_SPACE:
+		root.start_flow.ack_commands(); return true
 	if battle!=null and event is InputEventKey and event.pressed:
 		if event.keycode==KEY_J: root._activate_update3_duo_link(); return true
 		if event.keycode==KEY_K:
@@ -782,8 +788,11 @@ func start_battle() -> bool:
 	var species: Array = []
 	for id in monster_ui.assignments: species.append(monster_ui.members[id].species_id)
 	Grade.stash(root,placement,monster_ui.assignments)
+	if bool(ProjectSettings.get_setting("debug/start_flow14",false)) and root.start_flow.before_battle(self): return false
 	if not monster_ui.unlock_all and root.v130r_story.first_battle(root,species): return false
 	monster_ui.set_mode("battle"); monster_ui.unit_layer.hide()
+	if bool(ProjectSettings.get_setting("debug/start_flow14",false)) and int(placement.day)<=3:
+		root._onboarding_set_stage(root._onboarding_battle_stage_for_day(int(placement.day)))
 	battle = load("res://scripts/game/ApprovedBattleController.gd").new()
 	battle.begin(self)
 	battle_ui = load("res://scripts/ui/ApprovedBattleUI.gd").new(); add_child(battle_ui); battle_ui.setup(self,battle)
@@ -846,6 +855,8 @@ func request_join(id: String) -> void:
 		status_text.text = "기존 합류 조건: "+recruits.condition(species)
 
 func check_recruits() -> void:
+	if root.current_screen!="management" or root.story_director.is_active() or not root.onboarding_dialogue_queue.is_empty(): return
+	if bool(ProjectSettings.get_setting("debug/start_flow14",false)) and root.start_flow.fresh and not root.start_flow.intro_complete: return
 	if not is_instance_valid(monster_ui) or monster_ui.unlock_all or battle!=null: return
 	var recruits = load("res://scripts/map_builder/ApprovedRecruitment.gd")
 	var pending: Array = []

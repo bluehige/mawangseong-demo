@@ -7,6 +7,7 @@ const SAVE_PATH := "res://tmp/v130r_step5/copies/progression_test.json"
 const SESSION := "approved_grade_progression"
 
 static func save_path() -> String:
+	if bool(ProjectSettings.get_setting("debug/start_flow14",false)): return "user://start_map_layout.json"
 	if bool(ProjectSettings.get_setting("debug/approved_map_step10",false)): return "res://tmp/v130r_step10/copies/dc_test.json"
 	if bool(ProjectSettings.get_setting("debug/approved_map_step7",false)): return "res://tmp/v130r_step7/copies/monsters_test.json"
 	return "res://tmp/v130r_step6/copies/food_test.json" if bool(ProjectSettings.get_setting("debug/approved_map_step6",false)) else SAVE_PATH
@@ -147,7 +148,7 @@ static func load_session(game: Node) -> Dictionary:
 	var raw = game.get_meta(SESSION,{})
 	var baseline := Buildings.initial(game,"F")
 	if raw.is_empty() and OS.get_cmdline_user_args().has("--fresh-grade-f"): return {"layout":baseline,"defenders":{}}
-	if raw.is_empty() and FileAccess.file_exists(save_path()): raw = JSON.parse_string(FileAccess.get_file_as_string(save_path()))
+	if raw.is_empty() and not bool(ProjectSettings.get_setting("debug/start_flow14",false)) and FileAccess.file_exists(save_path()): raw = JSON.parse_string(FileAccess.get_file_as_string(save_path()))
 	if not raw is Dictionary or not raw.get("layout") is Dictionary: return {"layout":baseline,"defenders":{}}
 	var grade := str(raw.layout.get("grade","F"))
 	if grade not in ["F","E","D","C"]: return {"layout":baseline,"defenders":{}}

@@ -52,7 +52,7 @@ func begin(map_view: Control) -> void:
 	root.world_overlay_layer.hide()
 	if root.quarter_renderer!=null: root.quarter_renderer.set_world_layers_visible(false)
 	root.current_screen = Constants.SCREEN_COMBAT
-	root.combat_time = 0.0; root.combat_speed = 1.0; root.combat_paused = false
+	root.combat_time = 0.0; root.combat_speed = UISettings.preferred_combat_speed if UISettings.remember_combat_speed else 1.0; root.combat_paused = false
 	root.spawned_count = 0; root.thief_steal_timers.clear(); root.treasure_gold_stolen_this_battle = 0
 	root.thieves_spawned_this_battle = 0; root.thieves_escaped_this_battle = 0
 	root.thieves_reached_treasure_this_battle = 0; root.thieves_completed_theft_this_battle = 0

@@ -16,7 +16,7 @@
           "id": "STORY_D01_MANAGEMENT_ENTRY_001",
           "speaker_id": "NARRATOR",
           "speaker_label": "내레이션",
-          "text_ko": "깊은 산속, 지도에는 점 하나로 찍혀 있고 배달 기사들은 점마저 못 찾는 동굴이 있었다.",
+          "text_ko": "마왕성의 첫 회의가 열렸다. 첫 안건은 뜻밖에도 천장에서 떨어졌다.",
           "emotion_direction": "담담",
           "portrait_emotion": "none",
           "source_line": 68
@@ -25,7 +25,7 @@
           "id": "STORY_D01_MANAGEMENT_ENTRY_002",
           "speaker_id": "CHR_DARKLORD_PLAYER",
           "speaker_label": "마왕",
-          "text_ko": "크흠. 오늘부터 이곳은 내 마왕성이다. 왕국이 두려움에 떨 날도 머지않았다!",
+          "text_ko": "크흠. 첫 회의를 시작한다. 왕국을 두려움에 떨게 할 계획부터 듣겠다!",
           "emotion_direction": "비장",
           "portrait_emotion": "proud",
           "source_line": 69
@@ -459,7 +459,7 @@
           "id": "STORY_D01_RESULT_WIN_008",
           "speaker_id": "CHR_BATI",
           "speaker_label": "바티",
-          "text_ko": "보물 보관실 개방 소식이 새어 나갔습니다. 내일 손님은 문보다 금고에 관심이 많을 겁니다.",
+          "text_ko": "금고가 있다는 소식이 새어 나갔습니다. 내일 손님은 문보다 금화에 관심이 많을 겁니다.",
           "emotion_direction": "의심",
           "portrait_emotion": "dry",
           "source_line": 108
