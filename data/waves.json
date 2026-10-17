@@ -1113,7 +1113,11 @@
         "D": {
           "attack_throne": true,
           "attack_throne_lane": 1.0,
-          "hp_scale": 15.07275
+          "hp_scale": 15.07275,
+          "waypoint_room_ids": [
+            "watchtower_2",
+            ""
+          ]
         }
       }
     },
@@ -1551,7 +1555,11 @@
           "atk_scale": 1.225,
           "attack_throne": true,
           "attack_throne_lane": 1.0,
-          "hp_scale": 12.65115
+          "hp_scale": 12.65115,
+          "waypoint_room_ids": [
+            "watchtower_2",
+            ""
+          ]
         }
       }
     },
