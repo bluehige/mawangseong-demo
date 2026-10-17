@@ -277,6 +277,7 @@ var tutorial_practice = TutorialPracticeSessionScript.new()
 var first_play_observation = FirstPlayObservationRecorderScript.new()
 var story_catalog = StoryCatalogScript.new()
 var story_director = StoryDirectorScript.new()
+var v130r_story = preload("res://scripts/story/V130RStoryRuntime.gd").new()
 var story_presenter = StoryDialoguePresenterScript.new()
 var run_metrics_tracker = RunMetricsTrackerScript.new()
 var resolved_campaign_ending_id := "true_demon_castle"
@@ -6484,6 +6485,10 @@ func _toggle_update3_duo_link(link_id: String) -> void:
 
 func _confirm_update3_duo_link_loadout() -> void:
 	update3_active_run["duo_link_loadout_confirmed"] = true
+	if get_meta("v130r_duo_loadout",false):
+		remove_meta("v130r_duo_loadout")
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
 	var warnings := DuoLinkServiceScript.deployment_warnings(update3_active_run, deployed_instance_ids, DataRegistry.update3_duo_links)
 	for warning in warnings:
 		_log(str(warning))
@@ -6556,6 +6561,10 @@ func _update3_equip_link_candidates(candidate_ids: Array) -> void:
 
 
 func _cancel_update3_duo_link_loadout() -> void:
+	if get_meta("v130r_duo_loadout",false):
+		remove_meta("v130r_duo_loadout")
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
 	if bool(update3_active_run.get("duo_link_loadout_confirmed", false)):
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 	else:
@@ -7408,6 +7417,7 @@ func _onboarding_advance_dialogue(manual: bool = true) -> void:
 		return
 	var return_screen = onboarding_dialogue_return_screen
 	var complete_action = onboarding_dialogue_complete_action
+	if str(complete_action).begins_with("v130r_"): v130r_story.restore_pending(self)
 	onboarding_dialogue_queue.clear()
 	onboarding_dialogue_index = 0
 	onboarding_dialogue_complete_action = ONBOARDING_ACTION_NONE
@@ -7950,6 +7960,14 @@ func _update2_challenge_seal_condition_met(seal: Dictionary) -> bool:
 
 func _onboarding_complete_dialogue_action(action: String, return_screen: String) -> void:
 	match action:
+		"v130r_story":
+			v130r_story.finish(self)
+			_set_screen(Constants.SCREEN_MANAGEMENT)
+		"v130r_first_battle":
+			v130r_story.finish(self)
+			_set_screen(Constants.SCREEN_MANAGEMENT)
+			var map_view = ui_layer.find_child("ApprovedMapManagement",true,false)
+			if map_view!=null: map_view.start_battle.call_deferred()
 		"v130r_join":
 			load("res://scripts/map_builder/ApprovedRecruitment.gd").finish(self)
 		ONBOARDING_ACTION_DAY1_MANAGEMENT:
@@ -8029,6 +8047,7 @@ func _onboarding_collect_unseen_entries(entries: Array) -> Array:
 	return result
 
 func _onboarding_line_text(line: Dictionary) -> String:
+	if line.get("v130r_text",false): return str(line.get("text",""))
 	match str(line.get("id", "")):
 		"TUT_030_SELECT_SLIME":
 			return _mobile_instruction_text(LanguageSettings.text("tutorial.instruction.TUT_030_SELECT_SLIME"))
@@ -12361,6 +12380,11 @@ func _record_update3_duo_link_action(member_instance_id: String, source_id: Stri
 
 
 func _activate_update3_duo_link(requested_link_id: String = "") -> void:
+	if combat_scene.has_method("activate_v130r_duo"):
+		for id in update3_active_run.get("equipped_duo_links",[]):
+			if requested_link_id=="" or requested_link_id==id:
+				if combat_scene.activate_v130r_duo(str(id)): return
+		return
 	var order: Array = update3_active_run.get("equipped_duo_links", []).duplicate()
 	if requested_link_id != "" and order.has(requested_link_id):
 		order.erase(requested_link_id)
@@ -12432,7 +12456,9 @@ func _commit_prepared_duo(link_id: String, members: Array, target, target_id: in
 		"molten_carapace": _apply_molten_carapace(link_id, target)
 		"stone_march": _apply_stone_march(link_id)
 		"false_beacon_vault": _apply_false_beacon_vault(link_id)
-		_: _apply_spore_jelly_shelter(link_id)
+		"spore_jelly_shelter": _apply_spore_jelly_shelter(link_id)
+		_:
+			if str(result.get("effect_handler", "")).begins_with("v130r_"): combat_scene.duos.apply(link_id,members)
 	_spawn_update3_duo_link_art(link_id)
 	combat_scene.trigger_leon_duo_response(link_id)
 	return true

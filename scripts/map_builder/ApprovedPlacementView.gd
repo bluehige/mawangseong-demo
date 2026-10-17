@@ -95,6 +95,10 @@ func setup(game: Node) -> void:
 			for id in monster_ui.assignments.keys():
 				if id not in owned: monster_ui.assignments.erase(id)
 	world = Node2D.new(); world.name = "DynamicApprovedPieces"; add_child(world)
+	var story_owned: Array = ["slime","goblin","imp","kobold_scout"]
+	for id in monster_ui.joined:
+		if monster_ui.members.has(id): story_owned.append(monster_ui.members[id].species_id)
+	root.set_meta("v130r_owned_species",story_owned)
 	render_map()
 	build_chrome()
 	show_default()
@@ -745,6 +749,11 @@ func _gui_input(event: InputEvent) -> void:
 
 func handle_key(event: InputEvent) -> bool:
 	if battle!=null and event is InputEventKey and event.pressed:
+		if event.keycode==KEY_J: root._activate_update3_duo_link(); return true
+		if event.keycode==KEY_K:
+			var links: Array = root.update3_active_run.get("equipped_duo_links",[])
+			if links.size()>1: root._activate_update3_duo_link(str(links[1]))
+			return true
 		if event.keycode==KEY_SPACE: battle.set_pause_state(not root.combat_paused); return true
 	if event is InputEventKey and event.pressed:
 		if event.keycode==KEY_ESCAPE and monster_ui.mode=="place": monster_ui.cancel_drag(); monster_ui.close_info(); return true
@@ -770,6 +779,10 @@ func start_battle() -> bool:
 		status_text.text = "오늘은 전투 없는 준비일입니다. 준비를 확정해 다음 날로 넘어가세요"; return false
 	if monster_ui.assignments.is_empty():
 		status_text.text = "몬스터 배치 탭에서 수비대를 배치하세요"; return false
+	var species: Array = []
+	for id in monster_ui.assignments: species.append(monster_ui.members[id].species_id)
+	Grade.stash(root,placement,monster_ui.assignments)
+	if not monster_ui.unlock_all and root.v130r_story.first_battle(root,species): return false
 	monster_ui.set_mode("battle"); monster_ui.unit_layer.hide()
 	battle = load("res://scripts/game/ApprovedBattleController.gd").new()
 	battle.begin(self)
@@ -791,6 +804,7 @@ func show_battle_result(win: bool, reason: String) -> void:
 		Monsters.save_copy(session.layout,session.defenders,Grade.save_path())
 	preload("res://scripts/ui/ApprovedBattleUI.gd").prepare_result_controls(root.ui_layer)
 	if food_enabled(): preload("res://scripts/ui/ApprovedBattleUI.gd").food_result_panel(root)
+	if win: root.v130r_story.show_victory(root)
 
 func project(cell: Vector2) -> Vector2:
 	return Layout.project(cell,Placement.dimensions(placement).x)
@@ -837,6 +851,8 @@ func check_recruits() -> void:
 	var pending: Array = []
 	for id in recruits.eligible(root,monster_ui.members,int(placement.day)):
 		if monster_ui.members[id].species_id not in recruits.CORE and id not in monster_ui.joined: pending.append(id)
-	if pending.is_empty(): return
+	if pending.is_empty():
+		root.v130r_story.management(root)
+		return
 	Grade.stash(root,placement,monster_ui.assignments)
 	recruits.begin(root,pending)

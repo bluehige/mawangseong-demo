@@ -45,6 +45,10 @@ static func begin(game: Node, ids: Array) -> void:
 		var row: Dictionary = members[id]
 		if row.species_id in CORE: continue
 		pending.append(id)
+		var full_entries: Array = game.v130r_story.join_entries(row.species_id)
+		if not full_entries.is_empty():
+			entries.append_array(full_entries)
+			continue
 		var scenes: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/v130r/join_scenes.json"))
 		var scene: Dictionary = scenes.get(str(row.stats.get("join_scene_id","")),{})
 		if not scene.is_empty():

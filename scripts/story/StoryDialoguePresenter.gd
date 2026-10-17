@@ -38,6 +38,9 @@ func build_legacy() -> void:
 	screen.name = "LegacyDialogueScreen"
 	screen.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	var line: Dictionary = {} if root.onboarding_dialogue_queue.is_empty() else root.onboarding_dialogue_queue[clampi(root.onboarding_dialogue_index, 0, root.onboarding_dialogue_queue.size() - 1)]
+	if line.get("v130r_text",false):
+		var localized: Dictionary = root.v130r_story.localized_entry(str(line.get("id","")))
+		if not localized.is_empty(): line = localized
 	_background(screen, line)
 	var speaker_id := str(line.get("speaker", "NARRATOR"))
 	var speaker_name := str(line.get("speaker_name", root._onboarding_speaker_name(speaker_id)))

@@ -1,0 +1,4269 @@
+{
+  "schema_version": 1,
+  "locale": "ko",
+  "status": "draft",
+  "scope": "v130r_story_staging_0111",
+  "kind": "bond",
+  "scenes": [
+    {
+      "id": "V130R_BOND_SLIME_1",
+      "title": "처음 내민 젤 손",
+      "monster_id": "slime",
+      "memory_stage": 1,
+      "memory_id": "bond_slime_rank_1",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bond_slime_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "slime"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_slime_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "푸딩은 무너진 돌더미 아래에서 마왕의 장갑을 감싸 끌어냈다.",
+          "id": "V130R_BOND_SLIME_1_001",
+          "line": "[내레이션|담담]: 푸딩은 무너진 돌더미 아래에서 마왕의 장갑을 감싸 끌어냈다."
+        },
+        {
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "말은 못 해도, 먼저 손을 내밀 수는 있어.",
+          "id": "V130R_BOND_SLIME_1_002",
+          "line": "[푸딩|기쁨]: 말은 못 해도, 먼저 손을 내밀 수는 있어."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "저 돌더미에서 손을 먼저 내민 건 나보다 너였다.",
+          "id": "V130R_BOND_SLIME_1_003",
+          "line": "[마왕|다정]: 저 돌더미에서 손을 먼저 내민 건 나보다 너였다."
+        },
+        {
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "장갑은 미끄러워도 식구는 안 놓쳐.",
+          "id": "V130R_BOND_SLIME_1_004",
+          "line": "[푸딩|기쁨]: 장갑은 미끄러워도 식구는 안 놓쳐."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_SLIME_2",
+      "title": "성문 앞의 약속",
+      "monster_id": "slime",
+      "memory_stage": 2,
+      "memory_id": "bond_slime_rank_2",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bond_slime_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "slime"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_slime_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "퇴각 명령이 내려진 뒤에도 푸딩은 마지막 동료가 지나갈 때까지 성문을 막았다.",
+          "id": "V130R_BOND_SLIME_2_001",
+          "line": "[내레이션|담담]: 퇴각 명령이 내려진 뒤에도 푸딩은 마지막 동료가 지나갈 때까지 성문을 막았다."
+        },
+        {
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "푸딩이 버티는 동안에는 누구도 혼자 남지 않는다.",
+          "id": "V130R_BOND_SLIME_2_002",
+          "line": "[푸딩|기쁨]: 푸딩이 버티는 동안에는 누구도 혼자 남지 않는다."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "문을 지키느라 너까지 못 나오는 건 허락하지 않는다.",
+          "id": "V130R_BOND_SLIME_2_003",
+          "line": "[마왕|다정]: 문을 지키느라 너까지 못 나오는 건 허락하지 않는다."
+        },
+        {
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "마지막 식구가 나가면 푸딩도 같이 나가!",
+          "id": "V130R_BOND_SLIME_2_004",
+          "line": "[푸딩|기쁨]: 마지막 식구가 나가면 푸딩도 같이 나가!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_SLIME_3",
+      "title": "함께 먹는 디저트",
+      "monster_id": "slime",
+      "memory_stage": 3,
+      "memory_id": "bond_slime_rank_3",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bond_slime_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "slime"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_slime_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "승리 연회에서 푸딩은 자신의 머리 위 체리를 떼어 마왕의 접시에 올려놓았다.",
+          "id": "V130R_BOND_SLIME_3_001",
+          "line": "[내레이션|담담]: 승리 연회에서 푸딩은 자신의 머리 위 체리를 떼어 마왕의 접시에 올려놓았다."
+        },
+        {
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "나누어 먹으면 전리품도 식구의 맛이 난다.",
+          "id": "V130R_BOND_SLIME_3_002",
+          "line": "[푸딩|기쁨]: 나누어 먹으면 전리품도 식구의 맛이 난다."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "내 접시에도 체리가 생겼군. 왕관보다 이게 더 붉다.",
+          "id": "V130R_BOND_SLIME_3_003",
+          "line": "[마왕|다정]: 내 접시에도 체리가 생겼군. 왕관보다 이게 더 붉다."
+        },
+        {
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "한입씩 먹으면 푸딩 혼자 잔치 아니야!",
+          "id": "V130R_BOND_SLIME_3_004",
+          "line": "[푸딩|기쁨]: 한입씩 먹으면 푸딩 혼자 잔치 아니야!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_GOBLIN_1",
+      "title": "장부 밖의 동전",
+      "monster_id": "goblin",
+      "memory_stage": 1,
+      "memory_id": "bond_goblin_rank_1",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bond_goblin_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "goblin"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_goblin_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "곱은 원정에서 챙긴 동전 하나를 몰래 빼돌리는 대신 수리비 상자에 넣었다.",
+          "id": "V130R_BOND_GOBLIN_1_001",
+          "line": "[내레이션|담담]: 곱은 원정에서 챙긴 동전 하나를 몰래 빼돌리는 대신 수리비 상자에 넣었다."
+        },
+        {
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "emotion_direction": "씩",
+          "portrait_emotion": "base",
+          "text": "훔친 게 아니라, 아무도 안 보는 데서 투자한 거야.",
+          "id": "V130R_BOND_GOBLIN_1_002",
+          "line": "[곱|씩]: 훔친 게 아니라, 아무도 안 보는 데서 투자한 거야."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "내가 봤다. 수리비 상자에는 네가 웃는 소리도 들어갔다.",
+          "id": "V130R_BOND_GOBLIN_1_003",
+          "line": "[마왕|다정]: 내가 봤다. 수리비 상자에는 네가 웃는 소리도 들어갔다."
+        },
+        {
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "못 본 척해! 곱 멋있는 건 비밀이다!",
+          "id": "V130R_BOND_GOBLIN_1_004",
+          "line": "[곱|기쁨]: 못 본 척해! 곱 멋있는 건 비밀이다!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_GOBLIN_2",
+      "title": "금고 열쇠의 행방",
+      "monster_id": "goblin",
+      "memory_stage": 2,
+      "memory_id": "bond_goblin_rank_2",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bond_goblin_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "goblin"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_goblin_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "곱은 가장 아끼는 금고 열쇠의 복제본을 마왕에게 맡겼다.",
+          "id": "V130R_BOND_GOBLIN_2_001",
+          "line": "[내레이션|담담]: 곱은 가장 아끼는 금고 열쇠의 복제본을 마왕에게 맡겼다."
+        },
+        {
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "emotion_direction": "씩",
+          "portrait_emotion": "base",
+          "text": "잃어버리면 갚아. 금화 말고 목숨으로.",
+          "id": "V130R_BOND_GOBLIN_2_002",
+          "line": "[곱|씩]: 잃어버리면 갚아. 금화 말고 목숨으로."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "복제 열쇠는 내 쪽에 두겠다. 네가 돌아오면 같이 열자.",
+          "id": "V130R_BOND_GOBLIN_2_003",
+          "line": "[마왕|다정]: 복제 열쇠는 내 쪽에 두겠다. 네가 돌아오면 같이 열자."
+        },
+        {
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "안 돌아오면 곱 손해다! 꼭 온다!",
+          "id": "V130R_BOND_GOBLIN_2_004",
+          "line": "[곱|기쁨]: 안 돌아오면 곱 손해다! 꼭 온다!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_GOBLIN_3",
+      "title": "전리품의 절반",
+      "monster_id": "goblin",
+      "memory_stage": 3,
+      "memory_id": "bond_goblin_rank_3",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bond_goblin_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "goblin"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_goblin_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "곱은 자신이 먼저 발견한 보물 지도를 식구들과 나누고도 값을 매기지 않았다.",
+          "id": "V130R_BOND_GOBLIN_3_001",
+          "line": "[내레이션|담담]: 곱은 자신이 먼저 발견한 보물 지도를 식구들과 나누고도 값을 매기지 않았다."
+        },
+        {
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "emotion_direction": "씩",
+          "portrait_emotion": "base",
+          "text": "같이 털면 더 큰 금고도 열 수 있잖아.",
+          "id": "V130R_BOND_GOBLIN_3_002",
+          "line": "[곱|씩]: 같이 털면 더 큰 금고도 열 수 있잖아."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "지도를 나눴는데 왜 가격을 안 적었나?",
+          "id": "V130R_BOND_GOBLIN_3_003",
+          "line": "[마왕|다정]: 지도를 나눴는데 왜 가격을 안 적었나?"
+        },
+        {
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "이번엔 식구 할인이다! 전부 할인!",
+          "id": "V130R_BOND_GOBLIN_3_004",
+          "line": "[곱|기쁨]: 이번엔 식구 할인이다! 전부 할인!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_IMP_1",
+      "title": "꺼지지 않은 불씨",
+      "monster_id": "imp",
+      "memory_stage": 1,
+      "memory_id": "bond_imp_rank_1",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bond_imp_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "imp"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_imp_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "핀이 밤새 화로를 지켜 부상자들의 회복실이 식지 않게 했다.",
+          "id": "V130R_BOND_IMP_1_001",
+          "line": "[내레이션|담담]: 핀이 밤새 화로를 지켜 부상자들의 회복실이 식지 않게 했다."
+        },
+        {
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "base",
+          "text": "불은 태우기만 하는 게 아니거든.",
+          "id": "V130R_BOND_IMP_1_002",
+          "line": "[핀|자신만만]: 불은 태우기만 하는 게 아니거든."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "밤새 화로를 지켰으면 오늘 아침엔 네가 쉬어라.",
+          "id": "V130R_BOND_IMP_1_003",
+          "line": "[마왕|다정]: 밤새 화로를 지켰으면 오늘 아침엔 네가 쉬어라."
+        },
+        {
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "불씨는 넘겨줄게. 꺼뜨리면 네가 다시 켜고.",
+          "id": "V130R_BOND_IMP_1_004",
+          "line": "[핀|기쁨]: 불씨는 넘겨줄게. 꺼뜨리면 네가 다시 켜고."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_IMP_2",
+      "title": "실패한 주문의 자리",
+      "monster_id": "imp",
+      "memory_stage": 2,
+      "memory_id": "bond_imp_rank_2",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bond_imp_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "imp"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_imp_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "핀이 폭발시킨 훈련장 벽 앞에서 마왕은 벌 대신 다음 주문식을 함께 고쳤다.",
+          "id": "V130R_BOND_IMP_2_001",
+          "line": "[내레이션|담담]: 핀이 폭발시킨 훈련장 벽 앞에서 마왕은 벌 대신 다음 주문식을 함께 고쳤다."
+        },
+        {
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "base",
+          "text": "다음에는 벽 말고 적만 날려 버릴게.",
+          "id": "V130R_BOND_IMP_2_002",
+          "line": "[핀|자신만만]: 다음에는 벽 말고 적만 날려 버릴게."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "벽 값보다 네 다음 주문식이 먼저다. 이번엔 같이 보자.",
+          "id": "V130R_BOND_IMP_2_003",
+          "line": "[마왕|다정]: 벽 값보다 네 다음 주문식이 먼저다. 이번엔 같이 보자."
+        },
+        {
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "그래. 네 눈썹은 주문 범위에서 빼둘게.",
+          "id": "V130R_BOND_IMP_2_004",
+          "line": "[핀|기쁨]: 그래. 네 눈썹은 주문 범위에서 빼둘게."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_IMP_3",
+      "title": "재로 쓴 이름",
+      "monster_id": "imp",
+      "memory_stage": 3,
+      "memory_id": "bond_imp_rank_3",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bond_imp_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "imp"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_imp_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "핀은 전사한 몬스터들의 이름을 잿가루로 적고 새 불씨가 그 글자를 오래 비추게 했다.",
+          "id": "V130R_BOND_IMP_3_001",
+          "line": "[내레이션|담담]: 핀은 전사한 몬스터들의 이름을 잿가루로 적고 새 불씨가 그 글자를 오래 비추게 했다."
+        },
+        {
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "base",
+          "text": "기억하는 동안에는 완전히 꺼진 게 아니야.",
+          "id": "V130R_BOND_IMP_3_002",
+          "line": "[핀|자신만만]: 기억하는 동안에는 완전히 꺼진 게 아니야."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "잿가루 이름을 오늘도 읽자. 빨리 읽을 필요는 없다.",
+          "id": "V130R_BOND_IMP_3_003",
+          "line": "[마왕|다정]: 잿가루 이름을 오늘도 읽자. 빨리 읽을 필요는 없다."
+        },
+        {
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "불씨는 천천히 탈 줄도 알아.",
+          "id": "V130R_BOND_IMP_3_004",
+          "line": "[핀|기쁨]: 불씨는 천천히 탈 줄도 알아."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_KOBOLD_SCOUT_1",
+      "title": "첫 번째 비밀 통로",
+      "monster_id": "kobold_scout",
+      "memory_stage": 1,
+      "memory_id": "bond_kobold_scout_rank_1",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bond_kobold_scout_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "kobold_scout"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_kobold_scout_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "로로는 혼자만 알던 바위틈 지름길을 마왕성 지도에 처음 표시했다.",
+          "id": "V130R_BOND_KOBOLD_SCOUT_1_001",
+          "line": "[내레이션|담담]: 로로는 혼자만 알던 바위틈 지름길을 마왕성 지도에 처음 표시했다."
+        },
+        {
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "이제 도망길이 아니라 우리 길이에요.",
+          "id": "V130R_BOND_KOBOLD_SCOUT_1_002",
+          "line": "[로로|확인]: 이제 도망길이 아니라 우리 길이에요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "억울",
+          "portrait_emotion": "offended",
+          "text": "비밀 통로를 같이 안다는 건 비밀이 없어진 게 아니다.",
+          "id": "V130R_BOND_KOBOLD_SCOUT_1_003",
+          "line": "[마왕|억울]: 비밀 통로를 같이 안다는 건 비밀이 없어진 게 아니다."
+        },
+        {
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "맞아요. 이제 지킬 사람이 늘어난 거죠.",
+          "id": "V130R_BOND_KOBOLD_SCOUT_1_004",
+          "line": "[로로|기쁨]: 맞아요. 이제 지킬 사람이 늘어난 거죠."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_KOBOLD_SCOUT_2",
+      "title": "부풀리지 않은 보고",
+      "monster_id": "kobold_scout",
+      "memory_stage": 2,
+      "memory_id": "bond_kobold_scout_rank_2",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bond_kobold_scout_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "kobold_scout"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_kobold_scout_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "로로는 자신의 실수를 숨기지 않고 원정대가 위험해진 이유를 정확히 보고했다.",
+          "id": "V130R_BOND_KOBOLD_SCOUT_2_001",
+          "line": "[내레이션|담담]: 로로는 자신의 실수를 숨기지 않고 원정대가 위험해진 이유를 정확히 보고했다."
+        },
+        {
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "이번에는 소문보다 사실이 더 중요하니까요.",
+          "id": "V130R_BOND_KOBOLD_SCOUT_2_002",
+          "line": "[로로|확인]: 이번에는 소문보다 사실이 더 중요하니까요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "틀린 보고보다 돌아온 네 목소리가 낫다. 사실대로 계속 말해라.",
+          "id": "V130R_BOND_KOBOLD_SCOUT_2_003",
+          "line": "[마왕|다정]: 틀린 보고보다 돌아온 네 목소리가 낫다. 사실대로 계속 말해라."
+        },
+        {
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "다음 정찰 보고에는 제 실수 칸도 남겨둘게요.",
+          "id": "V130R_BOND_KOBOLD_SCOUT_2_004",
+          "line": "[로로|기쁨]: 다음 정찰 보고에는 제 실수 칸도 남겨둘게요."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_KOBOLD_SCOUT_3",
+      "title": "돌아오는 발자국",
+      "monster_id": "kobold_scout",
+      "memory_stage": 3,
+      "memory_id": "bond_kobold_scout_rank_3",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bond_kobold_scout_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "kobold_scout"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_kobold_scout_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "정찰을 마친 로로는 가장 빠른 귀환로마다 식구들이 알아볼 작은 발톱표를 남겼다.",
+          "id": "V130R_BOND_KOBOLD_SCOUT_3_001",
+          "line": "[내레이션|담담]: 정찰을 마친 로로는 가장 빠른 귀환로마다 식구들이 알아볼 작은 발톱표를 남겼다."
+        },
+        {
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "길을 잃어도 제 표시를 따라오면 집이에요.",
+          "id": "V130R_BOND_KOBOLD_SCOUT_3_002",
+          "line": "[로로|확인]: 길을 잃어도 제 표시를 따라오면 집이에요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "발톱표가 여기서 끝나니 진짜 집까지 왔군.",
+          "id": "V130R_BOND_KOBOLD_SCOUT_3_003",
+          "line": "[마왕|다정]: 발톱표가 여기서 끝나니 진짜 집까지 왔군."
+        },
+        {
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "네. 마지막 표시는 같이 찍어요.",
+          "id": "V130R_BOND_KOBOLD_SCOUT_3_004",
+          "line": "[로로|기쁨]: 네. 마지막 표시는 같이 찍어요."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_RIVER_FROG_1",
+      "title": "연못 반환 요구서",
+      "monster_id": "river_frog",
+      "memory_stage": 1,
+      "memory_id": "bond_river_frog_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_river_frog_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "river_frog"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_river_frog_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "퐁당은 37번째 요구서 끝에 작은 글씨로 '다리는 지켜 드림'이라고 덧붙였다.",
+          "id": "V130R_BOND_RIVER_FROG_1_001",
+          "line": "[내레이션|담담]: 퐁당은 37번째 요구서 끝에 작은 글씨로 '다리는 지켜 드림'이라고 덧붙였다."
+        },
+        {
+          "speaker_id": "CHR_PONGDANG",
+          "speaker_label": "퐁당",
+          "emotion_direction": "무표정",
+          "portrait_emotion": "base",
+          "text": "집주인이 누구든, 물은 지켜야 하는 거거든요.",
+          "id": "V130R_BOND_RIVER_FROG_1_002",
+          "line": "[퐁당|무표정]: 집주인이 누구든, 물은 지켜야 하는 거거든요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "서른일곱 번째도 읽었다. 다리는 지킨다는 작은 글씨까지.",
+          "id": "V130R_BOND_RIVER_FROG_1_003",
+          "line": "[마왕|다정]: 서른일곱 번째도 읽었다. 다리는 지킨다는 작은 글씨까지."
+        },
+        {
+          "speaker_id": "CHR_PONGDANG",
+          "speaker_label": "퐁당",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "작다고 효력 없는 조항은 아닌데요.",
+          "id": "V130R_BOND_RIVER_FROG_1_004",
+          "line": "[퐁당|기쁨]: 작다고 효력 없는 조항은 아닌데요."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_RIVER_FROG_2",
+      "title": "비 새는 밤의 노래",
+      "monster_id": "river_frog",
+      "memory_stage": 2,
+      "memory_id": "bond_river_frog_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_river_frog_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "river_frog"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_river_frog_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "천장이 가장 많이 새던 밤, 퐁당은 양동이마다 다른 음을 맞춰 식구들을 재웠다.",
+          "id": "V130R_BOND_RIVER_FROG_2_001",
+          "line": "[내레이션|담담]: 천장이 가장 많이 새던 밤, 퐁당은 양동이마다 다른 음을 맞춰 식구들을 재웠다."
+        },
+        {
+          "speaker_id": "CHR_PONGDANG",
+          "speaker_label": "퐁당",
+          "emotion_direction": "무표정",
+          "portrait_emotion": "base",
+          "text": "물방울도 박자만 맞으면 자장가인데요.",
+          "id": "V130R_BOND_RIVER_FROG_2_002",
+          "line": "[퐁당|무표정]: 물방울도 박자만 맞으면 자장가인데요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "오늘 밤에는 양동이들이 먼저 잠들겠군.",
+          "id": "V130R_BOND_RIVER_FROG_2_003",
+          "line": "[마왕|다정]: 오늘 밤에는 양동이들이 먼저 잠들겠군."
+        },
+        {
+          "speaker_id": "CHR_PONGDANG",
+          "speaker_label": "퐁당",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "빈 양동이는 저음 담당인데요.",
+          "id": "V130R_BOND_RIVER_FROG_2_004",
+          "line": "[퐁당|기쁨]: 빈 양동이는 저음 담당인데요."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_RIVER_FROG_3",
+      "title": "우리 연못",
+      "monster_id": "river_frog",
+      "memory_stage": 3,
+      "memory_id": "bond_river_frog_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_river_frog_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "river_frog"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_river_frog_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "퐁당은 마지막 요구서를 찢고 '우리 연못'이라고 쓴 팻말을 다리 옆에 박았다.",
+          "id": "V130R_BOND_RIVER_FROG_3_001",
+          "line": "[내레이션|담담]: 퐁당은 마지막 요구서를 찢고 '우리 연못'이라고 쓴 팻말을 다리 옆에 박았다."
+        },
+        {
+          "speaker_id": "CHR_PONGDANG",
+          "speaker_label": "퐁당",
+          "emotion_direction": "무표정",
+          "portrait_emotion": "base",
+          "text": "반환은 취소예요. 이제 같이 쓰는 연못이니까.",
+          "id": "V130R_BOND_RIVER_FROG_3_002",
+          "line": "[퐁당|무표정]: 반환은 취소예요. 이제 같이 쓰는 연못이니까."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "요구서 대신 문패라. 내 이름도 들어갈 자리가 있나?",
+          "id": "V130R_BOND_RIVER_FROG_3_003",
+          "line": "[마왕|다정]: 요구서 대신 문패라. 내 이름도 들어갈 자리가 있나?"
+        },
+        {
+          "speaker_id": "CHR_PONGDANG",
+          "speaker_label": "퐁당",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "우리라는 말에 이미 들어가 있는데요.",
+          "id": "V130R_BOND_RIVER_FROG_3_004",
+          "line": "[퐁당|기쁨]: 우리라는 말에 이미 들어가 있는데요."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_GLUE_SNAIL_1",
+      "title": "사흘 걸린 인사",
+      "monster_id": "glue_snail",
+      "memory_stage": 1,
+      "memory_id": "bond_glue_snail_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_glue_snail_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "glue_snail"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_glue_snail_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "느릿은 마왕에게 인사하러 왕좌까지 가는 데 하루가 걸렸고, 마왕은 그동안 자리를 비우지 않았다.",
+          "id": "V130R_BOND_GLUE_SNAIL_1_001",
+          "line": "[내레이션|담담]: 느릿은 마왕에게 인사하러 왕좌까지 가는 데 하루가 걸렸고, 마왕은 그동안 자리를 비우지 않았다."
+        },
+        {
+          "speaker_id": "CHR_NEURIT",
+          "speaker_label": "느릿",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "base",
+          "text": "기다려…준…사람은… 처음…이에요.",
+          "id": "V130R_BOND_GLUE_SNAIL_1_002",
+          "line": "[느릿|속삭임]: 기다려…준…사람은… 처음…이에요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "왕좌까지 하루 기다린 보람이 있다. 네 인사는 끝까지 들었다.",
+          "id": "V130R_BOND_GLUE_SNAIL_1_003",
+          "line": "[마왕|다정]: 왕좌까지 하루 기다린 보람이 있다. 네 인사는 끝까지 들었다."
+        },
+        {
+          "speaker_id": "CHR_NEURIT",
+          "speaker_label": "느릿",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "인사… 다음 말도… 천천히… 해도 되네요…",
+          "id": "V130R_BOND_GLUE_SNAIL_1_004",
+          "line": "[느릿|기쁨]: 인사… 다음 말도… 천천히… 해도 되네요…"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_GLUE_SNAIL_2",
+      "title": "피해 가는 발자국",
+      "monster_id": "glue_snail",
+      "memory_stage": 2,
+      "memory_id": "bond_glue_snail_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_glue_snail_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "glue_snail"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_glue_snail_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "식구들이 느릿의 점액 자국을 밟지 않으려고 까치발로 돌아가는 걸, 느릿은 한참 바라봤다.",
+          "id": "V130R_BOND_GLUE_SNAIL_2_001",
+          "line": "[내레이션|담담]: 식구들이 느릿의 점액 자국을 밟지 않으려고 까치발로 돌아가는 걸, 느릿은 한참 바라봤다."
+        },
+        {
+          "speaker_id": "CHR_NEURIT",
+          "speaker_label": "느릿",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "base",
+          "text": "내 흔적을… 지켜 주는… 집이네요.",
+          "id": "V130R_BOND_GLUE_SNAIL_2_002",
+          "line": "[느릿|속삭임]: 내 흔적을… 지켜 주는… 집이네요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "까치발이 좀 우스워도 네 흔적을 남겨두겠다.",
+          "id": "V130R_BOND_GLUE_SNAIL_2_003",
+          "line": "[마왕|다정]: 까치발이 좀 우스워도 네 흔적을 남겨두겠다."
+        },
+        {
+          "speaker_id": "CHR_NEURIT",
+          "speaker_label": "느릿",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "그 발자국도… 같이… 기억할게요…",
+          "id": "V130R_BOND_GLUE_SNAIL_2_004",
+          "line": "[느릿|기쁨]: 그 발자국도… 같이… 기억할게요…"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_GLUE_SNAIL_3",
+      "title": "이삿짐 풀기",
+      "monster_id": "glue_snail",
+      "memory_stage": 3,
+      "memory_id": "bond_glue_snail_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_glue_snail_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "glue_snail"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_glue_snail_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "느릿은 평생 처음으로 껍질 속 짐을 꺼내 병영 선반에 하나씩 올려놓았다.",
+          "id": "V130R_BOND_GLUE_SNAIL_3_001",
+          "line": "[내레이션|담담]: 느릿은 평생 처음으로 껍질 속 짐을 꺼내 병영 선반에 하나씩 올려놓았다."
+        },
+        {
+          "speaker_id": "CHR_NEURIT",
+          "speaker_label": "느릿",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "base",
+          "text": "여기서는… 천천히… 살아도… 되죠?",
+          "id": "V130R_BOND_GLUE_SNAIL_3_002",
+          "line": "[느릿|속삭임]: 여기서는… 천천히… 살아도… 되죠?"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "선반 한 칸은 네 것이다. 이삿짐이 다 나올 때까지 비워 두마.",
+          "id": "V130R_BOND_GLUE_SNAIL_3_003",
+          "line": "[마왕|다정]: 선반 한 칸은 네 것이다. 이삿짐이 다 나올 때까지 비워 두마."
+        },
+        {
+          "speaker_id": "CHR_NEURIT",
+          "speaker_label": "느릿",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "오늘은… 창문 소품부터… 놓을게요…",
+          "id": "V130R_BOND_GLUE_SNAIL_3_004",
+          "line": "[느릿|기쁨]: 오늘은… 창문 소품부터… 놓을게요…"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_BRIDGE_TROLL_1",
+      "title": "40년 경력 이력서",
+      "monster_id": "bridge_troll",
+      "memory_stage": 1,
+      "memory_id": "bond_bridge_troll_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_bridge_troll_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "bridge_troll"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_bridge_troll_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "벙벙의 이력서 뒷면에는 지금까지 지킨 다리 이름이 빼곡했고, 마지막 칸은 비어 있었다.",
+          "id": "V130R_BOND_BRIDGE_TROLL_1_001",
+          "line": "[내레이션|담담]: 벙벙의 이력서 뒷면에는 지금까지 지킨 다리 이름이 빼곡했고, 마지막 칸은 비어 있었다."
+        },
+        {
+          "speaker_id": "CHR_BEONGBEONG",
+          "speaker_label": "벙벙",
+          "emotion_direction": "울먹",
+          "portrait_emotion": "base",
+          "text": "빈칸은… 여기 다리 이름 쓰려고 남겨 둔 거예요.",
+          "id": "V130R_BOND_BRIDGE_TROLL_1_002",
+          "line": "[벙벙|울먹]: 빈칸은… 여기 다리 이름 쓰려고 남겨 둔 거예요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "마지막 빈칸은 우리 다리다. 이름은 같이 정해도 되겠나?",
+          "id": "V130R_BOND_BRIDGE_TROLL_1_003",
+          "line": "[마왕|다정]: 마지막 빈칸은 우리 다리다. 이름은 같이 정해도 되겠나?"
+        },
+        {
+          "speaker_id": "CHR_BEONGBEONG",
+          "speaker_label": "벙벙",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "네! 이력서가 아직 끝나지 않았네요!",
+          "id": "V130R_BOND_BRIDGE_TROLL_1_004",
+          "line": "[벙벙|기쁨]: 네! 이력서가 아직 끝나지 않았네요!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_BRIDGE_TROLL_2",
+      "title": "돌다리 승진식",
+      "monster_id": "bridge_troll",
+      "memory_stage": 2,
+      "memory_id": "bond_bridge_troll_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_bridge_troll_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "bridge_troll"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_bridge_troll_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "나무다리가 돌다리로 바뀐 날, 벙벙은 자기가 승진했다며 넥타이를 매고 나타났다.",
+          "id": "V130R_BOND_BRIDGE_TROLL_2_001",
+          "line": "[내레이션|담담]: 나무다리가 돌다리로 바뀐 날, 벙벙은 자기가 승진했다며 넥타이를 매고 나타났다."
+        },
+        {
+          "speaker_id": "CHR_BEONGBEONG",
+          "speaker_label": "벙벙",
+          "emotion_direction": "울먹",
+          "portrait_emotion": "base",
+          "text": "다리가 단단해지면 저도 단단해져야죠!",
+          "id": "V130R_BOND_BRIDGE_TROLL_2_002",
+          "line": "[벙벙|울먹]: 다리가 단단해지면 저도 단단해져야죠!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "다리 승진이라면 축하는 하겠다. 넥타이는 너무 조이지 마라.",
+          "id": "V130R_BOND_BRIDGE_TROLL_2_003",
+          "line": "[마왕|다정]: 다리 승진이라면 축하는 하겠다. 넥타이는 너무 조이지 마라."
+        },
+        {
+          "speaker_id": "CHR_BEONGBEONG",
+          "speaker_label": "벙벙",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "이제 튼튼한 데서도 제 일이 있네요!",
+          "id": "V130R_BOND_BRIDGE_TROLL_2_004",
+          "line": "[벙벙|기쁨]: 이제 튼튼한 데서도 제 일이 있네요!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_BRIDGE_TROLL_3",
+      "title": "무너져도 괜찮은 다리",
+      "monster_id": "bridge_troll",
+      "memory_stage": 3,
+      "memory_id": "bond_bridge_troll_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_bridge_troll_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "bridge_troll"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_bridge_troll_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "벙벙은 다리 옆에 '이 다리가 무너지면 제가 다리가 됩니다'라는 팻말을 직접 새겼다.",
+          "id": "V130R_BOND_BRIDGE_TROLL_3_001",
+          "line": "[내레이션|담담]: 벙벙은 다리 옆에 '이 다리가 무너지면 제가 다리가 됩니다'라는 팻말을 직접 새겼다."
+        },
+        {
+          "speaker_id": "CHR_BEONGBEONG",
+          "speaker_label": "벙벙",
+          "emotion_direction": "울먹",
+          "portrait_emotion": "base",
+          "text": "튼튼한 다리 말고, 지키고 싶은 다리를 찾은 거예요.",
+          "id": "V130R_BOND_BRIDGE_TROLL_3_002",
+          "line": "[벙벙|울먹]: 튼튼한 다리 말고, 지키고 싶은 다리를 찾은 거예요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "팻말은 고맙다. 하지만 네가 다리가 되기 전 우리가 받치겠다.",
+          "id": "V130R_BOND_BRIDGE_TROLL_3_003",
+          "line": "[마왕|다정]: 팻말은 고맙다. 하지만 네가 다리가 되기 전 우리가 받치겠다."
+        },
+        {
+          "speaker_id": "CHR_BEONGBEONG",
+          "speaker_label": "벙벙",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "그럼 제 이력서에 동료 이름도 적겠습니다!",
+          "id": "V130R_BOND_BRIDGE_TROLL_3_004",
+          "line": "[벙벙|기쁨]: 그럼 제 이력서에 동료 이름도 적겠습니다!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_UNDER_BED_SHADOW_1",
+      "title": "뒤에서 하는 인사",
+      "monster_id": "under_bed_shadow",
+      "memory_stage": 1,
+      "memory_id": "bond_under_bed_shadow_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_under_bed_shadow_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "under_bed_shadow"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_under_bed_shadow_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "쉿은 처음으로 마왕의 앞에서 인사하려다 실패하고, 대신 그림자 손으로 망토 먼지를 털어 주었다.",
+          "id": "V130R_BOND_UNDER_BED_SHADOW_1_001",
+          "line": "[내레이션|담담]: 쉿은 처음으로 마왕의 앞에서 인사하려다 실패하고, 대신 그림자 손으로 망토 먼지를 털어 주었다."
+        },
+        {
+          "speaker_id": "CHR_SHH",
+          "speaker_label": "쉿",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "base",
+          "text": "앞에서는… 아직 부끄러워요.",
+          "id": "V130R_BOND_UNDER_BED_SHADOW_1_002",
+          "line": "[쉿|속삭임]: 앞에서는… 아직 부끄러워요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "당황",
+          "portrait_emotion": "flustered",
+          "text": "망토 먼지가 사라졌다. 정면 인사보다 더 자세히 알아들었다.",
+          "id": "V130R_BOND_UNDER_BED_SHADOW_1_003",
+          "line": "[마왕|당황]: 망토 먼지가 사라졌다. 정면 인사보다 더 자세히 알아들었다."
+        },
+        {
+          "speaker_id": "CHR_SHH",
+          "speaker_label": "쉿",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "다음엔… 손을 조금 더 오래 내밀게요…",
+          "id": "V130R_BOND_UNDER_BED_SHADOW_1_004",
+          "line": "[쉿|기쁨]: 다음엔… 손을 조금 더 오래 내밀게요…"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_UNDER_BED_SHADOW_2",
+      "title": "안 무서운 밤",
+      "monster_id": "under_bed_shadow",
+      "memory_stage": 2,
+      "memory_id": "bond_under_bed_shadow_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_under_bed_shadow_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "under_bed_shadow"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_under_bed_shadow_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "병영 막내가 악몽을 꾼 밤, 쉿은 침대 밑에 들어가 밤새 '괜찮아'라고 속삭였다.",
+          "id": "V130R_BOND_UNDER_BED_SHADOW_2_001",
+          "line": "[내레이션|담담]: 병영 막내가 악몽을 꾼 밤, 쉿은 침대 밑에 들어가 밤새 '괜찮아'라고 속삭였다."
+        },
+        {
+          "speaker_id": "CHR_SHH",
+          "speaker_label": "쉿",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "base",
+          "text": "무서운 것보다… 옆에 있는 게 더 좋은 거였어요.",
+          "id": "V130R_BOND_UNDER_BED_SHADOW_2_002",
+          "line": "[쉿|속삭임]: 무서운 것보다… 옆에 있는 게 더 좋은 거였어요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "밤새 괜찮다고 말해 줬구나. 오늘은 네 옆에도 누가 있어 주마.",
+          "id": "V130R_BOND_UNDER_BED_SHADOW_2_003",
+          "line": "[마왕|다정]: 밤새 괜찮다고 말해 줬구나. 오늘은 네 옆에도 누가 있어 주마."
+        },
+        {
+          "speaker_id": "CHR_SHH",
+          "speaker_label": "쉿",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "그럼… 저는 안 무서워도 되는 거죠…",
+          "id": "V130R_BOND_UNDER_BED_SHADOW_2_004",
+          "line": "[쉿|기쁨]: 그럼… 저는 안 무서워도 되는 거죠…"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_UNDER_BED_SHADOW_3",
+      "title": "이름을 불러 준 날",
+      "monster_id": "under_bed_shadow",
+      "memory_stage": 3,
+      "memory_id": "bond_under_bed_shadow_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_under_bed_shadow_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "under_bed_shadow"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_under_bed_shadow_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "마왕이 어둠을 향해 '쉿, 거기 있지?'라고 부른 날, 쉿은 처음으로 그림자 밖으로 나왔다.",
+          "id": "V130R_BOND_UNDER_BED_SHADOW_3_001",
+          "line": "[내레이션|담담]: 마왕이 어둠을 향해 '쉿, 거기 있지?'라고 부른 날, 쉿은 처음으로 그림자 밖으로 나왔다."
+        },
+        {
+          "speaker_id": "CHR_SHH",
+          "speaker_label": "쉿",
+          "emotion_direction": "수줍음",
+          "portrait_emotion": "happy",
+          "text": "찾아 주는 사람이 있으면, 그림자도 집이 생겨요.",
+          "id": "V130R_BOND_UNDER_BED_SHADOW_3_002",
+          "line": "[쉿|수줍음]: 찾아 주는 사람이 있으면, 그림자도 집이 생겨요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "쉿, 내 앞에 있구나. 이번엔 돌아보지 않아도 찾았다.",
+          "id": "V130R_BOND_UNDER_BED_SHADOW_3_003",
+          "line": "[마왕|다정]: 쉿, 내 앞에 있구나. 이번엔 돌아보지 않아도 찾았다."
+        },
+        {
+          "speaker_id": "CHR_SHH",
+          "speaker_label": "쉿",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "다음에 불러도… 여기서 대답할게요…",
+          "id": "V130R_BOND_UNDER_BED_SHADOW_3_004",
+          "line": "[쉿|기쁨]: 다음에 불러도… 여기서 대답할게요…"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_HOLLOW_ARMOR_1",
+      "title": "빈 투구 속 이름",
+      "monster_id": "hollow_armor",
+      "memory_stage": 1,
+      "memory_id": "bond_hollow_armor_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_hollow_armor_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "hollow_armor"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_hollow_armor_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "투구 안쪽에 새겨진 옛 주인의 이름 옆에, 텅텅은 몰래 '텅텅'이라고 작게 새겼다.",
+          "id": "V130R_BOND_HOLLOW_ARMOR_1_001",
+          "line": "[내레이션|담담]: 투구 안쪽에 새겨진 옛 주인의 이름 옆에, 텅텅은 몰래 '텅텅'이라고 작게 새겼다."
+        },
+        {
+          "speaker_id": "CHR_TEONGTEONG",
+          "speaker_label": "텅텅",
+          "emotion_direction": "정의감",
+          "portrait_emotion": "determined",
+          "text": "안이 비어 있어도, 이름은 하나쯤 있어야지.",
+          "id": "V130R_BOND_HOLLOW_ARMOR_1_002",
+          "line": "[텅텅|정의감]: 안이 비어 있어도, 이름은 하나쯤 있어야지."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "옛 이름을 지우지 않고 네 이름을 보탰군. 잘했다.",
+          "id": "V130R_BOND_HOLLOW_ARMOR_1_003",
+          "line": "[마왕|다정]: 옛 이름을 지우지 않고 네 이름을 보탰군. 잘했다."
+        },
+        {
+          "speaker_id": "CHR_TEONGTEONG",
+          "speaker_label": "텅텅",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "이제 투구가 울려도 누구 소리인지 알겠습니다.",
+          "id": "V130R_BOND_HOLLOW_ARMOR_1_004",
+          "line": "[텅텅|기쁨]: 이제 투구가 울려도 누구 소리인지 알겠습니다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_HOLLOW_ARMOR_2",
+      "title": "녹 닦는 저녁",
+      "monster_id": "hollow_armor",
+      "memory_stage": 2,
+      "memory_id": "bond_hollow_armor_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_hollow_armor_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "hollow_armor"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_hollow_armor_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "푸딩이 젤 손으로 텅텅의 녹을 닦아 주자, 텅텅은 처음으로 갑옷 안이 따뜻하다고 느꼈다.",
+          "id": "V130R_BOND_HOLLOW_ARMOR_2_001",
+          "line": "[내레이션|담담]: 푸딩이 젤 손으로 텅텅의 녹을 닦아 주자, 텅텅은 처음으로 갑옷 안이 따뜻하다고 느꼈다."
+        },
+        {
+          "speaker_id": "CHR_TEONGTEONG",
+          "speaker_label": "텅텅",
+          "emotion_direction": "정의감",
+          "portrait_emotion": "determined",
+          "text": "용사는 혼자인 줄 알았다. 식구가 있는 용사도 있구나.",
+          "id": "V130R_BOND_HOLLOW_ARMOR_2_002",
+          "line": "[텅텅|정의감]: 용사는 혼자인 줄 알았다. 식구가 있는 용사도 있구나."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "녹을 닦는 손이 있어도 용사는 용사다. 혼자일 필요는 없다.",
+          "id": "V130R_BOND_HOLLOW_ARMOR_2_003",
+          "line": "[마왕|다정]: 녹을 닦는 손이 있어도 용사는 용사다. 혼자일 필요는 없다."
+        },
+        {
+          "speaker_id": "CHR_TEONGTEONG",
+          "speaker_label": "텅텅",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "따뜻한 갑옷은 처음이라, 조금 삐걱거립니다.",
+          "id": "V130R_BOND_HOLLOW_ARMOR_2_004",
+          "line": "[텅텅|기쁨]: 따뜻한 갑옷은 처음이라, 조금 삐걱거립니다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_HOLLOW_ARMOR_3",
+      "title": "옥좌 앞의 맹세",
+      "monster_id": "hollow_armor",
+      "memory_stage": 3,
+      "memory_id": "bond_hollow_armor_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_hollow_armor_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "hollow_armor"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_hollow_armor_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "레온이 오기 전날 밤, 텅텅은 옥좌 앞에 무릎 꿇고 옛 주인이 아닌 지금의 식구에게 맹세했다.",
+          "id": "V130R_BOND_HOLLOW_ARMOR_3_001",
+          "line": "[내레이션|담담]: 레온이 오기 전날 밤, 텅텅은 옥좌 앞에 무릎 꿇고 옛 주인이 아닌 지금의 식구에게 맹세했다."
+        },
+        {
+          "speaker_id": "CHR_TEONGTEONG",
+          "speaker_label": "텅텅",
+          "emotion_direction": "정의감",
+          "portrait_emotion": "determined",
+          "text": "정의는 모르겠다. 하지만 이 자리는 내가 지킨다.",
+          "id": "V130R_BOND_HOLLOW_ARMOR_3_002",
+          "line": "[텅텅|정의감]: 정의는 모르겠다. 하지만 이 자리는 내가 지킨다."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "레온이 오기 전날의 맹세, 나는 지금도 기억한다.",
+          "id": "V130R_BOND_HOLLOW_ARMOR_3_003",
+          "line": "[마왕|다정]: 레온이 오기 전날의 맹세, 나는 지금도 기억한다."
+        },
+        {
+          "speaker_id": "CHR_TEONGTEONG",
+          "speaker_label": "텅텅",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "그 밤 이후 이 자리는 제 이름으로 지켰습니다.",
+          "id": "V130R_BOND_HOLLOW_ARMOR_3_004",
+          "line": "[텅텅|기쁨]: 그 밤 이후 이 자리는 제 이름으로 지켰습니다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_CANDLE_WISP_1",
+      "title": "200년 된 심지",
+      "monster_id": "candle_wisp",
+      "memory_stage": 1,
+      "memory_id": "bond_candle_wisp_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_candle_wisp_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "candle_wisp"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_candle_wisp_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "녹녹은 자기 심지가 초대 마왕의 생일 케이크에서 왔다는 이야기를 처음으로 털어놓았다.",
+          "id": "V130R_BOND_CANDLE_WISP_1_001",
+          "line": "[내레이션|담담]: 녹녹은 자기 심지가 초대 마왕의 생일 케이크에서 왔다는 이야기를 처음으로 털어놓았다."
+        },
+        {
+          "speaker_id": "CHR_NOKNOK",
+          "speaker_label": "녹녹",
+          "emotion_direction": "겁",
+          "portrait_emotion": "base",
+          "text": "축하하려고 켜진 불이니까, 쉽게 꺼질 순 없지!",
+          "id": "V130R_BOND_CANDLE_WISP_1_002",
+          "line": "[녹녹|겁]: 축하하려고 켜진 불이니까, 쉽게 꺼질 순 없지!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "케이크에서 온 심지가 이 성을 비췄군. 다음 축하도 부탁한다.",
+          "id": "V130R_BOND_CANDLE_WISP_1_003",
+          "line": "[마왕|다정]: 케이크에서 온 심지가 이 성을 비췄군. 다음 축하도 부탁한다."
+        },
+        {
+          "speaker_id": "CHR_NOKNOK",
+          "speaker_label": "녹녹",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "그럼 비명 대신 축하 노래 연습할게요!",
+          "id": "V130R_BOND_CANDLE_WISP_1_004",
+          "line": "[녹녹|기쁨]: 그럼 비명 대신 축하 노래 연습할게요!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_CANDLE_WISP_2",
+      "title": "양동이 경보",
+      "monster_id": "candle_wisp",
+      "memory_stage": 2,
+      "memory_id": "bond_candle_wisp_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_candle_wisp_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "candle_wisp"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_candle_wisp_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "천장에서 물이 새자 녹녹은 비명을 지르면서도 식구들 침대 위의 양동이부터 옮겼다.",
+          "id": "V130R_BOND_CANDLE_WISP_2_001",
+          "line": "[내레이션|담담]: 천장에서 물이 새자 녹녹은 비명을 지르면서도 식구들 침대 위의 양동이부터 옮겼다."
+        },
+        {
+          "speaker_id": "CHR_NOKNOK",
+          "speaker_label": "녹녹",
+          "emotion_direction": "겁",
+          "portrait_emotion": "base",
+          "text": "무서운 건 무서운 거고, 할 일은 할 일이야!",
+          "id": "V130R_BOND_CANDLE_WISP_2_002",
+          "line": "[녹녹|겁]: 무서운 건 무서운 거고, 할 일은 할 일이야!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "네 위 양동이보다 침대 위부터 옮긴 걸 봤다. 무서워도 용감했다.",
+          "id": "V130R_BOND_CANDLE_WISP_2_003",
+          "line": "[마왕|다정]: 네 위 양동이보다 침대 위부터 옮긴 걸 봤다. 무서워도 용감했다."
+        },
+        {
+          "speaker_id": "CHR_NOKNOK",
+          "speaker_label": "녹녹",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "양동이 옮긴 뒤엔 제 것도 부탁해요! 순서만 바뀐 거예요!",
+          "id": "V130R_BOND_CANDLE_WISP_2_004",
+          "line": "[녹녹|기쁨]: 양동이 옮긴 뒤엔 제 것도 부탁해요! 순서만 바뀐 거예요!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_CANDLE_WISP_3",
+      "title": "꺼지지 않는 방",
+      "monster_id": "candle_wisp",
+      "memory_stage": 3,
+      "memory_id": "bond_candle_wisp_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_candle_wisp_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "candle_wisp"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_candle_wisp_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "마왕이 옥좌 위에 작은 지붕을 달아 주자, 녹녹은 처음으로 떨지 않고 밤새 타올랐다.",
+          "id": "V130R_BOND_CANDLE_WISP_3_001",
+          "line": "[내레이션|담담]: 마왕이 옥좌 위에 작은 지붕을 달아 주자, 녹녹은 처음으로 떨지 않고 밤새 타올랐다."
+        },
+        {
+          "speaker_id": "CHR_NOKNOK",
+          "speaker_label": "녹녹",
+          "emotion_direction": "비명",
+          "portrait_emotion": "base",
+          "text": "여기선 안 꺼져도 돼. 지켜 주는 지붕이 있으니까.",
+          "id": "V130R_BOND_CANDLE_WISP_3_002",
+          "line": "[녹녹|비명]: 여기선 안 꺼져도 돼. 지켜 주는 지붕이 있으니까."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "작은 지붕이지만 밤새 지켜 주더군. 네 빛을 나도 지키고 싶었다.",
+          "id": "V130R_BOND_CANDLE_WISP_3_003",
+          "line": "[마왕|다정]: 작은 지붕이지만 밤새 지켜 주더군. 네 빛을 나도 지키고 싶었다."
+        },
+        {
+          "speaker_id": "CHR_NOKNOK",
+          "speaker_label": "녹녹",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "오늘 물방울 소리에는 안 놀랐어요. 조금만요!",
+          "id": "V130R_BOND_CANDLE_WISP_3_004",
+          "line": "[녹녹|기쁨]: 오늘 물방울 소리에는 안 놀랐어요. 조금만요!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_MOLE_DIGGER_1",
+      "title": "무너진 갱도",
+      "monster_id": "mole_digger",
+      "memory_stage": 1,
+      "memory_id": "bond_mole_digger_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_mole_digger_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "mole_digger"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_mole_digger_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "파파는 붕괴 때 마지막까지 동료 공병의 이름을 불렀지만, 돌아온 건 곱의 목소리뿐이었다.",
+          "id": "V130R_BOND_MOLE_DIGGER_1_001",
+          "line": "[내레이션|담담]: 파파는 붕괴 때 마지막까지 동료 공병의 이름을 불렀지만, 돌아온 건 곱의 목소리뿐이었다."
+        },
+        {
+          "speaker_id": "CHR_PAPA",
+          "speaker_label": "파파",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "안전 제일이라고 외친 건, 날 버린 쪽이 아니라 나였지.",
+          "id": "V130R_BOND_MOLE_DIGGER_1_002",
+          "line": "[파파|확인]: 안전 제일이라고 외친 건, 날 버린 쪽이 아니라 나였지."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "돌아오지 않은 목소리를 네 잘못으로 적지 마라.",
+          "id": "V130R_BOND_MOLE_DIGGER_1_003",
+          "line": "[마왕|다정]: 돌아오지 않은 목소리를 네 잘못으로 적지 마라."
+        },
+        {
+          "speaker_id": "CHR_PAPA",
+          "speaker_label": "파파",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "이젠 구조 명단을 끝까지 확인하겠습니다.",
+          "id": "V130R_BOND_MOLE_DIGGER_1_004",
+          "line": "[파파|기쁨]: 이젠 구조 명단을 끝까지 확인하겠습니다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_MOLE_DIGGER_2",
+      "title": "성 밑 지도",
+      "monster_id": "mole_digger",
+      "memory_stage": 2,
+      "memory_id": "bond_mole_digger_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_mole_digger_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "mole_digger"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_mole_digger_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "파파는 마왕성 밑 굴 지도를 그려 바티에게 건넸다. 비상 탈출로에는 식구 수만큼 표시가 있었다.",
+          "id": "V130R_BOND_MOLE_DIGGER_2_001",
+          "line": "[내레이션|담담]: 파파는 마왕성 밑 굴 지도를 그려 바티에게 건넸다. 비상 탈출로에는 식구 수만큼 표시가 있었다."
+        },
+        {
+          "speaker_id": "CHR_PAPA",
+          "speaker_label": "파파",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "모두 나갈 길이 있어야 진짜 안전한 현장입니다.",
+          "id": "V130R_BOND_MOLE_DIGGER_2_002",
+          "line": "[파파|확인]: 모두 나갈 길이 있어야 진짜 안전한 현장입니다."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "이 작은 표시가 식구 수만큼 있군. 누구도 빠뜨리지 않았구나.",
+          "id": "V130R_BOND_MOLE_DIGGER_2_003",
+          "line": "[마왕|다정]: 이 작은 표시가 식구 수만큼 있군. 누구도 빠뜨리지 않았구나."
+        },
+        {
+          "speaker_id": "CHR_PAPA",
+          "speaker_label": "파파",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "출구 수보다 나오는 사람이 중요하니까요.",
+          "id": "V130R_BOND_MOLE_DIGGER_2_004",
+          "line": "[파파|기쁨]: 출구 수보다 나오는 사람이 중요하니까요."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_MOLE_DIGGER_3",
+      "title": "안전모 두 개",
+      "monster_id": "mole_digger",
+      "memory_stage": 3,
+      "memory_id": "bond_mole_digger_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_mole_digger_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "mole_digger"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_mole_digger_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "파파는 곱에게 자기 것과 똑같은 작은 안전모를 선물했다.",
+          "id": "V130R_BOND_MOLE_DIGGER_3_001",
+          "line": "[내레이션|담담]: 파파는 곱에게 자기 것과 똑같은 작은 안전모를 선물했다."
+        },
+        {
+          "speaker_id": "CHR_PAPA",
+          "speaker_label": "파파",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "구해 준 동료한테는, 제일 좋은 장비를 줘야죠.",
+          "id": "V130R_BOND_MOLE_DIGGER_3_002",
+          "line": "[파파|확인]: 구해 준 동료한테는, 제일 좋은 장비를 줘야죠."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "곱 머리에 꼭 맞는구나. 이번엔 구한 쪽도 보호받는다.",
+          "id": "V130R_BOND_MOLE_DIGGER_3_003",
+          "line": "[마왕|다정]: 곱 머리에 꼭 맞는구나. 이번엔 구한 쪽도 보호받는다."
+        },
+        {
+          "speaker_id": "CHR_PAPA",
+          "speaker_label": "파파",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "안전 장비에는 은혜를 깎아 넣지 않습니다!",
+          "id": "V130R_BOND_MOLE_DIGGER_3_004",
+          "line": "[파파|기쁨]: 안전 장비에는 은혜를 깎아 넣지 않습니다!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_CRUMPLED_MAP_1",
+      "title": "세 개의 왕좌",
+      "monster_id": "crumpled_map",
+      "memory_stage": 1,
+      "memory_id": "bond_crumpled_map_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_crumpled_map_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "crumpled_map"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_crumpled_map_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "꼬깃은 자기 몸에 그려진 왕좌 세 개 중 진짜가 어디냐는 질문에, 셋 다 마왕님 자리라고 우겼다.",
+          "id": "V130R_BOND_CRUMPLED_MAP_1_001",
+          "line": "[내레이션|담담]: 꼬깃은 자기 몸에 그려진 왕좌 세 개 중 진짜가 어디냐는 질문에, 셋 다 마왕님 자리라고 우겼다."
+        },
+        {
+          "speaker_id": "CHR_KKOGIT",
+          "speaker_label": "꼬깃",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "happy",
+          "text": "왕좌가 하나뿐이면 침입자가 너무 쉽잖아!",
+          "id": "V130R_BOND_CRUMPLED_MAP_1_002",
+          "line": "[꼬깃|자신만만]: 왕좌가 하나뿐이면 침입자가 너무 쉽잖아!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "왕좌가 셋이면 내가 셋처럼 일해야 하지 않나?",
+          "id": "V130R_BOND_CRUMPLED_MAP_1_003",
+          "line": "[마왕|다정]: 왕좌가 셋이면 내가 셋처럼 일해야 하지 않나?"
+        },
+        {
+          "speaker_id": "CHR_KKOGIT",
+          "speaker_label": "꼬깃",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "그럼 두 개는 휴게용이라고 그릴게!",
+          "id": "V130R_BOND_CRUMPLED_MAP_1_004",
+          "line": "[꼬깃|기쁨]: 그럼 두 개는 휴게용이라고 그릴게!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_CRUMPLED_MAP_2",
+      "title": "다림질",
+      "monster_id": "crumpled_map",
+      "memory_stage": 2,
+      "memory_id": "bond_crumpled_map_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_crumpled_map_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "crumpled_map"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_crumpled_map_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "골딘이 장부 누르는 돌로 꼬깃의 구김을 펴 주자, 꼬깃은 처음으로 자기 지도를 똑바로 읽었다.",
+          "id": "V130R_BOND_CRUMPLED_MAP_2_001",
+          "line": "[내레이션|담담]: 골딘이 장부 누르는 돌로 꼬깃의 구김을 펴 주자, 꼬깃은 처음으로 자기 지도를 똑바로 읽었다."
+        },
+        {
+          "speaker_id": "CHR_KKOGIT",
+          "speaker_label": "꼬깃",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "happy",
+          "text": "펴고 보니… 내가 그린 길, 다 집으로 가고 있었네.",
+          "id": "V130R_BOND_CRUMPLED_MAP_2_002",
+          "line": "[꼬깃|자신만만]: 펴고 보니… 내가 그린 길, 다 집으로 가고 있었네."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "장부 누르는 돌이 길도 펴 줬다. 이번엔 집을 제대로 봤구나.",
+          "id": "V130R_BOND_CRUMPLED_MAP_2_003",
+          "line": "[마왕|다정]: 장부 누르는 돌이 길도 펴 줬다. 이번엔 집을 제대로 봤구나."
+        },
+        {
+          "speaker_id": "CHR_KKOGIT",
+          "speaker_label": "꼬깃",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "구김 속에서도 없어지진 않았던 거야!",
+          "id": "V130R_BOND_CRUMPLED_MAP_2_004",
+          "line": "[꼬깃|기쁨]: 구김 속에서도 없어지진 않았던 거야!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_CRUMPLED_MAP_3",
+      "title": "새로 그린 지도",
+      "monster_id": "crumpled_map",
+      "memory_stage": 3,
+      "memory_id": "bond_crumpled_map_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_crumpled_map_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "crumpled_map"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_crumpled_map_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "꼬깃은 몸 한쪽에 식구들 방을 하나하나 새로 그려 넣었다. 그 부분만은 한 번도 틀리지 않았다.",
+          "id": "V130R_BOND_CRUMPLED_MAP_3_001",
+          "line": "[내레이션|담담]: 꼬깃은 몸 한쪽에 식구들 방을 하나하나 새로 그려 넣었다. 그 부분만은 한 번도 틀리지 않았다."
+        },
+        {
+          "speaker_id": "CHR_KKOGIT",
+          "speaker_label": "꼬깃",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "happy",
+          "text": "밖에선 헤매게 하고, 안에선 길을 잃지 않게 할게.",
+          "id": "V130R_BOND_CRUMPLED_MAP_3_002",
+          "line": "[꼬깃|자신만만]: 밖에선 헤매게 하고, 안에선 길을 잃지 않게 할게."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "식구 방 표시는 하나도 안 틀렸군. 이제 내가 길을 물어도 되겠다.",
+          "id": "V130R_BOND_CRUMPLED_MAP_3_003",
+          "line": "[마왕|다정]: 식구 방 표시는 하나도 안 틀렸군. 이제 내가 길을 물어도 되겠다."
+        },
+        {
+          "speaker_id": "CHR_KKOGIT",
+          "speaker_label": "꼬깃",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "이쪽은 자신감 말고 기억으로 그렸거든!",
+          "id": "V130R_BOND_CRUMPLED_MAP_3_004",
+          "line": "[꼬깃|기쁨]: 이쪽은 자신감 말고 기억으로 그렸거든!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_RAT_UNION_1",
+      "title": "단체 협약서",
+      "monster_id": "rat_union",
+      "memory_stage": 1,
+      "memory_id": "bond_rat_union_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_rat_union_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "rat_union"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_rat_union_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "찍찍단은 협약서에 발도장을 세 번 찍었고, 골딘은 처음으로 지출 장부에 '치즈'라는 항목을 만들었다.",
+          "id": "V130R_BOND_RAT_UNION_1_001",
+          "line": "[내레이션|담담]: 찍찍단은 협약서에 발도장을 세 번 찍었고, 골딘은 처음으로 지출 장부에 '치즈'라는 항목을 만들었다."
+        },
+        {
+          "speaker_id": "CHR_JJIKJJIK",
+          "speaker_label": "찍찍단",
+          "emotion_direction": "합창",
+          "portrait_emotion": "happy",
+          "text": "찍! 찍! 찍! (계약은 셋이 지킨다!)",
+          "id": "V130R_BOND_RAT_UNION_1_002",
+          "line": "[찍찍단|합창]: 찍! 찍! 찍! (계약은 셋이 지킨다!)"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "발도장 셋, 치즈 한 항목. 서명보다 시끄럽구나.",
+          "id": "V130R_BOND_RAT_UNION_1_003",
+          "line": "[마왕|다정]: 발도장 셋, 치즈 한 항목. 서명보다 시끄럽구나."
+        },
+        {
+          "speaker_id": "CHR_JJIKJJIK",
+          "speaker_label": "찍찍단",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "작은 발도 효력은 셋 몫이다!",
+          "id": "V130R_BOND_RAT_UNION_1_004",
+          "line": "[찍찍단|기쁨]: 작은 발도 효력은 셋 몫이다!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_RAT_UNION_2",
+      "title": "야근 수당",
+      "monster_id": "rat_union",
+      "memory_stage": 2,
+      "memory_id": "bond_rat_union_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_rat_union_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "rat_union"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_rat_union_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "도둑을 잡은 밤, 찍찍단은 수당으로 받은 치즈를 반으로 나눠 느릿에게 가져다주었다.",
+          "id": "V130R_BOND_RAT_UNION_2_001",
+          "line": "[내레이션|담담]: 도둑을 잡은 밤, 찍찍단은 수당으로 받은 치즈를 반으로 나눠 느릿에게 가져다주었다."
+        },
+        {
+          "speaker_id": "CHR_JJIKJJIK",
+          "speaker_label": "찍찍단",
+          "emotion_direction": "합창",
+          "portrait_emotion": "happy",
+          "text": "제일 늦게 오는 동료 몫은 미리 떼어 두는 거다!",
+          "id": "V130R_BOND_RAT_UNION_2_002",
+          "line": "[찍찍단|합창]: 제일 늦게 오는 동료 몫은 미리 떼어 두는 거다!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "야근 수당을 반이나 나눴군. 느릿 몫은 잘 전해졌다.",
+          "id": "V130R_BOND_RAT_UNION_2_003",
+          "line": "[마왕|다정]: 야근 수당을 반이나 나눴군. 느릿 몫은 잘 전해졌다."
+        },
+        {
+          "speaker_id": "CHR_JJIKJJIK",
+          "speaker_label": "찍찍단",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "밥은 늦게 오는 동료도 세는 거다!",
+          "id": "V130R_BOND_RAT_UNION_2_004",
+          "line": "[찍찍단|기쁨]: 밥은 늦게 오는 동료도 세는 거다!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_RAT_UNION_3",
+      "title": "원래 주인",
+      "monster_id": "rat_union",
+      "memory_stage": 3,
+      "memory_id": "bond_rat_union_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_rat_union_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "rat_union"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_rat_union_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "찍찍단은 동굴의 진짜 주인은 자기들이라는 주장을 거두고, 마왕성 문패 아래 작은 글씨로 자기들 이름을 새겼다.",
+          "id": "V130R_BOND_RAT_UNION_3_001",
+          "line": "[내레이션|담담]: 찍찍단은 동굴의 진짜 주인은 자기들이라는 주장을 거두고, 마왕성 문패 아래 작은 글씨로 자기들 이름을 새겼다."
+        },
+        {
+          "speaker_id": "CHR_JJIKJJIK",
+          "speaker_label": "찍찍단",
+          "emotion_direction": "합창",
+          "portrait_emotion": "happy",
+          "text": "주인 말고 식구로 하자. 그게 더 오래 간다!",
+          "id": "V130R_BOND_RAT_UNION_3_002",
+          "line": "[찍찍단|합창]: 주인 말고 식구로 하자. 그게 더 오래 간다!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "문패 아래에 이름이 나란하군. 이제 소유권 싸움은 끝인가?",
+          "id": "V130R_BOND_RAT_UNION_3_003",
+          "line": "[마왕|다정]: 문패 아래에 이름이 나란하군. 이제 소유권 싸움은 끝인가?"
+        },
+        {
+          "speaker_id": "CHR_JJIKJJIK",
+          "speaker_label": "찍찍단",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "주장은 접고 식탁은 편다!",
+          "id": "V130R_BOND_RAT_UNION_3_004",
+          "line": "[찍찍단|기쁨]: 주장은 접고 식탁은 편다!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_CURSE_DOLL_1",
+      "title": "서른두 군데 실밥",
+      "monster_id": "curse_doll",
+      "memory_stage": 1,
+      "memory_id": "bond_curse_doll_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_curse_doll_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "curse_doll"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_curse_doll_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "실키가 마지막 실밥을 매듭짓자, 누비는 처음으로 '저주해 줄게' 대신 '고마워'라고 말했다.",
+          "id": "V130R_BOND_CURSE_DOLL_1_001",
+          "line": "[내레이션|담담]: 실키가 마지막 실밥을 매듭짓자, 누비는 처음으로 '저주해 줄게' 대신 '고마워'라고 말했다."
+        },
+        {
+          "speaker_id": "CHR_NUBI",
+          "speaker_label": "누비",
+          "emotion_direction": "무심",
+          "portrait_emotion": "base",
+          "text": "꿰매 준 손은… 저주하지 않을게.",
+          "id": "V130R_BOND_CURSE_DOLL_1_002",
+          "line": "[누비|무심]: 꿰매 준 손은… 저주하지 않을게."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "서른두 번째 매듭까지 다 기억하는구나.",
+          "id": "V130R_BOND_CURSE_DOLL_1_003",
+          "line": "[마왕|다정]: 서른두 번째 매듭까지 다 기억하는구나."
+        },
+        {
+          "speaker_id": "CHR_NUBI",
+          "speaker_label": "누비",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "엄마 손이 닿은 곳은 안 무서워.",
+          "id": "V130R_BOND_CURSE_DOLL_1_004",
+          "line": "[누비|기쁨]: 엄마 손이 닿은 곳은 안 무서워."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_CURSE_DOLL_2",
+      "title": "니아에게 보낸 편지",
+      "monster_id": "curse_doll",
+      "memory_stage": 2,
+      "memory_id": "bond_curse_doll_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_curse_doll_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "curse_doll"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_curse_doll_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "누비는 니아에게 '버려 줘서 고마워'라는 편지를 보냈고, 니아는 답장 없이 사탕 한 봉지를 문 앞에 두고 갔다.",
+          "id": "V130R_BOND_CURSE_DOLL_2_001",
+          "line": "[내레이션|담담]: 누비는 니아에게 '버려 줘서 고마워'라는 편지를 보냈고, 니아는 답장 없이 사탕 한 봉지를 문 앞에 두고 갔다."
+        },
+        {
+          "speaker_id": "CHR_NUBI",
+          "speaker_label": "누비",
+          "emotion_direction": "무심",
+          "portrait_emotion": "base",
+          "text": "무서워해도 괜찮아. 다음엔 놀러 와.",
+          "id": "V130R_BOND_CURSE_DOLL_2_002",
+          "line": "[누비|무심]: 무서워해도 괜찮아. 다음엔 놀러 와."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "답장은 없었어도 사탕이 왔군. 봉투보다 솔직한 모양이다.",
+          "id": "V130R_BOND_CURSE_DOLL_2_003",
+          "line": "[마왕|다정]: 답장은 없었어도 사탕이 왔군. 봉투보다 솔직한 모양이다."
+        },
+        {
+          "speaker_id": "CHR_NUBI",
+          "speaker_label": "누비",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "다음엔 문 앞에서 같이 먹어도 되겠지.",
+          "id": "V130R_BOND_CURSE_DOLL_2_004",
+          "line": "[누비|기쁨]: 다음엔 문 앞에서 같이 먹어도 되겠지."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_CURSE_DOLL_3",
+      "title": "대신 아픈 자리",
+      "monster_id": "curse_doll",
+      "memory_stage": 3,
+      "memory_id": "bond_curse_doll_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_curse_doll_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "curse_doll"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_curse_doll_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "큰 전투 뒤 누비의 몸에 새 실밥이 늘자, 식구들은 돌아가며 한 땀씩 꿰매 주었다.",
+          "id": "V130R_BOND_CURSE_DOLL_3_001",
+          "line": "[내레이션|담담]: 큰 전투 뒤 누비의 몸에 새 실밥이 늘자, 식구들은 돌아가며 한 땀씩 꿰매 주었다."
+        },
+        {
+          "speaker_id": "CHR_NUBI",
+          "speaker_label": "누비",
+          "emotion_direction": "무심",
+          "portrait_emotion": "base",
+          "text": "이제 내 몸엔 식구들 바늘땀이 제일 많아.",
+          "id": "V130R_BOND_CURSE_DOLL_3_002",
+          "line": "[누비|무심]: 이제 내 몸엔 식구들 바늘땀이 제일 많아."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "우리 바늘땀이 늘었군. 네가 혼자 아프게 두지 않겠다.",
+          "id": "V130R_BOND_CURSE_DOLL_3_003",
+          "line": "[마왕|다정]: 우리 바늘땀이 늘었군. 네가 혼자 아프게 두지 않겠다."
+        },
+        {
+          "speaker_id": "CHR_NUBI",
+          "speaker_label": "누비",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "조금 삐뚤어도 다 식구 글씨 같아.",
+          "id": "V130R_BOND_CURSE_DOLL_3_004",
+          "line": "[누비|기쁨]: 조금 삐뚤어도 다 식구 글씨 같아."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_SPORE_HEALER_1",
+      "title": "포자 이불",
+      "monster_id": "spore_healer",
+      "memory_stage": 1,
+      "memory_id": "bond_spore_healer_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_spore_healer_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "spore_healer"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_spore_healer_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "첫 전투 뒤 모리는 다친 푸딩 위에 포자를 이불처럼 덮어 두고 밤새 곁을 지켰다.",
+          "id": "V130R_BOND_SPORE_HEALER_1_001",
+          "line": "[내레이션|담담]: 첫 전투 뒤 모리는 다친 푸딩 위에 포자를 이불처럼 덮어 두고 밤새 곁을 지켰다."
+        },
+        {
+          "speaker_id": "CHR_MORI",
+          "speaker_label": "모리",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "상처는 천천히 낫는 게 제일 덜 아파.",
+          "id": "V130R_BOND_SPORE_HEALER_1_002",
+          "line": "[모리|다정]: 상처는 천천히 낫는 게 제일 덜 아파."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "푸딩 위 이불을 밤새 지켰구나. 네 잠자리는 내가 봐 주마.",
+          "id": "V130R_BOND_SPORE_HEALER_1_003",
+          "line": "[마왕|다정]: 푸딩 위 이불을 밤새 지켰구나. 네 잠자리는 내가 봐 주마."
+        },
+        {
+          "speaker_id": "CHR_MORI",
+          "speaker_label": "모리",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "포자도 잠깐 쉬면 더 고르게 퍼져.",
+          "id": "V130R_BOND_SPORE_HEALER_1_004",
+          "line": "[모리|기쁨]: 포자도 잠깐 쉬면 더 고르게 퍼져."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_SPORE_HEALER_2",
+      "title": "곰팡이와 버섯 사이",
+      "monster_id": "spore_healer",
+      "memory_stage": 2,
+      "memory_id": "bond_spore_healer_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_spore_healer_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "spore_healer"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_spore_healer_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "골딘이 왕좌의 곰팡이를 걱정하자, 모리는 곰팡이를 버섯 정원으로 바꿔 '권위의 정원'이라 이름 붙였다.",
+          "id": "V130R_BOND_SPORE_HEALER_2_001",
+          "line": "[내레이션|담담]: 골딘이 왕좌의 곰팡이를 걱정하자, 모리는 곰팡이를 버섯 정원으로 바꿔 '권위의 정원'이라 이름 붙였다."
+        },
+        {
+          "speaker_id": "CHR_MORI",
+          "speaker_label": "모리",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "습한 곳에서도 예쁘게 자랄 수 있어.",
+          "id": "V130R_BOND_SPORE_HEALER_2_002",
+          "line": "[모리|다정]: 습한 곳에서도 예쁘게 자랄 수 있어."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "곰팡이 대신 권위의 정원인가. 이름은 대단하고 냄새는 순하군.",
+          "id": "V130R_BOND_SPORE_HEALER_2_003",
+          "line": "[마왕|다정]: 곰팡이 대신 권위의 정원인가. 이름은 대단하고 냄새는 순하군."
+        },
+        {
+          "speaker_id": "CHR_MORI",
+          "speaker_label": "모리",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "권위도 숨 쉬어야 오래 가니까.",
+          "id": "V130R_BOND_SPORE_HEALER_2_004",
+          "line": "[모리|기쁨]: 권위도 숨 쉬어야 오래 가니까."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_SPORE_HEALER_3",
+      "title": "정화의 꽃",
+      "monster_id": "spore_healer",
+      "memory_stage": 3,
+      "memory_id": "bond_spore_healer_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_spore_healer_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "spore_healer"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_spore_healer_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "모리는 마왕성에서 처음 핀 하얀 버섯꽃을 마왕의 망토 단추 구멍에 꽂아 주었다.",
+          "id": "V130R_BOND_SPORE_HEALER_3_001",
+          "line": "[내레이션|담담]: 모리는 마왕성에서 처음 핀 하얀 버섯꽃을 마왕의 망토 단추 구멍에 꽂아 주었다."
+        },
+        {
+          "speaker_id": "CHR_MORI",
+          "speaker_label": "모리",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "이 성이 건강해지면, 나도 피는 거야.",
+          "id": "V130R_BOND_SPORE_HEALER_3_002",
+          "line": "[모리|다정]: 이 성이 건강해지면, 나도 피는 거야."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "당황",
+          "portrait_emotion": "flustered",
+          "text": "망토 단추에 꽃이 꽂혔다. 오늘은 허세보다 이걸 먼저 보여 주마.",
+          "id": "V130R_BOND_SPORE_HEALER_3_003",
+          "line": "[마왕|당황]: 망토 단추에 꽃이 꽂혔다. 오늘은 허세보다 이걸 먼저 보여 주마."
+        },
+        {
+          "speaker_id": "CHR_MORI",
+          "speaker_label": "모리",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "자랑할 땐 햇빛도 조금 보여 줘.",
+          "id": "V130R_BOND_SPORE_HEALER_3_004",
+          "line": "[모리|기쁨]: 자랑할 땐 햇빛도 조금 보여 줘."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_STONE_SENTINEL_1",
+      "title": "굴러온 돌",
+      "monster_id": "stone_sentinel",
+      "memory_stage": 1,
+      "memory_id": "bond_stone_sentinel_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_stone_sentinel_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "stone_sentinel"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_stone_sentinel_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "돌콩은 산사태에 굴러 내려와 입구에 박혔고, 아무도 빼내지 못하자 그대로 문지기가 되었다.",
+          "id": "V130R_BOND_STONE_SENTINEL_1_001",
+          "line": "[내레이션|담담]: 돌콩은 산사태에 굴러 내려와 입구에 박혔고, 아무도 빼내지 못하자 그대로 문지기가 되었다."
+        },
+        {
+          "speaker_id": "CHR_DOLKONG",
+          "speaker_label": "돌콩",
+          "emotion_direction": "엄숙",
+          "portrait_emotion": "base",
+          "text": "굴러온 돌이 박힌 돌 된다. 콩.",
+          "id": "V130R_BOND_STONE_SENTINEL_1_002",
+          "line": "[돌콩|엄숙]: 굴러온 돌이 박힌 돌 된다. 콩."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "아무도 못 빼낸 돌이 문지기가 됐군. 이제는 네가 선택해 서는 자리다.",
+          "id": "V130R_BOND_STONE_SENTINEL_1_003",
+          "line": "[마왕|다정]: 아무도 못 빼낸 돌이 문지기가 됐군. 이제는 네가 선택해 서는 자리다."
+        },
+        {
+          "speaker_id": "CHR_DOLKONG",
+          "speaker_label": "돌콩",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "박힌 뒤엔 돌아갈 곳 생겼다. 콩.",
+          "id": "V130R_BOND_STONE_SENTINEL_1_004",
+          "line": "[돌콩|기쁨]: 박힌 뒤엔 돌아갈 곳 생겼다. 콩."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_STONE_SENTINEL_2",
+      "title": "이끼 목도리",
+      "monster_id": "stone_sentinel",
+      "memory_stage": 2,
+      "memory_id": "bond_stone_sentinel_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_stone_sentinel_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "stone_sentinel"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_stone_sentinel_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "퐁당이 물을 뿌려 키운 이끼가 돌콩의 목을 감싸자, 돌콩은 처음으로 춥지 않다고 했다.",
+          "id": "V130R_BOND_STONE_SENTINEL_2_001",
+          "line": "[내레이션|담담]: 퐁당이 물을 뿌려 키운 이끼가 돌콩의 목을 감싸자, 돌콩은 처음으로 춥지 않다고 했다."
+        },
+        {
+          "speaker_id": "CHR_DOLKONG",
+          "speaker_label": "돌콩",
+          "emotion_direction": "엄숙",
+          "portrait_emotion": "base",
+          "text": "돌도 따뜻해질 수 있다. 콩.",
+          "id": "V130R_BOND_STONE_SENTINEL_2_002",
+          "line": "[돌콩|엄숙]: 돌도 따뜻해질 수 있다. 콩."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "퐁당 물 덕에 이끼가 목도리가 됐구나. 그 색이 잘 맞는다.",
+          "id": "V130R_BOND_STONE_SENTINEL_2_003",
+          "line": "[마왕|다정]: 퐁당 물 덕에 이끼가 목도리가 됐구나. 그 색이 잘 맞는다."
+        },
+        {
+          "speaker_id": "CHR_DOLKONG",
+          "speaker_label": "돌콩",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "돌 색보다 식구 색이다. 콩.",
+          "id": "V130R_BOND_STONE_SENTINEL_2_004",
+          "line": "[돌콩|기쁨]: 돌 색보다 식구 색이다. 콩."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_STONE_SENTINEL_3",
+      "title": "움직이지 않는 이유",
+      "monster_id": "stone_sentinel",
+      "memory_stage": 3,
+      "memory_id": "bond_stone_sentinel_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_stone_sentinel_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "stone_sentinel"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_stone_sentinel_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "돌콩은 한 번도 자리를 뜨지 않은 이유를 묻자, 자기가 비키면 식구들이 지나갈 길이 막힌다고 했다.",
+          "id": "V130R_BOND_STONE_SENTINEL_3_001",
+          "line": "[내레이션|담담]: 돌콩은 한 번도 자리를 뜨지 않은 이유를 묻자, 자기가 비키면 식구들이 지나갈 길이 막힌다고 했다."
+        },
+        {
+          "speaker_id": "CHR_DOLKONG",
+          "speaker_label": "돌콩",
+          "emotion_direction": "엄숙",
+          "portrait_emotion": "base",
+          "text": "내가 서 있는 곳이, 다들 돌아오는 문이다. 콩.",
+          "id": "V130R_BOND_STONE_SENTINEL_3_002",
+          "line": "[돌콩|엄숙]: 내가 서 있는 곳이, 다들 돌아오는 문이다. 콩."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "네가 서서 길이 열린다는 말, 잘 기억하겠다.",
+          "id": "V130R_BOND_STONE_SENTINEL_3_003",
+          "line": "[마왕|다정]: 네가 서서 길이 열린다는 말, 잘 기억하겠다."
+        },
+        {
+          "speaker_id": "CHR_DOLKONG",
+          "speaker_label": "돌콩",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "돌아오면 옆자리 비워 둔다. 콩.",
+          "id": "V130R_BOND_STONE_SENTINEL_3_004",
+          "line": "[돌콩|기쁨]: 돌아오면 옆자리 비워 둔다. 콩."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_WAR_DRUMMER_1",
+      "title": "깨진 북",
+      "monster_id": "war_drummer",
+      "memory_stage": 1,
+      "memory_id": "bond_war_drummer_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_war_drummer_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "war_drummer"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_war_drummer_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "두둠의 북은 왕국 축제에서 깨져 버려졌던 것이었고, 핀이 불로 가죽을 말려 다시 소리를 살렸다.",
+          "id": "V130R_BOND_WAR_DRUMMER_1_001",
+          "line": "[내레이션|담담]: 두둠의 북은 왕국 축제에서 깨져 버려졌던 것이었고, 핀이 불로 가죽을 말려 다시 소리를 살렸다."
+        },
+        {
+          "speaker_id": "CHR_DUDUM",
+          "speaker_label": "두둠",
+          "emotion_direction": "자랑",
+          "portrait_emotion": "happy",
+          "text": "둥! 다시 울리면 다시 시작이다!",
+          "id": "V130R_BOND_WAR_DRUMMER_1_002",
+          "line": "[두둠|자랑]: 둥! 다시 울리면 다시 시작이다!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "버려진 북이 다시 울렸군. 핀도 그 소리를 들었겠지.",
+          "id": "V130R_BOND_WAR_DRUMMER_1_003",
+          "line": "[마왕|다정]: 버려진 북이 다시 울렸군. 핀도 그 소리를 들었겠지."
+        },
+        {
+          "speaker_id": "CHR_DUDUM",
+          "speaker_label": "두둠",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "이번 곡엔 불씨 박자도 넣을게! 둥!",
+          "id": "V130R_BOND_WAR_DRUMMER_1_004",
+          "line": "[두둠|기쁨]: 이번 곡엔 불씨 박자도 넣을게! 둥!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_WAR_DRUMMER_2",
+      "title": "빗소리 박자",
+      "monster_id": "war_drummer",
+      "memory_stage": 2,
+      "memory_id": "bond_war_drummer_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_war_drummer_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "war_drummer"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_war_drummer_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "비 새는 밤, 두둠은 천장 물방울 박자에 맞춰 북을 쳐서 모두의 잠을 깨웠다가 크게 혼났다.",
+          "id": "V130R_BOND_WAR_DRUMMER_2_001",
+          "line": "[내레이션|담담]: 비 새는 밤, 두둠은 천장 물방울 박자에 맞춰 북을 쳐서 모두의 잠을 깨웠다가 크게 혼났다."
+        },
+        {
+          "speaker_id": "CHR_DUDUM",
+          "speaker_label": "두둠",
+          "emotion_direction": "자랑",
+          "portrait_emotion": "happy",
+          "text": "박자가 너무 좋아서 참을 수가 없었어. 둥…",
+          "id": "V130R_BOND_WAR_DRUMMER_2_002",
+          "line": "[두둠|자랑]: 박자가 너무 좋아서 참을 수가 없었어. 둥…"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "물방울 박자가 좋은 건 알았다. 다음엔 잠든 식구 박자부터 봐라.",
+          "id": "V130R_BOND_WAR_DRUMMER_2_003",
+          "line": "[마왕|다정]: 물방울 박자가 좋은 건 알았다. 다음엔 잠든 식구 박자부터 봐라."
+        },
+        {
+          "speaker_id": "CHR_DUDUM",
+          "speaker_label": "두둠",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "둥은 낮에, 쉼표는 밤에! 외웠다!",
+          "id": "V130R_BOND_WAR_DRUMMER_2_004",
+          "line": "[두둠|기쁨]: 둥은 낮에, 쉼표는 밤에! 외웠다!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_WAR_DRUMMER_3",
+      "title": "행진곡의 이름",
+      "monster_id": "war_drummer",
+      "memory_stage": 3,
+      "memory_id": "bond_war_drummer_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_war_drummer_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "war_drummer"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_war_drummer_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "두둠은 식구들 이름을 하나씩 넣은 행진곡을 만들었고, 마지막 소절은 비워 두었다.",
+          "id": "V130R_BOND_WAR_DRUMMER_3_001",
+          "line": "[내레이션|담담]: 두둠은 식구들 이름을 하나씩 넣은 행진곡을 만들었고, 마지막 소절은 비워 두었다."
+        },
+        {
+          "speaker_id": "CHR_DUDUM",
+          "speaker_label": "두둠",
+          "emotion_direction": "자랑",
+          "portrait_emotion": "happy",
+          "text": "새 식구가 오면 채울 자리야. 둥둥!",
+          "id": "V130R_BOND_WAR_DRUMMER_3_002",
+          "line": "[두둠|자랑]: 새 식구가 오면 채울 자리야. 둥둥!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "마지막 소절이 비었군. 아직 만날 식구 자리인가?",
+          "id": "V130R_BOND_WAR_DRUMMER_3_003",
+          "line": "[마왕|다정]: 마지막 소절이 비었군. 아직 만날 식구 자리인가?"
+        },
+        {
+          "speaker_id": "CHR_DUDUM",
+          "speaker_label": "두둠",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "이름 길어도 박자는 늘리면 돼! 둥둥!",
+          "id": "V130R_BOND_WAR_DRUMMER_3_004",
+          "line": "[두둠|기쁨]: 이름 길어도 박자는 늘리면 돼! 둥둥!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_MOON_TRACKER_1",
+      "title": "달 없는 동굴",
+      "monster_id": "moon_tracker",
+      "memory_stage": 1,
+      "memory_id": "bond_moon_tracker_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_moon_tracker_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "moon_tracker"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_moon_tracker_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "달빛 추적자인 루미는 달이 안 보이는 동굴이 싫었지만, 녹녹의 촛불을 '작은 달'이라 부르며 적응했다.",
+          "id": "V130R_BOND_MOON_TRACKER_1_001",
+          "line": "[내레이션|담담]: 달빛 추적자인 루미는 달이 안 보이는 동굴이 싫었지만, 녹녹의 촛불을 '작은 달'이라 부르며 적응했다."
+        },
+        {
+          "speaker_id": "CHR_LUMI",
+          "speaker_label": "루미",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "base",
+          "text": "달이 없으면 만들면 돼. 작게라도.",
+          "id": "V130R_BOND_MOON_TRACKER_1_002",
+          "line": "[루미|속삭임]: 달이 없으면 만들면 돼. 작게라도."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "녹녹을 작은 달이라 부르니 저쪽도 덜 떨더군.",
+          "id": "V130R_BOND_MOON_TRACKER_1_003",
+          "line": "[마왕|다정]: 녹녹을 작은 달이라 부르니 저쪽도 덜 떨더군."
+        },
+        {
+          "speaker_id": "CHR_LUMI",
+          "speaker_label": "루미",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "빛은 크기보다 돌아올 방향이 중요해.",
+          "id": "V130R_BOND_MOON_TRACKER_1_004",
+          "line": "[루미|기쁨]: 빛은 크기보다 돌아올 방향이 중요해."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_MOON_TRACKER_2",
+      "title": "놓친 표적",
+      "monster_id": "moon_tracker",
+      "memory_stage": 2,
+      "memory_id": "bond_moon_tracker_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_moon_tracker_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "moon_tracker"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_moon_tracker_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "루미는 처음으로 표적을 놓친 날, 쫓는 대신 다친 곱을 업고 돌아왔다.",
+          "id": "V130R_BOND_MOON_TRACKER_2_001",
+          "line": "[내레이션|담담]: 루미는 처음으로 표적을 놓친 날, 쫓는 대신 다친 곱을 업고 돌아왔다."
+        },
+        {
+          "speaker_id": "CHR_LUMI",
+          "speaker_label": "루미",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "base",
+          "text": "쫓을 건 또 와. 식구는 한 번 놓치면 끝이야.",
+          "id": "V130R_BOND_MOON_TRACKER_2_002",
+          "line": "[루미|속삭임]: 쫓을 건 또 와. 식구는 한 번 놓치면 끝이야."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "표적을 놓쳤어도 곱을 데려왔다. 보고서 첫 줄은 그거다.",
+          "id": "V130R_BOND_MOON_TRACKER_2_003",
+          "line": "[마왕|다정]: 표적을 놓쳤어도 곱을 데려왔다. 보고서 첫 줄은 그거다."
+        },
+        {
+          "speaker_id": "CHR_LUMI",
+          "speaker_label": "루미",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "다음 표식도 식구한테 돌아오는 선부터 볼게.",
+          "id": "V130R_BOND_MOON_TRACKER_2_004",
+          "line": "[루미|기쁨]: 다음 표식도 식구한테 돌아오는 선부터 볼게."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_MOON_TRACKER_3",
+      "title": "표식의 의미",
+      "monster_id": "moon_tracker",
+      "memory_stage": 3,
+      "memory_id": "bond_moon_tracker_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_moon_tracker_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "moon_tracker"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_moon_tracker_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "루미는 식구들 이마에 보이지 않는 달빛 표식을 남겼다. 길을 잃어도 찾을 수 있도록.",
+          "id": "V130R_BOND_MOON_TRACKER_3_001",
+          "line": "[내레이션|담담]: 루미는 식구들 이마에 보이지 않는 달빛 표식을 남겼다. 길을 잃어도 찾을 수 있도록."
+        },
+        {
+          "speaker_id": "CHR_LUMI",
+          "speaker_label": "루미",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "base",
+          "text": "내 표식은 원래 찾으려고 남기는 거야.",
+          "id": "V130R_BOND_MOON_TRACKER_3_002",
+          "line": "[루미|속삭임]: 내 표식은 원래 찾으려고 남기는 거야."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "보이지 않아도 이마가 따뜻하군. 찾으러 온다는 표시라 그런가.",
+          "id": "V130R_BOND_MOON_TRACKER_3_003",
+          "line": "[마왕|다정]: 보이지 않아도 이마가 따뜻하군. 찾으러 온다는 표시라 그런가."
+        },
+        {
+          "speaker_id": "CHR_LUMI",
+          "speaker_label": "루미",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "응. 숨는 데 쓰는 게 아니라 돌아오는 데 쓰는 거야.",
+          "id": "V130R_BOND_MOON_TRACKER_3_004",
+          "line": "[루미|기쁨]: 응. 숨는 데 쓰는 게 아니라 돌아오는 데 쓰는 거야."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_MIMIC_PORTER_1",
+      "title": "열어 보지 마세요",
+      "monster_id": "mimic_porter",
+      "memory_stage": 1,
+      "memory_id": "bond_mimic_porter_rank_1",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_mimic_porter_rank_1",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "mimic_porter"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_mimic_porter_rank_1"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "미미 뚜껑에 붙은 '열어 보지 마세요' 쪽지는, 사실 미미가 수줍어서 스스로 붙인 것이었다.",
+          "id": "V130R_BOND_MIMIC_PORTER_1_001",
+          "line": "[내레이션|담담]: 미미 뚜껑에 붙은 '열어 보지 마세요' 쪽지는, 사실 미미가 수줍어서 스스로 붙인 것이었다."
+        },
+        {
+          "speaker_id": "CHR_MIMI",
+          "speaker_label": "미미",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "happy",
+          "text": "열면… 놀라는 건 내가 먼저야.",
+          "id": "V130R_BOND_MIMIC_PORTER_1_002",
+          "line": "[미미|자신만만]: 열면… 놀라는 건 내가 먼저야."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "열지 말라는 쪽지는 네가 붙였군. 허락 전엔 기다리마.",
+          "id": "V130R_BOND_MIMIC_PORTER_1_003",
+          "line": "[마왕|다정]: 열지 말라는 쪽지는 네가 붙였군. 허락 전엔 기다리마."
+        },
+        {
+          "speaker_id": "CHR_MIMI",
+          "speaker_label": "미미",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "그러면… 조금 열어도 덜 놀랄 것 같아.",
+          "id": "V130R_BOND_MIMIC_PORTER_1_004",
+          "line": "[미미|기쁨]: 그러면… 조금 열어도 덜 놀랄 것 같아."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_MIMIC_PORTER_2",
+      "title": "진짜 보물",
+      "monster_id": "mimic_porter",
+      "memory_stage": 2,
+      "memory_id": "bond_mimic_porter_rank_2",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_mimic_porter_rank_2",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "mimic_porter"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_mimic_porter_rank_2"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "미미는 몸 안에 가짜 보물만 넣고 다니다가, 어느 날 식구들이 준 조약돌 하나를 진짜 보물로 넣었다.",
+          "id": "V130R_BOND_MIMIC_PORTER_2_001",
+          "line": "[내레이션|담담]: 미미는 몸 안에 가짜 보물만 넣고 다니다가, 어느 날 식구들이 준 조약돌 하나를 진짜 보물로 넣었다."
+        },
+        {
+          "speaker_id": "CHR_MIMI",
+          "speaker_label": "미미",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "happy",
+          "text": "이건 아무한테도 안 뱉을 거야.",
+          "id": "V130R_BOND_MIMIC_PORTER_2_002",
+          "line": "[미미|자신만만]: 이건 아무한테도 안 뱉을 거야."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "조약돌 하나가 금화보다 안쪽에 있구나.",
+          "id": "V130R_BOND_MIMIC_PORTER_2_003",
+          "line": "[마왕|다정]: 조약돌 하나가 금화보다 안쪽에 있구나."
+        },
+        {
+          "speaker_id": "CHR_MIMI",
+          "speaker_label": "미미",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "식구가 준 거라… 값은 안 적었어.",
+          "id": "V130R_BOND_MIMIC_PORTER_2_004",
+          "line": "[미미|기쁨]: 식구가 준 거라… 값은 안 적었어."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_MIMIC_PORTER_3",
+      "title": "짐꾼의 꿈",
+      "monster_id": "mimic_porter",
+      "memory_stage": 3,
+      "memory_id": "bond_mimic_porter_rank_3",
+      "source_ref": "data/v130r/memory_entries_new.json",
+      "source_entry_id": "bond_mimic_porter_rank_3",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "mimic_porter"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bond_mimic_porter_rank_3"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "미미는 언젠가 마왕성이 이사 가는 날, 식구들 짐을 전부 자기가 나르겠다고 약속했다.",
+          "id": "V130R_BOND_MIMIC_PORTER_3_001",
+          "line": "[내레이션|담담]: 미미는 언젠가 마왕성이 이사 가는 날, 식구들 짐을 전부 자기가 나르겠다고 약속했다."
+        },
+        {
+          "speaker_id": "CHR_MIMI",
+          "speaker_label": "미미",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "happy",
+          "text": "큰 성이 되면 나도 커질 거야. 다 담을 수 있게.",
+          "id": "V130R_BOND_MIMIC_PORTER_3_002",
+          "line": "[미미|자신만만]: 큰 성이 되면 나도 커질 거야. 다 담을 수 있게."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "이사하는 날 짐은 같이 들자. 너까지 짐 속에 숨지는 마라.",
+          "id": "V130R_BOND_MIMIC_PORTER_3_003",
+          "line": "[마왕|다정]: 이사하는 날 짐은 같이 들자. 너까지 짐 속에 숨지는 마라."
+        },
+        {
+          "speaker_id": "CHR_MIMI",
+          "speaker_label": "미미",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "그럼 제일 먼저… 내 자리부터 챙겨 줘.",
+          "id": "V130R_BOND_MIMIC_PORTER_3_004",
+          "line": "[미미|기쁨]: 그럼 제일 먼저… 내 자리부터 챙겨 줘."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_GHOST_HOUSEMAID_1",
+      "title": "열쇠가 필요 없는 하녀",
+      "monster_id": "ghost_housemaid",
+      "memory_stage": 1,
+      "memory_id": "bebe_room_key",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bebe_room_key",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "ghost_housemaid"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bebe_room_key"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "베베는 잠긴 문을 조용히 통과하고도 식구들이 돌아올 문은 활짝 열어 두었다.",
+          "id": "V130R_BOND_GHOST_HOUSEMAID_1_001",
+          "line": "[내레이션|담담]: 베베는 잠긴 문을 조용히 통과하고도 식구들이 돌아올 문은 활짝 열어 두었다."
+        },
+        {
+          "speaker_id": "CHR_BEBE",
+          "speaker_label": "베베",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "나는 열쇠가 없어도 돼. 하지만 돌아오는 식구에게는 열린 문이 필요해.",
+          "id": "V130R_BOND_GHOST_HOUSEMAID_1_002",
+          "line": "[베베|다정]: 나는 열쇠가 없어도 돼. 하지만 돌아오는 식구에게는 열린 문이 필요해."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "네가 문을 통과해도 우리를 위해 열어 두는 걸 봤다.",
+          "id": "V130R_BOND_GHOST_HOUSEMAID_1_003",
+          "line": "[마왕|다정]: 네가 문을 통과해도 우리를 위해 열어 두는 걸 봤다."
+        },
+        {
+          "speaker_id": "CHR_BEBE",
+          "speaker_label": "베베",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "돌아오는 발소리는 문이 있어야 잘 들려.",
+          "id": "V130R_BOND_GHOST_HOUSEMAID_1_004",
+          "line": "[베베|기쁨]: 돌아오는 발소리는 문이 있어야 잘 들려."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_GHOST_HOUSEMAID_2",
+      "title": "왕좌 아래의 먼지",
+      "monster_id": "ghost_housemaid",
+      "memory_stage": 2,
+      "memory_id": "bebe_dust_under_throne",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bebe_dust_under_throne",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "ghost_housemaid"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bebe_dust_under_throne"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "왕좌 아래를 쓸던 베베는 초대 마왕이 남긴 낡은 단추를 찾아 지금의 마왕에게 건넸다.",
+          "id": "V130R_BOND_GHOST_HOUSEMAID_2_001",
+          "line": "[내레이션|담담]: 왕좌 아래를 쓸던 베베는 초대 마왕이 남긴 낡은 단추를 찾아 지금의 마왕에게 건넸다."
+        },
+        {
+          "speaker_id": "CHR_BEBE",
+          "speaker_label": "베베",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "먼지는 치워도, 그 아래 남은 마음까지 버리면 안 돼.",
+          "id": "V130R_BOND_GHOST_HOUSEMAID_2_002",
+          "line": "[베베|다정]: 먼지는 치워도, 그 아래 남은 마음까지 버리면 안 돼."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "초대 마왕의 단추를 쓰레기와 구분했구나. 나도 조심히 두마.",
+          "id": "V130R_BOND_GHOST_HOUSEMAID_2_003",
+          "line": "[마왕|다정]: 초대 마왕의 단추를 쓰레기와 구분했구나. 나도 조심히 두마."
+        },
+        {
+          "speaker_id": "CHR_BEBE",
+          "speaker_label": "베베",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "낡았다는 이유로 버리면 성이 너무 가벼워져.",
+          "id": "V130R_BOND_GHOST_HOUSEMAID_2_004",
+          "line": "[베베|기쁨]: 낡았다는 이유로 버리면 성이 너무 가벼워져."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_GHOST_HOUSEMAID_3",
+      "title": "마지막 순찰",
+      "monster_id": "ghost_housemaid",
+      "memory_stage": 3,
+      "memory_id": "bebe_last_round",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "bebe_last_round",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "ghost_housemaid"
+        ],
+        "requires_unlocked_memory_ids": [
+          "bebe_last_round"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "모두 잠든 밤, 베베와 마왕은 무너진 복도를 함께 돌며 빈 방마다 내일 켤 등을 놓았다.",
+          "id": "V130R_BOND_GHOST_HOUSEMAID_3_001",
+          "line": "[내레이션|담담]: 모두 잠든 밤, 베베와 마왕은 무너진 복도를 함께 돌며 빈 방마다 내일 켤 등을 놓았다."
+        },
+        {
+          "speaker_id": "CHR_BEBE",
+          "speaker_label": "베베",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "마지막 한 바퀴는 같이 돌아 줘. 그래야 이 성이 정말 우리 집 같아.",
+          "id": "V130R_BOND_GHOST_HOUSEMAID_3_002",
+          "line": "[베베|다정]: 마지막 한 바퀴는 같이 돌아 줘. 그래야 이 성이 정말 우리 집 같아."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "빈 방에 등을 놓으니 내일이 조금 보이는군. 다음 순찰도 같이 돌자.",
+          "id": "V130R_BOND_GHOST_HOUSEMAID_3_003",
+          "line": "[마왕|다정]: 빈 방에 등을 놓으니 내일이 조금 보이는군. 다음 순찰도 같이 돌자."
+        },
+        {
+          "speaker_id": "CHR_BEBE",
+          "speaker_label": "베베",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "응. 마지막 문까지 같이 확인하자.",
+          "id": "V130R_BOND_GHOST_HOUSEMAID_3_004",
+          "line": "[베베|기쁨]: 응. 마지막 문까지 같이 확인하자."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_GRAVEYARD_HOUND_1",
+      "title": "먹지 않는 뼈",
+      "monster_id": "graveyard_hound",
+      "memory_stage": 1,
+      "memory_id": "koko_bone_not_food",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "koko_bone_not_food",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "graveyard_hound"
+        ],
+        "requires_unlocked_memory_ids": [
+          "koko_bone_not_food"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "코코는 식사 때도 목걸이의 낡은 뼈만은 물지 않았다. 처음 자신을 가족이라 불러 준 묘지기의 표식이었다.",
+          "id": "V130R_BOND_GRAVEYARD_HOUND_1_001",
+          "line": "[내레이션|담담]: 코코는 식사 때도 목걸이의 낡은 뼈만은 물지 않았다. 처음 자신을 가족이라 불러 준 묘지기의 표식이었다."
+        },
+        {
+          "speaker_id": "CHR_KOKO",
+          "speaker_label": "코코",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "이 뼈는 밥 아니야. 길을 잃지 않게 해 준 약속이야.",
+          "id": "V130R_BOND_GRAVEYARD_HOUND_1_002",
+          "line": "[코코|확인]: 이 뼈는 밥 아니야. 길을 잃지 않게 해 준 약속이야."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "묘지기의 약속이었구나. 배가 고파도 안 건드리는 이유를 알았다.",
+          "id": "V130R_BOND_GRAVEYARD_HOUND_1_003",
+          "line": "[마왕|다정]: 묘지기의 약속이었구나. 배가 고파도 안 건드리는 이유를 알았다."
+        },
+        {
+          "speaker_id": "CHR_KOKO",
+          "speaker_label": "코코",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "새 식구 냄새도 그 옆에 기억해.",
+          "id": "V130R_BOND_GRAVEYARD_HOUND_1_004",
+          "line": "[코코|기쁨]: 새 식구 냄새도 그 옆에 기억해."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_GRAVEYARD_HOUND_2",
+      "title": "틀린 냄새",
+      "monster_id": "graveyard_hound",
+      "memory_stage": 2,
+      "memory_id": "koko_wrong_scent",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "koko_wrong_scent",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "graveyard_hound"
+        ],
+        "requires_unlocked_memory_ids": [
+          "koko_wrong_scent"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "코코는 적의 미끼 냄새를 따라갔다가 스스로 돌아와 마왕의 손등에 코를 대고 다시 길을 골랐다.",
+          "id": "V130R_BOND_GRAVEYARD_HOUND_2_001",
+          "line": "[내레이션|담담]: 코코는 적의 미끼 냄새를 따라갔다가 스스로 돌아와 마왕의 손등에 코를 대고 다시 길을 골랐다."
+        },
+        {
+          "speaker_id": "CHR_KOKO",
+          "speaker_label": "코코",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "한 번 틀려도 괜찮아. 네 냄새를 기억하면 다시 찾을 수 있어.",
+          "id": "V130R_BOND_GRAVEYARD_HOUND_2_002",
+          "line": "[코코|확인]: 한 번 틀려도 괜찮아. 네 냄새를 기억하면 다시 찾을 수 있어."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "잘못된 냄새에서 스스로 돌아왔군. 내 손은 여기 있다.",
+          "id": "V130R_BOND_GRAVEYARD_HOUND_2_003",
+          "line": "[마왕|다정]: 잘못된 냄새에서 스스로 돌아왔군. 내 손은 여기 있다."
+        },
+        {
+          "speaker_id": "CHR_KOKO",
+          "speaker_label": "코코",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "이번엔 집 냄새부터 확인했어.",
+          "id": "V130R_BOND_GRAVEYARD_HOUND_2_004",
+          "line": "[코코|기쁨]: 이번엔 집 냄새부터 확인했어."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_GRAVEYARD_HOUND_3",
+      "title": "집은 돌아오는 길",
+      "monster_id": "graveyard_hound",
+      "memory_stage": 3,
+      "memory_id": "koko_home_is_route",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "koko_home_is_route",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "graveyard_hound"
+        ],
+        "requires_unlocked_memory_ids": [
+          "koko_home_is_route"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "코코는 성 밖의 모든 갈림길에 푸른 불씨를 남겼고, 마지막 불씨는 언제나 왕좌 앞에서 빛났다.",
+          "id": "V130R_BOND_GRAVEYARD_HOUND_3_001",
+          "line": "[내레이션|담담]: 코코는 성 밖의 모든 갈림길에 푸른 불씨를 남겼고, 마지막 불씨는 언제나 왕좌 앞에서 빛났다."
+        },
+        {
+          "speaker_id": "CHR_KOKO",
+          "speaker_label": "코코",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "집은 한 장소가 아니야. 너에게 돌아오는 길 전부가 집이야.",
+          "id": "V130R_BOND_GRAVEYARD_HOUND_3_002",
+          "line": "[코코|확인]: 집은 한 장소가 아니야. 너에게 돌아오는 길 전부가 집이야."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "마지막 푸른 불씨가 왕좌 앞이군. 길 전체가 우리 집이 됐다.",
+          "id": "V130R_BOND_GRAVEYARD_HOUND_3_003",
+          "line": "[마왕|다정]: 마지막 푸른 불씨가 왕좌 앞이군. 길 전체가 우리 집이 됐다."
+        },
+        {
+          "speaker_id": "CHR_KOKO",
+          "speaker_label": "코코",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "내가 걸어온 길도 이제 혼자 길 아니야.",
+          "id": "V130R_BOND_GRAVEYARD_HOUND_3_004",
+          "line": "[코코|기쁨]: 내가 걸어온 길도 이제 혼자 길 아니야."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_ARMORED_BEETLE_1",
+      "title": "여분 판금",
+      "monster_id": "armored_beetle",
+      "memory_stage": 1,
+      "memory_id": "toktok_spare_plate",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "toktok_spare_plate",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "armored_beetle"
+        ],
+        "requires_unlocked_memory_ids": [
+          "toktok_spare_plate"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "톡톡은 자기 등껍질에 붙이려던 가장 좋은 판금을 떼어 마왕의 낡은 갑옷에 먼저 덧댔다.",
+          "id": "V130R_BOND_ARMORED_BEETLE_1_001",
+          "line": "[내레이션|담담]: 톡톡은 자기 등껍질에 붙이려던 가장 좋은 판금을 떼어 마왕의 낡은 갑옷에 먼저 덧댔다."
+        },
+        {
+          "speaker_id": "CHR_TOKTOK",
+          "speaker_label": "톡톡",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "내 등은 아직 단단해. 이 판은 네가 먼저 써.",
+          "id": "V130R_BOND_ARMORED_BEETLE_1_002",
+          "line": "[톡톡|확인]: 내 등은 아직 단단해. 이 판은 네가 먼저 써."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "좋은 판금을 내 갑옷에 먼저 줬군. 다음 장은 네 등을 위한 것이다.",
+          "id": "V130R_BOND_ARMORED_BEETLE_1_003",
+          "line": "[마왕|다정]: 좋은 판금을 내 갑옷에 먼저 줬군. 다음 장은 네 등을 위한 것이다."
+        },
+        {
+          "speaker_id": "CHR_TOKTOK",
+          "speaker_label": "톡톡",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "돌려주는 게 아니라 같이 받치는 거다. 톡.",
+          "id": "V130R_BOND_ARMORED_BEETLE_1_004",
+          "line": "[톡톡|기쁨]: 돌려주는 게 아니라 같이 받치는 거다. 톡."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_ARMORED_BEETLE_2",
+      "title": "광내는 날",
+      "monster_id": "armored_beetle",
+      "memory_stage": 2,
+      "memory_id": "toktok_polish_day",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "toktok_polish_day",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "armored_beetle"
+        ],
+        "requires_unlocked_memory_ids": [
+          "toktok_polish_day"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "마왕은 수리만 하던 톡톡을 앉혀 두고 보라 리벳 하나하나를 닦았다. 톡톡은 온종일 낮은 박자로 껍질을 울렸다.",
+          "id": "V130R_BOND_ARMORED_BEETLE_2_001",
+          "line": "[내레이션|담담]: 마왕은 수리만 하던 톡톡을 앉혀 두고 보라 리벳 하나하나를 닦았다. 톡톡은 온종일 낮은 박자로 껍질을 울렸다."
+        },
+        {
+          "speaker_id": "CHR_TOKTOK",
+          "speaker_label": "톡톡",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "고치는 날 말고, 빛나게 하는 날도 필요하구나.",
+          "id": "V130R_BOND_ARMORED_BEETLE_2_002",
+          "line": "[톡톡|확인]: 고치는 날 말고, 빛나게 하는 날도 필요하구나."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "리벳을 닦아 보니 보라색이 이렇게 밝았나 싶다.",
+          "id": "V130R_BOND_ARMORED_BEETLE_2_003",
+          "line": "[마왕|다정]: 리벳을 닦아 보니 보라색이 이렇게 밝았나 싶다."
+        },
+        {
+          "speaker_id": "CHR_TOKTOK",
+          "speaker_label": "톡톡",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "고장 없어도 손이 와도 되는구나. 톡톡.",
+          "id": "V130R_BOND_ARMORED_BEETLE_2_004",
+          "line": "[톡톡|기쁨]: 고장 없어도 손이 와도 되는구나. 톡톡."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_ARMORED_BEETLE_3",
+      "title": "심장에 붙인 판금",
+      "monster_id": "armored_beetle",
+      "memory_stage": 3,
+      "memory_id": "toktok_heart_patch",
+      "source_ref": "data/memory_entries.json",
+      "source_entry_id": "toktok_heart_patch",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "armored_beetle"
+        ],
+        "requires_unlocked_memory_ids": [
+          "toktok_heart_patch"
+        ]
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "심장실이 갈라진 밤, 톡톡은 마지막 판금을 성의 심장에 붙이고 자신의 등으로 굳을 때까지 받쳤다.",
+          "id": "V130R_BOND_ARMORED_BEETLE_3_001",
+          "line": "[내레이션|담담]: 심장실이 갈라진 밤, 톡톡은 마지막 판금을 성의 심장에 붙이고 자신의 등으로 굳을 때까지 받쳤다."
+        },
+        {
+          "speaker_id": "CHR_TOKTOK",
+          "speaker_label": "톡톡",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "성이 뛰는 동안 나도 버틸게. 우리는 같은 껍질 안에 있으니까.",
+          "id": "V130R_BOND_ARMORED_BEETLE_3_002",
+          "line": "[톡톡|확인]: 성이 뛰는 동안 나도 버틸게. 우리는 같은 껍질 안에 있으니까."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "심장 판금이 굳는 동안 네 등이 성벽이었다. 이제 우리가 받치마.",
+          "id": "V130R_BOND_ARMORED_BEETLE_3_003",
+          "line": "[마왕|다정]: 심장 판금이 굳는 동안 네 등이 성벽이었다. 이제 우리가 받치마."
+        },
+        {
+          "speaker_id": "CHR_TOKTOK",
+          "speaker_label": "톡톡",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "같은 껍질이면 번갈아 받치면 된다. 톡.",
+          "id": "V130R_BOND_ARMORED_BEETLE_3_004",
+          "line": "[톡톡|기쁨]: 같은 껍질이면 번갈아 받치면 된다. 톡."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_SPIDER_TAILOR_1",
+      "title": "조금 짧아진 망토",
+      "monster_id": "spider_tailor",
+      "memory_stage": 1,
+      "memory_id": "memory_silky_cloak_hem",
+      "source_ref": "data/regular_version/update4/bond_events.json",
+      "source_entry_id": "silky_cloak_hem",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "spider_tailor"
+        ],
+        "requires_unlocked_memory_ids": [
+          "memory_silky_cloak_hem"
+        ],
+        "original_bond_threshold": 30,
+        "original_mode_gates_preserved": true
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "실키는 전투 중 밟힐 것 같다며 마왕의 망토 밑단을 말없이 한 뼘 줄였다. 마왕은 위엄과 안전 중 어느 쪽을 항의해야 할지 한참 고민했다.",
+          "id": "V130R_BOND_SPIDER_TAILOR_1_001",
+          "line": "[내레이션|담담]: 실키는 전투 중 밟힐 것 같다며 마왕의 망토 밑단을 말없이 한 뼘 줄였다. 마왕은 위엄과 안전 중 어느 쪽을 항의해야 할지 한참 고민했다."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "망토가 한 뼘 짧아졌다. 내 위엄도 잘려 나갔나?",
+          "id": "V130R_BOND_SPIDER_TAILOR_1_002",
+          "line": "[마왕|허세]: 망토가 한 뼘 짧아졌다. 내 위엄도 잘려 나갔나?"
+        },
+        {
+          "speaker_id": "CHR_SILKY",
+          "speaker_label": "실키",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "발이 안 걸리면 위엄도 안 넘어진다.",
+          "id": "V130R_BOND_SPIDER_TAILOR_1_003",
+          "line": "[실키|다정]: 발이 안 걸리면 위엄도 안 넘어진다."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "그럼 오늘부터 안전한 위엄이라고 부르겠다.",
+          "id": "V130R_BOND_SPIDER_TAILOR_1_004",
+          "line": "[마왕|다정]: 그럼 오늘부터 안전한 위엄이라고 부르겠다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_SPIDER_TAILOR_2",
+      "title": "퇴각 통로의 커튼",
+      "monster_id": "spider_tailor",
+      "memory_stage": 2,
+      "memory_id": "memory_silky_outpost_curtain",
+      "source_ref": "data/regular_version/update4/bond_events.json",
+      "source_entry_id": "silky_outpost_curtain",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "spider_tailor"
+        ],
+        "requires_unlocked_memory_ids": [
+          "memory_silky_outpost_curtain"
+        ],
+        "original_bond_threshold": 55,
+        "original_mode_gates_preserved": true
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "전초기지 퇴각 통로에 은빛 커튼이 달렸다. 너무 예뻐서 병사들이 도망치기 전에 한 번씩 뒤돌아보는 문제가 생겼다.",
+          "id": "V130R_BOND_SPIDER_TAILOR_2_001",
+          "line": "[내레이션|담담]: 전초기지 퇴각 통로에 은빛 커튼이 달렸다. 너무 예뻐서 병사들이 도망치기 전에 한 번씩 뒤돌아보는 문제가 생겼다."
+        },
+        {
+          "speaker_id": "CHR_SILKY",
+          "speaker_label": "실키",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "커튼은 돌아보라고 단 게 아니야. 나가는 길 표시야.",
+          "id": "V130R_BOND_SPIDER_TAILOR_2_002",
+          "line": "[실키|다정]: 커튼은 돌아보라고 단 게 아니야. 나가는 길 표시야."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "식구들이 살아서 다시 감상하게 하자.",
+          "id": "V130R_BOND_SPIDER_TAILOR_2_003",
+          "line": "[마왕|다정]: 식구들이 살아서 다시 감상하게 하자."
+        },
+        {
+          "speaker_id": "CHR_SILKY",
+          "speaker_label": "실키",
+          "emotion_direction": "미소",
+          "portrait_emotion": "happy",
+          "text": "응. 예쁜 건 나중에도 예쁘니까.",
+          "id": "V130R_BOND_SPIDER_TAILOR_2_004",
+          "line": "[실키|미소]: 응. 예쁜 건 나중에도 예쁘니까."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_SPIDER_TAILOR_3",
+      "title": "왕관 덮개의 치수",
+      "monster_id": "spider_tailor",
+      "memory_stage": 3,
+      "memory_id": "memory_silky_crown_cover",
+      "source_ref": "data/regular_version/update4/bond_events.json",
+      "source_entry_id": "silky_crown_cover",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "spider_tailor"
+        ],
+        "requires_unlocked_memory_ids": [
+          "memory_silky_crown_cover"
+        ],
+        "original_bond_threshold": 80,
+        "original_mode_gates_preserved": true
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "실키는 새 왕관실의 왕관 덮개를 만들겠다며 후보들의 머리 둘레를 재기 시작했다. 포포는 귀까지 포함하면 반칙이라고 주장했다.",
+          "id": "V130R_BOND_SPIDER_TAILOR_3_001",
+          "line": "[내레이션|담담]: 실키는 새 왕관실의 왕관 덮개를 만들겠다며 후보들의 머리 둘레를 재기 시작했다. 포포는 귀까지 포함하면 반칙이라고 주장했다."
+        },
+        {
+          "speaker_id": "CHR_SILKY",
+          "speaker_label": "실키",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "덮개 치수는 머리 기준. 귀는 눌리지 않게 따로 둘게.",
+          "id": "V130R_BOND_SPIDER_TAILOR_3_002",
+          "line": "[실키|다정]: 덮개 치수는 머리 기준. 귀는 눌리지 않게 따로 둘게."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "왕관실은 생겼는데 또 치수로 싸우는군.",
+          "id": "V130R_BOND_SPIDER_TAILOR_3_003",
+          "line": "[마왕|다정]: 왕관실은 생겼는데 또 치수로 싸우는군."
+        },
+        {
+          "speaker_id": "CHR_SILKY",
+          "speaker_label": "실키",
+          "emotion_direction": "미소",
+          "portrait_emotion": "happy",
+          "text": "쓰는 식구한테 맞아야 왕관도 안 굴러가.",
+          "id": "V130R_BOND_SPIDER_TAILOR_3_004",
+          "line": "[실키|미소]: 쓰는 식구한테 맞아야 왕관도 안 굴러가."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_BAT_COURIER_1",
+      "title": "세 번 접은 초청장",
+      "monster_id": "bat_courier",
+      "memory_stage": 1,
+      "memory_id": "memory_popo_folded_invitation",
+      "source_ref": "data/regular_version/update4/bond_events.json",
+      "source_entry_id": "popo_folded_invitation",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "bat_courier"
+        ],
+        "requires_unlocked_memory_ids": [
+          "memory_popo_folded_invitation"
+        ],
+        "original_bond_threshold": 30,
+        "original_mode_gates_preserved": true
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "포포는 의회 초청장을 세 번 접어 작은 종이박쥐로 만들었다. 받는 사람은 늦게 알았지만 종이박쥐는 정확한 의석에 먼저 도착했다.",
+          "id": "V130R_BOND_BAT_COURIER_1_001",
+          "line": "[내레이션|담담]: 포포는 의회 초청장을 세 번 접어 작은 종이박쥐로 만들었다. 받는 사람은 늦게 알았지만 종이박쥐는 정확한 의석에 먼저 도착했다."
+        },
+        {
+          "speaker_id": "CHR_POPO",
+          "speaker_label": "포포",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "종이박쥐는 먼저 착석! 받는 사람은 나중에 읽기!",
+          "id": "V130R_BOND_BAT_COURIER_1_002",
+          "line": "[포포|기쁨]: 종이박쥐는 먼저 착석! 받는 사람은 나중에 읽기!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "의회 초청장이 나보다 예의가 빠르군.",
+          "id": "V130R_BOND_BAT_COURIER_1_003",
+          "line": "[마왕|다정]: 의회 초청장이 나보다 예의가 빠르군."
+        },
+        {
+          "speaker_id": "CHR_POPO",
+          "speaker_label": "포포",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "다음엔 펼치는 안내도 같이 배달할게!",
+          "id": "V130R_BOND_BAT_COURIER_1_004",
+          "line": "[포포|기쁨]: 다음엔 펼치는 안내도 같이 배달할게!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_BAT_COURIER_2",
+      "title": "영수증 반송 대소동",
+      "monster_id": "bat_courier",
+      "memory_stage": 2,
+      "memory_id": "memory_popo_wrong_receipt",
+      "source_ref": "data/regular_version/update4/bond_events.json",
+      "source_entry_id": "popo_wrong_receipt",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "bat_courier"
+        ],
+        "requires_unlocked_memory_ids": [
+          "memory_popo_wrong_receipt"
+        ],
+        "original_bond_threshold": 55,
+        "original_mode_gates_preserved": true
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "포포는 골딘의 영수증 묶음을 경쟁 마왕 우편함 앞에서 간신히 회수했다. 주소보다 금액이 더 무서워 보였다는 변명은 채택되지 않았다.",
+          "id": "V130R_BOND_BAT_COURIER_2_001",
+          "line": "[내레이션|담담]: 포포는 골딘의 영수증 묶음을 경쟁 마왕 우편함 앞에서 간신히 회수했다. 주소보다 금액이 더 무서워 보였다는 변명은 채택되지 않았다."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "경쟁 마왕 우편함에서 되찾았다니 날개가 떨렸겠군.",
+          "id": "V130R_BOND_BAT_COURIER_2_002",
+          "line": "[마왕|다정]: 경쟁 마왕 우편함에서 되찾았다니 날개가 떨렸겠군."
+        },
+        {
+          "speaker_id": "CHR_POPO",
+          "speaker_label": "포포",
+          "emotion_direction": "자랑",
+          "portrait_emotion": "happy",
+          "text": "금액을 읽으니까 날개가 알아서 돌아섰어!",
+          "id": "V130R_BOND_BAT_COURIER_2_003",
+          "line": "[포포|자랑]: 금액을 읽으니까 날개가 알아서 돌아섰어!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "다음엔 주소부터 읽어라. 금액보다 짧다.",
+          "id": "V130R_BOND_BAT_COURIER_2_004",
+          "line": "[마왕|다정]: 다음엔 주소부터 읽어라. 금액보다 짧다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_BOND_BAT_COURIER_3",
+      "title": "이름보다 긴 직함",
+      "monster_id": "bat_courier",
+      "memory_stage": 3,
+      "memory_id": "memory_popo_long_title",
+      "source_ref": "data/regular_version/update4/bond_events.json",
+      "source_entry_id": "popo_long_title",
+      "trigger": "memory_viewed",
+      "context": "memory_recollection",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "bat_courier"
+        ],
+        "requires_unlocked_memory_ids": [
+          "memory_popo_long_title"
+        ],
+        "original_bond_threshold": 80,
+        "original_mode_gates_preserved": true
+      },
+      "repeat_policy": "once_per_memory",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "NARRATOR",
+          "speaker_label": "내레이션",
+          "emotion_direction": "담담",
+          "portrait_emotion": "none",
+          "text": "포포는 왕관 대전령이라는 직함을 봉투에 다 쓰면 주소를 적을 자리가 없다고 투덜댔다. 실키가 약칭 자수를 달아 주기로 했다.",
+          "id": "V130R_BOND_BAT_COURIER_3_001",
+          "line": "[내레이션|담담]: 포포는 왕관 대전령이라는 직함을 봉투에 다 쓰면 주소를 적을 자리가 없다고 투덜댔다. 실키가 약칭 자수를 달아 주기로 했다."
+        },
+        {
+          "speaker_id": "CHR_POPO",
+          "speaker_label": "포포",
+          "emotion_direction": "자랑",
+          "portrait_emotion": "happy",
+          "text": "왕관 대전령을 다 쓰면 받는 사람 이름이 날아가!",
+          "id": "V130R_BOND_BAT_COURIER_3_002",
+          "line": "[포포|자랑]: 왕관 대전령을 다 쓰면 받는 사람 이름이 날아가!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "실키의 약칭 자수가 붙으면 직함보다 수령인을 먼저 보자.",
+          "id": "V130R_BOND_BAT_COURIER_3_003",
+          "line": "[마왕|다정]: 실키의 약칭 자수가 붙으면 직함보다 수령인을 먼저 보자."
+        },
+        {
+          "speaker_id": "CHR_POPO",
+          "speaker_label": "포포",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "좋아! 내 직함보다 식구 이름이 우선 배달!",
+          "id": "V130R_BOND_BAT_COURIER_3_004",
+          "line": "[포포|기쁨]: 좋아! 내 직함보다 식구 이름이 우선 배달!"
+        }
+      ]
+    }
+  ]
+}

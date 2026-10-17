@@ -124,6 +124,8 @@ func load_all() -> void:
 	update3_castle_hearts = _load_json("res://data/regular_version/update3/castle_hearts.json")
 	update3_heart_auto_profiles = _load_json("res://data/regular_version/update3/heart_auto_profiles.json")
 	update3_duo_links = _load_json("res://data/regular_version/update3/duo_links.json")
+	update3_duo_links.merge(_load_json("res://data/v130r/duo_links_new.json"),true)
+	update3_events.merge(_load_json("res://data/v130r/duo_events_new.json"),true)
 	update3_monster_extensions = _load_json("res://data/regular_version/update3/monsters.json")
 	for monster_id in update3_monster_extensions.keys():
 		monsters[str(monster_id)] = update3_monster_extensions[monster_id].duplicate(true)

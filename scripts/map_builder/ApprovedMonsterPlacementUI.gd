@@ -272,7 +272,7 @@ func close_info() -> void:
 func show_info(id: String) -> void:
 	close_info(); selected = id
 	var row: Dictionary = members[id]
-	var height := (386 if row.equipped_skill_ids.size()>2 else 324)+190
+	var height := (386 if row.equipped_skill_ids.size()>2 else 324)+250
 	info_height = height
 	var footer := height-46
 	var panel: TextureRect = view.art_at(detail,"res://assets/maps/v130r_step3/monster_info_panel.png",Rect2(0,0,400,height))
@@ -297,6 +297,22 @@ func show_info(id: String) -> void:
 		text.tooltip_text = description; text.mouse_filter = Control.MOUSE_FILTER_PASS
 		y += 62
 	build_specialization(id,y)
+	var memory_button := Button.new(); detail.add_child(memory_button)
+	memory_button.name = "V130RBondMemoryButton"
+	memory_button.position = Vector2(24,footer-56); memory_button.size = Vector2(164,40)
+	memory_button.text = view.root.continuity.localized("유대 기억","Bond memories","羁绊记忆")
+	memory_button.pressed.connect(func():
+		persist(); view.root.selected_monster_id = row.species_id
+		view.root.management_scene.monster_ui.active_tab = "memory"
+		view.root._set_screen(Constants.SCREEN_MONSTER))
+	var duo_button := Button.new(); detail.add_child(duo_button)
+	duo_button.name = "V130RDuoLoadoutButton"
+	duo_button.position = Vector2(204,footer-56); duo_button.size = Vector2(164,40)
+	duo_button.text = view.root.continuity.localized("합동기 편성","Duo loadout","合击编组")
+	duo_button.pressed.connect(func():
+		persist(); view.root.set_meta("v130r_duo_loadout",true)
+		view.root.deployed_instance_ids.assign(assignments.keys())
+		view.root._set_screen(Constants.SCREEN_DUO_LINK_LOADOUT))
 	view.art_at(detail,view.KIT+"food_64.png",Rect2(24,footer,28,28))
 	view.label_at(detail,"유지비 %d/일" % row.upkeep,Vector2(57,footer+4),17)
 	view.image_button(detail,"place_clear_all",Vector2(314,footer-12),42,func(): close_info(); apply_drop(id,{}),"이 몬스터 해제")

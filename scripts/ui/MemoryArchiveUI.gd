@@ -60,6 +60,7 @@ func _title(entry: Dictionary) -> String:
 
 func _select(id: String, memory_id: String) -> void:
 	if not root.monster_roster.get(id,{}).get("unlocked_memory_ids",[]).has(memory_id): return
+	if root.v130r_story.memory(root,id,memory_id): return
 	selected_by_monster[id] = memory_id
 	root.management_scene.monster_ui.active_tab = "memory"
 	root._set_screen(Constants.SCREEN_MONSTER)

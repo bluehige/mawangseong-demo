@@ -37,6 +37,10 @@ var original_graph
 var original_rooms: Dictionary
 var spec_effects = preload("res://scripts/systems/SpecializationEffects.gd").new()
 var monster_skills = preload("res://scripts/combat/V130RMonsterSkills.gd").new()
+var duos = preload("res://scripts/combat/V130RDuoRuntime.gd").new()
+
+func activate_v130r_duo(id: String) -> bool:
+	return duos.activate(id)
 
 func begin(map_view: Control) -> void:
 	view = map_view; root = view.root
@@ -71,6 +75,11 @@ func begin(map_view: Control) -> void:
 	spawn_monsters()
 	monster_skills.setup(self)
 	spec_effects.setup(self)
+	duos.setup(self)
+	root.v130r_story.reset_battle()
+	for unit in root.monster_units:
+		root.v130r_story.bark(root,unit,"deployed")
+		if unit.get_meta("food_hungry",false): root.v130r_story.bark(root,unit,"hungry")
 	root.wave_manager.setup(GameState.day,DataRegistry.waves)
 	# Small seeded timing variation belongs to the approved map's wave entries.
 	for entry in root.wave_manager.schedule:
@@ -181,6 +190,7 @@ func physics_process(delta: float) -> void:
 	update_room_effects(sim_delta)
 	for unit in root.monster_units+root.enemy_units:
 		if unit.is_alive(): try_attack(unit,root.enemy_units if unit.faction==Constants.FACTION_MONSTER else root.monster_units)
+	duos.tick(sim_delta)
 	check_combat_end()
 
 func defense_home(assignment: Dictionary) -> Vector2:
@@ -430,8 +440,19 @@ func request_unit_skill(unit: Node, slot: int, notify_ai: bool = false) -> bool:
 	if intent.is_empty(): return false
 	intent["notify_ai"] = notify_ai
 	var ok := _commit_and_notify_skill(intent)
-	if ok: skill_events.append({"time":root.combat_time,"unit":unit.unit_id,"skill":intent.skill_id,"automatic":notify_ai})
+	if ok:
+		skill_events.append({"time":root.combat_time,"unit":unit.unit_id,"skill":intent.skill_id,"automatic":notify_ai})
 	return ok
+
+func _commit_and_notify_skill(intent: Dictionary) -> bool:
+	var applied := super._commit_and_notify_skill(intent)
+	if applied: duos.skill(intent.caster,str(intent.skill_id))
+	return applied
+
+func _commit_specialist_action(unit, target, target_id: int, effect: Callable, requested_target, requested_target_id: int, skill_id: String = "") -> bool:
+	var applied := super._commit_specialist_action(unit,target,target_id,effect,requested_target,requested_target_id,skill_id)
+	if applied: duos.skill(unit,skill_id)
+	return applied
 
 func _flame_zone_targets() -> Array:
 	return root.enemy_units.filter(func(u): return u.is_alive() and map.tags_for(u).defense_line=="1")
@@ -543,6 +564,8 @@ func issue_command(id: String, point: Vector2 = Vector2.INF, target: Node = null
 
 func finish_combat(win: bool, reason: String) -> void:
 	if not running: return
+	if win:
+		for unit in root.monster_units: root.v130r_story.bark(root,unit,"victory")
 	running = false
 	spec_effects.refund_tolls()
 	last_result = {"win":win,"reason":reason,"duration":root.combat_time,"spawned":root.spawned_count,"trap_hits":trap_events.size(),"skills":skill_events.size(),"gold_stolen":root.treasure_gold_stolen_this_battle}
@@ -577,10 +600,13 @@ func _perform_standard_attack(attacker: Node, target: Node, fighting_retreat: bo
 		return {"applied":true}
 	var result := super._perform_standard_attack(attacker,target,fighting_retreat,contact_callback)
 	if result.get("applied",false): monster_skills.on_hit(attacker,target)
+	duos.hit(attacker,target,result.get("applied",false))
 	return result
 
 func on_unit_downed(unit: Node) -> void:
 	monster_skills.on_downed(unit)
+	if unit.faction=="monster":
+		for ally in root.monster_units: root.v130r_story.bark(root,ally,"ally_downed")
 	super.on_unit_downed(unit)
 
 func _specialization_after_skill(caster: Node, id: String, victim: Node) -> void:

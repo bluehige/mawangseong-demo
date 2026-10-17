@@ -255,6 +255,7 @@ func cast(unit: Node, id: String, automatic: bool = false) -> bool:
 	if id!="blanket_hide": unit.break_stealth()
 	unit.play_skill(enemy.global_position if enemy!=null else Vector2.ZERO)
 	battle.skill_events.append({"time":battle.root.combat_time,"unit":unit.unit_id,"skill":id,"automatic":automatic})
+	battle.duos.skill(unit,id)
 	for recipient in affected:
 		battle.spawn_effect_burst("shield_pulse" if recipient.faction=="monster" else "hit_slash",recipient.position)
 	return true

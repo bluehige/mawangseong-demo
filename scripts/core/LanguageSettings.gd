@@ -120,6 +120,9 @@ func _configure_ui_catalog(language: String, path: String, translation) -> void:
 			if str(source).begins_with("[") and "]:" in str(source) and "]:" in translated:
 				values[str(source).split("]:",true,1)[1].strip_edges()] = translated.split("]:",true,1)[1].strip_edges()
 
+	var duo_ui_path := "res://data/v130r/story/localization_duo_ui_"+("zh_cn" if language==LOCALE_CHINESE else "en")+".json"
+	var duo_ui: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(duo_ui_path))
+	values.merge(duo_ui.get("messages",{}),true)
 	translation.configure(values, language)
 	TranslationServer.add_translation(translation)
 

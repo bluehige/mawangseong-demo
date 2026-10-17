@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "target_version": "1.3.0",
+  "workstream_id": "V130R_STORY_2026-10-17",
+  "integration_packet": "0111",
+  "runtime_connected": true,
+  "status": "user_review_pending",
+  "source_sha256": {
+    "data/v130r/monsters_new.json": "9de528a4a935ddbf5e9f71bf31f9bc5ba8d83d344f370d74de67652b71d587f0",
+    "data/v130r/characters_new.json": "32bff25932b8ca26b68d3ca9a0feb2cf11e3f09f217d3e02bd98f6be04fecba5",
+    "data/v130r/join_scenes.json": "f45ce7f1f2409f43270c75a44483f0a19b47f171e4d18dbc6633c83f947da949",
+    "data/v130r/upkeep.json": "7c0be3ec1c6d1c2f4a498604d7f34608a14ef2ae2ce33a9151b6cb58d8586700",
+    "data/v130r/memory_entries_new.json": "b9e42012c6bd8c62905d45d9ed472680cb904502c1adf928acf8ce8cf59eb3e3",
+    "data/memory_entries.json": "8f61c2e35a3ae339f6d302e1d8b524e824dcb17c8fac3e7359b402fa4080ad8e",
+    "data/regular_version/update3/duo_links.json": "c910a55af248245438ae4a7e5cc9030067a2fe85cb6b998167677769a6d2f4c0",
+    "data/regular_version/update4/bond_events.json": "4aeea3689156b3972846405aa510110de9b8ab618a48df15d9e306c32383f9e7",
+    "data/story/source/V122_MAIN_SCENARIO_DIALOGUE_BOOK_APPROVED_2026-07-31.md": "f6feeb62306d40d0a2ecd4aa6a4a3a98af6e513a7f0d8e5df394a2753191053d"
+  },
+  "protected_sha256": {
+    "data/story/v122_main/day_01.json": "7f2221c02dc9fa2bb0695c7af75a8f726a2f10536c779080a3ca6ca0e62114dc",
+    "data/story/v122_main/day_02.json": "c4e29f062299ad22de8b669de8f021366e00674157d1737df4513a0febd3a87e",
+    "data/story/v122_main/day_03.json": "a7ee6a67d13dd3702830e1fc3a91bd2663fb4de1309d4a1f4f5f296a2f654a7a",
+    "data/story/v122_main/day_04.json": "a3fa46db2c2b07233b5dd054243678cce9a922b8c409639d1ebf45a1bbd2899c",
+    "data/story/v122_main/day_05.json": "f919a0f5ce6e26870a85c9c8b8b3abf1ea4840e3ba8953840706c9ffa6016c32",
+    "data/story/v122_main/day_06.json": "c3593f8accbff8a10a4bb09cdd42fcce2842c4bdb0d8f003f4045f7b7d9ecc89",
+    "data/story/v122_main/day_07.json": "50c587df0a932104b7b30be06d3d0a68268277133fba11d796e29ca02e236961",
+    "data/story/v122_main/day_08.json": "865d75890345d7e9bc068bdffe2293a0f45b8b5235e0bcb46d22335cdb69a862",
+    "data/story/v122_main/day_09.json": "76e8d221b2bfb856fa88e59e34830f7ac4b21436df71f1016be1fc385cafa935",
+    "data/story/v122_main/day_10.json": "c31131f2dce1f640450b491b5e3c17989409ee01de594c6b23dd927094620381",
+    "data/story/v122_main/day_11.json": "1917ad679c8e0d7a76ba6b7c679c17752b687af2d805858e13e153021ba69f74",
+    "data/story/v122_main/day_12.json": "be1584a50ed0c084a40dd912a0e21914c3f7decf346002306371cd3fc753b429",
+    "data/story/v122_main/day_13.json": "dba751a2145d2feb968df51ec16fade6edca48d8c3ce1e26dcbc8e3f9dd5a6fb",
+    "data/story/v122_main/day_14.json": "a7e897ce3ec2d34fc5a3941f7730306debd45f1565f5b0dcd06c495d65e51028",
+    "data/story/v122_main/day_15.json": "3aa3b550f7109ed22d2cf58b2d08a361e57b36f88b2fcfb6caee4ee96510c174",
+    "data/story/v122_main/day_16.json": "b3f99487ad1e16656d2becd9e950542aa4fc6432dc5095bd3ffe11834bdb320f",
+    "data/story/v122_main/day_17.json": "4e4d4646c43bba12dcece1758d9ad013701d05512266c087274717b7571594f8",
+    "data/story/v122_main/day_18.json": "02fa74a1454b94135d1ee0ede91f86dbe1ff99b5aa6b4efcb7ed6219e9eb1977",
+    "data/story/v122_main/day_19.json": "b298a8cfd5030aadc7f6d38f373ead039d3ba43ec024079cf2c8e8d9be802bde",
+    "data/story/v122_main/day_20.json": "26da478229496978709920a1b51c98f69e99b45f2de7c40e781c0fb585df3df5",
+    "data/story/v122_main/day_21.json": "a2056a0cceeeaa0f9e261c1290dc4d502dfd51cfdd3d0ace1fd2081392ef21bb",
+    "data/story/v122_main/day_22.json": "be1c892511011e365f56f198e5fb4d48778af6af0ccbd2724b6fb28f3b809200",
+    "data/story/v122_main/day_23.json": "fc34f840e2fc31c6f0a224ca23a7a10e2532b9541317b8643215bc94aa312ea5",
+    "data/story/v122_main/day_24.json": "b264db65903009ccdc7111d27d6e187005c1f2946ce1f89ed6266cd8bca0ddca",
+    "data/story/v122_main/day_25.json": "a80c0a8111300b50f9261f18ce9cc840c1e33a2e3ebb694209f887a211ab81c7",
+    "data/story/v122_main/day_26.json": "2fb6b8dd193508bf112afa37a53dabec99549261e8efd9a6d5b469cebb23457c",
+    "data/story/v122_main/day_27.json": "3792c1f5d962cdad01136bba5a4a7ba1244cc40b99fcf6cc60d32247f45235ea",
+    "data/story/v122_main/day_28.json": "98e3dc1e896b161ca9c7721751cb2246cf993c0b5b96897da77dea8303007c72",
+    "data/story/v122_main/day_29.json": "5e9a681fe9089117c498c5b2b49c4c54915a0de3da1e141b7f6bfc231e094861",
+    "data/story/v122_main/day_30.json": "a073472be86a1ff3c746e27f7123f91f040d05b27b84a37b9781db62732e0fad",
+    "data/waves.json": "a624938c3727c67c2ec697385054c02bbac5de22e74d654fd3a4fae90a9ae596"
+  },
+  "runtime_side_effects": [],
+  "join_policy": "existing_condition_first; fallback join_day only where explicitly provided",
+  "overlay_policy": "after original management scene and any join scene for the day; segment-level roster gates; zero reward or combat mutations",
+  "day_29_policy": "management_only_no_combat",
+  "memory_policy": "recollection of already unlocked memory; original event IDs and threshold gates preserved",
+  "duo_policy": "existing 6 unlock rules preserved; new 10 scenes require future external resolution; no skill or numeric unlock requirement added",
+  "external_design_sources": [
+    {
+      "path": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_design\\monsters_v130r\\monsters_v130r_v1.json",
+      "sha256": "a461d30f42463939ee6ce4805563c3fb5a71ec1ab56615ec7eef5078f9b4f002"
+    },
+    {
+      "path": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_design\\monsters_v130r\\MONSTER_DESIGN_v130r_v1.md",
+      "sha256": "b3799d4284e5abf3770916318486baf3036055085df0e09bf86f514a8f2ff385"
+    }
+  ],
+  "presentation_font": "NEXON MapleStory (integration only; this packet has no UI or images)",
+  "join_missing_partner_policy": "defer dialogue until all monster speakers are owned; never defer or force gameplay recruitment",
+  "runtime_adapter": "res://scripts/story/V130RStoryRuntime.gd",
+  "new_duo_catalog": "res://data/v130r/duo_links_new.json",
+  "integration_baseline_changes": {
+    "data/regular_version/update4/bond_events.json": {
+      "staged_source": "5eaaf6a588b1892de8366f4e317363b6fd2b624c55a0ce1996c980b79da2c580",
+      "integration_baseline": "4aeea3689156b3972846405aa510110de9b8ab618a48df15d9e306c32383f9e7"
+    },
+    "data/story/v122_main/day_14.json": {
+      "staged_source": "8716ad4e044ab2ac21143a4cc5a77203e02c3fef3aa326cb63d5bad81ae2aaf9",
+      "integration_baseline": "a7e897ce3ec2d34fc5a3941f7730306debd45f1565f5b0dcd06c495d65e51028"
+    },
+    "data/waves.json": {
+      "staged_source": "baf3673c0e556946ea8a9950b5a0c860b76c44fb28bac5a361d6f7cc689aef4d",
+      "integration_baseline": "a624938c3727c67c2ec697385054c02bbac5de22e74d654fd3a4fae90a9ae596"
+    }
+  }
+}

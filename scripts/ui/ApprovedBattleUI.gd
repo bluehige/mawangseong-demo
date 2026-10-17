@@ -35,6 +35,7 @@ func setup(owner_view: Control, controller) -> void:
 		view.monster_ui.tabs.get_child(i*3).modulate = Color(1.25,1.12,.75) if i==2 else Color(.45,.45,.5)
 	view.ui_rects.build = Rect2(Vector2(590,956)*view.ui_unit,Vector2(740,100)*view.ui_unit)
 	view.ui_rects["battle_status"] = Rect2(Vector2(20,125 if view.food_enabled() else 100)*view.ui_unit,Vector2(490,85)*view.ui_unit)
+	battle.root._build_update3_duo_link_combat_hud()
 
 func button(parent: Control, path: String, point: Vector2, width: float, action: Callable, hint: String) -> TextureButton:
 	var control := TextureButton.new(); control.texture_normal = view.texture(path)
