@@ -1,0 +1,4280 @@
+[
+  {
+    "group": "product",
+    "path": "data/audio/audio_event_catalog.json",
+    "unchanged": true,
+    "sha256": "573a6a828e1c8d374922314f2c2fc41d8ce90dcfbe0710ba9ec383bb3be04b19"
+  },
+  {
+    "group": "product",
+    "path": "data/audio/music_playlists.json",
+    "unchanged": true,
+    "sha256": "d9158880088670f34a5df95cce873afb22aca7644550b075b38436ef73e69e07"
+  },
+  {
+    "group": "product",
+    "path": "data/audio/ogg_conversion_manifest.json",
+    "unchanged": true,
+    "sha256": "02f749ff8daf40d327dba378d294996d258fd927e60a7c6179f2bb6dc9a9f968"
+  },
+  {
+    "group": "product",
+    "path": "data/campaign_days.json",
+    "unchanged": true,
+    "sha256": "a6a8eac78f984a67195473ed9b2c22d01d6939fdb3327ea468f453247a9e12f5"
+  },
+  {
+    "group": "product",
+    "path": "data/castle_evolution_stages.json",
+    "unchanged": true,
+    "sha256": "c72e6467eb08ea3e47b45e998f6de112eee570b003fedb8e33365851ea96d1cc"
+  },
+  {
+    "group": "product",
+    "path": "data/castle_stage_expansions.json",
+    "unchanged": true,
+    "sha256": "fabfcffad6d9cc77ec44b09e89f39a2562a60ea06abb48f6b08b58fe80af0eb1"
+  },
+  {
+    "group": "product",
+    "path": "data/challenge_seals.json",
+    "unchanged": true,
+    "sha256": "8f58324b2a928081ec1a681ac01ad7baee358072e90765d158138916e3c7e23c"
+  },
+  {
+    "group": "product",
+    "path": "data/characters.json",
+    "unchanged": true,
+    "sha256": "eabcee8023adc5d7429aefaefc8eafb4855836124b27517f28745d66172cf9ac"
+  },
+  {
+    "group": "product",
+    "path": "data/cycle_decrees.json",
+    "unchanged": true,
+    "sha256": "9edccd000a42a6ef0900e7d2378b3dae6c9204a5f15108c24a95de6a2347fde1"
+  },
+  {
+    "group": "product",
+    "path": "data/cycle_doctrines.json",
+    "unchanged": true,
+    "sha256": "73d6f2675d532465ee220c6daab1ed63c807be46dc6ed33549d510eb9955e756"
+  },
+  {
+    "group": "product",
+    "path": "data/dungeon_quarter/asset_manifest.json",
+    "unchanged": true,
+    "sha256": "2562f1819322106ee66d9ed35791efdeac2d1a17c11f848b151476d59b45b9cd"
+  },
+  {
+    "group": "product",
+    "path": "data/dungeon_quarter/castle_grade_rules.json",
+    "unchanged": true,
+    "sha256": "2e5baab0f165429d51c362eba6e3d231269b3d572d968180a2b058630c88e8db"
+  },
+  {
+    "group": "product",
+    "path": "data/dungeon_quarter/custom_layouts.json",
+    "unchanged": true,
+    "sha256": "37e81b37d5c19a5c8251fe5cc7340fe14cfaeafdac80de489fb630748a52cb63"
+  },
+  {
+    "group": "product",
+    "path": "data/dungeon_quarter/dual_front_blueprints.json",
+    "unchanged": true,
+    "sha256": "f05d91fcb93aa79c27fe00f2dd28f26f73e463154b7227ca0169021b997e4d38"
+  },
+  {
+    "group": "product",
+    "path": "data/dungeon_quarter/layouts/prepared_maze_growth_01.json",
+    "unchanged": true,
+    "sha256": "326dc0d1055d6a92d154f6889e65b76f54f4c01a05c288d066671d6ae687f947"
+  },
+  {
+    "group": "product",
+    "path": "data/dungeon_quarter/layouts/stage01_dual_front_01.json",
+    "unchanged": true,
+    "sha256": "f25ea2c3cec78302fd120ed6bd184a1578d3c4b0cf2eab1fd15c26b84f2d18da"
+  },
+  {
+    "group": "product",
+    "path": "data/dungeon_quarter/modules.json",
+    "unchanged": true,
+    "sha256": "e91318317becd9d62b9abe1d54e1b957b785f68167962c49457774c70fcfb96c"
+  },
+  {
+    "group": "product",
+    "path": "data/dungeon_quarter/prepared_maze_blueprints.json",
+    "unchanged": true,
+    "sha256": "7a24ce98a7960b43af1157474ff422b791f410edf0629a510c84730326d97061"
+  },
+  {
+    "group": "product",
+    "path": "data/dungeon_quarter/room_blueprints.json",
+    "unchanged": true,
+    "sha256": "e1a00231812740915bde46803561c13055725b5497bd4414d110caf2bb177767"
+  },
+  {
+    "group": "product",
+    "path": "data/dungeon_quarter/starting_layout.json",
+    "unchanged": true,
+    "sha256": "4a25bf6d61c25389ed7c9e2f2c15e3c0e24796f6f661e5909d5580ed649283ab"
+  },
+  {
+    "group": "product",
+    "path": "data/dungeon_quarter/test_layouts/role_driven_combat_layout_test_01.json",
+    "unchanged": true,
+    "sha256": "f1d6ebed902b0f5c210474b1dd3831b24d688ae641e168defdbd0590e399fbbc"
+  },
+  {
+    "group": "product",
+    "path": "data/dungeon_quarter/tile_variant_manifest.json",
+    "unchanged": true,
+    "sha256": "169283fea6affe587ff686e5dbc93702fd3656a279ac2b6ea1bec8d4f0527199"
+  },
+  {
+    "group": "product",
+    "path": "data/dungeon_quarter/wall_asset_catalog.json",
+    "unchanged": true,
+    "sha256": "214036973642d6c7c79e022eb06c54f7b7fda6a9c6bb36a1d02fe59e4c2bb6a0"
+  },
+  {
+    "group": "product",
+    "path": "data/ending_rules.json",
+    "unchanged": true,
+    "sha256": "c2f1900ad7a7ce893d5d23b93f05caf32f79aab06ec55b85965b913b5475a082"
+  },
+  {
+    "group": "product",
+    "path": "data/enemies.json",
+    "unchanged": true,
+    "sha256": "8e5a5c0c82777dcda4d181cbf478db35220d0ce7d7199c8a35c7e936ee589dff"
+  },
+  {
+    "group": "product",
+    "path": "data/evolution_rules.json",
+    "unchanged": true,
+    "sha256": "6f9cbff742fb7aed96b3cfd63622db5a150c42db040c883b98c519fba49848c4"
+  },
+  {
+    "group": "product",
+    "path": "data/leon_adaptive_stances.json",
+    "unchanged": true,
+    "sha256": "e8bc98bbba969e0ac34ffaa6937412d6df4b68a46529a665322b7295464f5af4"
+  },
+  {
+    "group": "product",
+    "path": "data/localization/story_en.json",
+    "unchanged": true,
+    "sha256": "74f735e29a9ddb772cf76372b6bcacd0793df5f56ae871ffa0d140bea2912d39"
+  },
+  {
+    "group": "product",
+    "path": "data/localization/story_zh_cn.json",
+    "unchanged": true,
+    "sha256": "f226e0dda961837ce33c94e7eb17849393de335ef4a751507a41207ff76052f5"
+  },
+  {
+    "group": "product",
+    "path": "data/localization/ui_en.json",
+    "unchanged": true,
+    "sha256": "ad8f7cd6fc74479261a1b5e680865b086bcd5242e3909f6e7d729f13fa3f6a8f"
+  },
+  {
+    "group": "product",
+    "path": "data/localization/ui_zh_cn.json",
+    "unchanged": true,
+    "sha256": "62233c366bab4a6072dab35d6bc82a9dd68313364e2bb3ff2565ad7c8b7e1e4d"
+  },
+  {
+    "group": "product",
+    "path": "data/localization/v122_stage10_ui.json",
+    "unchanged": true,
+    "sha256": "467b9e03bb761984063bf8f68feb654904566ec1dfca5b1935ac80031b5fd23b"
+  },
+  {
+    "group": "product",
+    "path": "data/map_builder/decorations.json",
+    "unchanged": true,
+    "sha256": "cfc21fa5fe5673ce5ed2e57c0fc9762e7df63b93e65a43b869575133f9d71ef3"
+  },
+  {
+    "group": "product",
+    "path": "data/maps/v130r_step1/layout.json",
+    "unchanged": true,
+    "sha256": "16f9fac2d7871d703bae97db04a6153445291e7753b3fdb264795cc848ff8474"
+  },
+  {
+    "group": "product",
+    "path": "data/maps/v130r_step1/plan_E_cells.txt",
+    "unchanged": true,
+    "sha256": "e00584a7a7b1b5996db2a6a1076f3601e31ec72814463acfd7ed105d7d9bff93"
+  },
+  {
+    "group": "product",
+    "path": "data/maps/v130r_step10/art.json",
+    "unchanged": true,
+    "sha256": "de268e2ad9ca1b2085c9807c357f9f43d3dc883412acbb5bcdc2df6f3236347a"
+  },
+  {
+    "group": "product",
+    "path": "data/maps/v130r_step10/layout_c.json",
+    "unchanged": true,
+    "sha256": "fd5ca8871015b318ae83e314541907d1dc60276b8c158690b2564d43b781ca57"
+  },
+  {
+    "group": "product",
+    "path": "data/maps/v130r_step10/layout_d.json",
+    "unchanged": true,
+    "sha256": "6443e6aef27565f165afd896b91e55c9edaf042be67cd3d79c8fe35a7b090e96"
+  },
+  {
+    "group": "product",
+    "path": "data/maps/v130r_step10/plan_C_cells.txt",
+    "unchanged": true,
+    "sha256": "d1d544885071f8ce737574fadbd6e4fe4c297d5f0986105c9ccef4b862c2c941"
+  },
+  {
+    "group": "product",
+    "path": "data/maps/v130r_step10/plan_D_cells.txt",
+    "unchanged": true,
+    "sha256": "262dd4d8e8cc0f77925e40b9671064ea04f3865e950b21f3b6d0f67987c3b312"
+  },
+  {
+    "group": "product",
+    "path": "data/maps/v130r_step10/terrain_c.json",
+    "unchanged": true,
+    "sha256": "dc6ae9cdd113f3a12e28dc719c93ba0ff5a8458f51919f8b6bd00a1a10f368db"
+  },
+  {
+    "group": "product",
+    "path": "data/maps/v130r_step10/terrain_d.json",
+    "unchanged": true,
+    "sha256": "a83224fcb872f5fc4ac11d0fa0ccc722fae19f6956633cad40d7cf7c0f972983"
+  },
+  {
+    "group": "product",
+    "path": "data/maps/v130r_step2/door_directions.json",
+    "unchanged": true,
+    "sha256": "74f9565e0497bdf551af261e4985e1cb9973b43e44cc593d9d06dc33e9512347"
+  },
+  {
+    "group": "product",
+    "path": "data/maps/v130r_step2/terrain.json",
+    "unchanged": true,
+    "sha256": "76f7e5a0b22c9bf0133545491185146e573c97fd5458d95cdecd9a279f9acec2"
+  },
+  {
+    "group": "product",
+    "path": "data/maps/v130r_step5/layout_f.json",
+    "unchanged": true,
+    "sha256": "bcb4c32f994c03177157249b7c466b48be38ed44e8ae7909eaff55cbe79f4e3f"
+  },
+  {
+    "group": "product",
+    "path": "data/maps/v130r_step5/plan_F_cells.txt",
+    "unchanged": true,
+    "sha256": "823fc4d9857a425ea4a119d5a0d1ce0d91f64d731d12968db8be1150b7b51b7b"
+  },
+  {
+    "group": "product",
+    "path": "data/memory_entries.json",
+    "unchanged": true,
+    "sha256": "8f61c2e35a3ae339f6d302e1d8b524e824dcb17c8fac3e7359b402fa4080ad8e"
+  },
+  {
+    "group": "product",
+    "path": "data/monster_instances.json",
+    "unchanged": true,
+    "sha256": "afdf26899714873f23c60fbb21cb354ff89642b4a0ab4adc2e7b0a7c874600c7"
+  },
+  {
+    "group": "product",
+    "path": "data/monsters.json",
+    "unchanged": true,
+    "sha256": "4919d51e03c971c9a41532ea2953cbb8cbfe97702e0ad1a7b39ee1c33999b86f"
+  },
+  {
+    "group": "product",
+    "path": "data/onboarding_flow_dialogue_v0.4.json",
+    "unchanged": true,
+    "sha256": "9e9ce3f0f81c2fa7883b9808abee0a06668d93c342aea8e08d7341c5aff8d0e9"
+  },
+  {
+    "group": "product",
+    "path": "data/raid_missions.json",
+    "unchanged": true,
+    "sha256": "05c9b52599741ee59dfb926fa8552eb46581af4dcfdaca03151fca53acc0416d"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/README.md",
+    "unchanged": true,
+    "sha256": "a026cbd3139e78da38a9d0d531feaecaff5b673c493e746c6327f7ecb6aea829"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/balance/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/campaign/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/enemies/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/events/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/items/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/localization/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/monsters/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/progression/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/rooms/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/traps/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update3/README.md",
+    "unchanged": true,
+    "sha256": "fe1b2d4a75afce9ba82f57cc21c27812046bac535341e6a0d61e14d90e46dbae"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update3/castle_hearts.json",
+    "unchanged": true,
+    "sha256": "8ad3c074b51165f1eb71ec860b49d2f13a8ff68b968705684f69a2374f737a5d"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update3/chronicle_goals.json",
+    "unchanged": true,
+    "sha256": "c122621dfca50a6960f535f51338341d6a0eefcda9c9874920eafd86cbc16e31"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update3/duo_links.json",
+    "unchanged": true,
+    "sha256": "c910a55af248245438ae4a7e5cc9030067a2fe85cb6b998167677769a6d2f4c0"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update3/endings.json",
+    "unchanged": true,
+    "sha256": "0a76cee853802e48c441437579e01e15ba2a6520e502662b6e996deda7243673"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update3/enemies.json",
+    "unchanged": true,
+    "sha256": "0bce51c5c04d071b0788c2ed2ca9e04c540afd2b70859e73050744727547088a"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update3/events.json",
+    "unchanged": true,
+    "sha256": "d70eb0157f168467735eb5cdf7fa45ae52f3ba9dc7b03d811e56e74220a52c96"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update3/front_day_overlays.json",
+    "unchanged": true,
+    "sha256": "26e45e5e195e2898046c1b7b649267e8a040c6219e85a3fb7c2680834ddd9fce"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update3/front_operations.json",
+    "unchanged": true,
+    "sha256": "66bbea4682c6ee3b788a524a84ea6d82b4d880d0b61d61596d35cc0ce5d2e03f"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update3/fronts.json",
+    "unchanged": true,
+    "sha256": "c0ca2ef7c1d277522df5d5da501ab4a60f17e2e45aee8697e8c9fe3acc4fb0ac"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update3/heart_auto_profiles.json",
+    "unchanged": true,
+    "sha256": "5a78001bcdcdc189e0cf2296d0c259e52a8da51361598f8a5eee3beb1c493f8d"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update3/heart_chamber_modules.json",
+    "unchanged": true,
+    "sha256": "5facd9d3d73b6cb2a5c8e0cb159e9e383d6e251149e2f4414ce968c04c1680ba"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update3/monsters.json",
+    "unchanged": true,
+    "sha256": "d67afcc4b628827aeffa081e4f66e0d6141f3e058ac1acdd55f7cacdc96f5c4e"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update3/rival_finales.json",
+    "unchanged": true,
+    "sha256": "7c566f16152cebdfd36c91b81b94714bf1a215da2f9abdfb738fb98f15943ca2"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/README.md",
+    "unchanged": true,
+    "sha256": "e24aaea1aacd8ac97b5bc803f4f377557f25d0b041ce053f784658c471aa79e8"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/asset_manifest.json",
+    "unchanged": true,
+    "sha256": "1bc1091fe8cedb125e34294740fced708ff52d42fbb44de208c55bc904204626"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/bond_events.json",
+    "unchanged": true,
+    "sha256": "4aeea3689156b3972846405aa510110de9b8ab618a48df15d9e306c32383f9e7"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/campaign_modes.json",
+    "unchanged": true,
+    "sha256": "a32b9be53d029401f39cfd18a0c621a1dd2c924c5ae8a03819bd2e180e8045b8"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/characters.json",
+    "unchanged": true,
+    "sha256": "b1be2a695ea46ea86673d8dd9af9d884fc0fa6b766d5561a9578db1c0314cc36"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/council_agendas.json",
+    "unchanged": true,
+    "sha256": "0e6dfd0c66502fae67d1d4498f372c3a384a64cb909e285959efcc6611ef8d69"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/council_balance.json",
+    "unchanged": true,
+    "sha256": "4bc7c5b5b69e789907ec5d609d88cf6efdd67b7b5abc65aaeabc3d6f00d0657c"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/council_campaign_days.json",
+    "unchanged": true,
+    "sha256": "62cf8ac663b3acb6667119d66c6cf1ef5370e200622838387a4be12623bbcff7"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/council_endings.json",
+    "unchanged": true,
+    "sha256": "9b08028bdaf1bd29ade04b6424e0621785950b957630889ceb41bb4fc9c96eac"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/council_wave_templates.json",
+    "unchanged": true,
+    "sha256": "47e4eb56298b6721419ab08e9ea1cb651f5f1f34ddee46226771556e7bf43a4c"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/crown_events.json",
+    "unchanged": true,
+    "sha256": "a3b94f1a9773362b2c50619ed7d088bf19aa541d0289060721d59a4446e59a35"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/crown_evolutions.json",
+    "unchanged": true,
+    "sha256": "6f0676c09096ab85d67cc75f97a86a51638d4d254ca48ad7e625101a0916e495"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/enemies.json",
+    "unchanged": true,
+    "sha256": "e9c5d67aea781516448d2654e5143579b402c90e0dc63f768b2ea582bdbe1ce5"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/expansion_modules.json",
+    "unchanged": true,
+    "sha256": "c6629823a32e213ad64629f0e405f5acbb2c7846ecae684f6473ea9ba5f9fd83"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/localization_ko.json",
+    "unchanged": true,
+    "sha256": "e3566b3a06430868d71e9287dfd6c6c520a3da027aabea01951d407ee131dc2f"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/monster_codex.json",
+    "unchanged": true,
+    "sha256": "eb8985e4cf92db673cd7fe30b9f1c8091ae461e0d170e3d39bbfbaff5245d52c"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/monster_instances.json",
+    "unchanged": true,
+    "sha256": "272f78525e03a8781d210f51cf1ab6477278fd874056c59abedd99b0c6e8c28d"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/monsters.json",
+    "unchanged": true,
+    "sha256": "d326da9a4434f534af10c7755363d92e80e633962ef02905bfd2f5381288dbbe"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/outpost_encounters.json",
+    "unchanged": true,
+    "sha256": "054b00676924c74fd5f3085dd6fcda0a45725a443dc24a2080c2e30aac08f366"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/outpost_events.json",
+    "unchanged": true,
+    "sha256": "e3566b3a06430868d71e9287dfd6c6c520a3da027aabea01951d407ee131dc2f"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/outpost_types.json",
+    "unchanged": true,
+    "sha256": "8f01072d80afb4dc8174b4cb531fdd0b5127c17389811eade430b0ddc50f8b91"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/region_day_overlays.json",
+    "unchanged": true,
+    "sha256": "67280a4a33bb5f11ba4bc9597d5abf9fde49e19eaff3616c52d0bb543f3ac17c"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/region_events.json",
+    "unchanged": true,
+    "sha256": "1eeaeef6c5c47de2c0bd8d0474a66d0808a69f7ad5a1d659885992018d7113eb"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/regions.json",
+    "unchanged": true,
+    "sha256": "9225d7fbe0d5f729fe657af854c7895052a4a0d3391fdf2c3736a4fb664821d2"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/rival_bosses.json",
+    "unchanged": true,
+    "sha256": "1cbdacf3c4e68ea025839f32b4f62711ca5c3e378d84b7cc763911cb18d91f09"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/rival_events.json",
+    "unchanged": true,
+    "sha256": "e3566b3a06430868d71e9287dfd6c6c520a3da027aabea01951d407ee131dc2f"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/rival_letters.json",
+    "unchanged": true,
+    "sha256": "aa3f7f4778445f6dff0e112d8b0ac9069eb0f438da90339b115e581f6938a32d"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/rival_lords.json",
+    "unchanged": true,
+    "sha256": "bfd00cc7a1a3d87043a80e217a92fe14363173da85f0a3ad0c8714124a49d684"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/run_metric_definitions.json",
+    "unchanged": true,
+    "sha256": "3994b4bec0a408a3edee5c65a94643f0b11370e610686bedd52b670991abfbad"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/skills.json",
+    "unchanged": true,
+    "sha256": "dfed29ce2dd803d7cb4ffc1daa82db05854beb7c299aefdd4f62d1d67f67d443"
+  },
+  {
+    "group": "product",
+    "path": "data/regular_version/update4/specializations.json",
+    "unchanged": true,
+    "sha256": "93d3dfeb170b73ee78069ad06de5803f43165e10e2d568befe1a62c4e5bacae9"
+  },
+  {
+    "group": "product",
+    "path": "data/rooms.json",
+    "unchanged": true,
+    "sha256": "3e450140cc1cd658a9c8964126e5af26efd8e2c5b7b0682e35a9261bd7dab6d6"
+  },
+  {
+    "group": "product",
+    "path": "data/run_metric_definitions.json",
+    "unchanged": true,
+    "sha256": "9a627ce84642659ac840184f832e4a30ff7fca7a176b6b86059dc022b39d1b7a"
+  },
+  {
+    "group": "product",
+    "path": "data/skills.json",
+    "unchanged": true,
+    "sha256": "1e5de16a3f518da43a101a0bb007d58911a7aa36a74f915e83f41690bc4f63a7"
+  },
+  {
+    "group": "product",
+    "path": "data/specializations.json",
+    "unchanged": true,
+    "sha256": "7de0ef8bd2c2de4ccf7de2cfc7bc8a9fbbd34578b0f1193c9c1464d696f6d47b"
+  },
+  {
+    "group": "product",
+    "path": "data/story/source/UIUX_POLISH_20260913.json",
+    "unchanged": true,
+    "sha256": "cbe69d8ee9582d5c52eea44deddfdea1d74ca6391eb3cc68bc2152d17a52b703"
+  },
+  {
+    "group": "product",
+    "path": "data/story/source/V122_MAIN_SCENARIO_DIALOGUE_BOOK_APPROVED_2026-07-31.md",
+    "unchanged": true,
+    "sha256": "f6feeb62306d40d0a2ecd4aa6a4a3a98af6e513a7f0d8e5df394a2753191053d"
+  },
+  {
+    "group": "product",
+    "path": "data/story/source/V122_MAIN_SCENARIO_DIALOGUE_BOOK_DAY01_05_2026-07-30.md",
+    "unchanged": true,
+    "sha256": "0d1ba7ab00fb888030aa93697defc9e698cb54e710ed6eee2cfb42bc791b2f22"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_01.json",
+    "unchanged": true,
+    "sha256": "33055334ed4b484e4deb88034b48c2fdaecaaac892e57182a071f674694bec0f"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_02.json",
+    "unchanged": true,
+    "sha256": "c4e29f062299ad22de8b669de8f021366e00674157d1737df4513a0febd3a87e"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_03.json",
+    "unchanged": true,
+    "sha256": "a7ee6a67d13dd3702830e1fc3a91bd2663fb4de1309d4a1f4f5f296a2f654a7a"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_04.json",
+    "unchanged": true,
+    "sha256": "a3fa46db2c2b07233b5dd054243678cce9a922b8c409639d1ebf45a1bbd2899c"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_05.json",
+    "unchanged": true,
+    "sha256": "f919a0f5ce6e26870a85c9c8b8b3abf1ea4840e3ba8953840706c9ffa6016c32"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_06.json",
+    "unchanged": true,
+    "sha256": "c3593f8accbff8a10a4bb09cdd42fcce2842c4bdb0d8f003f4045f7b7d9ecc89"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_07.json",
+    "unchanged": true,
+    "sha256": "50c587df0a932104b7b30be06d3d0a68268277133fba11d796e29ca02e236961"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_08.json",
+    "unchanged": true,
+    "sha256": "865d75890345d7e9bc068bdffe2293a0f45b8b5235e0bcb46d22335cdb69a862"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_09.json",
+    "unchanged": true,
+    "sha256": "76e8d221b2bfb856fa88e59e34830f7ac4b21436df71f1016be1fc385cafa935"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_10.json",
+    "unchanged": true,
+    "sha256": "c31131f2dce1f640450b491b5e3c17989409ee01de594c6b23dd927094620381"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_11.json",
+    "unchanged": true,
+    "sha256": "1917ad679c8e0d7a76ba6b7c679c17752b687af2d805858e13e153021ba69f74"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_12.json",
+    "unchanged": true,
+    "sha256": "be1584a50ed0c084a40dd912a0e21914c3f7decf346002306371cd3fc753b429"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_13.json",
+    "unchanged": true,
+    "sha256": "dba751a2145d2feb968df51ec16fade6edca48d8c3ce1e26dcbc8e3f9dd5a6fb"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_14.json",
+    "unchanged": true,
+    "sha256": "a7e897ce3ec2d34fc5a3941f7730306debd45f1565f5b0dcd06c495d65e51028"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_15.json",
+    "unchanged": true,
+    "sha256": "3aa3b550f7109ed22d2cf58b2d08a361e57b36f88b2fcfb6caee4ee96510c174"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_16.json",
+    "unchanged": true,
+    "sha256": "b3f99487ad1e16656d2becd9e950542aa4fc6432dc5095bd3ffe11834bdb320f"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_17.json",
+    "unchanged": true,
+    "sha256": "4e4d4646c43bba12dcece1758d9ad013701d05512266c087274717b7571594f8"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_18.json",
+    "unchanged": true,
+    "sha256": "02fa74a1454b94135d1ee0ede91f86dbe1ff99b5aa6b4efcb7ed6219e9eb1977"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_19.json",
+    "unchanged": true,
+    "sha256": "b298a8cfd5030aadc7f6d38f373ead039d3ba43ec024079cf2c8e8d9be802bde"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_20.json",
+    "unchanged": true,
+    "sha256": "26da478229496978709920a1b51c98f69e99b45f2de7c40e781c0fb585df3df5"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_21.json",
+    "unchanged": true,
+    "sha256": "a2056a0cceeeaa0f9e261c1290dc4d502dfd51cfdd3d0ace1fd2081392ef21bb"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_22.json",
+    "unchanged": true,
+    "sha256": "be1c892511011e365f56f198e5fb4d48778af6af0ccbd2724b6fb28f3b809200"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_23.json",
+    "unchanged": true,
+    "sha256": "fc34f840e2fc31c6f0a224ca23a7a10e2532b9541317b8643215bc94aa312ea5"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_24.json",
+    "unchanged": true,
+    "sha256": "b264db65903009ccdc7111d27d6e187005c1f2946ce1f89ed6266cd8bca0ddca"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_25.json",
+    "unchanged": true,
+    "sha256": "a80c0a8111300b50f9261f18ce9cc840c1e33a2e3ebb694209f887a211ab81c7"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_26.json",
+    "unchanged": true,
+    "sha256": "2fb6b8dd193508bf112afa37a53dabec99549261e8efd9a6d5b469cebb23457c"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_27.json",
+    "unchanged": true,
+    "sha256": "3792c1f5d962cdad01136bba5a4a7ba1244cc40b99fcf6cc60d32247f45235ea"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_28.json",
+    "unchanged": true,
+    "sha256": "98e3dc1e896b161ca9c7721751cb2246cf993c0b5b96897da77dea8303007c72"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_29.json",
+    "unchanged": true,
+    "sha256": "5e9a681fe9089117c498c5b2b49c4c54915a0de3da1e141b7f6bfc231e094861"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/day_30.json",
+    "unchanged": true,
+    "sha256": "a073472be86a1ff3c746e27f7123f91f040d05b27b84a37b9781db62732e0fad"
+  },
+  {
+    "group": "product",
+    "path": "data/story/v122_main/manifest.json",
+    "unchanged": true,
+    "sha256": "66181291f5b9da8e4bb501385d134483ce6b3f032782d0e99f37ff8e155f8819"
+  },
+  {
+    "group": "product",
+    "path": "data/ui/title_backgrounds.json",
+    "unchanged": true,
+    "sha256": "c49ff642862037152c8f0b856e84b5634155a5357bf03b3c868edef58b83caec"
+  },
+  {
+    "group": "product",
+    "path": "data/uiux_actor_art.json",
+    "unchanged": true,
+    "sha256": "9a6c77d278f81be3777c029fd687673aaf3aa91370f1d0e345d65e67cff184ad"
+  },
+  {
+    "group": "product",
+    "path": "data/update2_contracts.json",
+    "unchanged": true,
+    "sha256": "cf82e53ed9a89735a0616fc21d94f39dd86b75caf95a8d09c15d97cd5cca4834"
+  },
+  {
+    "group": "product",
+    "path": "data/update2_counterforce.json",
+    "unchanged": true,
+    "sha256": "d937bbe4d99f9e720937eb0517bad76c6069dc1b0e99337c1e0f479b4e106070"
+  },
+  {
+    "group": "product",
+    "path": "data/update2_seeded_campaign.json",
+    "unchanged": true,
+    "sha256": "43550a08ee7d804acbce738d4bbd9a09d9c2cfc1b11f4c5c47bc9c9056940970"
+  },
+  {
+    "group": "product",
+    "path": "data/v122/balance_day06_30.json",
+    "unchanged": true,
+    "sha256": "dae0f7c17e973898e1c75823040d9ff95c003b27d044340109e3edd90415e1d2"
+  },
+  {
+    "group": "product",
+    "path": "data/v122/balance_model.json",
+    "unchanged": true,
+    "sha256": "fd06fb32c3110084746b0d69c6483a6387db00f90f27eddf739b2aa9eabc68af"
+  },
+  {
+    "group": "product",
+    "path": "data/v122/combat_vfx_catalog.json",
+    "unchanged": true,
+    "sha256": "7b5223487c84ddfe98dcd021bdf02d086cc1c76c7fd0076ef8b24a3cee4db169"
+  },
+  {
+    "group": "product",
+    "path": "data/v122/combat_visual_profiles.json",
+    "unchanged": true,
+    "sha256": "41e52aeb9712a3a1ba7201a7daad30f367847943d282fa0a67ba97fea7c147a0"
+  },
+  {
+    "group": "product",
+    "path": "data/v122/command_rules.json",
+    "unchanged": true,
+    "sha256": "d9cbaebad1ccf15ea469b14495526d8c35f1c0bffb7c52d5f5380a1cbfff5353"
+  },
+  {
+    "group": "product",
+    "path": "data/v122/content_compatibility.json",
+    "unchanged": true,
+    "sha256": "70544f1b0636357b821360e0c4980eec3b9ba7999d969e92e14844f8de4f0b13"
+  },
+  {
+    "group": "product",
+    "path": "data/v122/dual_front_day01_05_waves.json",
+    "unchanged": true,
+    "sha256": "c0863da09fe11317ecdec7b30518816a21a2874513c86326070e7f86d6bb96fd"
+  },
+  {
+    "group": "product",
+    "path": "data/v122/facility_zone_effects.json",
+    "unchanged": true,
+    "sha256": "07d150eda753f060d430ac185d843e3d455615a812b1f1a490faed67978d8b60"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/achievements/5267750-achievements-definitions.template.csv",
+    "unchanged": true,
+    "sha256": "f2ecf2173ac435bc3711d06d0d153dcb65bed1f2b1a10419a75a2ec3a85f4b7a"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/achievements/5267750-achievements-definitions.template.csv.import",
+    "unchanged": true,
+    "sha256": "eb38ca201d91973448a11295b3b42bad12344f887c8b2257cddf993b738c2c78"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/achievements/5267750-achievements-localization.csv",
+    "unchanged": true,
+    "sha256": "f89dfd2f120eba97ccc5a6cf2a1706f649f417826682d105184d97e6a90a4273"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/achievements/5267750-achievements-localization.csv.import",
+    "unchanged": true,
+    "sha256": "eb38ca201d91973448a11295b3b42bad12344f887c8b2257cddf993b738c2c78"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/achievements/README.md",
+    "unchanged": true,
+    "sha256": "6c0d46a11a17fe401f136c43cf3c1e9cb9831999c1b044b2f82da255aa98e161"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/achievements/achievements.json",
+    "unchanged": true,
+    "sha256": "3546d04b8249d450c626bef714e45237d4726c1496a5f88d5b9ef114d95e6082"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/achievements/runtime_rules.json",
+    "unchanged": true,
+    "sha256": "b85d0253e83092b5faec26eead3df9f039d74e0c20fdcd68ff2df81316a3fe46"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/achievements/set_ids.template.json",
+    "unchanged": true,
+    "sha256": "fd71748ec4200ba5a7802e638fe7c2690b6a6c6a6cfd2d5cede550bff1bf3d39"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/achievements/stats.csv",
+    "unchanged": true,
+    "sha256": "ee3589c3889b1aa899ef68d788f4714883be01b01bbc4820f0650e636789721b"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/achievements/stats.csv.import",
+    "unchanged": true,
+    "sha256": "eb38ca201d91973448a11295b3b42bad12344f887c8b2257cddf993b738c2c78"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/achievements/steamworks_import.csv",
+    "unchanged": true,
+    "sha256": "943a449a03662d27959251b10a07cea53b5b5ccc21a38a726c62c4c7a2a04128"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/achievements/steamworks_import.csv.import",
+    "unchanged": true,
+    "sha256": "eb38ca201d91973448a11295b3b42bad12344f887c8b2257cddf993b738c2c78"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/characters_new.json",
+    "unchanged": true,
+    "sha256": "32bff25932b8ca26b68d3ca9a0feb2cf11e3f09f217d3e02bd98f6be04fecba5"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/duo_events_new.json",
+    "unchanged": true,
+    "sha256": "78de0558345abffb5ab455608c8b6aec822fb587b0a258a6806fb720083ce4cb"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/duo_links_new.json",
+    "unchanged": true,
+    "sha256": "be66974a30d7f67e5a12a56a92907e0b4cc1bd083f0cd035fd2f634e0031e60d"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/import_provenance.json",
+    "unchanged": true,
+    "sha256": "d52e4bcb218fdb4e7699940c4dee2b4d6eccfd33a1b970fb96dbb77d65170f99"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/join_scenes.json",
+    "unchanged": true,
+    "sha256": "f45ce7f1f2409f43270c75a44483f0a19b47f171e4d18dbc6633c83f947da949"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/localization_en.json",
+    "unchanged": true,
+    "sha256": "0141c27bfac5d75d841c8f246f10d6b09f6759fb26f20d133894ae2cb8ff692f"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/localization_zh_cn.json",
+    "unchanged": true,
+    "sha256": "3e4ec94dd920faedc30e99f0c7443b83161102002cbec599f134872a4715ab25"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/memory_entries_new.json",
+    "unchanged": true,
+    "sha256": "b9e42012c6bd8c62905d45d9ed472680cb904502c1adf928acf8ce8cf59eb3e3"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/monster_instances_new.json",
+    "unchanged": true,
+    "sha256": "48e9b2750fa9e9684cca1565079b5897f73cc07d7ba32f30f247db29d370f925"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/monsters_new.json",
+    "unchanged": true,
+    "sha256": "9de528a4a935ddbf5e9f71bf31f9bc5ba8d83d344f370d74de67652b71d587f0"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/skills_new.json",
+    "unchanged": true,
+    "sha256": "f86187eca9c9cd4274f607f16ea408b12a790c4c423f30ae2f18f9542778db4f"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/specializations_new.json",
+    "unchanged": true,
+    "sha256": "f8615c6a24474620bac0eeda156ccf04f184e00743c18d0b5bda65a7f92cdd96"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/start_flow.json",
+    "unchanged": true,
+    "sha256": "3642cdc51e83a38d57fa908fbd75c293dc423fd8e5e8e131dd69d12385ecc52a"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/story/README.md",
+    "unchanged": true,
+    "sha256": "101ebb68fa3ab5c0899a709d6bcc5fb47c3227b3f8bbb4a135baa6d8559bcbd1"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/story/barks.json",
+    "unchanged": true,
+    "sha256": "2e15e4b29826fca3c5e608266997d6a03fa9178d842ea2f6576f74cca6f30793"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/story/bond_scenes.json",
+    "unchanged": true,
+    "sha256": "6ecbf9f06795c9a53e017489f0031c745daf1d0ab9bdb1d482ab03ed3ed9a688"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/story/day_overlays.json",
+    "unchanged": true,
+    "sha256": "42f6fdf15caf67121b7647c2ea83e0e696faa9e1089c114890f4304556d18bfe"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/story/duo_scenes.json",
+    "unchanged": true,
+    "sha256": "5a15fbbe2ffffa559f1ca6861614229344b98eb5d73a9210d09ec87cab001a79"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/story/join_scenes.json",
+    "unchanged": true,
+    "sha256": "a2810180827a9b98a62409513d8a9b06d3c99852e1ad8fb20701b0bf6f17809d"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/story/localization_duo_ui_en.json",
+    "unchanged": true,
+    "sha256": "a6d0d2eb4452d3b5227f6365cbe06cb85a15121178a942abdd67ab0c779b8d21"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/story/localization_duo_ui_zh_cn.json",
+    "unchanged": true,
+    "sha256": "be43dd822efd010ce58427c092375c13df8aecdcc2d81bf022db7db2ff39eba7"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/story/localization_story_en.json",
+    "unchanged": true,
+    "sha256": "44036c73c91fedfab85e15f6ffe44050241da0b54d063289b1b2123d3f989087"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/story/localization_story_zh_cn.json",
+    "unchanged": true,
+    "sha256": "db5085174de8e92be1c6fcb5f8b856108b5f53b7c108821fae153753d232c85e"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/story/manifest.json",
+    "unchanged": true,
+    "sha256": "37bb3d907b4905fdb4a3ee522e10305a06f0a364bd7cbb78534a0c6a696ade3f"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/story/speaker_registry.json",
+    "unchanged": true,
+    "sha256": "fd1ee3003249ac9d80bf798a46aca9cec961bca6650471565b9f226b71107db1"
+  },
+  {
+    "group": "product",
+    "path": "data/v130r/upkeep.json",
+    "unchanged": true,
+    "sha256": "7c0be3ec1c6d1c2f4a498604d7f34608a14ef2ae2ce33a9151b6cb58d8586700"
+  },
+  {
+    "group": "product",
+    "path": "data/waves.json",
+    "unchanged": true,
+    "sha256": "a90c34a4767f2002305f1261a52c5926a121cb9c814fd7ffc6ffa51b17281945"
+  },
+  {
+    "group": "product",
+    "path": "export_presets.cfg",
+    "unchanged": true,
+    "sha256": "ee871b121dd8253308a7cfc9925201e688866b9c028e6f6e2aa5cc9b138483c4"
+  },
+  {
+    "group": "product",
+    "path": "project.godot",
+    "unchanged": true,
+    "sha256": "e3173ccec7a84b8f09a725ab4f73f313bd849d6a8b7c1fe361623a77bace7086"
+  },
+  {
+    "group": "product",
+    "path": "scenes/dungeon_quarter/modules/README.md",
+    "unchanged": true,
+    "sha256": "891772299f1a436469d2650f1171d546828a6027e65266dc208af93fd07b0a7c"
+  },
+  {
+    "group": "product",
+    "path": "scenes/dungeon_quarter/modules/corridors/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "scenes/dungeon_quarter/modules/junctions/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "scenes/dungeon_quarter/modules/props/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "scenes/dungeon_quarter/modules/rooms/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "scenes/game/GameRoot.tscn",
+    "unchanged": true,
+    "sha256": "0e9a084bc854b12157d401f5cfee95408bcce036e343b63f173692fc1bdbcdca"
+  },
+  {
+    "group": "product",
+    "path": "scenes/main/Main.tscn",
+    "unchanged": true,
+    "sha256": "cccb06cbf72f4b40b2363375a5ee325f8039c81a588e7c6d6600d286228afc1f"
+  },
+  {
+    "group": "product",
+    "path": "scenes/map_builder/ApprovedMapPreview.gd",
+    "unchanged": true,
+    "sha256": "1dc300c645966e07662909d26336e71d26d0e76f1046b79d61355525bfc56700"
+  },
+  {
+    "group": "product",
+    "path": "scenes/map_builder/ApprovedMapPreview.gd.uid",
+    "unchanged": true,
+    "sha256": "d82b45865dad73423fc7666c9dc09b30c323ee89624c73b7f4dd5907b46ef5d1"
+  },
+  {
+    "group": "product",
+    "path": "scenes/map_builder/ApprovedMapPreview.tscn",
+    "unchanged": true,
+    "sha256": "fea898df57184659a0e0fb88fdf6bafcb215afc3400e6347d5493e37e8334cfe"
+  },
+  {
+    "group": "product",
+    "path": "scenes/map_builder/ApprovedPlacementPreview.gd",
+    "unchanged": true,
+    "sha256": "dfcd772de05c377424836ca05a5a6ea4e146d4b64e35d094299237eea276902b"
+  },
+  {
+    "group": "product",
+    "path": "scenes/map_builder/ApprovedPlacementPreview.gd.uid",
+    "unchanged": true,
+    "sha256": "f0d210be8b0a5754df45ce03b072e5ecac008f785982a2407ce38e9d561320d8"
+  },
+  {
+    "group": "product",
+    "path": "scenes/map_builder/ApprovedPlacementPreview.tscn",
+    "unchanged": true,
+    "sha256": "20a72c376341afb2af69d81281baff7b82a6f523df29dbf0019ee50726a1c7b6"
+  },
+  {
+    "group": "product",
+    "path": "scenes/map_builder/MapBuilderDebug.gd",
+    "unchanged": true,
+    "sha256": "efc0156892a2ef10e8bdddb3add993c6e5b09728f82f046a96e3441fc3f4ac50"
+  },
+  {
+    "group": "product",
+    "path": "scenes/map_builder/MapBuilderDebug.tscn",
+    "unchanged": true,
+    "sha256": "60cd960694d06df1ea7cc0e0c531a5060c513974cc45ff8bc1b67b751d62b443"
+  },
+  {
+    "group": "product",
+    "path": "scenes/outpost/OutpostBattleRoot.gd",
+    "unchanged": true,
+    "sha256": "4640af7aa6322c14e26d56756206f0ec5a05ef64f6ffe5ea76501435d24ed4eb"
+  },
+  {
+    "group": "product",
+    "path": "scenes/outpost/OutpostBattleRoot.gd.uid",
+    "unchanged": true,
+    "sha256": "3a5015d30950aef0b92e7236bec063715d744579089d534a2a2e0eedf1f641a7"
+  },
+  {
+    "group": "product",
+    "path": "scenes/outpost/OutpostBattleRoot.tscn",
+    "unchanged": true,
+    "sha256": "7f0791f1188fc46f788f31ef01af820174db178807d2068df5a3dd4ec68de18b"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/README.md",
+    "unchanged": true,
+    "sha256": "1143787b368a198a951824dddda04a494a7a216e62e49430792f279bd89be36f"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/components/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/hud/DuoLinkCombatHUD.gd",
+    "unchanged": true,
+    "sha256": "b00847a40c9187294b1962be60fbd32107ad49ce865091b4ef4e216cf81f60d6"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/hud/DuoLinkCombatHUD.gd.uid",
+    "unchanged": true,
+    "sha256": "950c089cd5ec996077e0fb976aaea24834c0141e69304431e317419f9c1527ab"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/hud/DuoLinkCombatHUD.tscn",
+    "unchanged": true,
+    "sha256": "d9e0f7a6fca2c5fd96f54a987e6031512def4c5a711956f63a90ca02a985c811"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/hud/HeartCombatHUD.gd",
+    "unchanged": true,
+    "sha256": "3ed18bb750f0b20076cb162d314de3c5e480feec676d9bdfd3be485e79690b41"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/hud/HeartCombatHUD.gd.uid",
+    "unchanged": true,
+    "sha256": "1b3d2fc14d94ed95892621288e80a7a560433b51d18e5f68253220dc58578774"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/hud/HeartCombatHUD.tscn",
+    "unchanged": true,
+    "sha256": "786f5c2e1b165e4176270006bcb5ecf220cf60257c91dd370adfccb409a71828"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/popups/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/CampaignModeSelectionScreen.gd",
+    "unchanged": true,
+    "sha256": "7b8272c9ac12783bd83a19be500ce0033f76f3c8d79e0f078a772c9f2bc582c2"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/CampaignModeSelectionScreen.gd.uid",
+    "unchanged": true,
+    "sha256": "ab00bb700eb378eceba8f2d449c99c74b6ef627ac43ed7caca3002035e71609c"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/CampaignModeSelectionScreen.tscn",
+    "unchanged": true,
+    "sha256": "54442b9a7df3db0ecb19e85d9e4a2fc2115db4c63b52f086498c187c1be5c066"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/ChronicleScreen.gd",
+    "unchanged": true,
+    "sha256": "2d4afbc7f2d1e3a4cd303d87d70475f33aaf22055abaf95773f57b5ae518bad1"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/ChronicleScreen.gd.uid",
+    "unchanged": true,
+    "sha256": "e5b4b7310079a205f7f0b4446b6120697f315179875266e0d83dea4b7b60a33a"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/ChronicleScreen.tscn",
+    "unchanged": true,
+    "sha256": "1f877f730aa8683f0f079878df8f2fa35377438c81c9abd937c2d49c0d2bc860"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/DuoLinkLoadoutScreen.gd",
+    "unchanged": true,
+    "sha256": "2257f1452d8dfa46e55edf73192d18ea7ff1f19217058e16266f0e613beecda6"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/DuoLinkLoadoutScreen.gd.uid",
+    "unchanged": true,
+    "sha256": "dda2f9eef633a9365a905077495a8bfa22b0a8e098f0e16f5a4673fe1b85561a"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/DuoLinkLoadoutScreen.tscn",
+    "unchanged": true,
+    "sha256": "57da818948538222e98b8ca35ae2f355c81961d0176f7e0f4b452bca35b481c5"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/ExpansionObjectivesScreen.gd",
+    "unchanged": true,
+    "sha256": "366a0d27c27c2ff513874d1e614faabec0734f166d45d719ae01ac79d923cd6b"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/ExpansionObjectivesScreen.tscn",
+    "unchanged": true,
+    "sha256": "a4ef3ac98e180e25df52aa32ae28dbd26e638bc9544d20036afd5e4d332670de"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/FrontSelectionScreen.gd",
+    "unchanged": true,
+    "sha256": "1309ce8c7c390ab85bfcce0ce1298d24d50c6daa1dab16737417a9aab3586dd0"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/FrontSelectionScreen.gd.uid",
+    "unchanged": true,
+    "sha256": "3aeb7dacef48cc55d753027badf4ec196d37d3a640ab37c03859eeffc57532a4"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/FrontSelectionScreen.tscn",
+    "unchanged": true,
+    "sha256": "056fa853f1a114af0f774c90b5fe99a49f9ea6c8562d24647ef3df30eb910d9f"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/HeartSelectionScreen.gd",
+    "unchanged": true,
+    "sha256": "056740c51179ebb19b6f3a7ab2ac6197802b109358d66cdede2b50abda5a4c3a"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/HeartSelectionScreen.gd.uid",
+    "unchanged": true,
+    "sha256": "dfc3128a20e4c3a0971902347c0ce209044bc29f3903a7fb462bf51763b1ee83"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/HeartSelectionScreen.tscn",
+    "unchanged": true,
+    "sha256": "0483e53e797e86f4bc33af92aebc6bc036c457492203165735c91a2feead3c48"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/OutpostManagementScreen.gd",
+    "unchanged": true,
+    "sha256": "6b19bf72941cd9128faaf6f530f50ddb1f15dac29d0f1d8b71a1b165c3c584ce"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/OutpostManagementScreen.gd.uid",
+    "unchanged": true,
+    "sha256": "3aff4fe4f81988b338bdef0f4a558874551faa00e952df802fadc68dc3a86cf2"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/OutpostManagementScreen.tscn",
+    "unchanged": true,
+    "sha256": "0f1cc89a01360f8c73dcdc50f687bd9693f03f6ae347bfbc3e7c889af5035f35"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/RegionSelectionScreen.gd",
+    "unchanged": true,
+    "sha256": "e25ecb0a3566856dea096cdc5eb6cbe190ba6de9fbf94a4060ef53e37ca2772f"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/RegionSelectionScreen.gd.uid",
+    "unchanged": true,
+    "sha256": "db491d528a9513d4d5ee46909910d66c46471c0c928955079f59b8a646ac977a"
+  },
+  {
+    "group": "product",
+    "path": "scenes/ui/screens/RegionSelectionScreen.tscn",
+    "unchanged": true,
+    "sha256": "63f25265058032ca0d21796f25415f38727156faa26e51cdbf7ae48e3d6c2ef7"
+  },
+  {
+    "group": "product",
+    "path": "scripts/achievements/AchievementGameplay.gd",
+    "unchanged": true,
+    "sha256": "1bcbd0f0fa68834aac699a446637360549daf9e4b969095de7f388b6eb0517e8"
+  },
+  {
+    "group": "product",
+    "path": "scripts/achievements/AchievementGameplay.gd.uid",
+    "unchanged": true,
+    "sha256": "cc85c52f4800f1e6f9d166249d2c58fbcbe565dbf53edfeba6872f044303e555"
+  },
+  {
+    "group": "product",
+    "path": "scripts/achievements/AchievementRetro.gd",
+    "unchanged": true,
+    "sha256": "57b76ec4e8f5b2ec4214bb7694ccb007bb7396b1c4cfac75719cf8233104c101"
+  },
+  {
+    "group": "product",
+    "path": "scripts/achievements/AchievementRetro.gd.uid",
+    "unchanged": true,
+    "sha256": "bda93e9fbc25d61ce52edf42a76591f31f03d08dd65e151c6ae2b6c3a953cc1d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/achievements/AchievementRules.gd",
+    "unchanged": true,
+    "sha256": "a3d089c113268c1bb96ae0079b38d3105fb01acfd8ae95445d1c4e31b861cd48"
+  },
+  {
+    "group": "product",
+    "path": "scripts/achievements/AchievementRules.gd.uid",
+    "unchanged": true,
+    "sha256": "369d66767901ad303551f329cfee9a94762f2d00a398b2b2c50e0429307df5c0"
+  },
+  {
+    "group": "product",
+    "path": "scripts/achievements/AchievementScreen.gd",
+    "unchanged": true,
+    "sha256": "b467e834a079a9589c8c09c7cb62458c4e92baf9b9645621eece4e0875f3af55"
+  },
+  {
+    "group": "product",
+    "path": "scripts/achievements/AchievementScreen.gd.uid",
+    "unchanged": true,
+    "sha256": "650cc1c9790b01a5dfa49e0009ad1b82a21e9f19c41cd5e5e2657f30acc76680"
+  },
+  {
+    "group": "product",
+    "path": "scripts/achievements/AchievementService.gd",
+    "unchanged": true,
+    "sha256": "3cc22e28b3a4914aadc180a4ed5ea27f09049ca4575f0d18ee2afb7f179b5f81"
+  },
+  {
+    "group": "product",
+    "path": "scripts/achievements/AchievementService.gd.uid",
+    "unchanged": true,
+    "sha256": "dd2fbdd22317dad909cb4ab72a3935f16e93c94d811578f83bb1a9595175b542"
+  },
+  {
+    "group": "product",
+    "path": "scripts/achievements/AchievementToast.gd",
+    "unchanged": true,
+    "sha256": "5db41db025db2ed413b8cb79e6973b7fff976a3cbe70b8f6f5565985f230acc3"
+  },
+  {
+    "group": "product",
+    "path": "scripts/achievements/AchievementToast.gd.uid",
+    "unchanged": true,
+    "sha256": "3767479e139dbfad576e6258dd96b53c25b94d7f83236fdf1de3f463fa1781f9"
+  },
+  {
+    "group": "product",
+    "path": "scripts/achievements/SteamAchievementBridge.gd",
+    "unchanged": true,
+    "sha256": "da2bc055358a324b78fadd697bbbe1cc84460f2e1e37bff49634e7947bf2fb8d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/achievements/SteamAchievementBridge.gd.uid",
+    "unchanged": true,
+    "sha256": "0dcd7e407d09665ab971cac57ce0de0813e2ee16a28bfbfe99d450fdbdf3a95d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/audio/AudioCatalogApi.gd",
+    "unchanged": true,
+    "sha256": "515f46467942c4e4076e76af6f1308063cb5b8c5a03e2163cca0056971b7ef1f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/audio/AudioCatalogApi.gd.uid",
+    "unchanged": true,
+    "sha256": "a73e5e81f4e6d335132dab34fcd7767990977cebd7c2c52a253db4483f944129"
+  },
+  {
+    "group": "product",
+    "path": "scripts/audio/AudioDirector.gd",
+    "unchanged": true,
+    "sha256": "2c76b9e79736a612a97a140379229ce7bd041321288da3fa42f16c0d8b948f53"
+  },
+  {
+    "group": "product",
+    "path": "scripts/audio/AudioDirector.gd.uid",
+    "unchanged": true,
+    "sha256": "fd834155f24e5403a6deedfb0db0ddf1bf10487427dfaf15d17b8ffd9d5929a2"
+  },
+  {
+    "group": "product",
+    "path": "scripts/audio/AudioVoiceAllocator.gd",
+    "unchanged": true,
+    "sha256": "5eccf5a3fb7bc57b0617567bfc4c0f1760aa9479db8beca212c0e7f336612891"
+  },
+  {
+    "group": "product",
+    "path": "scripts/audio/AudioVoiceAllocator.gd.uid",
+    "unchanged": true,
+    "sha256": "b00285ca7e12ebbcd71ee35af291786178bf05eb8d390f5cb5be9572035af501"
+  },
+  {
+    "group": "product",
+    "path": "scripts/audio/CombatAudioProfile.gd",
+    "unchanged": true,
+    "sha256": "4aafaa7869348f701b248668ab53deb29559f9615f7b6638e0721e22b6ebeadc"
+  },
+  {
+    "group": "product",
+    "path": "scripts/audio/CombatAudioProfile.gd.uid",
+    "unchanged": true,
+    "sha256": "ad490dd1773811c2baa04fdfe7187d7d35be91d668cdc33cf119d022eba9dda0"
+  },
+  {
+    "group": "product",
+    "path": "scripts/audio/FootstepScheduler.gd",
+    "unchanged": true,
+    "sha256": "74a8d230af17aba25dede8161a1af598a06a1f76e8fe3fb4c08bfffd23fd82cf"
+  },
+  {
+    "group": "product",
+    "path": "scripts/audio/FootstepScheduler.gd.uid",
+    "unchanged": true,
+    "sha256": "256781b1ed2f59cb9b2ada244697c3ab0a08dec18cd60f249656bf0f9c4ee34c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/audio/MusicRotation.gd",
+    "unchanged": true,
+    "sha256": "f46933d3137e911057e1acfbac566825f408fae70d99470fb03c38725f0d5073"
+  },
+  {
+    "group": "product",
+    "path": "scripts/audio/MusicStateResolver.gd",
+    "unchanged": true,
+    "sha256": "185745834ac344e2db3bc9771a4e0539978ecc5789ad7e33ce399ae2b7577a4d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/audio/MusicStateResolver.gd.uid",
+    "unchanged": true,
+    "sha256": "1af0a048528d047323c1a4e025b203c6b16187648a3f9f07d7c5b1d7d8a9734f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/camera/PlotWallSilhouette.gd",
+    "unchanged": true,
+    "sha256": "f08bfa2339bf2411876a669788e1ce37670d776d7d517ea3fb09d994ea930408"
+  },
+  {
+    "group": "product",
+    "path": "scripts/camera/SpectatorCameraDirector.gd",
+    "unchanged": true,
+    "sha256": "1010471aa3a3b874ed037501b72eedb85d47cfa2710b3690b95187c60e18fe53"
+  },
+  {
+    "group": "product",
+    "path": "scripts/camera/plot_wall_depth.gdshader",
+    "unchanged": true,
+    "sha256": "96312b7135b14cc3c43e285fc9167611cfbe0935f3be95e92ca7cfd12b8fc4b4"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/CouncilObjectiveRuntime.gd",
+    "unchanged": true,
+    "sha256": "ae5ff28d19eecc87e7a0236232b0bed63d49a774b797b2aa2978904c014801e4"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/CrownCommandRuntime.gd",
+    "unchanged": true,
+    "sha256": "ef7150a8018be2a144a50ddb18a3dbb30b9bdd98986adb4ed4391de5f3cc0d45"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/CrownCommandRuntime.gd.uid",
+    "unchanged": true,
+    "sha256": "cbee7ca4f2ce7abae76e18da01e82b831e1fc5ed0638e7c6a718b4dfd2aa842a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/CrownFacilityRuntime.gd",
+    "unchanged": true,
+    "sha256": "5f91b8a080b37702357cfda873fcd8f573122de20be5281cab620ddba4480073"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/CrownFacilityRuntime.gd.uid",
+    "unchanged": true,
+    "sha256": "0366ac375346fe95c15829b4e5d3940617c37290c140bd9d77e7d75659df81da"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/CrownFlameRuntime.gd",
+    "unchanged": true,
+    "sha256": "11b890e24e41c6b7138619ffc897e569bfe8865bbc863af7bef572b2270510c1"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/CrownFlameRuntime.gd.uid",
+    "unchanged": true,
+    "sha256": "5a97cb66f92c31728f7613832b7fc79a292783d146b4edc69671b02df7a0619f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/CrownMobilityRuntime.gd",
+    "unchanged": true,
+    "sha256": "1ef8d71a134ea0ec78f4d18f847bb56a22d9ad3b0ea747958011f95a37910a46"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/CrownMobilityRuntime.gd.uid",
+    "unchanged": true,
+    "sha256": "66fe85917dd3ec8c8c7b0c63bd855186278b1c2b20f8e467c9f90cc3407920ef"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/DamageService.gd",
+    "unchanged": true,
+    "sha256": "e6c3fc8af42c341d54ce1eef1c45d628dc5e8d6403b0f940c97d6b9335075bbe"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/DamageService.gd.uid",
+    "unchanged": true,
+    "sha256": "ccd190373324ed467d91f004fc16d7bd642034c72d1fdc7a5008f156894dc154"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/DirectiveManager.gd",
+    "unchanged": true,
+    "sha256": "cdba09157c18a99add27ec1b4fdfd41b8ecbbe2173d31a9e8010c691f5a7ff45"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/DirectiveManager.gd.uid",
+    "unchanged": true,
+    "sha256": "bf82e5c9e3af97e9697c649da4a29b31d233c479632522df9bcf687c65faaf7f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/EchoAlarmRuntime.gd",
+    "unchanged": true,
+    "sha256": "52ddd5014f8e433fc3e817b09f94df0da5ecb11aef2969a3c0e2e7d866e8ab03"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/EchoAlarmRuntime.gd.uid",
+    "unchanged": true,
+    "sha256": "2c4d6e8ba45fae5bd8db1fba5acff22b94b5365a24bfa55eeac36d623d85c748"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/NativeObjectiveRuntime.gd",
+    "unchanged": true,
+    "sha256": "ff05ed385ce2c6202d21aa975ab27aaea49f16b29c383b46d9f5b7d758ec56c9"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/NativeObjectiveRuntime.gd.uid",
+    "unchanged": true,
+    "sha256": "16c182b101879e17d736a3b6dfa96bf9c9a0b57bb66e7907a4793ccfbb898432"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/RoyalSupportRuntime.gd",
+    "unchanged": true,
+    "sha256": "967727d2f07d614f8745389ab9a34784ef9b0e3fb571ad340411b63d59ff846d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/RoyalSupportRuntime.gd.uid",
+    "unchanged": true,
+    "sha256": "efad87cce9e17129b872cb21020474c9c7bd8b592f90cf54052fba02770359e9"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/SingleFloorSupportRuntime.gd",
+    "unchanged": true,
+    "sha256": "ce1462ade4867e2c649dd0d35e6b46f75f0ab35ea506f005393e03a17b241194"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/SingleFloorSupportRuntime.gd.uid",
+    "unchanged": true,
+    "sha256": "607dcb6c8aa8fa0ad5c00b7f9007e92f171ddb9ad38ce19352a2a89a9edd04e6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/TargetingService.gd",
+    "unchanged": true,
+    "sha256": "82c81441cd538652a63f986d93793d5f496e531c038acc9acf8bfed8a1167734"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/TargetingService.gd.uid",
+    "unchanged": true,
+    "sha256": "b5eef9527e31d7fe07f88297a5ae42cedaf77dcbee138c2ad6c1d54bb3061f6e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/V130RDuoRuntime.gd",
+    "unchanged": true,
+    "sha256": "2aca346c057fe4b92c108418a2600878748aab97ba80003ec001c87d5c2867ce"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/V130RDuoRuntime.gd.uid",
+    "unchanged": true,
+    "sha256": "6a5225abd49522411859f1c9abaaab4aa4f947eefea66ed1d23c4ef613a499dd"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/V130RMonsterSkills.gd",
+    "unchanged": true,
+    "sha256": "fba51e189963e6d88623d38886194dbea10bc4eb7df875bb0416856237239216"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/V130RMonsterSkills.gd.uid",
+    "unchanged": true,
+    "sha256": "582a46b1844074722f83d696e6df7f5b8e700813cb84f5ea1d7c61841605fa0f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/WaveManager.gd",
+    "unchanged": true,
+    "sha256": "824f7d25ba7a71b0948824462cb73a1e9e46d27f19b5fe4a939e23e14fecd46d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/combat/WaveManager.gd.uid",
+    "unchanged": true,
+    "sha256": "283c20b3d6196c9939f48bd5d7841e73ab50fc17ee5b89dd20869ff559cf17e4"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/AndroidLifecycle.gd",
+    "unchanged": true,
+    "sha256": "56733a317fb730728467dc2742c5a68f04a6d47e4281bec9565679eeaffe08b9"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/AndroidLifecycle.gd.uid",
+    "unchanged": true,
+    "sha256": "1a38af5c9715b69ae51b42d1620ac272b70749b2047b47fd908cb00980924f29"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/AudioSettings.gd",
+    "unchanged": true,
+    "sha256": "5d3dbf38790a9390891b2cb5a7e89577aa4c492a5b518d9e19a163f1e9643ec9"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/AudioSettings.gd.uid",
+    "unchanged": true,
+    "sha256": "52cbed41d1661b75b33756025b07beea0a7b02a61fa25c4eeb60806907602a74"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/CampaignSaveBundleGuard.gd",
+    "unchanged": true,
+    "sha256": "1ad435302feaeb51fd14ab440c2775e60d09f5ef78794fc0352bdf5b84eae697"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/CampaignSaveBundleGuard.gd.uid",
+    "unchanged": true,
+    "sha256": "3dfde1019fa7398d21632bc13caf01697b5e5f3d494298377325e44d4a08cda2"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/CampaignSaveMigratorV1ToV2.gd",
+    "unchanged": true,
+    "sha256": "5aaa6697e23608076e47794a1d74f8e7da47f69dc90f098d5e8acdbbbde3dbf0"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/CampaignSaveMigratorV1ToV2.gd.uid",
+    "unchanged": true,
+    "sha256": "47127ec23921fbc0e8a925029b0b1374befc1859beb6b795c5bbfa390d526c9e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/CampaignSaveMigratorV2ToV3.gd",
+    "unchanged": true,
+    "sha256": "a380425c48601124d910aad4a40cc3278a4e4e86c613b55a80056fe4a8131c17"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/CampaignSaveMigratorV2ToV3.gd.uid",
+    "unchanged": true,
+    "sha256": "367dc2ad535c3dcc6c7b1fbcbd3efb49cff5ba6ec2a58da6116e8137a1b12c74"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/CampaignSaveStore.gd",
+    "unchanged": true,
+    "sha256": "fd42e6e7e17a16b1f5c1ca87c37364cb607762006d64359d8f5cae5deb110590"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/CampaignSaveStore.gd.uid",
+    "unchanged": true,
+    "sha256": "943f0e9a3822d22418ef9613a6a2bcd4c51340c570ed4a90e97668a6f73cfc74"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/CampaignSaveV2Store.gd",
+    "unchanged": true,
+    "sha256": "eaa549e8722d4f7bf061bc5adc6db6b300e6d06a90061e0f98a14fb19879956e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/CampaignSaveV2Store.gd.uid",
+    "unchanged": true,
+    "sha256": "e771cb7add1629c654c8a8543c633a284ddd0fc8fb57d78b473c8f31f3807452"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/CampaignSaveV3Store.gd",
+    "unchanged": true,
+    "sha256": "e991618f1ceed8fabc4f3918011b119d8b6130b182c8ff196f001483ef0c1027"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/CampaignSaveV3Store.gd.uid",
+    "unchanged": true,
+    "sha256": "16df652b28a0c901deb2ae607cd18a8db4f9f477137fd229982fdbf68501edc5"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/Constants.gd",
+    "unchanged": true,
+    "sha256": "81d8d45397d33d641b72ace6eb4841a4616d45857c1ccffa15070fff725d573a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/Constants.gd.uid",
+    "unchanged": true,
+    "sha256": "d84dc27258690f9c124959e8b5d52dbf0dceed642c7fc21846a6f9fb9ae05383"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/DataRegistry.gd",
+    "unchanged": true,
+    "sha256": "62b14d92b9b919cd5dfd7daba319ee0687706ceca4656ff40d8a6178d878bb9f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/DataRegistry.gd.uid",
+    "unchanged": true,
+    "sha256": "9d59e32fd9a58d60bf731b1dcceee41d87395d60ced736ea340163e234a25f08"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/EnglishTranslation.gd",
+    "unchanged": true,
+    "sha256": "c6e3c2967da19d2ed771ff0c1f7aa0726120deb37cda38e4420fa25b5f69a66d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/EnglishTranslation.gd.uid",
+    "unchanged": true,
+    "sha256": "af0a7ad78d4abf91fc5fc9a432489f51a9d9c207ea3552d7460de72a861eeb1f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/GameState.gd",
+    "unchanged": true,
+    "sha256": "81901a18953be12ce94242151a23c89ac342676c6a6a5ad5e00b022ffadfc4eb"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/GameState.gd.uid",
+    "unchanged": true,
+    "sha256": "d18f14a94d22541743f67c3a2ccf87f899ea28d5b59b75d3f713d98244e4c7a2"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/InputSettings.gd",
+    "unchanged": true,
+    "sha256": "74655fbaedf6f081c6efcde3af188fc7bd465cef2c125c95ae13f2fc41174540"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/InputSettings.gd.uid",
+    "unchanged": true,
+    "sha256": "6b9bbfdbee48f27da7c04a01eb8835c8fb46a47101dcf01ac1c81ad264338cc5"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/LanguageSettings.gd",
+    "unchanged": true,
+    "sha256": "51c3d8eb08901094d6eeb800524c80305310d287005d171ab10923617afed8c0"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/LanguageSettings.gd.uid",
+    "unchanged": true,
+    "sha256": "d7b0069584434e7c4288344855761a9acc196ced4f505d97a6cc1b007c14dd78"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/SignalBus.gd",
+    "unchanged": true,
+    "sha256": "7f10444c49a9ff87eab69fa46f29394add7c19e709483e923cc51343ed9a3640"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/SignalBus.gd.uid",
+    "unchanged": true,
+    "sha256": "48ea6246daec128a71c1affe18c1d1ba8eb3a411a0662ef749c4f214d89d54ce"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/TutorialGuidanceHistory.gd",
+    "unchanged": true,
+    "sha256": "9493c4908239e69f076f31eed12b20ae748abf0e4df983f35a63a98e261d4969"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/TutorialGuidanceHistory.gd.uid",
+    "unchanged": true,
+    "sha256": "9509d50fd004f0ae50b7fb93916bdd73fa02911a2d51d5e67fa0200b00a1ba07"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/UISettings.gd",
+    "unchanged": true,
+    "sha256": "0dd66e3fc3a1549250600730886ce27b46826ff2dce97c356f9f29903bbc42d9"
+  },
+  {
+    "group": "product",
+    "path": "scripts/core/UISettings.gd.uid",
+    "unchanged": true,
+    "sha256": "b582b7fc1d62220e6f26d75f505fdd9299a66002306d27e202fe2d402af4a067"
+  },
+  {
+    "group": "product",
+    "path": "scripts/data/README.md",
+    "unchanged": true,
+    "sha256": "363c7417da3f9b720f7f404f18d2088c441e837780265cfaa636841646cfc829"
+  },
+  {
+    "group": "product",
+    "path": "scripts/data/update4/Update4CatalogLoader.gd",
+    "unchanged": true,
+    "sha256": "82328bb30c9097e4718040a546bd0e8e6ff9e461be18be0cc00802c3f8f2f2ff"
+  },
+  {
+    "group": "product",
+    "path": "scripts/data/update4/Update4CatalogLoader.gd.uid",
+    "unchanged": true,
+    "sha256": "a2459178118ce05b92cd5ca6a6c09af57399e4fce2a203521e54d97b9795b7fa"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/AutoTileMask.gd",
+    "unchanged": true,
+    "sha256": "af918c7b9d00dfeb9d4fea1260d9aae8484318a7a84f3f745a60c9e42f740459"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/AutoTileMask.gd.uid",
+    "unchanged": true,
+    "sha256": "0b61a4a8b8e393b404ea3aa43860c39ae47dcad4898ef3c35181ec30a6070b72"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/CorridorTopologyBuilder.gd",
+    "unchanged": true,
+    "sha256": "6347d3c74362951264d04b4560ccb8213652db8f66cda81c2680b0e8256be408"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/CorridorTopologyBuilder.gd.uid",
+    "unchanged": true,
+    "sha256": "0ef8eb6c49219fa53a55bb7d042a63d0d6d63accb5c3047f15c03d3388c1485b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/DungeonModuleRegistry.gd",
+    "unchanged": true,
+    "sha256": "78257a1693c9394a895e986c23a355bab4cd278315eec9b5d4378701ecaab17a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/DungeonModuleRegistry.gd.uid",
+    "unchanged": true,
+    "sha256": "856d4d2f48896b30d9232def8574d064400819222f248c5796cda12620455f2d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/DungeonWalkMap.gd",
+    "unchanged": true,
+    "sha256": "3157c5ae77338f6aa7b18acdbd2ee93b0988c746de88704c23ca28767717996e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/DungeonWalkMap.gd.uid",
+    "unchanged": true,
+    "sha256": "b8cb20a76f28b708780c3ce294249d609a3068182080ae27b2132a989204d301"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/IsoMath.gd",
+    "unchanged": true,
+    "sha256": "be1451a06b1de12d656c2a2024c3de8e37d46053e9da7f7a6e9a57da757d12c6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/IsoMath.gd.uid",
+    "unchanged": true,
+    "sha256": "ec734a6b465ae16697750cf6fcb75e9b2a2521278c35a9fc45b48b4525598556"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/ModuleGraph.gd",
+    "unchanged": true,
+    "sha256": "90703a5414a9d0e860ddb7cfb994efeeaa470137de1bc457c9574110b38fd887"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/ModuleGraph.gd.uid",
+    "unchanged": true,
+    "sha256": "1e889908da6a3aa696000a72cf8608036154daead9eb967818693df9a28b2d2d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/PlacedModule.gd",
+    "unchanged": true,
+    "sha256": "ca5ccca223a0775183de4a6909ddc373431011452fdba187129e95a6d485eece"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/PlacedModule.gd.uid",
+    "unchanged": true,
+    "sha256": "69367882cdd9133c0d309a648953dd64b3beb9db56b0076c87a3ec4bd1e116ab"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/PreparedMazeActorDepth.gd",
+    "unchanged": true,
+    "sha256": "fa54b3a8562a46cfd4a99478add433c2ab34b655492e165d648782c629390b01"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/PreparedMazeActorDepth.gd.uid",
+    "unchanged": true,
+    "sha256": "3d4214a67d0f6b9b211f2b35b4a81b7949b5885a3edb164c80c04b1f7832c4c6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/PreparedMazeMasonry.gd",
+    "unchanged": true,
+    "sha256": "7f05647a343da6c33633ca9a88f86d23128b94109fab8f3f0719d43573f9e3a0"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/PreparedMazeMasonry.gd.uid",
+    "unchanged": true,
+    "sha256": "6886332c29bbeb182d1aea14d549fa78763118f11d6b2e975570b85494d82d27"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/PreparedMazeRosterActor.gd",
+    "unchanged": true,
+    "sha256": "f2cfbd881a97ccabb89c4f411ecea0cb1a6d34773f386d7464b0047d2b2632b8"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/PreparedMazeRosterActor.gd.uid",
+    "unchanged": true,
+    "sha256": "87164bd21df39817b0b9be82ac80bf2a782a628f229d6238ae1dc5c609c0979b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/QuarterDungeonRenderer.gd",
+    "unchanged": true,
+    "sha256": "456c5da64cbb406d341321fc32bf11a7ad61635b892bf6c4497bcde0ed94f5d0"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/QuarterDungeonRenderer.gd.uid",
+    "unchanged": true,
+    "sha256": "6c8d5ed8b52327b74bcabfd49dddd22b793836165a5a2a959b5aaaede8dfa75d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/QuarterDungeonWallCanvas.gd",
+    "unchanged": true,
+    "sha256": "33f522f3357e48295b7cce8355c1d6b6961b2b4ba9d3968bdf655b1aba2fb460"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/QuarterDungeonWallCanvas.gd.uid",
+    "unchanged": true,
+    "sha256": "e2b1451b0706fd99332c51a78fdddbfebdcb181ceab262329e403136f201c774"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/SocketValidator.gd",
+    "unchanged": true,
+    "sha256": "b8ed68cbfd4cab0a2ef4b2bec33316a9e25d07d3d6a2835873723061258602ed"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/SocketValidator.gd.uid",
+    "unchanged": true,
+    "sha256": "b159af0f5939c9f02950cc64d2e27f1299dec22080c2cc656011370c9e43dfcb"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/WallAssetCatalog.gd",
+    "unchanged": true,
+    "sha256": "15522a034a3ab4516703d9049f721762d41fd4c1089ad1306f2a13864b3032f8"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/WallAssetCatalog.gd.uid",
+    "unchanged": true,
+    "sha256": "bc48d4dbc44dfb17c4c5c8f53de0cd26332763364251ab061630856ab923f7e4"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/prepared_maze_actor_depth.gdshader",
+    "unchanged": true,
+    "sha256": "6f6219d3237c1de96c3f18d1d57b11a39949b4bbd0d9983eb436bb562abc6fca"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/prepared_maze_actor_depth.gdshader.uid",
+    "unchanged": true,
+    "sha256": "d46849f26b7c1d1c0ccaa296d55c73835fbb8beec00b63ce5162e2b3534e79f7"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/prepared_maze_depth_write.gdshader",
+    "unchanged": true,
+    "sha256": "85593bfd1f5c0f95e9909278dd12b178ad6cfa9eaf0a2b40bc3362f4f3304650"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/prepared_maze_depth_write.gdshader.uid",
+    "unchanged": true,
+    "sha256": "4b417e8c4a699f2c918aaf2ca95bcac36c45a4ea04de69c8aa17417bf7c680ad"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/prepared_maze_wall_reveal.gdshader",
+    "unchanged": true,
+    "sha256": "dc4327838a01ddd59539aacd493f0a4888b6bc4ea4c393ffcfb9dd2f306780f1"
+  },
+  {
+    "group": "product",
+    "path": "scripts/dungeon_quarter/prepared_maze_wall_reveal.gdshader.uid",
+    "unchanged": true,
+    "sha256": "8561fbe78385149d08257e0cb3ac0c832906abf705ebe3f1e6def6a628e03d58"
+  },
+  {
+    "group": "product",
+    "path": "scripts/game/ApprovedBattleController.gd",
+    "unchanged": true,
+    "sha256": "f6f40cad0b8ad17aedb3a3b7b47e542237dbdfac8dfbea84ec61312d3aabd320"
+  },
+  {
+    "group": "product",
+    "path": "scripts/game/ApprovedBattleController.gd.uid",
+    "unchanged": true,
+    "sha256": "c4f47c6563baf84fe0009f7fb5922ff8c89dd79decb95b74f19a267111447b12"
+  },
+  {
+    "group": "product",
+    "path": "scripts/game/BuildingPlacementController.gd",
+    "unchanged": true,
+    "sha256": "afa34c1e6f58407a60d6c0fdf671dd567bf144a5fe0a092e28b50fd830b71243"
+  },
+  {
+    "group": "product",
+    "path": "scripts/game/BuildingPlacementController.gd.uid",
+    "unchanged": true,
+    "sha256": "1234a05305c98c881570ab1eb9304e5dbd39337ecfae81dde3a96c6ce7a514a3"
+  },
+  {
+    "group": "product",
+    "path": "scripts/game/CombatSceneController.gd",
+    "unchanged": true,
+    "sha256": "ef79a3e28d060ce62eec6470f93b6196b45f12b35a45a0f1faa9b1bef63516c6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/game/CombatSceneController.gd.uid",
+    "unchanged": true,
+    "sha256": "a1ca6ff725a70d9a2b879b44603403a93ebc72d3ce476f6d7e22b37cad72b084"
+  },
+  {
+    "group": "product",
+    "path": "scripts/game/GameRoot.gd",
+    "unchanged": true,
+    "sha256": "58f294612b1a53643378e29543e42d4dcac33b9d9f95a14b5b52b2116a19614f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/game/GameRoot.gd.uid",
+    "unchanged": true,
+    "sha256": "222bca74cd8cb56c96d7f070dd871255dd321186f045d041a5f6ad9f27985dca"
+  },
+  {
+    "group": "product",
+    "path": "scripts/game/ManagementSceneController.gd",
+    "unchanged": true,
+    "sha256": "46f974db265e6dbb6c74373bc79505709564f02a4f36241bbb90066eaab5c9d8"
+  },
+  {
+    "group": "product",
+    "path": "scripts/game/ManagementSceneController.gd.uid",
+    "unchanged": true,
+    "sha256": "202b71cbc7e6f1c400f92c365402dcff4d8d134f31a6227d887237caa5bc443e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/game/WorldOverlayLayer.gd",
+    "unchanged": true,
+    "sha256": "0a1e6e9d6389d90bd9cf5098c22e9b1ce4d736bf6bdc86bc3f3debbe521309d7"
+  },
+  {
+    "group": "product",
+    "path": "scripts/game/WorldOverlayLayer.gd.uid",
+    "unchanged": true,
+    "sha256": "127ed0a05e0df8e552a095dea9210527a0f8d6043b1cd1aa4931588c105b907b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map/DungeonRenderer.gd",
+    "unchanged": true,
+    "sha256": "1e7997547d8a080d359919fe520a68a35ebd0d699cd0d2eab9550ca59d31ab5f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map/DungeonRenderer.gd.uid",
+    "unchanged": true,
+    "sha256": "7d8773b1e7054067b1cf722e442cc89c482d57f1188852f0d976e1ac4bca2289"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map/RoomGraph.gd",
+    "unchanged": true,
+    "sha256": "7b80f0a5e9baef3265ad617d7e506c870828f12797740ff497edac666f7bf271"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map/RoomGraph.gd.uid",
+    "unchanged": true,
+    "sha256": "b80de4303897c4d9d0b30ab0d2437fa6a54b2ba066ccb4b0bcadad613dc284a1"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedActorPresentation.gd",
+    "unchanged": true,
+    "sha256": "bdf2218ed28df4b141abcd88410ce3b99e42e1d9d92ea427e5e84400bedc55d0"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedActorPresentation.gd.uid",
+    "unchanged": true,
+    "sha256": "69d78aa52da11a2d7bbd329ae7b5d9e66f30ff4d4fb242d84535b224762d746b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedBattleMap.gd",
+    "unchanged": true,
+    "sha256": "b7f62948a6408de42c011bb5e6bd73bba9550166d9569d2246e1230933070db4"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedBattleMap.gd.uid",
+    "unchanged": true,
+    "sha256": "bcdadc27fe0b44fd8324c8c29fddafe076f1478e0788e2181c9d925dacbb08bd"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedBattleOcclusion.gd",
+    "unchanged": true,
+    "sha256": "9a63615c34f5db6cc517107d0c5de36e12109865ae18181775f38524fc821628"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedGradeProgression.gd",
+    "unchanged": true,
+    "sha256": "96545e8a04ebf84d2971554452278468625925a7449fd2e996db21160739f63c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedGradeProgression.gd.uid",
+    "unchanged": true,
+    "sha256": "04351640440287fdd325bf7cadddb472421f45d4e0c88177d8bd30f5ba55aa12"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedMapLayout.gd",
+    "unchanged": true,
+    "sha256": "7cd8d9a49fabed5861e99e0783e8537c8838185d477ae612a0f62365a2edb78d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedMapLayout.gd.uid",
+    "unchanged": true,
+    "sha256": "bf3905979f49c71d0aed284f5b8cebdf90b3c8f3257d21a73ff7ed272434e341"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedMapView.gd",
+    "unchanged": true,
+    "sha256": "3bb5f41ef18a21f5bdbfaa723ef73354bf18174dd9996ba6bf6872ed3583d5a5"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedMapView.gd.uid",
+    "unchanged": true,
+    "sha256": "6dfbd3be4d81bd2fdb24d90bfb463328cbb0f137b88af830b4d1af817378c831"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedMonsterPlacement.gd",
+    "unchanged": true,
+    "sha256": "c5e410486c878b02b8bbf93c9f50ffb5c2a09cca4c2e5fbd3791fac45f93f6ed"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedMonsterPlacement.gd.uid",
+    "unchanged": true,
+    "sha256": "4cb8ee7a8876d75476bf5f8334b8db20ffd315a967b72e5a30f552b9aa30d4f5"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedMonsterPlacementUI.gd",
+    "unchanged": true,
+    "sha256": "9b7bd6a6eb6322c16b78b8ab2d0d3eea24f2d6c78935d977627b094b861423cc"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedMonsterPlacementUI.gd.uid",
+    "unchanged": true,
+    "sha256": "e8c09545a5de4fdc26e66024080379919d92ac83d6dbad8d52b5924ccc03c371"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedPlacement.gd",
+    "unchanged": true,
+    "sha256": "64bc1992f3cb32a6c6472b24d3a0ae6566c0e9610961e1b50baf75ebb6c8e1de"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedPlacement.gd.uid",
+    "unchanged": true,
+    "sha256": "8fd9f8e72e7c3f83dc84660904529bb5844104a459e45cc998799f3e65876dbd"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedPlacementLayout.gd",
+    "unchanged": true,
+    "sha256": "07bd830b8b8883527c31eb4d4c7abd1457d2c40834678fc9f5915a770e7f155f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedPlacementLayout.gd.uid",
+    "unchanged": true,
+    "sha256": "13fc5ea67df88176e77d1bbc870e836c1947bb7ce1d667a1216086553c110780"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedPlacementView.gd",
+    "unchanged": true,
+    "sha256": "ffdaed55fe544ae4a362cad0c45e6c180d39237a83de23522921465efbfa5e13"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedPlacementView.gd.uid",
+    "unchanged": true,
+    "sha256": "a770463ba776e00051d44712a5a922b60fc3e7c995596a707efaad367707e04c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedRecruitment.gd",
+    "unchanged": true,
+    "sha256": "52bf1eda165b8ea0fcaae2f52cbdc14e8fb9c157751bc8c580d8782308d19440"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedRecruitment.gd.uid",
+    "unchanged": true,
+    "sha256": "aa913e129e6145cb2868095b1468c9681766c3cc79fb1c51f865e61d3772edf5"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedTileAssembler.gd",
+    "unchanged": true,
+    "sha256": "a6ea737e03c4c562b59b471a170e18fa78cae42ed88d6c30152465437cc083bd"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/ApprovedTileAssembler.gd.uid",
+    "unchanged": true,
+    "sha256": "912a1bd50f62a2d74453b4b4442de475d6d30d4c08ff5e594c9a662fed829692"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/AutoRoadBuilder.gd",
+    "unchanged": true,
+    "sha256": "6a36c3d6e6bd107fe44304552a9c4a3eabb8a3c649e197ea84144b7dcf3821c7"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/DefenseGrayboxView.gd",
+    "unchanged": true,
+    "sha256": "b13390ad5577b0b215c25a9603a22f9ada06772c79dfa2a66c70c269073e4a10"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/DefenseLayout.gd",
+    "unchanged": true,
+    "sha256": "9460ac0f7981b318c1cbbd2a3bc6f9abfb22e5cf15e7095e6f3f5b715c43548e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/MapBuildService.gd",
+    "unchanged": true,
+    "sha256": "ef7a512860bd3301514e91ad8c1e357b28db32609430cac0590d8bca706218a6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/MapNavigationService.gd",
+    "unchanged": true,
+    "sha256": "a55688b008e69637c2b3a25e6955f5da6ffe4f993d6c6d842c6cdc0128ea6fd0"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/PlotBuildLabels.gd",
+    "unchanged": true,
+    "sha256": "c795ec161651944b921d656c3a2c787797c03d08c2ee166aac5c2e0ce7d6c1fc"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/PlotDecorationRules.gd",
+    "unchanged": true,
+    "sha256": "d2ac57f4769fc31f00d5f3afd46c4fe3ea105dbc6e6fc73825d3e9e96e731bf1"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/PlotDecorationSession.gd",
+    "unchanged": true,
+    "sha256": "556ced8332159f4f06b0f13781a977f2ae2f699a782009cbc52f28b8bbbc2515"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/PlotMask.gd",
+    "unchanged": true,
+    "sha256": "9a9df17b221d19c9820388ada578709b649c4ff3ca9e84463c3eec6213cc5e7a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/PlotPlacementSession.gd",
+    "unchanged": true,
+    "sha256": "c5620a4fd29714d9b0dd4a466c02fb605289783808c4263bf458177311a29a4a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/PlotPresentation.gd",
+    "unchanged": true,
+    "sha256": "6fd2a0b9fc467765d97bd8dc4c4df768c806092e2c680ccba1481fd34e3c7c99"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/PlotSaveState.gd",
+    "unchanged": true,
+    "sha256": "8289e0f139428b802f29e7c8521be71cb536a65d794a67f03a76abaa34512674"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/PlotTutorialTargets.gd",
+    "unchanged": true,
+    "sha256": "adce891c5a5b490fc8db311ce3fe023db052887bfde6e2885567a738f06c3ee4"
+  },
+  {
+    "group": "product",
+    "path": "scripts/map_builder/RoadGraphCompiler.gd",
+    "unchanged": true,
+    "sha256": "442964564f9882be85d49a07ca7860ae9cbb73c1d7eede021f3c0d419e857083"
+  },
+  {
+    "group": "product",
+    "path": "scripts/story/CombatStoryFeed.gd",
+    "unchanged": true,
+    "sha256": "f13a8523a8cc65bc228854d9d23b18862e92be49f181572809f8637e4e79b64e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/story/CombatStoryFeed.gd.uid",
+    "unchanged": true,
+    "sha256": "f76593b2cb8659223d1506e5a72313d3f552f7fafdfe18543602aa2f1456ed76"
+  },
+  {
+    "group": "product",
+    "path": "scripts/story/DialogueStrip.gd",
+    "unchanged": true,
+    "sha256": "a1c3f7f84cac06c49e2113b3d7244c75c73acb04a8d2257ad6bfa43183c761bf"
+  },
+  {
+    "group": "product",
+    "path": "scripts/story/StoryCatalog.gd",
+    "unchanged": true,
+    "sha256": "55ba1894ba2fb7ecc83ce13e9ca09c47475440252aa77dfdc58719224e291d89"
+  },
+  {
+    "group": "product",
+    "path": "scripts/story/StoryCatalog.gd.uid",
+    "unchanged": true,
+    "sha256": "b971a61a2e6142f25325e2bfeb4f414886f18fbd5ed30597ef3ef8d574c80f31"
+  },
+  {
+    "group": "product",
+    "path": "scripts/story/StoryDialoguePresenter.gd",
+    "unchanged": true,
+    "sha256": "3d5e4eb70f11ddcc6ff631dec29bf1601b5215ecc8d2bbb776a9eba4b4f26887"
+  },
+  {
+    "group": "product",
+    "path": "scripts/story/StoryDialoguePresenter.gd.uid",
+    "unchanged": true,
+    "sha256": "e9d5089f7541bef164597f017b8aa9f9f20592db7a73bed6e5fc9ba7ab41ad7b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/story/StoryDirector.gd",
+    "unchanged": true,
+    "sha256": "27ef26648aca47962291ec4d063fa04fc754ce099623d3ad654f95be78ea729b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/story/StoryDirector.gd.uid",
+    "unchanged": true,
+    "sha256": "dd3bef6ecc408032f60cb0ab2c75720db0c10d238265b83840584c3da9dd895b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/story/StorySaveState.gd",
+    "unchanged": true,
+    "sha256": "b6ec5fff3dd54c5ca1f81d026596fd0ca57d8fdf8f987c38655ca5722650e1d6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/story/StorySaveState.gd.uid",
+    "unchanged": true,
+    "sha256": "fbe0fa78d16b68e731c98bfcd7309c45a42fa9c307ce38faf0955d8e4d58c119"
+  },
+  {
+    "group": "product",
+    "path": "scripts/story/V130RStoryRuntime.gd",
+    "unchanged": true,
+    "sha256": "5892b8c359c31b606df6b720f8761077b8615c8a5ae65f4898ce6b083082a3fe"
+  },
+  {
+    "group": "product",
+    "path": "scripts/story/V130RStoryRuntime.gd.uid",
+    "unchanged": true,
+    "sha256": "03725212fc7d7e341476cc3630d5f4d9b8567ea6aeb45aab21b6e014db273c51"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/MonsterFoodService.gd",
+    "unchanged": true,
+    "sha256": "b4e50821d0d9fc047db6506e121c54993fa32cc3298758a3ede6191786fba906"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/MonsterFoodService.gd.uid",
+    "unchanged": true,
+    "sha256": "a79a845af1ac4255ef9ce7e76bdca344930c73f649bc2e75ab189e2b23415869"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/README.md",
+    "unchanged": true,
+    "sha256": "18980b4ec57bf915fac848fba3c4eb0e4d43fe76096fd639d698a87e96594652"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/SpecializationEffects.gd",
+    "unchanged": true,
+    "sha256": "a69d70e598c36325766793850ff2a9773f61cdb7146cf8771ff18b057af6c15d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/SpecializationEffects.gd.uid",
+    "unchanged": true,
+    "sha256": "19bdbe64d07ed0a5f6c4f38a33395db219e00c1b31224bfde74129bb61a9c3f9"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/bosses/BrassaBossBattleService.gd",
+    "unchanged": true,
+    "sha256": "b33fe17c2cb3ef9934440868e29e1846453b5e9298b5ac5b4fd53e34937e6b9a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/bosses/BrassaBossBattleService.gd.uid",
+    "unchanged": true,
+    "sha256": "6b8ac269277d7dbd3f2e3a1b36b6bf1357e29e8a3a0b4920c4068709e6dd0cbd"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/bosses/MirellaBossBattleService.gd",
+    "unchanged": true,
+    "sha256": "7e317be648ef41e9bccaff371fa027f600a524b883b8f8e1f9797d772870656c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/bosses/MirellaBossBattleService.gd.uid",
+    "unchanged": true,
+    "sha256": "d5611afd583ba3d2892f2c4de78a9f8cb46ec7f0fa306fe529aff457d8f58234"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/bosses/VesperBossBattleService.gd",
+    "unchanged": true,
+    "sha256": "669c795de44074b367e303276fdc59f769b75af965f50730f920dfdfee591e69"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/bosses/VesperBossBattleService.gd.uid",
+    "unchanged": true,
+    "sha256": "bbcb982b8376b1930bc64340e18a39b0f7678a353095284316bfbc54b1d3a042"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/campaign/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/campaign/CampaignModeService.gd",
+    "unchanged": true,
+    "sha256": "5590cda648f1f7cbbae7abd16948c5aa659f4860b6a81c34eb8793b2ca61b790"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/campaign/CampaignModeService.gd.uid",
+    "unchanged": true,
+    "sha256": "db9f2ac1212d3a94e26a3ac18c86a1ece41491103e0a7900713c2d38cf32dd9c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/campaign/CouncilSeasonService.gd",
+    "unchanged": true,
+    "sha256": "e63b398865062b0f5c633d9fdb590198abe353b4b2bb68b77206480ef6bcd83d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/campaign/CouncilSeasonService.gd.uid",
+    "unchanged": true,
+    "sha256": "61bc6d165a556f602ff113591cd068f2c2400ad840be9f6f5abdec326225a5a6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/campaign/LeonAdaptationService.gd",
+    "unchanged": true,
+    "sha256": "b4ee51ba39a38a1951338f3c3ab72752fcfc1898e1261c19195d496ff1e4eb2a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/campaign/LeonAdaptationService.gd.uid",
+    "unchanged": true,
+    "sha256": "9b565234f3668096970c71e4ee5f9dbc5c6b018d649c606fba33780037f3aff1"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/campaign/Update2SeededCampaignService.gd",
+    "unchanged": true,
+    "sha256": "bd226c38441bfdf1cf9850e9ddb1fc36511adad1fd05d448d6ee2fa60f93ba9c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/campaign/Update2SeededCampaignService.gd.uid",
+    "unchanged": true,
+    "sha256": "7586579b13ce74f5867aee5e9191e8d2a8e1cb9621dc7c8860fcd31a91b21624"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/campaign/Update4CampaignRuntimeService.gd",
+    "unchanged": true,
+    "sha256": "25f344452549462f25b638b1f6ead65d63eb9b85e2fbea5c377d9d7ac6274dd6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/campaign/Update4CampaignRuntimeService.gd.uid",
+    "unchanged": true,
+    "sha256": "b64f88d903942bdd03745bd9c058661ae952ad560956c79f7e823af6dac2923b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/chronicle/ChronicleService.gd",
+    "unchanged": true,
+    "sha256": "02e646d2319f0bf068b33dbf07edb86be01b6357e85feb3d899283ac7e29484a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/chronicle/ChronicleService.gd.uid",
+    "unchanged": true,
+    "sha256": "d51101cd49f8c325abdb60c334e4393cee0a1334a2c7d2bff849fb0fc6ff0dc6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/chronicle/CouncilChronicleService.gd",
+    "unchanged": true,
+    "sha256": "2f9f6caea4fc872ffa440278672d4b71ad9ca4623995f2b50c1420930e6219e3"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/chronicle/CouncilChronicleService.gd.uid",
+    "unchanged": true,
+    "sha256": "827fbbcdcccb8600fe742e08f760a3216bc76367623a2807a97dd0f6975d5753"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/content/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/contracts/ContractRosterService.gd",
+    "unchanged": true,
+    "sha256": "824ab70480d55f6901a762845cd11b4eb8556878b52f4e3ea338b42bf532f070"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/contracts/ContractRosterService.gd.uid",
+    "unchanged": true,
+    "sha256": "aadc8008483e8718652616666071b78c5af9b52a253f1b6a31dd0e3d15a5d38e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/council/CouncilExpansionService.gd",
+    "unchanged": true,
+    "sha256": "0e066eb949917935cb036ce42671317de1061e87309f1f2270f4ec2e760d9104"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/council/CouncilObjectiveService.gd",
+    "unchanged": true,
+    "sha256": "7b5c30093da00fa54ff094ab7dafa71f2ff7c0533a57d9504543de46968f1690"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/council/CouncilVoteLedger.gd",
+    "unchanged": true,
+    "sha256": "a076b969116502bd9231397ed12cf9ebb021ec52a8020853ec297f5c4802ccd2"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/council/CouncilVoteLedger.gd.uid",
+    "unchanged": true,
+    "sha256": "3de1568d498325690ad72bd5121c738487238dde8f064b81b9ad5c8cf861f54f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/council/RivalLordService.gd",
+    "unchanged": true,
+    "sha256": "ddb5cb371d75c680c92af302614d576d1b8156a71bcd45e3a653349c251fcc8a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/council/RivalLordService.gd.uid",
+    "unchanged": true,
+    "sha256": "415e27ee5f0cd6f19500057045d2a43637f092975e313854a16b1d5add98b0bd"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/crown/CrownEvolutionService.gd",
+    "unchanged": true,
+    "sha256": "9bfd77ce3026e0894130eef43733b61003caed9678cdf01815c75428da32fd87"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/crown/CrownEvolutionService.gd.uid",
+    "unchanged": true,
+    "sha256": "532de4e36c2d37d876a4059b545d7749a7942fdbb5223ad704f23b64ae0033f9"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/crown/SupportMasteryRuntime.gd",
+    "unchanged": true,
+    "sha256": "9c3ab8bb7465711c1384e2d4c198801b4d9c120e30d133a768b4a1d3150b10bf"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/crown/SupportMasteryRuntime.gd.uid",
+    "unchanged": true,
+    "sha256": "d732cacc17ecc50d73dc55987f0068c8722f461dcb90281fba43291838edc29e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/duo_links/DuoLinkGaugePolicy.gd",
+    "unchanged": true,
+    "sha256": "8620969307db74993602b261359d46a1335ec25c20cb84d1bc3c6551d07d3b54"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/duo_links/DuoLinkGaugePolicy.gd.uid",
+    "unchanged": true,
+    "sha256": "bddda2f8d539c44033e3dad1ab3b22af1074f9b255448f42a010783bd86adf76"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/duo_links/DuoLinkService.gd",
+    "unchanged": true,
+    "sha256": "0b9d27c980624ffe5d0d11a6a6939cc114e6de0cec3bd645359f4aec3a407846"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/duo_links/DuoLinkService.gd.uid",
+    "unchanged": true,
+    "sha256": "f71979f8b4d3d20413ff9a7f1e3af9a0a0f898213d8c82a492ffe0cbe49f78c4"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/economy/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/endings/CouncilEndingService.gd",
+    "unchanged": true,
+    "sha256": "9a12ec5cbb9e15e48aefca01cee31dbd6d7eaeb610b005ae7f5fd129e32c9747"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/endings/CouncilEndingService.gd.uid",
+    "unchanged": true,
+    "sha256": "71888dc07235bd85e24e29ec5d12cce7e39325ca89a44cef8d2247b1cc7d7b1a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/endings/EndingConditionEvaluator.gd",
+    "unchanged": true,
+    "sha256": "c6380710786bf7d440b8922f9a8e2943a9d4d9d328d69b8df827c5138762c497"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/endings/EndingConditionEvaluator.gd.uid",
+    "unchanged": true,
+    "sha256": "9ea4ac421a6c322ef9ae7c12ad2bff54e450084aef714e12db5455ad467a4ebf"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/endings/RunMetricsTracker.gd",
+    "unchanged": true,
+    "sha256": "16e32a52827a52524a172c194e37d518e7889c57555e5ca4bcc36901dbed8282"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/endings/RunMetricsTracker.gd.uid",
+    "unchanged": true,
+    "sha256": "b6e144c7084508d675b134fca72e176cda331e0597639046ff6d220af2ee2a1f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/enemies/BronzeAutomatonPressureService.gd",
+    "unchanged": true,
+    "sha256": "6415be58debc62f455ea46a86c43c91e45f869b68ba7ce17a2d4d14fad262769"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/enemies/BronzeAutomatonPressureService.gd.uid",
+    "unchanged": true,
+    "sha256": "bbc7d9172d885223f074e093894154ab26c517c9f579c06a8789e68cd96391b1"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/enemies/CoalSparkCounterService.gd",
+    "unchanged": true,
+    "sha256": "a92a9dea3c87ace584a9129a5bdf7dd1785ca151f3ed5670d2edf05657da3db4"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/enemies/CoalSparkCounterService.gd.uid",
+    "unchanged": true,
+    "sha256": "9110508b9a6ff92646bd9a629033918b8fc3e696d4f896a2048e6975fd4451b5"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/enemies/DuskCourierCounterService.gd",
+    "unchanged": true,
+    "sha256": "f1184ff6e3c623caf6a1976942055c235d2d8ffbf20c8d29c4c11e3e3131f44c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/enemies/DuskCourierCounterService.gd.uid",
+    "unchanged": true,
+    "sha256": "b2cadb695e60de91040210ec81c1dbbc64209e8c55f7fb45642d024e42773f63"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/enemies/MirellaEnemyPressureService.gd",
+    "unchanged": true,
+    "sha256": "7c7da2db5820a343a5f8da559794b97daf003c23decd719bcff261dafc2c6005"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/enemies/MirellaEnemyPressureService.gd.uid",
+    "unchanged": true,
+    "sha256": "a4deafa62bf956c34f31cb376d7c700f7ebff8c84494710cee0a9727480ac57b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/enemies/ShadowDuelistPressureService.gd",
+    "unchanged": true,
+    "sha256": "5baa09e2f61ea77eac821ed53b9aeacdd956eb869c1832a48a4294180106cb7a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/enemies/ShadowDuelistPressureService.gd.uid",
+    "unchanged": true,
+    "sha256": "da50b937aec6f69a8f4ad0382e3525f29cda05c22d31be5a1c93b4088bff60ec"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/events/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/fronts/FrontCampaignService.gd",
+    "unchanged": true,
+    "sha256": "5bc21c1c86fd0ff192a62160d43a5a7ef2059db9568a58a611b6d0d747be740a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/fronts/FrontCampaignService.gd.uid",
+    "unchanged": true,
+    "sha256": "03e1f975262105bd6c06642ccf2ff9ab17b99dde82789ba9860192cd53277a14"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/hearts/CastleHeartService.gd",
+    "unchanged": true,
+    "sha256": "7bcadf9403e9bbeb06f6eaf827419021cb216732605f5d0207bb29130c154a5a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/hearts/CastleHeartService.gd.uid",
+    "unchanged": true,
+    "sha256": "91c38df21c7fa85f0f15dfa169af7b92c9e8eae46ab5394ee17b2a613e86e651"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/hearts/HeartAutoProfilePolicy.gd",
+    "unchanged": true,
+    "sha256": "14aacfd59c9a00db1b2a9333f33631af0df032d4b37e7cc059f2f7f7eb107f03"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/hearts/HeartAutoProfilePolicy.gd.uid",
+    "unchanged": true,
+    "sha256": "72a71fd4de721bfa69b127961db3722b69bc26c07d495289dc666c3df7f209ca"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/hearts/HeartChamberService.gd",
+    "unchanged": true,
+    "sha256": "8cff9f20d8d4b8b52455705c2d8b9067b29e0a23c988753b1c37351a171264f9"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/hearts/HeartChamberService.gd.uid",
+    "unchanged": true,
+    "sha256": "af0a61c29c4b1fdfcd70e45e38b458956ba3b1e08560aefbd49357e8cb82cae1"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/hearts/HeartChargePolicy.gd",
+    "unchanged": true,
+    "sha256": "8898912108663d1dbc4cd37973b3cb47ce8ec80558cb888aa7a4a523c0a4238e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/hearts/HeartChargePolicy.gd.uid",
+    "unchanged": true,
+    "sha256": "c7b1bcf91543a09de677d6d1598ec19fdbc35c642e2bb5a58274f55d19f15e36"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/legacy/NewCycleService.gd",
+    "unchanged": true,
+    "sha256": "513f121bcf8c108a81ea2c29b061d2078450e68a020802a7a848a0cf47212047"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/legacy/NewCycleService.gd.uid",
+    "unchanged": true,
+    "sha256": "b9a421f44d5563297438af0fd0658b67c48ee9a8af7bc1752ffa57dcdcf9421e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/monsters/GrowthSupportFeedbackRuntime.gd",
+    "unchanged": true,
+    "sha256": "14a0b4611867eea41fc5c27914c9a268275c90ebabcb5c93248ce51f727453cb"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/monsters/GrowthSupportFeedbackRuntime.gd.uid",
+    "unchanged": true,
+    "sha256": "51d9171c516d9f8b126a5adef22bb6f3b5ae6a398bfb91caecf7b1cd8928727f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/monsters/MonsterBondEventService.gd",
+    "unchanged": true,
+    "sha256": "083e02196947f4579363e51ae0e30b64d9636b3a98ab4dfd9c8999d988877e69"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/monsters/MonsterBondEventService.gd.uid",
+    "unchanged": true,
+    "sha256": "48991aa1d92ff6189adabd65b55d19ec707700a37477113c4672eb383d321f3c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/monsters/MonsterInstanceValidator.gd",
+    "unchanged": true,
+    "sha256": "f13d37386b4a47667ab20ec2d7ae8d39be5ebb510b4eb0c8752e086e1b2074d1"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/monsters/MonsterInstanceValidator.gd.uid",
+    "unchanged": true,
+    "sha256": "dadad54ba279587cb2f24011812841e64eaf34239986dcfe4009ef435582b5e1"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/monsters/PopoCombatService.gd",
+    "unchanged": true,
+    "sha256": "658345fa5526c07b2364cbebae1373858b8c0448b87c40cc930a7578ab3e87a2"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/monsters/PopoCombatService.gd.uid",
+    "unchanged": true,
+    "sha256": "94dc3f4a6d4bf6472736798d6fc7f0f1a3c381370d5da65fbf41ae10b5f03ca4"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/monsters/SilkyCombatService.gd",
+    "unchanged": true,
+    "sha256": "35980e0e15fc4ffdda81de6bea1fee98cd5f7ac96e5245ba903fe70ef106bd1a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/monsters/SilkyCombatService.gd.uid",
+    "unchanged": true,
+    "sha256": "9da7689d8714dc3e604abb085709f9db3b79982b9739ba5517652525d3c5f7f7"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/outpost/OutpostEncounterService.gd",
+    "unchanged": true,
+    "sha256": "d60fd6f25bdf196224b4556daea4624ae5fbb0efbf275b60f7633942d4065ff2"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/outpost/OutpostEncounterService.gd.uid",
+    "unchanged": true,
+    "sha256": "d08ec2ce8e2cf7af4b32c3db1c2b25c8ea74fedb882f375a83db6c2f0bad30a4"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/outpost/OutpostService.gd",
+    "unchanged": true,
+    "sha256": "8f17776744cd17683c261c11e8abbac37f4609570dd8d14c91b7764546e9b6c9"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/outpost/OutpostService.gd.uid",
+    "unchanged": true,
+    "sha256": "7b0800fbcc4037ee16c0a116b88da4f0ebfa2930fb4e881cb8514fb1ff6ee346"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/progression/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/regions/RegionContentService.gd",
+    "unchanged": true,
+    "sha256": "9c1998e514db3019d20b1815696e9cceccb954f34f4c6da16672ee4326292681"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/regions/RegionContentService.gd.uid",
+    "unchanged": true,
+    "sha256": "5a7c5fecfabd9cd51099d72a270edccb1b3834cc1ea8a89a829417a9b52d6e85"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/regions/RegionRouteService.gd",
+    "unchanged": true,
+    "sha256": "8d4f8dfb996db0ddf65328bb78ab1addb58ffb59d3c3e0f9f771f898783ee261"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/regions/RegionRouteService.gd.uid",
+    "unchanged": true,
+    "sha256": "f24beee9975edc11cd32fee5c370cbcfbd408d205b70c5f8143543e0e3817998"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/save/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/save/CampaignSaveV4Store.gd",
+    "unchanged": true,
+    "sha256": "e3bef44493b01363d42fad88c265dedda3827eba7b0fb7fc581fa249bbebb3cd"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/save/CampaignSaveV4Store.gd.uid",
+    "unchanged": true,
+    "sha256": "f114fa564c5e15be7899a2a587dd9cd3e477f1e087c42e8c5c92edeb22ded444"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/save/CampaignSaveV5Store.gd",
+    "unchanged": true,
+    "sha256": "2618017512699d3b79ec1e3a73e24f17b1c6228f1c5069631b8e6ecc1f973550"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/save/CampaignSaveV5Store.gd.uid",
+    "unchanged": true,
+    "sha256": "10f2219a056b04481ca168a89638eb2c00b922cd3b74b2334defaca66cdf1530"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/save/CampaignSaveV6Store.gd",
+    "unchanged": true,
+    "sha256": "28cb317efc74b6304fabe68b3dfa27ceef59eab18328c4bda00b77e98f4eaee3"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/save/SaveV3ToV4Migrator.gd",
+    "unchanged": true,
+    "sha256": "16134ccddf027eb257058b966f85ba3a9f0f7b26dd36a46ee860b411f7431f9d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/save/SaveV3ToV4Migrator.gd.uid",
+    "unchanged": true,
+    "sha256": "3561699af9ba9116a76cfd63f91e700321ef381f05f7cd8b9cd588c6d1daa867"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/save/SaveV4ToV5Migrator.gd",
+    "unchanged": true,
+    "sha256": "2939759a37c84c0f916f0bb056a429cbacb3e338ed47271ea9527f03704d45f3"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/save/SaveV4ToV5Migrator.gd.uid",
+    "unchanged": true,
+    "sha256": "f2a5b1b2aca0c01066236645a750a8187386d53d41aa27125fc8fdb48bd6edac"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/save/SaveV5ToV6Migrator.gd",
+    "unchanged": true,
+    "sha256": "fe2e219cc54535db006f660f64fb5181e38dc86fb25133de8e902463d60cf840"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/tutorial/.gitkeep",
+    "unchanged": true,
+    "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/tutorial/FirstPlayObservationRecorder.gd",
+    "unchanged": true,
+    "sha256": "8be4395720eb9f67e28ee71f68625306ceaa234e784f3476192b56cd8b46abb0"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/tutorial/FirstPlayObservationRecorder.gd.uid",
+    "unchanged": true,
+    "sha256": "cacfdb5919a4d74b526feb99308dfc95789093a18124e8f8bc208c007fc7a132"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/tutorial/FirstPlayObservationSummary.gd",
+    "unchanged": true,
+    "sha256": "34a25f9d5753f820cb91e941170e8ec8f41ee9f632424a9574ce71af099a731a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/tutorial/FirstPlayObservationSummary.gd.uid",
+    "unchanged": true,
+    "sha256": "885128199d9ffdf6d37a93aa9123e3bc3da2e60d5814c178206e5d7284e7f37c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/tutorial/OnboardingFlow.gd",
+    "unchanged": true,
+    "sha256": "8fa3f4c92a629d4cd3e06a0c526eb476d68d8d39d73e9f3b939e5459de361af7"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/tutorial/OnboardingFlow.gd.uid",
+    "unchanged": true,
+    "sha256": "825adffe164d2aef7c35a8164aeae839c98e7245bb7f54b67f0958b7c3ba27a2"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/tutorial/TutorialManager.gd",
+    "unchanged": true,
+    "sha256": "88485ae88f69a2d9e2d5b9c8dfad0f65c1c1450e5dcb0db8425eb9551714e203"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/tutorial/TutorialManager.gd.uid",
+    "unchanged": true,
+    "sha256": "59189b8573d9d54bb20b4c3020bbccf2c7fa5292ebc9b23cbcd5e4362e3544d9"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/tutorial/TutorialPracticeSession.gd",
+    "unchanged": true,
+    "sha256": "f47fec2e1046c1091a1e4ffb53ee843a2cbc6cd5cfa9ec2df079e94859699d19"
+  },
+  {
+    "group": "product",
+    "path": "scripts/systems/tutorial/TutorialPracticeSession.gd.uid",
+    "unchanged": true,
+    "sha256": "03905d9d959344bcc8b1f5140062398acaffff2c95a24207cd11c202c48ff0be"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/ApprovedBattleUI.gd",
+    "unchanged": true,
+    "sha256": "ad61868da1bb7d81f38c9e8d689c441b27a5b1a9a7f4252695f503a72b212d08"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/ApprovedBattleUI.gd.uid",
+    "unchanged": true,
+    "sha256": "7d34e2513d7dec223987e89fcce7c41662f1a33708b28c3c568475de1d7f3209"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/CampaignWorkspaceUI.gd",
+    "unchanged": true,
+    "sha256": "b4e71fde224fe12063040de03ab84d33dcd63476095533aa02c9582714dd4770"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/CampaignWorkspaceUI.gd.uid",
+    "unchanged": true,
+    "sha256": "edb19ff694e8639b728d16ce5dabe6cbd5fb21ceae052f73a0348b6ef9770e52"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/CastlePresentationText.gd",
+    "unchanged": true,
+    "sha256": "1b0d1a7e90fd4800287ad5d4584fe8ca4dec1d61d449719acd78040f18e3d706"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/CombatActionButton.gd",
+    "unchanged": true,
+    "sha256": "129a9a0ad0275b8dc19e5024e8090763673796277697ea43976d94043ca7e1ed"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/CombatDamagePresentation.gd",
+    "unchanged": true,
+    "sha256": "ee8e825ad7fb7d134ba4a2817994ec86d7091e1618c5c0d3dc36ef89a54db67e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/CombatDamagePresentation.gd.uid",
+    "unchanged": true,
+    "sha256": "a7416eb65fba9d79dbc7517513b2498cb72396f361ef62328a9b02b361a6cf91"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/CombatMinimap.gd",
+    "unchanged": true,
+    "sha256": "9290b6b3812a79aaa3d0f7ec53bf8a180b5f07cbd42cb050304ba4add9129523"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/CombatSkillCutin.gd",
+    "unchanged": true,
+    "sha256": "cee62da77a156ee0540b0cfd03fc24a9107b877b0e7008b6e0743ce5bad9ae81"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/CombatSkillCutin.gd.uid",
+    "unchanged": true,
+    "sha256": "4d0554afe437f5e3a1917935734f60c929d991e978f38787b94344c82770a7ea"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/CombatWorkspaceUI.gd",
+    "unchanged": true,
+    "sha256": "a624ec95aa47347644a031347d970734b0d391f98b64da9ff8fbd6d5a5a21b2a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/CouncilVoteForecastPanel.gd",
+    "unchanged": true,
+    "sha256": "aaa5eabebdfc0fe70f77aa17bf797149cf14a569fe58ddd47a89165a91fed0c2"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/CouncilVoteForecastPanel.gd.uid",
+    "unchanged": true,
+    "sha256": "c0781f4aa6ba668109cd484d7e9f59596e071555f8330525ec4a552128224a42"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/CrownCandidatePanel.gd",
+    "unchanged": true,
+    "sha256": "357d45afafd18bd09f8d098a8cd1ddd76f2a0b041e5a9fac23c70ee944cd014f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/CrownCandidatePanel.gd.uid",
+    "unchanged": true,
+    "sha256": "3e03cce38d65bd9c5d356448a70aa9dcaaa9b88a1a4a40055d7e474f3cf0c9ac"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/DefensePreparationSummary.gd",
+    "unchanged": true,
+    "sha256": "17ce64d36fa78d8a80bd8776371f4f88ebe86c6b999abc57b7a52758afa0f65c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/DefensePreparationSummary.gd.uid",
+    "unchanged": true,
+    "sha256": "9bfaede5e191495eeba7ba21a4749d91715b69abcf994ce6329084a7060070c2"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/FacilityActionVisual.gd",
+    "unchanged": true,
+    "sha256": "1dd207922249a4e25dd93e3a058c469cd647a54b73dc91136b0a06f4c4ec4a25"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/FacilityActionVisual.gd.uid",
+    "unchanged": true,
+    "sha256": "f7f7d35db211f80510bdc3edaa3bf96b3acb578fadc3445f1d5cf91775f8630b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/FacilityEffectText.gd",
+    "unchanged": true,
+    "sha256": "2f9988ca293800754ac867b74bb9286d3f998ea62be5b476e3b6b12a03e11c27"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/FacilityEffectText.gd.uid",
+    "unchanged": true,
+    "sha256": "f6fc63297a4964f42b68dfcc280d7531ca20bfd0188df3b5d94bfd570224fb2b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/FacilityPreview.gd",
+    "unchanged": true,
+    "sha256": "932a80cc1bc904bb75747b58df580a77e8c8ba6bf26509a8aa5eba46232fb4ec"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/FacilityPreview.gd.uid",
+    "unchanged": true,
+    "sha256": "e4ce4f8353bf3419b4ea9cf1062ed0843864cf5e64dde30f48608ec2daadc84f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/HUDController.gd",
+    "unchanged": true,
+    "sha256": "e50fddbaa2d5e91531eac344016ee9e763b226929063975736bbcdde07cab01d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/HUDController.gd.uid",
+    "unchanged": true,
+    "sha256": "ef83d70c301eb2bfba8b5138084ad8b846b9ca56db73fb12dc90cca1f76e18b4"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/ManagementWorkspaceUI.gd",
+    "unchanged": true,
+    "sha256": "b71e4738b84980fb819e4ebfc384c3ee323242f85665b3a0ffdcb636e7e4830d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/ManagementWorkspaceUI.gd.uid",
+    "unchanged": true,
+    "sha256": "b178156cbdd869d213ba70aef922059c7015a73f87ed4ec009373275720b3ea8"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/MapStatusLabel.gd",
+    "unchanged": true,
+    "sha256": "99115442f5826899273efe6ccc15539ef0bcb788f6677122abb84a63ed1313cc"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/MapStatusLabel.gd.uid",
+    "unchanged": true,
+    "sha256": "37c9fc761ee8ef681d7725932a44a4b18aca0f5cce1e3659ce7c02be5587ca6c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/MemoryArchiveUI.gd",
+    "unchanged": true,
+    "sha256": "8e8548ffe8c98de5bf31522957a11ac28285f26ab351ebcf31c4334de42b05ce"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/MemoryArchiveUI.gd.uid",
+    "unchanged": true,
+    "sha256": "496e771b79f8cbb8b863b10e4e5406e172eb0ff904ee235858a4935957a6c305"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/MonsterWorkspaceUI.gd",
+    "unchanged": true,
+    "sha256": "dccd6965352711fb9e2b8de0d35cb6082cecc738c5f76c27e2019b614498b1ae"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/MonsterWorkspaceUI.gd.uid",
+    "unchanged": true,
+    "sha256": "ce7147fc46ece07acbecd810737d4c5a56b426207b4938f109a844016c74cc8f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/NameEntryUI.gd",
+    "unchanged": true,
+    "sha256": "a89a4b2130bce663d1107d3d1f3c0820558ba7fb43ff7d0ff1aa751fbb6e48e6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/NameEntryUI.gd.uid",
+    "unchanged": true,
+    "sha256": "fd923a369ea6c7bb8cfa6e0286fe6267c8017b95f215c17c21fb25a5c9fefcb6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/ObsidianStyleBox.gd",
+    "unchanged": true,
+    "sha256": "33e676b87ea403fdb6666b48491288e6356ee7a0f9ee174cdb9ee1aad48137fd"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/ObsidianStyleBox.gd.uid",
+    "unchanged": true,
+    "sha256": "627d8bdf055bb97808c6900bf783942b263d71e5de4db690fe129bf01d694ad9"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/PlayerContinuityUI.gd",
+    "unchanged": true,
+    "sha256": "9c02ab83ac6da0fb94869a4b61417daa9665fc31e5b9fd0350e6040978c41c86"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/PlayerContinuityUI.gd.uid",
+    "unchanged": true,
+    "sha256": "66ebf7c6d947ecbbebfcb284a4c4a8a61c2602c21aa35b00b8621fca471fbe9d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/PortraitHealthBar.gd",
+    "unchanged": true,
+    "sha256": "01e96d024993ec2d93efc3ca9e952da3bfe2a49170ff0c2408a6f1f993eab3aa"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/PortraitHealthBar.gd.uid",
+    "unchanged": true,
+    "sha256": "60481f60034c0a9f536d349dcf702e98864a3ea72c03403d460fbfe4b1a144ad"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/RaidWorkspaceUI.gd",
+    "unchanged": true,
+    "sha256": "0d928f8f72d9aaf4a20e0c4f9edce79e9622b91262f8b67cb5cb62fcdcea1698"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/RaidWorkspaceUI.gd.uid",
+    "unchanged": true,
+    "sha256": "f001f020d77ec6cd78f74e9f46364c6771600276cd232b62c8451bbb1a6a6f49"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/ReadableTooltipButton.gd",
+    "unchanged": true,
+    "sha256": "2c9141ac30a786da87724125e1674ef00c95a301a65c572bd99047178d40425e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/ReadableTooltipButton.gd.uid",
+    "unchanged": true,
+    "sha256": "eb756fb2446ffc1ac05fde710d4d8ad841c856162e1331e70fec4990081e26ee"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/ReadableTooltipOptionButton.gd",
+    "unchanged": true,
+    "sha256": "f38528b2851ad399fba098a5a7e8fc3399d4f92538986b7557c149c2ad74d1d0"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/ReadableTooltipSlider.gd",
+    "unchanged": true,
+    "sha256": "328c5006a76e88cb3b38f9e1e4395dead6442cfe7c5a26c44a2a9850fbc4e880"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/RegionSettlementProgressPanel.gd",
+    "unchanged": true,
+    "sha256": "98db1bd43e81f9194456363f99562bf5f909b67f158ec809d220f582058a29e0"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/RegionSettlementProgressPanel.gd.uid",
+    "unchanged": true,
+    "sha256": "97801e50ee3497941d509371b5e925710c3853753158dfa3b74de0a1643783c0"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/RequiredPreparationUI.gd",
+    "unchanged": true,
+    "sha256": "7b6fe445a737abab8fd2141dd9e1302e4c42f4d1d89645d377c6cc9053548af6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/RequiredPreparationUI.gd.uid",
+    "unchanged": true,
+    "sha256": "ed0c0eaec7098ce600d5d9c5faf1912359bd093cfe2f149a9694e875dacbfa8b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/ResultWorkspaceUI.gd",
+    "unchanged": true,
+    "sha256": "201bcdc37361b4d52b09e2308e9ad07183b211b73ec5224bd4dabbef2e683b2c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/ResultWorkspaceUI.gd.uid",
+    "unchanged": true,
+    "sha256": "f4105d3cb4c20d6e5d3c2a39493b5f5d03696ff4d4af423ffc44fbb46a15f88c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/SettingsWorkspaceUI.gd",
+    "unchanged": true,
+    "sha256": "3cdc87f0eb94ecd474298dcc1eae69f18ef43cdbff214c98d38cf835cd82a557"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/SkillActionPresentation.gd",
+    "unchanged": true,
+    "sha256": "b2f539f3665144df158c810b02058baa134e20db8444477b6e1921b9fa1bd62d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/SkillActionPresentation.gd.uid",
+    "unchanged": true,
+    "sha256": "824e4c80f78cc12b475bfca58a211261ae11df93ef402cc756e7b7e35a2258f0"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/SkillActionStage.gd",
+    "unchanged": true,
+    "sha256": "ac672bc1de1c8299f30eedfab308aad93f105d4870a439a8dae1cb737a51c3e4"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/SkillActionStage.gd.uid",
+    "unchanged": true,
+    "sha256": "e293df1aac1be293e92d740243f2a147cdb1491c444ae9045b054ec56e22859f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/StartFlow.gd",
+    "unchanged": true,
+    "sha256": "f1eb92309919e013e189570736589cfdf5f93c13139da428d6b3093cd7d23d70"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/StartFlow.gd.uid",
+    "unchanged": true,
+    "sha256": "5b263e6941c8fa91bc064f8f0c7641920dcb4f3b927192be1dcb533926fff63d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/TitleWorkspaceUI.gd",
+    "unchanged": true,
+    "sha256": "523482ea7751f5b86e46e82b21878873200ba9610c85f6319e2ca3b7aa573554"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/TitleWorkspaceUI.gd.uid",
+    "unchanged": true,
+    "sha256": "6d950773962afea9066136a94cabe202fc6b71c67891012d77ac64d08a0f1e70"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/UIFont.gd",
+    "unchanged": true,
+    "sha256": "141e6c343f4c8acc5b1313773fb214aad1d8f469731918b1eefb9631e4a729de"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/UIFont.gd.uid",
+    "unchanged": true,
+    "sha256": "99fe9ce7b89f9ae2c6fa7a29ae72e5a6c33c77104b980a05e088816d78ee8335"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/UIStandard.gd",
+    "unchanged": true,
+    "sha256": "6d9a096b244b55251c7db701848c5d74ee25217e9b2f3b5c78fec6ebb594222c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/UIStandard.gd.uid",
+    "unchanged": true,
+    "sha256": "3086d159fd1bdad7769d6918e296fe8d0d0fac758dd516cb013cfb5ca1e66704"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/UIUXActorArt.gd",
+    "unchanged": true,
+    "sha256": "8b00e522b988d7e130d9e1c51082fcfc3ca80d862e8d721ed93d0257f5c5a4a8"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/UIUXActorArt.gd.uid",
+    "unchanged": true,
+    "sha256": "5568d8c6ef07ed87c19caa29b955e1f7df1b582c703ba368ecd7dd87a54ce4e9"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/UIUXTheme.gd",
+    "unchanged": true,
+    "sha256": "a84854fd1ca3ad417b9957ede66aa09890243080ad5c01959c813d155185aaf5"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/UIUXTheme.gd.uid",
+    "unchanged": true,
+    "sha256": "8e9f435668153b2720d1c81dd751f594defe9f8b644d0e34071144d95b10839f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/Update4CouncilDecisionOverlay.gd",
+    "unchanged": true,
+    "sha256": "5adb3ea9335f9d7626a5139e63892564a3e027599bac645dc0e567b557d71ed8"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/Update4CouncilDecisionOverlay.gd.uid",
+    "unchanged": true,
+    "sha256": "215c8b76a5527148321bebfc9ce8a5b52be8a73a4a321e25533f3bb77334cd5b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/hpbar_portrait.gdshader",
+    "unchanged": true,
+    "sha256": "fd82380abcd76fc7cafd2310cde1da1c5dbffe433de2523a29490b79f0f5c10c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/hpbar_portrait.gdshader.uid",
+    "unchanged": true,
+    "sha256": "e763c726f7111675c288cb326276a63456a7c255cc876f23203b82cce7d26eef"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitButton.gd",
+    "unchanged": true,
+    "sha256": "126237f136c1a3505d9a234d200810186511ab59d91392b3862d56d0530df281"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitCard.gd",
+    "unchanged": true,
+    "sha256": "0447d0a2d8d8ee9be13065dcde95295e8817feaeca1ce9c46fe020a97ae403f4"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitChip.gd",
+    "unchanged": true,
+    "sha256": "df8ffc93822bbf3e5dae0b20bc53e6f279b8ecd0b006e3e71f9fdfb458047c7b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitDock.gd",
+    "unchanged": true,
+    "sha256": "392e18d0ac48ff2008abc58eb2d5ac4283f1dd2e2ae7ebb802258886dbb4351c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitIconButton.gd",
+    "unchanged": true,
+    "sha256": "9d648b930971a9aedb2911aae7d8f36936fc9c2367f19003c4b657925fcab055"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitModal.gd",
+    "unchanged": true,
+    "sha256": "749aa84ab66956225d7e4e6b1b35a8b031651706b9987cd09fd2c50dfd52d992"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitPanel.gd",
+    "unchanged": true,
+    "sha256": "86f81ba638dd7af88ef47b731b65c093854857a6cab767bf9139f0ae0835a828"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitResourceBar.gd",
+    "unchanged": true,
+    "sha256": "4f1e696581866b07c7f04640e5313838ba253394d7d898f9f0de914f219386fb"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitSideDrawer.gd",
+    "unchanged": true,
+    "sha256": "dc09677618f7c0fa5dacc5fa484ce3c2862590722998b57fbc1ed8ac8465dc11"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitStatBar.gd",
+    "unchanged": true,
+    "sha256": "d2647dc9dcfb60bc61c4003c0f04e37bf87fe9b9d5ed102a222e3be52d367fd8"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitSurface.gd",
+    "unchanged": true,
+    "sha256": "112dc4db11eb28ed8cfe1420a65189f1ce7ea2caf1529a5487a1ff904421c64d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitSurface.gd.uid",
+    "unchanged": true,
+    "sha256": "3369efbd467b6d3cb4c7ff20ca0e39aabfb13704132db506628830d195a72e02"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitTabs.gd",
+    "unchanged": true,
+    "sha256": "ea15a878a55ec1fb04416c7e22710285ab1bed47298dc337dd7de4a7b1bafae9"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitToast.gd",
+    "unchanged": true,
+    "sha256": "f6318d47e032c2c4dd0ac9f8f6a3ad0c85e36facd973a2b98c64b51ac3b7a1b6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/KitTooltip.gd",
+    "unchanged": true,
+    "sha256": "863fef5d77fd95cafbbbbdd541f5afbb8aa24add8c643b71e10c5ee98f21eeaf"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/UIKit.gd",
+    "unchanged": true,
+    "sha256": "2e4e1c5de85cd045ed89d162d0a49b6a452c0b13e1a9889a05d46a68a232e6a6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/UIKit.gd.uid",
+    "unchanged": true,
+    "sha256": "6736d695304826fd16b47964783779d0889693b8ffcc265ff1d8d7325f361d46"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/UIKitIcons.gd",
+    "unchanged": true,
+    "sha256": "d570f5c09ac0d6c1011b3f81060dd9925aa0760ec517521f525d5c8a40a73d57"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/UIKitIcons.gd.uid",
+    "unchanged": true,
+    "sha256": "f1d858e2f945d2710fb7bb0f7337423e7baf2a35f2f762e059962ff2f594b117"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/UIKitLayers.gd",
+    "unchanged": true,
+    "sha256": "6e3ae57cee09cc47a62ac6cda7e6e08e9bccfdbe53928662ac8001280b858d6f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/UIKitLayers.gd.uid",
+    "unchanged": true,
+    "sha256": "21ce1d8b2fc789063f3e2d922a33d5751983dc637ec3f05ddf84054f75b6763b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/UIKitTokens.gd",
+    "unchanged": true,
+    "sha256": "9a0e69ca90a5d148bc74567c0076b5264d1aa7bd1b7edfc24aea72384be38387"
+  },
+  {
+    "group": "product",
+    "path": "scripts/ui/kit/UIKitTokens.gd.uid",
+    "unchanged": true,
+    "sha256": "663d3c822a9b4a55d1fb10044242e264b73f703e63afe0aed4582e41079c0fdb"
+  },
+  {
+    "group": "product",
+    "path": "scripts/units/ApprovedBattleUnit.gd",
+    "unchanged": true,
+    "sha256": "b57fd67aef06367664d0bf76d752232c8953533d829af66d53d662ef36dd7ae7"
+  },
+  {
+    "group": "product",
+    "path": "scripts/units/ApprovedBattleUnit.gd.uid",
+    "unchanged": true,
+    "sha256": "8ed314822ba665cb809a9c589bd9c8374c0bb00df194e61fdc2a90d2463f8e5a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/units/Unit.gd",
+    "unchanged": true,
+    "sha256": "a35fa4f71af4036723144d9339ab0693e03a9243d0e471adeb6e9ff1967e62bf"
+  },
+  {
+    "group": "product",
+    "path": "scripts/units/Unit.gd.uid",
+    "unchanged": true,
+    "sha256": "eedef22377b530a59a28cd283583d10aea9931b3f565a9e8529e46d4e2665e12"
+  },
+  {
+    "group": "product",
+    "path": "scripts/units/UnitGroundVisual.gd",
+    "unchanged": true,
+    "sha256": "8708e0e84976635e391d4d57f94fd464857a348b4ce6069f3ee48265b18e0c30"
+  },
+  {
+    "group": "product",
+    "path": "scripts/units/UnitGroundVisual.gd.uid",
+    "unchanged": true,
+    "sha256": "c11c8ce2492a6c231e87d58896c760e635af7af640c6d203f1df0c29b33dc580"
+  },
+  {
+    "group": "product",
+    "path": "scripts/units/approved_battle_silhouette.gdshader",
+    "unchanged": true,
+    "sha256": "6881f0d774857c86b91bedd6588d2190a594930c9f83180d690f573ea01b121f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/balance/V122BalanceModel.gd",
+    "unchanged": true,
+    "sha256": "000c069e682ca2d1a4108abdf438a1ab67a72c8573048b3ab2da62b8451b6b5a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/balance/V122BalanceModel.gd.uid",
+    "unchanged": true,
+    "sha256": "50193da272d5d2e7a2b1c0297de91b0fbb69aac6347b4f56e4ba35bdfcdad2a1"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/balance/V122BalanceSheetAudit.gd",
+    "unchanged": true,
+    "sha256": "5c1d7bf5b4668fe40fd9479305c9ff779b392826adf1fc860c745d4675b091c3"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/balance/V122BalanceSheetAudit.gd.uid",
+    "unchanged": true,
+    "sha256": "137337996cb137a131c0a7804d57543fdca447c5385795c9e2b9a6950af3ce1a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/buildings/V122BuildingCompatibilityAdapter.gd",
+    "unchanged": true,
+    "sha256": "04208c9ff10164c01b03a78af3bdf9178998a33c806a719b8f5e98f6e6b0da3b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/buildings/V122BuildingCompatibilityAdapter.gd.uid",
+    "unchanged": true,
+    "sha256": "f3d6168d262e6a73ce5b0f49d9b0d0d06ca5f7ca06d6bb481bdfc24ded825f2f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/combat/V122BattleLedger.gd",
+    "unchanged": true,
+    "sha256": "7b0f0d688d237aea93ddff77ac1f884ba9ddb96d6d1ab06d6b7ebdfbc734266e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/combat/V122BattleLedger.gd.uid",
+    "unchanged": true,
+    "sha256": "9c9333f8f02cd028094ef1857528b6534c2f57487b9d6b09ccf0fb6b76823bc0"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/combat/V122BreachService.gd",
+    "unchanged": true,
+    "sha256": "eb9d55aebe5861526b1abc26aa4a3963c8c527d246d4696e23a547471ed24541"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/combat/V122BreachService.gd.uid",
+    "unchanged": true,
+    "sha256": "270ce2cdc9b549aacb05f234f09e836892020c9388e05ae6f6ce26d4e6248cdb"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/combat/V122CombatRuleAdapter.gd",
+    "unchanged": true,
+    "sha256": "4203c80faad6315c4b54ea1031c8e69d6fdbfbe04515bf6b079e87d47fdcd706"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/combat/V122CombatRuleAdapter.gd.uid",
+    "unchanged": true,
+    "sha256": "dab9071d4a90cbb9b8bf72a1190bed8968c237e150164c6427039c2aa70f0522"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/combat/V122CombatVfxCatalog.gd",
+    "unchanged": true,
+    "sha256": "e2e596484ac9d6d577f476b646a6079ed84e0e9f56bac5dd9a802c63d1d17c61"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/combat/V122CombatVfxCatalog.gd.uid",
+    "unchanged": true,
+    "sha256": "3d4edbbffde89726ea415602e7a73e70064f26fbec9c6ae4d858c9a1c4e661e4"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/combat/V122CommandService.gd",
+    "unchanged": true,
+    "sha256": "ead11c99bc147e4a6c2e94b966918bbe0273500262d44f6197b70a3c74662c76"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/combat/V122CommandService.gd.uid",
+    "unchanged": true,
+    "sha256": "17dcb37bde3a81ccc1e9695d553ce3bf5544ec0137d879aa11c31880e9151452"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/combat/V122EncounterAdapter.gd",
+    "unchanged": true,
+    "sha256": "205100807534605beff57ec92abdc830ab2cd4605cf239e9f383710af4a652a1"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/combat/V122EncounterAdapter.gd.uid",
+    "unchanged": true,
+    "sha256": "98d15efcf215b25f7e133a4c9b4fe489c733fc4665b73d2de77fe9bcb152ca0f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/combat/V122FacilityEffectAdapter.gd",
+    "unchanged": true,
+    "sha256": "4b1f62a8eb663350e30dc2123c135b1603b4148e45b0450620f8550b955bf5ae"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/combat/V122FacilityEffectAdapter.gd.uid",
+    "unchanged": true,
+    "sha256": "c897a4f833e4aa06e29d5d10354e679a4b02f644342cec3ffb00cee328fe66b2"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/parity/V122DayParityModel.gd",
+    "unchanged": true,
+    "sha256": "df0a4420d9c2e687f10a8740e28c8a669943f935251558ec27813c17dd3ad47f"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/parity/V122DayParityModel.gd.uid",
+    "unchanged": true,
+    "sha256": "bc973ba26b1a170576d681a361cb8f3c947b38b234e0f4a4b7075207e831d7d7"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/save/V122SaveProgressionAdapter.gd",
+    "unchanged": true,
+    "sha256": "ed250dbaf3b03718b4b7e29632ad8250f3394db192ef220a19c10498c23da0f7"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/save/V122SaveProgressionAdapter.gd.uid",
+    "unchanged": true,
+    "sha256": "113f570fcc90b8281551006b7342b2dd99f9ac4f1e4bbdda2787d340bdb9ce5c"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/spatial/V122BattlePlanAdapter.gd",
+    "unchanged": true,
+    "sha256": "dd2ba832f08cb75466b4c387bea1fedebb83ece2e4a7e56d847ba4da36eb732e"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/spatial/V122BattlePlanAdapter.gd.uid",
+    "unchanged": true,
+    "sha256": "cebddd32b140932e757263924d7714746e4239044415b36d2885db08fc79903a"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/spatial/V122DefenseSegmentBuilder.gd",
+    "unchanged": true,
+    "sha256": "852ce13950167a18394d45511e7cffb0cd205364f1d6f4deff7d568cc987ebec"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/spatial/V122DefenseSegmentBuilder.gd.uid",
+    "unchanged": true,
+    "sha256": "93577e5b3812017b906c5e94f89321701fdc4af395a95aded8c729b60067b46d"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/spatial/V122FacilityZoneEffectResolver.gd",
+    "unchanged": true,
+    "sha256": "3dcedd4e6d80484ab5ee9d8d7353883fc25e905112c5e87c4fa494c6841f5598"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/spatial/V122FacilityZoneEffectResolver.gd.uid",
+    "unchanged": true,
+    "sha256": "9fa451fe9382f83c9c51abc80439196f7a9110e76bb9c58ee2214e3fffb3f237"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/spatial/V122PlacementSlotAdapter.gd",
+    "unchanged": true,
+    "sha256": "85c6beb5cc3e716b7d2e56be455839bc442eff50de7e2428f77aa8624af1de98"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/spatial/V122PlacementSlotAdapter.gd.uid",
+    "unchanged": true,
+    "sha256": "f2b5578e435609dc9fb3933ec3d0ab2819380aca1b61775a888ebcd20e2feda6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/ui/V122CombatResultViewModel.gd",
+    "unchanged": true,
+    "sha256": "0ab2ecfb5f611dd6e1fc6477f6f6133e35c8ab8005e575cb3d0cd846dfd5c40b"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/ui/V122CombatResultViewModel.gd.uid",
+    "unchanged": true,
+    "sha256": "0fec2ebc76272db859bf2d7cd034be13a7eb2e973e4e8267c411da5c010b40ef"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/ui/V122ManagementViewModel.gd",
+    "unchanged": true,
+    "sha256": "8ab3ff7f43a3b3bd4f3ba49b57975ddd1f4a8239082ac1d8d235fd5243c570a6"
+  },
+  {
+    "group": "product",
+    "path": "scripts/v122/ui/V122ManagementViewModel.gd.uid",
+    "unchanged": true,
+    "sha256": "26bb0d997466446ad25154151197df0e9e05b121f74b97d973bf1dbcdfa1215c"
+  },
+  {
+    "group": "test_source",
+    "path": "tmp\\v130_m6\\original_copies\\campaign_save_v1.json",
+    "unchanged": true,
+    "sha256": "6d8c619e784b24a92f770ee2da1abde64ee8960e06689001784c1abc558936b7"
+  },
+  {
+    "group": "test_source",
+    "path": "tmp\\v130_m6\\original_copies\\campaign_save_v2.json",
+    "unchanged": true,
+    "sha256": "443ff2c6df70c1b2e7014cae0a7b2a2b02ad5b8a9043fa8421f6da99e824a863"
+  },
+  {
+    "group": "test_source",
+    "path": "tmp\\v130_m6\\original_copies\\campaign_save_v3.json",
+    "unchanged": true,
+    "sha256": "52054c16d6d32607b5c5e84b5e2499b9953eeda990be5494ef2d0cb86e124a08"
+  },
+  {
+    "group": "test_source",
+    "path": "tmp\\v130_m6\\original_copies\\campaign_save_v4.json",
+    "unchanged": true,
+    "sha256": "16e09be311c8b406810fdf8412e642b1fa8ef2d329778d3bf61f211937fde98a"
+  },
+  {
+    "group": "test_source",
+    "path": "tmp\\v130_m6\\original_copies\\campaign_save_v5.json",
+    "unchanged": true,
+    "sha256": "d5ff5a680e8f7a2adc85586fc13528d5c9cda23b09c7a28cad83e4577201fc9c"
+  },
+  {
+    "group": "player_original",
+    "path": "C:\\Users\\blueh\\AppData\\Roaming\\Godot\\app_userdata\\마왕님, 마왕성 지켜주세요! Demo\\campaign_save_v1.json",
+    "unchanged": true,
+    "sha256": "6d8c619e784b24a92f770ee2da1abde64ee8960e06689001784c1abc558936b7"
+  },
+  {
+    "group": "player_original",
+    "path": "C:\\Users\\blueh\\AppData\\Roaming\\Godot\\app_userdata\\마왕님, 마왕성 지켜주세요! Demo\\campaign_save_v2.json",
+    "unchanged": true,
+    "sha256": "443ff2c6df70c1b2e7014cae0a7b2a2b02ad5b8a9043fa8421f6da99e824a863"
+  },
+  {
+    "group": "player_original",
+    "path": "C:\\Users\\blueh\\AppData\\Roaming\\Godot\\app_userdata\\마왕님, 마왕성 지켜주세요! Demo\\campaign_save_v3.json",
+    "unchanged": true,
+    "sha256": "52054c16d6d32607b5c5e84b5e2499b9953eeda990be5494ef2d0cb86e124a08"
+  },
+  {
+    "group": "player_original",
+    "path": "C:\\Users\\blueh\\AppData\\Roaming\\Godot\\app_userdata\\마왕님, 마왕성 지켜주세요! Demo\\campaign_save_v4.json",
+    "unchanged": true,
+    "sha256": "16e09be311c8b406810fdf8412e642b1fa8ef2d329778d3bf61f211937fde98a"
+  },
+  {
+    "group": "player_original",
+    "path": "C:\\Users\\blueh\\AppData\\Roaming\\Godot\\app_userdata\\마왕님, 마왕성 지켜주세요! Demo\\campaign_save_v5.json",
+    "unchanged": true,
+    "sha256": "d5ff5a680e8f7a2adc85586fc13528d5c9cda23b09c7a28cad83e4577201fc9c"
+  }
+]

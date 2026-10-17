@@ -1,0 +1,182 @@
+[
+  {
+    "path": "captures\\ko_title.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": false
+  },
+  {
+    "path": "captures\\ko_menu.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": false
+  },
+  {
+    "path": "captures\\ko_prologue.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": false
+  },
+  {
+    "path": "captures\\ko_name.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": false
+  },
+  {
+    "path": "captures\\ko_guide.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": false
+  },
+  {
+    "path": "captures\\ko_battle.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": false
+  },
+  {
+    "path": "captures\\en_title.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": false
+  },
+  {
+    "path": "captures\\en_menu.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": false
+  },
+  {
+    "path": "captures\\en_prologue.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": false
+  },
+  {
+    "path": "captures\\en_name.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": false
+  },
+  {
+    "path": "captures\\en_guide.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": true
+  },
+  {
+    "path": "captures\\en_battle.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": true
+  },
+  {
+    "path": "captures\\zh_CN_title.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": false
+  },
+  {
+    "path": "captures\\zh_CN_menu.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": false
+  },
+  {
+    "path": "captures\\zh_CN_prologue.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": false
+  },
+  {
+    "path": "captures\\zh_CN_name.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": false
+  },
+  {
+    "path": "captures\\zh_CN_guide.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": true
+  },
+  {
+    "path": "captures\\zh_CN_battle.png",
+    "size": [
+      1280,
+      720
+    ],
+    "visually_reviewed": true,
+    "visible_clipping": "none observed in these six screens",
+    "mixed_korean": true
+  }
+]

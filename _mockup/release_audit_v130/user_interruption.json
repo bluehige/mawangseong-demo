@@ -1,0 +1,43 @@
+{
+  "reason": "Computer Use stopped by user physical Escape; no further UI automation",
+  "stopped_owned_processes": [
+    {
+      "pid": 21272,
+      "command": [
+        "C:\\Users\\blueh\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "_mockup/release_audit_v130/final_stage.py"
+      ],
+      "kind": "audit_scheduler"
+    },
+    {
+      "pid": 30356,
+      "command": [
+        "C:\\Users\\blueh\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+        "_mockup/release_audit_v130/run_remaining.py"
+      ],
+      "kind": "audit_scheduler"
+    },
+    {
+      "pid": 34012,
+      "command": [
+        "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-action\\tmp\\release_audit_v130\\export\\MawangCastle.exe",
+        "--rendering-method",
+        "gl_compatibility",
+        "--resolution",
+        "1920x1080",
+        "--max-fps",
+        "120"
+      ],
+      "kind": "owned_export"
+    }
+  ],
+  "verified": [
+    "export title",
+    "export menu"
+  ],
+  "not_verified": [
+    "export new game",
+    "export DAY1 combat",
+    "export save and normal exit"
+  ]
+}

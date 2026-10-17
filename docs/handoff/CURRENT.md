@@ -846,3 +846,11 @@ git show main:docs/handoff/CURRENT.md
 ## 2026-10-12 actual skill completion — Mori royal support verified, continuing
 
 [왕관모리실제우산·성찬연결](ROYAL_MORI_RECOVERY_2026-10-12.md). Product6869de87b9acb0684da935b9310380652282cb06 / codex/royal-support-skill-recovery. 실제전체정화·5초3/s재생·한명fatal직전HP1한번·종료후.85회복6초, 발신모리과회복50%/maxHP35%cap·독립TTL5초방호·실제소모와기여, 현재왕관컷신/자동·수동·사용표시 연결. 새재생크기·TTL·종료정책은명시NEW_DESIGN. GUI119/0, 기본지원회귀253/0·합동70/0·continuity89/0·editor/export0·실제PCK15/0·격리EXE180exit0, 독립읽기TARGETED_PASS. source/recipientqueued·즉시억제·단독skillseal·일반retaliation오인 수정, 실제HP1/life와overkill원피해분리. 현재1F실전,metadata가진짜2F증거아님. 정상영입/mastery·왕관body스탯억제/복귀와핀maxmana/저항의미후속, 남은5액티브·젤계승·passive/정상해금과성장계속. 새모리검토패키지분리, 이전5f/979/aab·개인698보존. DKChrome도구시작오류로실제Steamworks현재읽기NOT_RUN,과거parent보고와분리. Steam·원격Git·홍보없음.
+
+## 2026-10-18 V130R 출시 감사 — 출시 불가 / 부분 검수
+
+- [요청 인계](V130R_RELEASE_AUDIT_2026-10-17.md), [상세 보고서](../../_mockup/release_audit_v130/RELEASE_AUDIT.md). 제품 기준 a61404b8, 브랜치 codex/v130r-defense-layout. 제품 수정0·로컬 보고서 커밋만.
+- 고정 시드3회 완주0: 2회 DAY3 전투 대사 종료 시 옛 HUD/해제 sprite 오류, 1회 DAY1 2연패. 성장·칙령/원정/전선/의회 연결 우회와 지도 번역 잔여도 출시 차단 목록에 기록.
+- Windows export 생성·Steam DLL2종·EXE 타이틀/메뉴 확인. 사용자가 Esc로 Computer Use 중단; EXE 새 게임·전투·저장·정상 종료는 미검수. 이후 UI 제어 재개 없음.
+- 저장3형식 사본 진행, 3언어18화면, E/D/C 실제1080p 측정, 데이터/오류/인계23문서 조사. 제품703·개인 원본5·시험 원본5 해시 불변. 미도달 DAY4~30·최소 사양·Steam 실계정·추가 표시 검수는 미완료.
+- 다음: 헤드의 차단 수정 범위 결정 후 재검수. push·main·태그·Steam 미실행. 이번 결과는 PASS/TARGETED_PASS가 아닌 FAIL이며 출시 승인 아님.

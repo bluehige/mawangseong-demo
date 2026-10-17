@@ -1,0 +1,572 @@
+[
+  {
+    "seed": 13011,
+    "max_entered_day": 3,
+    "ending_reached": false,
+    "attempts": [
+      {
+        "seed": 13011,
+        "retry": false,
+        "day": 1,
+        "grade": "F",
+        "win": true,
+        "hp": 288,
+        "max_hp": 1500,
+        "food": 30,
+        "gold": 1575,
+        "duration": 72.0499999999981,
+        "owned": 3,
+        "settlement": {
+          "after": 30,
+          "before": 18,
+          "capacity": 30,
+          "day": 1,
+          "due": 3,
+          "hungry": [],
+          "income": 15,
+          "overflow": 0,
+          "paid": 3,
+          "rows": [
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "slime"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "goblin"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "imp"
+            }
+          ],
+          "shortfall": 0
+        }
+      },
+      {
+        "seed": 13011,
+        "retry": false,
+        "day": 2,
+        "grade": "F",
+        "win": false,
+        "hp": 0,
+        "max_hp": 1500,
+        "food": 30,
+        "gold": 1575,
+        "duration": 27.2333333333336,
+        "owned": 4,
+        "settlement": {
+          "after": 30,
+          "before": 30,
+          "capacity": 30,
+          "day": 2,
+          "due": 4,
+          "hungry": [],
+          "income": 15,
+          "overflow": 11,
+          "paid": 4,
+          "rows": [
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "slime"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "goblin"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "imp"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "kobold_scout"
+            }
+          ],
+          "shortfall": 0
+        }
+      },
+      {
+        "seed": 13011,
+        "retry": true,
+        "day": 2,
+        "grade": "F",
+        "win": true,
+        "hp": 282,
+        "max_hp": 1500,
+        "food": 30,
+        "gold": 1739,
+        "duration": 72.1666666666647,
+        "owned": 4,
+        "settlement": {
+          "after": 30,
+          "before": 30,
+          "capacity": 30,
+          "day": 2,
+          "due": 4,
+          "hungry": [],
+          "income": 15,
+          "overflow": 11,
+          "paid": 4,
+          "rows": [
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "slime"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "goblin"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "imp"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "kobold_scout"
+            }
+          ],
+          "shortfall": 0
+        }
+      },
+      {
+        "seed": 13011,
+        "retry": false,
+        "day": 3,
+        "grade": "F",
+        "win": false,
+        "hp": 0,
+        "max_hp": 1500,
+        "food": 30,
+        "gold": 1739,
+        "duration": 25.7500000000002,
+        "owned": 4,
+        "settlement": {
+          "after": 30,
+          "before": 30,
+          "capacity": 30,
+          "day": 3,
+          "due": 4,
+          "hungry": [],
+          "income": 15,
+          "overflow": 11,
+          "paid": 4,
+          "rows": [
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "slime"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "goblin"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "imp"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "kobold_scout"
+            }
+          ],
+          "shortfall": 0
+        }
+      }
+    ],
+    "save_reload": [
+      {
+        "day": 2,
+        "food": 30,
+        "gold": 1575,
+        "hp": 288,
+        "max_day": 3,
+        "ok": true,
+        "onboarding_complete": false,
+        "save_error": "",
+        "save_status": "valid",
+        "screen": "management",
+        "stage": "LV05_DAY01_RESULT",
+        "story": "",
+        "tag": "save"
+      },
+      {
+        "day": 2,
+        "expected_day": 2,
+        "food": 30,
+        "gold": 1575,
+        "hp": 288,
+        "layout_day": 2,
+        "max_day": 3,
+        "onboarding_complete": false,
+        "screen": "management",
+        "stage": "LV05_DAY01_RESULT",
+        "story": "",
+        "tag": "reload"
+      }
+    ]
+  },
+  {
+    "seed": 13012,
+    "max_entered_day": 3,
+    "ending_reached": false,
+    "attempts": [
+      {
+        "seed": 13012,
+        "retry": false,
+        "day": 1,
+        "grade": "F",
+        "win": true,
+        "hp": 288,
+        "max_hp": 1500,
+        "food": 30,
+        "gold": 1575,
+        "duration": 72.0499999999981,
+        "owned": 3,
+        "settlement": {
+          "after": 30,
+          "before": 18,
+          "capacity": 30,
+          "day": 1,
+          "due": 3,
+          "hungry": [],
+          "income": 15,
+          "overflow": 0,
+          "paid": 3,
+          "rows": [
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "slime"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "goblin"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "imp"
+            }
+          ],
+          "shortfall": 0
+        }
+      },
+      {
+        "seed": 13012,
+        "retry": false,
+        "day": 2,
+        "grade": "F",
+        "win": false,
+        "hp": 0,
+        "max_hp": 1500,
+        "food": 30,
+        "gold": 1575,
+        "duration": 26.9166666666669,
+        "owned": 4,
+        "settlement": {
+          "after": 30,
+          "before": 30,
+          "capacity": 30,
+          "day": 2,
+          "due": 4,
+          "hungry": [],
+          "income": 15,
+          "overflow": 11,
+          "paid": 4,
+          "rows": [
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "slime"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "goblin"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "imp"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "kobold_scout"
+            }
+          ],
+          "shortfall": 0
+        }
+      },
+      {
+        "seed": 13012,
+        "retry": true,
+        "day": 2,
+        "grade": "F",
+        "win": true,
+        "hp": 366,
+        "max_hp": 1500,
+        "food": 30,
+        "gold": 1739,
+        "duration": 78.1666666666644,
+        "owned": 4,
+        "settlement": {
+          "after": 30,
+          "before": 30,
+          "capacity": 30,
+          "day": 2,
+          "due": 4,
+          "hungry": [],
+          "income": 15,
+          "overflow": 11,
+          "paid": 4,
+          "rows": [
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "slime"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "goblin"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "imp"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "kobold_scout"
+            }
+          ],
+          "shortfall": 0
+        }
+      },
+      {
+        "seed": 13012,
+        "retry": false,
+        "day": 3,
+        "grade": "F",
+        "win": false,
+        "hp": 0,
+        "max_hp": 1500,
+        "food": 30,
+        "gold": 1739,
+        "duration": 27.8333333333336,
+        "owned": 4,
+        "settlement": {
+          "after": 30,
+          "before": 30,
+          "capacity": 30,
+          "day": 3,
+          "due": 4,
+          "hungry": [],
+          "income": 15,
+          "overflow": 11,
+          "paid": 4,
+          "rows": [
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "slime"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "goblin"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "imp"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "kobold_scout"
+            }
+          ],
+          "shortfall": 0
+        }
+      }
+    ],
+    "save_reload": [
+      {
+        "day": 2,
+        "food": 30,
+        "gold": 1575,
+        "hp": 288,
+        "max_day": 3,
+        "ok": true,
+        "onboarding_complete": false,
+        "save_error": "",
+        "save_status": "valid",
+        "screen": "management",
+        "stage": "LV05_DAY01_RESULT",
+        "story": "",
+        "tag": "save"
+      },
+      {
+        "day": 2,
+        "expected_day": 2,
+        "food": 30,
+        "gold": 1575,
+        "hp": 288,
+        "layout_day": 2,
+        "max_day": 3,
+        "onboarding_complete": false,
+        "screen": "management",
+        "stage": "LV05_DAY01_RESULT",
+        "story": "",
+        "tag": "reload"
+      }
+    ]
+  },
+  {
+    "seed": 13013,
+    "max_entered_day": 1,
+    "ending_reached": false,
+    "attempts": [
+      {
+        "seed": 13013,
+        "retry": false,
+        "day": 1,
+        "grade": "F",
+        "win": false,
+        "hp": 0,
+        "max_hp": 1500,
+        "food": 30,
+        "gold": 1245,
+        "duration": 80.8499999999976,
+        "owned": 3,
+        "settlement": {
+          "after": 30,
+          "before": 18,
+          "capacity": 30,
+          "day": 1,
+          "due": 3,
+          "hungry": [],
+          "income": 15,
+          "overflow": 0,
+          "paid": 3,
+          "rows": [
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "slime"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "goblin"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "imp"
+            }
+          ],
+          "shortfall": 0
+        }
+      },
+      {
+        "seed": 13013,
+        "retry": true,
+        "day": 1,
+        "grade": "F",
+        "win": false,
+        "hp": 0,
+        "max_hp": 1500,
+        "food": 30,
+        "gold": 1245,
+        "duration": 76.1666666666645,
+        "owned": 3,
+        "settlement": {
+          "after": 30,
+          "before": 18,
+          "capacity": 30,
+          "day": 1,
+          "due": 3,
+          "hungry": [],
+          "income": 15,
+          "overflow": 0,
+          "paid": 3,
+          "rows": [
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "slime"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "goblin"
+            },
+            {
+              "due": 1,
+              "hungry": false,
+              "paid": 1,
+              "species": "imp"
+            }
+          ],
+          "shortfall": 0
+        }
+      }
+    ],
+    "save_reload": []
+  }
+]

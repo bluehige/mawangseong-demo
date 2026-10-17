@@ -1,0 +1,34 @@
+[
+  {
+    "command": [
+      "node",
+      "tools/tests/UIEnglishCatalogTest.cjs"
+    ],
+    "exit_code": 1,
+    "tail": ""
+  },
+  {
+    "command": [
+      "node",
+      "tools/tests/StoryEnglishCatalogTest.cjs"
+    ],
+    "exit_code": 0,
+    "tail": "   28,\n    29,\n    30\n  ],\n  \"cues\": 1741,\n  \"scenes\": 216,\n  \"checks\": [\n    \"valid JSON\",\n    \"unique raw story keys\",\n    \"source ID coverage\",\n    \"no unknown IDs\",\n    \"nonempty English\",\n    \"placeholder parity\",\n    \"speaker coverage\",\n    \"scene title coverage\",\n    \"UI locale parity\"\n  ]\n}\n"
+  },
+  {
+    "command": [
+      "node",
+      "tools/tests/ChineseCatalogTest.cjs"
+    ],
+    "exit_code": 1,
+    "tail": ""
+  },
+  {
+    "command": [
+      "python",
+      "tools/tests/UIUXCompletionDataCompatibilityTest.py"
+    ],
+    "exit_code": 1,
+    "tail": ""
+  }
+]
