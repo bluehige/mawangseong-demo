@@ -74,7 +74,7 @@
 주요 실행 명령:
 
 ```powershell
-python -X utf8 tools/tests/v130r_step10b_report.py --prepare --route paid --name paid_baseline 
+python -X utf8 tools/tests/v130r_step10b_report.py --prepare --route paid --name paid_baseline
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/run_v130r_step10b.ps1 -Mode balance
 python -X utf8 tools/tests/v130r_step10b_report.py --prepare --route scout --name scout_trials --days 20,21,26 --layouts recommended,anchor_cluster
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/run_v130r_step10b.ps1 -Mode balance
