@@ -4,6 +4,7 @@ const Presentation = preload("res://scripts/map_builder/ApprovedActorPresentatio
 var battle_map: RefCounted
 var battle_runtime: RefCounted
 var selection_art: Sprite2D
+const HPBar = preload("res://scripts/ui/PortraitHealthBar.gd")
 var health: TextureProgressBar
 var map_visual: Node2D
 var vitals: Node2D
@@ -34,6 +35,7 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	# Keep each boss's identifying name visible inside the compact overhead label.
 	if source_id=="official_hero_leon": name_label.text = "레온"
 	elif source_id=="selen_trainee_paladin": name_label.text = "셀렌"
+	health.setup(self)
 
 func attach_map_visuals(parent: Node2D) -> void:
 	# Simulation coordinates stay independent of management zoom/pan. Only the
@@ -41,7 +43,7 @@ func attach_map_visuals(parent: Node2D) -> void:
 	map_visual = Node2D.new(); parent.add_child(map_visual)
 	for child in [visual_body,selection_art]: child.reparent(map_visual,false)
 	vitals = Node2D.new(); parent.add_child(vitals); vitals.z_index = 3800
-	for child in [name_label,health]: child.reparent(vitals,false)
+	health.reparent(vitals,false)
 	vitals.scale = Vector2.ONE*Presentation.ui_scale(unit_id)
 	vitals_link = Line2D.new(); parent.add_child(vitals_link); vitals_link.z_index = 3799
 	vitals_link.default_color = Color(.3,1,.8,.55) if faction=="monster" else Color(1,.47,.44,.55)
@@ -70,15 +72,7 @@ func _ready() -> void:
 	selection_art.texture = preload("res://assets/maps/v130r_step2/ui/cell_highlight.png")
 	selection_art.modulate = Color(.3,1,.8,.8); selection_art.show_behind_parent = true
 	add_child(selection_art); selection_art.hide()
-	health = TextureProgressBar.new(); health.position = Vector2(-38,-8); health.size = Vector2(76,8)
-	health.texture_under = preload("res://assets/ui/uiux/obsidian_button.png")
-	# Opaque bright rim crop of the existing GPT highlight, tinted by faction.
-	var fill := AtlasTexture.new()
-	fill.atlas = preload("res://assets/maps/v130r_step2/ui/cell_highlight.png")
-	fill.region = Rect2(76,53,8,4)
-	health.texture_progress = fill
-	health.tint_progress = Color(.6,1,.65); health.nine_patch_stretch = true
-	health.mouse_filter = Control.MOUSE_FILTER_IGNORE; add_child(health)
+	health = HPBar.new(); add_child(health)
 
 func _configure_combat_sprite(source_sprite_path: String) -> void:
 	quarter_art = faction=="monster" and source_sprite_path.contains("/quarter_final/")
@@ -105,11 +99,6 @@ func _configure_combat_sprite(source_sprite_path: String) -> void:
 	body_factor = Presentation.body_scale(idle_bounds,unit_id)
 	legacy_factor = float(combat_visual_profile.get("render_scale",0))
 	if legacy_factor<=0: legacy_factor = FLYING_VISUAL_SCALE if _is_flying_unit() else GROUNDED_VISUAL_SCALE
-	if health!=null:
-		health.value = 100.0*hp/maxi(1,max_hp)
-		health.size = Vector2(76,8)
-		health.position.x = -health.size.x/2
-		health.tint_progress = Color(.45,1,.6) if faction=="monster" else Color(1,.35,.3)
 
 func _draw() -> void: pass
 func _draw_contact_shadow(_target: CanvasItem = self) -> void: pass
@@ -165,12 +154,12 @@ func vitals_rect() -> Rect2:
 	return vitals_rect_at(vitals.position)
 
 func vitals_rect_at(point: Vector2) -> Rect2:
-	return Rect2(point+Vector2(-58,-26)*vitals.scale,Vector2(116,34)*vitals.scale)
+	return Rect2(point+HPBar.BOUNDS.position*vitals.scale,HPBar.BOUNDS.size*vitals.scale)
 
 func desired_vitals_position(zoom: float) -> Vector2:
 	var body := visible_body_rect()
 	var top := raster_head_world_y()
-	return Vector2(body.get_center().x,top-6.0/zoom-8*vitals.scale.y)
+	return Vector2(body.get_center().x,top-6.0/zoom-HPBar.BOUNDS.end.y*vitals.scale.y)
 
 func raster_head_world_y() -> float:
 	# At this zoom a one-pixel antenna may fall between screen samples. Match
@@ -211,12 +200,10 @@ func raster_head_world_y() -> float:
 
 func set_vitals_position(point: Vector2) -> void:
 	vitals.position = point
-	name_label.position = Vector2(-58,-26)
-	health.position.y = 0
 	var head := position+combat_anchor_local("head")
-	var edge := Vector2(point.x,point.y+8*vitals.scale.y)
+	var edge := Vector2(point.x,point.y+HPBar.BOUNDS.end.y*vitals.scale.y)
 	vitals_link.points = PackedVector2Array([head,edge])
-	vitals_link.visible = is_alive() and point.distance_to(desired_vitals_position(battle_runtime.view.camera_scale))>1
+	vitals_link.visible = vitals.visible and is_alive() and point.distance_to(desired_vitals_position(battle_runtime.view.camera_scale))>1
 	vitals_link.width = 1.5/battle_runtime.view.camera_scale
 
 func visible_body_rect() -> Rect2:
@@ -265,7 +252,7 @@ func _physics_process(delta: float) -> void:
 	root_timer = maxf(0,root_timer-delta*simulation_speed)
 	super._physics_process(delta)
 	if health!=null:
-		health.value = 100.0*hp/maxi(1,max_hp); health.visible = is_alive()
+		health.sync(0.0 if battle_runtime!=null and battle_runtime.root.combat_paused else delta*simulation_speed)
 		selection_art.visible = selected and is_alive()
 
 func get_cell_tags(target_unit: Node = null) -> Dictionary:

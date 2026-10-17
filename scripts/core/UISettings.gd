@@ -45,6 +45,7 @@ var skill_cutscene_policy := DEFAULT_SKILL_CUTSCENE_POLICY
 var skill_cutscene_seen: Dictionary = {}
 var reduce_combat_effects := false
 var spectator_auto_camera := true
+var hide_noncombat_hp_bars := false
 var remember_combat_speed := DEFAULT_REMEMBER_COMBAT_SPEED
 var preferred_combat_speed := 1.0
 var _windowed_size := Vector2i(1280, 720)
@@ -147,6 +148,7 @@ func reset_defaults(persist: bool = true) -> void:
 	skill_cutscene_policy = DEFAULT_SKILL_CUTSCENE_POLICY
 	reduce_combat_effects = false
 	spectator_auto_camera = true
+	hide_noncombat_hp_bars = false
 	text_scale = DEFAULT_TEXT_SCALE
 	layout_mode = DEFAULT_LAYOUT_MODE
 	window_mode = DEFAULT_WINDOW_MODE
@@ -172,6 +174,7 @@ func snapshot() -> Dictionary:
 		"skill_cutscene_seen": skill_cutscene_seen.duplicate(true),
 		"reduce_combat_effects": reduce_combat_effects,
 		"spectator_auto_camera": spectator_auto_camera,
+		"hide_noncombat_hp_bars": hide_noncombat_hp_bars,
 		"tutorial_guidance_level": tutorial_guidance_level
 	}
 
@@ -194,6 +197,7 @@ func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
 	skill_cutscene_seen = Dictionary(value.get("skill_cutscene_seen", {})).duplicate(true)
 	set_reduce_combat_effects(bool(value.get("reduce_combat_effects", false)), false)
 	set_spectator_auto_camera(bool(value.get("spectator_auto_camera",true)),false)
+	set_hide_noncombat_hp_bars(bool(value.get("hide_noncombat_hp_bars",false)),false)
 	tutorial_guidance_level = normalize_tutorial_guidance_level(str(value.get(
 		"tutorial_guidance_level",
 		DEFAULT_TUTORIAL_GUIDANCE_LEVEL
@@ -209,6 +213,10 @@ func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
 
 func set_combat_cutin_mode(value: String, persist: bool = true) -> void:
 	combat_cutin_mode = value if value in COMBAT_CUTIN_MODES else DEFAULT_COMBAT_CUTIN_MODE
+	if persist: _save_settings()
+
+func set_hide_noncombat_hp_bars(value: bool, persist: bool = true) -> void:
+	hide_noncombat_hp_bars = value
 	if persist: _save_settings()
 
 func set_spectator_auto_camera(value: bool, persist: bool = true) -> void:
@@ -287,6 +295,7 @@ func _load_settings() -> void:
 	skill_cutscene_seen = stored_seen.duplicate(true) if stored_seen is Dictionary else {}
 	set_reduce_combat_effects(bool(config.get_value(SETTINGS_SECTION, "reduce_combat_effects", false)), false)
 	set_spectator_auto_camera(bool(config.get_value(SETTINGS_SECTION,"spectator_auto_camera",true)),false)
+	set_hide_noncombat_hp_bars(bool(config.get_value(SETTINGS_SECTION,"hide_noncombat_hp_bars",false)),false)
 	tutorial_guidance_level = normalize_tutorial_guidance_level(str(config.get_value(
 		SETTINGS_SECTION,
 		"tutorial_guidance_level",
@@ -306,6 +315,7 @@ func _save_settings() -> bool:
 	config.set_value(SETTINGS_SECTION, "skill_cutscene_seen", skill_cutscene_seen)
 	config.set_value(SETTINGS_SECTION, "reduce_combat_effects", reduce_combat_effects)
 	config.set_value(SETTINGS_SECTION,"spectator_auto_camera",spectator_auto_camera)
+	config.set_value(SETTINGS_SECTION,"hide_noncombat_hp_bars",hide_noncombat_hp_bars)
 	config.set_value(SETTINGS_SECTION, "tutorial_guidance_level", tutorial_guidance_level)
 	var error := config.save(SETTINGS_PATH)
 	if error != OK:

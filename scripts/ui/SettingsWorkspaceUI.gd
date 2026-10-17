@@ -22,7 +22,7 @@ func build_settings() -> void:
 	pane.add_child(scroll)
 	var content := Control.new()
 	content.name = "SettingsFields"
-	content.custom_minimum_size = Vector2(930,900 if root.settings_category=="combat" else (820 if root.settings_category in ["general","accessibility"] else 710))
+	content.custom_minimum_size = Vector2(930,1010 if root.settings_category=="combat" else (820 if root.settings_category in ["general","accessibility"] else 710))
 	scroll.add_child(content)
 	match root.settings_category:
 		"audio": root._build_settings_audio_category(content)

@@ -145,6 +145,9 @@ func _process(delta: float) -> void:
 
 func layout_vitals() -> void:
 	var units: Array = battle.root.monster_units+battle.root.enemy_units
+	var alive_count := 0
+	for actor in units:
+		if actor.is_alive(): alive_count += 1
 	units.sort_custom(func(a,b):
 		if a.selected!=b.selected: return a.selected
 		return a.position.y<b.position.y if a.position.y!=b.position.y else a.get_instance_id()<b.get_instance_id())
@@ -152,9 +155,10 @@ func layout_vitals() -> void:
 	if skills.visible and is_instance_valid(selected):
 		occupied.append(Rect2(view.world.to_local(skills.global_position),Vector2(252,148 if bool(selected.get_meta("food_hungry",false)) else 98)*skills.scale*view.ui_unit/view.camera_scale).grow(8))
 	for unit in units:
-		unit.vitals.visible = unit.is_alive()
+		unit.health.set_crowded(alive_count>=10)
+		unit.vitals.visible = unit.health.should_show()
 		unit.update_silhouette()
-		if not unit.is_alive(): unit.vitals_link.hide(); continue
+		if not unit.vitals.visible: unit.vitals_link.hide(); continue
 		var desired: Vector2 = unit.desired_vitals_position(view.camera_scale)
 		var chosen := desired
 		var extent: Vector2 = unit.vitals_rect().size+Vector2(8,8)

@@ -1,0 +1,432 @@
+{
+  "variant": "C",
+  "status": "USER_SELECTED_2026-10-17_18:22",
+  "target_version": "1.3.0",
+  "reference_resolution": [
+    1920,
+    1080
+  ],
+  "normal_bar_size": [
+    64,
+    8
+  ],
+  "boss_bar_size": [
+    86,
+    11
+  ],
+  "boss_scale": 1.35,
+  "font": "NEXON Maplestory Light",
+  "parts": {
+    "frame_ally": {
+      "cell": [
+        0,
+        0,
+        314,
+        314
+      ],
+      "crop_in_cell": [
+        19,
+        176,
+        306,
+        246
+      ],
+      "size": [
+        287,
+        70
+      ],
+      "slice_margins": [
+        49,
+        0,
+        49,
+        0
+      ],
+      "slice_files": [
+        "frame_ally_left.png",
+        "frame_ally_middle.png",
+        "frame_ally_right.png"
+      ]
+    },
+    "frame_enemy": {
+      "cell": [
+        314,
+        0,
+        627,
+        314
+      ],
+      "crop_in_cell": [
+        16,
+        177,
+        302,
+        246
+      ],
+      "size": [
+        286,
+        69
+      ],
+      "slice_margins": [
+        49,
+        0,
+        49,
+        0
+      ],
+      "slice_files": [
+        "frame_enemy_left.png",
+        "frame_enemy_middle.png",
+        "frame_enemy_right.png"
+      ]
+    },
+    "frame_boss": {
+      "cell": [
+        627,
+        0,
+        940,
+        314
+      ],
+      "crop_in_cell": [
+        0,
+        138,
+        313,
+        266
+      ],
+      "size": [
+        313,
+        128
+      ],
+      "slice_margins": [
+        91,
+        0,
+        53,
+        0
+      ],
+      "slice_files": [
+        "frame_boss_left.png",
+        "frame_boss_middle.png",
+        "frame_boss_right.png"
+      ]
+    },
+    "portrait_frame": {
+      "cell": [
+        940,
+        0,
+        1254,
+        314
+      ],
+      "crop_in_cell": [
+        11,
+        37,
+        303,
+        314
+      ],
+      "size": [
+        292,
+        277
+      ]
+    },
+    "fill_ally": {
+      "cell": [
+        0,
+        314,
+        314,
+        627
+      ],
+      "crop_in_cell": [
+        21,
+        166,
+        307,
+        227
+      ],
+      "size": [
+        286,
+        61
+      ],
+      "slice_margins": [
+        49,
+        0,
+        49,
+        0
+      ],
+      "slice_files": [
+        "fill_ally_left.png",
+        "fill_ally_middle.png",
+        "fill_ally_right.png"
+      ]
+    },
+    "fill_enemy": {
+      "cell": [
+        314,
+        314,
+        627,
+        627
+      ],
+      "crop_in_cell": [
+        17,
+        166,
+        301,
+        227
+      ],
+      "size": [
+        284,
+        61
+      ],
+      "slice_margins": [
+        48,
+        0,
+        48,
+        0
+      ],
+      "slice_files": [
+        "fill_enemy_left.png",
+        "fill_enemy_middle.png",
+        "fill_enemy_right.png"
+      ]
+    },
+    "fill_boss": {
+      "cell": [
+        627,
+        314,
+        940,
+        627
+      ],
+      "crop_in_cell": [
+        12,
+        166,
+        298,
+        227
+      ],
+      "size": [
+        286,
+        61
+      ],
+      "slice_margins": [
+        49,
+        0,
+        49,
+        0
+      ],
+      "slice_files": [
+        "fill_boss_left.png",
+        "fill_boss_middle.png",
+        "fill_boss_right.png"
+      ]
+    },
+    "damage_white": {
+      "cell": [
+        940,
+        314,
+        1254,
+        627
+      ],
+      "crop_in_cell": [
+        9,
+        0,
+        294,
+        226
+      ],
+      "size": [
+        285,
+        226
+      ],
+      "slice_margins": [
+        48,
+        0,
+        48,
+        0
+      ],
+      "slice_files": [
+        "damage_white_left.png",
+        "damage_white_middle.png",
+        "damage_white_right.png"
+      ]
+    },
+    "damage_orange": {
+      "cell": [
+        0,
+        627,
+        314,
+        940
+      ],
+      "crop_in_cell": [
+        21,
+        141,
+        307,
+        202
+      ],
+      "size": [
+        286,
+        61
+      ],
+      "slice_margins": [
+        49,
+        0,
+        49,
+        0
+      ],
+      "slice_files": [
+        "damage_orange_left.png",
+        "damage_orange_middle.png",
+        "damage_orange_right.png"
+      ]
+    },
+    "shield": {
+      "cell": [
+        314,
+        627,
+        627,
+        940
+      ],
+      "crop_in_cell": [
+        17,
+        141,
+        303,
+        203
+      ],
+      "size": [
+        286,
+        62
+      ],
+      "slice_margins": [
+        49,
+        0,
+        49,
+        0
+      ],
+      "slice_files": [
+        "shield_left.png",
+        "shield_middle.png",
+        "shield_right.png"
+      ]
+    },
+    "status_sockets_4": {
+      "cell": [
+        627,
+        627,
+        940,
+        940
+      ],
+      "crop_in_cell": [
+        10,
+        134,
+        299,
+        211
+      ],
+      "size": [
+        289,
+        77
+      ]
+    },
+    "name_ribbon": {
+      "cell": [
+        940,
+        627,
+        1254,
+        940
+      ],
+      "crop_in_cell": [
+        5,
+        135,
+        296,
+        212
+      ],
+      "size": [
+        291,
+        77
+      ],
+      "slice_margins": [
+        49,
+        0,
+        49,
+        0
+      ],
+      "slice_files": [
+        "name_ribbon_left.png",
+        "name_ribbon_middle.png",
+        "name_ribbon_right.png"
+      ]
+    },
+    "level_badge": {
+      "cell": [
+        0,
+        940,
+        314,
+        1254
+      ],
+      "crop_in_cell": [
+        83,
+        76,
+        239,
+        230
+      ],
+      "size": [
+        156,
+        154
+      ]
+    },
+    "name_ribbon_compact": {
+      "cell": [
+        314,
+        940,
+        627,
+        1254
+      ],
+      "crop_in_cell": [
+        16,
+        117,
+        300,
+        197
+      ],
+      "size": [
+        284,
+        80
+      ],
+      "slice_margins": [
+        48,
+        0,
+        48,
+        0
+      ],
+      "slice_files": [
+        "name_ribbon_compact_left.png",
+        "name_ribbon_compact_middle.png",
+        "name_ribbon_compact_right.png"
+      ]
+    },
+    "boss_ornament": {
+      "cell": [
+        627,
+        940,
+        940,
+        1254
+      ],
+      "crop_in_cell": [
+        62,
+        41,
+        245,
+        256
+      ],
+      "size": [
+        183,
+        215
+      ]
+    },
+    "status_socket": {
+      "cell": [
+        940,
+        940,
+        1254,
+        1254
+      ],
+      "crop_in_cell": [
+        96,
+        94,
+        214,
+        216
+      ],
+      "size": [
+        118,
+        122
+      ]
+    }
+  },
+  "integration": "PortraitHealthBar.gd / ApprovedBattleUnit.gd",
+  "nine_slice": "Top/bottom margins 0: horizontal three-slice, equivalent to a nine-slice with no vertical stretching."
+}

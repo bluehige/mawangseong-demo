@@ -5429,6 +5429,9 @@ func _build_settings_combat_category(parent: Control) -> void:
 	_build_combat_speed_setting_row(parent,604.0)
 	hud.label(parent,continuity.localized("관전 자동 카메라","Automatic spectator camera","观战自动镜头"),Vector2(40,820),Vector2(460,40),22)
 	hud.option_button(parent,Rect2(520,814,362,54),[{"label":continuity.localized("켜기","On","开启"),"value":"on"},{"label":continuity.localized("끄기","Off","关闭"),"value":"off"}],"on" if UISettings.spectator_auto_camera else "off",func(value): UISettings.set_spectator_auto_camera(value=="on",false),20,"SpectatorAutoCameraOption")
+	hud.label(parent,continuity.localized("비전투 유닛 HP바 숨김","Hide idle unit HP bars","隐藏非战斗单位血条"),Vector2(40,922),Vector2(460,40),22)
+	hud.option_button(parent,Rect2(520,916,362,54),[{"label":continuity.localized("끄기","Off","关闭"),"value":"off"},{"label":continuity.localized("켜기","On","开启"),"value":"on"}],"on" if UISettings.hide_noncombat_hp_bars else "off",func(value): UISettings.set_hide_noncombat_hp_bars(value=="on",false),20,"HideNoncombatHPBarsOption")
+	settings_workspace.field_card(parent,922,76,"hp")
 	for entry in [[170,"tactics"],[394,"hp"],[604,"speed"],[820,"auto_play"]]: settings_workspace.field_card(parent,entry[0],200 if entry[0]==170 else (76 if entry[0]==820 else 184),entry[1])
 
 func _build_settings_access_toggle(parent: Control, y: float, id: String, caption: String, key: String) -> void:
@@ -5712,6 +5715,7 @@ func _reset_settings_category() -> void:
 		"combat":
 			UISettings.set_skill_cutscene_policy(UISettings.DEFAULT_SKILL_CUTSCENE_POLICY, false)
 			UISettings.set_reduce_combat_effects(false, false)
+			UISettings.set_hide_noncombat_hp_bars(false, false)
 			UISettings.set_remember_combat_speed(false, false)
 			UISettings.set_preferred_combat_speed(1.0,false)
 		"audio":
