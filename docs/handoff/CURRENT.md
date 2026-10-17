@@ -1,3 +1,17 @@
+## 2026-10-17 V130R Step9 전문화 실제 효과 / TARGETED_PASS · 일부 기획 미완료
+
+[인계](V130R_STEP9_SPEC_2026-10-17.md), [48개 효과·검사 표](../../_mockup/game_step9_spec/spec_table.md), [추천 배치 재측정](../../_mockup/game_step9_spec/balance_with_spec.md). 사용자 지정0106 `9d1e9bf7` 기반, 구현/검증 `57bc8ada1eaceed678f01866a30204c5123be556`. 같은 브랜치의 다른 세션 지도 설계 전용3fda22dc/81199a78(8문서·설계 경로)은 보존했으며 전문화 파일과 겹침0이다. 정책 범위 기준은 직전 부모 `81199a7808c9a9bfe4b6b75ccff44322a20f2c25`다. main 권위 갱신이나 공개 제품 완료를 뜻하지 않는다.
+
+기존12+update4 4+신규/보충32=24종×2를 공통 스탯·스킬·조건/시간·명중/정산 처리기로 연결했다. 기존 DAY2/팀1명(DAY2~3)/DAY4 추가 선택을 재사용하므로 Lv3 대체 규칙은 사용하지 않았다. 배치 정보창의 GPT 아이콘2개 선택, 즉시 테스트 복사본 저장·복원, 구 필드 누락·잘못된 ID·F→E 전환 보존, 명칭·배지·수치 화살표·실제 클릭을 확인했다. 구조 점액의 호위 이동을 적 추격으로 치환하던 지도 어댑터도 보완했다. **직접331·화면76검사 실패0**,1920×1080 검수3PNG와 개별 축소본, 네이티브 투명 GPT 공통 배지2개 및 출처를 보관한다.
+
+60Hz·같은10시드의 DAY15/24/30×미적용/첫안/둘째안90전투를 측정했다. 미적용30행은0106과 승패/옥좌HP/시간/금고손실/생성수가 모두 일치하고 waves.json 불변이다. 첫안 DAY15는100%/72.9%로 승률100% 보고 대상,평균 옥좌90%↑ 없음. 첫안 DAY24·30은70%/51.2%,70%/30.9%로 미적용보다 약해졌고 둘째안 DAY24는90%/87.7%로 강해졌다. 결과를 그대로 기록했으며 웨이브를 조정하지 않았다. DAY29 준비일·전투 없음 유지.
+
+**부분 미완료: 로로 원정 위험−1은 표시·결과 기록 단계만 감소한다.** 기존 원정에 실패/피해 판정이 없어 새 실효 규칙은 만들지 않았다. 악명 추가10%는 실제 적용한다. 해당 데이터는 partial_risk_display_only이며 질문을 남겼다. 베베 기존+30%의 계수 해석, 리듬 범위 기준·화상 피해·배지2개 공유 등도 효과 표에 명시했다. **다음: 사용자 확인 대기 — 이 위험 감소를 표시로 인정할지 실제 규칙을 별도로 정할지 결정.**
+
+기존1425파일 바이트 보존,개인 세이브 미접근/미수정(격리 APPDATA·테스트 copies만),Godot 동시1/종료0. 영어 로컬 커밋만, push/main/태그/Steam/PR/원격 조회 없음. 전체 회귀·전체 캠페인·export·별도 검수 에이전트 미요청/미실행. 원격 최신성·main 권위 미확정.
+
+---
+
 ## 2026-10-17 V130R Step8B 합법 집중·경로 분산 / TARGETED_PASS
 
 [인계](V130R_STEP8B_SPREAD_2026-10-17.md), [결과 표](../../_mockup/game_step8b_spread/result_table.md). 기준0105 `414c8881b7f7664563e8843f29e8c4adc8286602`, 검수 `cb6841452e315d25831959f600ea9ff0d0f8b4d0`. E 지도·시설Lv1, 실제 API·정원·식량 안의 집중9/6/5명을 비교했다. 최초160회에서 DAY27/30 평균HP 역전을 재현하여 적 목표·경유를 분산했다. DAY17 investigator 행4: waypoint_room_id=bait_treasure; DAY19 investigator 행3: waypoint_room_id=watchtower; DAY21 investigator 행6: waypoint_room_id=recovery_nest; DAY26 engineer 행5: target_room_id=barracks; DAY27 engineer 행6: target_room_id=recovery_nest; DAY28 investigator 행3: waypoint_room_id=watchtower; DAY28 engineer 행5: target_room_id=ward_core; DAY30 engineer 행7: target_room_id=watchtower.
