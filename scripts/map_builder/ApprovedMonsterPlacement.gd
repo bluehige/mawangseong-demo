@@ -53,6 +53,9 @@ static func upkeep(assignments: Dictionary, members: Dictionary) -> int:
 	return total
 
 static func preferences(species: String) -> Array:
+	# A small final guard prevents every recommended defender fighting at the gate.
+	if species=="imp": return ["throne","watchtower","ward_core","barracks"]
+	if species=="crumpled_map": return ["throne","ward_core","recovery_nest","barracks"]
 	if species in TANKS: return ["barracks","entrance","ward_core","throne","vault"]
 	if species in RANGED: return ["watchtower","throne","ward_core","barracks"]
 	if species in SUPPORT: return ["recovery_nest","ward_core","throne","barracks"]

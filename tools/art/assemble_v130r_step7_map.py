@@ -1,4 +1,6 @@
 ﻿from pathlib import Path
+if Path('assets/source/imagegen/v130r_step7_crumpled_map/HISTORICAL_SOURCE.md').exists():
+ raise SystemExit('Step7 candidate is archived; preserve adopted 0103 runtime sheets. See assets/source/imagegen/v130r_step8_crumpled_map/SOURCE.md.')
 from PIL import Image
 from scipy import ndimage
 import numpy as np,json

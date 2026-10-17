@@ -1,661 +1,1574 @@
 {
   "species_id": "crumpled_map",
-  "status": "STEP7_NEW_GPT_V2_INTEGRATED",
+  "status": "ACCEPTED_OFFLINE_NOT_INTEGRATED",
+  "workstream": "0103",
+  "sheet_size": [
+    1254,
+    1254
+  ],
   "grid": [
     4,
     4
   ],
-  "sheet_size": [
-    1024,
-    1024
-  ],
-  "source": "assets/source/imagegen/v130r_step7_crumpled_map/generated_atlas_v2.png",
-  "unique_poses_per_direction": 16,
-  "alpha_extrema": [
+  "cell_edges": [
     0,
-    254
+    313,
+    627,
+    940,
+    1254
   ],
-  "crop_method": "32 separated alpha24 connected body bounds plus3px raw rectangular padding; no masks or alpha edits; rows grouped by body center",
-  "frames": [
-    {
-      "direction": "sw",
-      "index": 0,
-      "source_bbox_alpha24": [
-        67,
-        28,
-        222,
-        218
-      ],
-      "raw_rectangular_crop": [
-        64,
-        25,
-        225,
-        221
-      ],
-      "size": [
-        161,
-        196
-      ]
+  "logical_frame_size": [
+    384,
+    384
+  ],
+  "logical_anchor": [
+    192,
+    345
+  ],
+  "atlas_anchor": [
+    156.5,
+    289
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "uniform_scale": 0.6724031505986856,
+  "source_uniform_normalizations": {
+    "2": 1.0,
+    "3": 1.0276752767527675,
+    "4": 0.462624584717608
+  },
+  "directions": {
+    "sw": {
+      "combat": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\crumpled_map\\crumpled_map_sheet.png",
+        "frames": [
+          {
+            "source_slice": [
+              0,
+              0,
+              350,
+              230
+            ],
+            "source_bbox": [
+              48,
+              48,
+              335,
+              230
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 0,
+            "rect": [
+              66,
+              170,
+              193,
+              122
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.70837468620468,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              350,
+              0,
+              701,
+              230
+            ],
+            "source_bbox": [
+              38,
+              50,
+              326,
+              230
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 1,
+            "rect": [
+              378,
+              170,
+              194,
+              121
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.34207115079937,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              701,
+              0,
+              1051,
+              230
+            ],
+            "source_bbox": [
+              24,
+              79,
+              325,
+              230
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 2,
+            "rect": [
+              693,
+              189,
+              202,
+              102
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.6531105628322,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1051,
+              0,
+              1402,
+              230
+            ],
+            "source_bbox": [
+              13,
+              108,
+              314,
+              230
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 3,
+            "rect": [
+              995,
+              209,
+              202,
+              82
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.71547646233648,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              230,
+              350,
+              449
+            ],
+            "source_bbox": [
+              42,
+              36,
+              321,
+              210
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 4,
+            "rect": [
+              67,
+              489,
+              188,
+              117
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.22025475923851,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              350,
+              230,
+              701,
+              449
+            ],
+            "source_bbox": [
+              58,
+              37,
+              321,
+              207
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 5,
+            "rect": [
+              380,
+              492,
+              177,
+              114
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.6223545636911,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              701,
+              230,
+              1051,
+              449
+            ],
+            "source_bbox": [
+              40,
+              36,
+              319,
+              209
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 3,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 6,
+            "rect": [
+              680,
+              490,
+              188,
+              116
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.38869009843503,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1051,
+              230,
+              1402,
+              449
+            ],
+            "source_bbox": [
+              27,
+              32,
+              321,
+              210
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 7,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 7,
+            "rect": [
+              1003,
+              486,
+              198,
+              120
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.82565800587898,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              449,
+              350,
+              673
+            ],
+            "source_bbox": [
+              53,
+              19,
+              331,
+              199
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 8,
+            "rect": [
+              78,
+              799,
+              187,
+              121
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.14430250960885,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              350,
+              449,
+              701,
+              673
+            ],
+            "source_bbox": [
+              28,
+              30,
+              332,
+              198
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 9,
+            "rect": [
+              369,
+              807,
+              204,
+              113
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.958069316035,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              701,
+              449,
+              1051,
+              673
+            ],
+            "source_bbox": [
+              18,
+              30,
+              329,
+              202
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 10,
+            "rect": [
+              683,
+              804,
+              209,
+              116
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.72511248276018,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1051,
+              449,
+              1402,
+              673
+            ],
+            "source_bbox": [
+              57,
+              19,
+              321,
+              194
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 11,
+            "rect": [
+              1017,
+              801,
+              178,
+              118
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.3874558239516,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              673,
+              350,
+              897
+            ],
+            "source_bbox": [
+              53,
+              11,
+              333,
+              189
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 12,
+            "rect": [
+              67,
+              1113,
+              188,
+              120
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.10806587152987,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              350,
+              673,
+              701,
+              897
+            ],
+            "source_bbox": [
+              53,
+              12,
+              343,
+              190
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 13,
+            "rect": [
+              408,
+              1112,
+              195,
+              120
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.98112338858195,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              0,
+              887,
+              453
+            ],
+            "source_bbox": [
+              204,
+              67,
+              825,
+              426
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 56,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_4.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "attempt": 4,
+            "source_normalization": 0.462624584717608,
+            "index": 14,
+            "rect": [
+              703,
+              1121,
+              193,
+              112
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.85371725731895,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1051,
+              673,
+              1402,
+              897
+            ],
+            "source_bbox": [
+              47,
+              18,
+              316,
+              194
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 15,
+            "rect": [
+              1014,
+              1115,
+              181,
+              118
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.5217001250092,
+            "support_y": 289
+          }
+        ],
+        "sha256": "d5b44043d62e98247cc17a28313adb745b8befc9f28af6a9ec3b9eea8377c449"
+      },
+      "hurt": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\crumpled_map\\crumpled_map_hurt_sw.png",
+        "frames": [
+          {
+            "source_slice": [
+              0,
+              897,
+              350,
+              1122
+            ],
+            "source_bbox": [
+              61,
+              0,
+              327,
+              183
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 0,
+            "rect": [
+              68,
+              169,
+              179,
+              123
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.47541213363468,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              350,
+              897,
+              701,
+              1122
+            ],
+            "source_bbox": [
+              51,
+              10,
+              313,
+              184
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 1,
+            "rect": [
+              385,
+              176,
+              176,
+              117
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.14351754200942,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              701,
+              897,
+              1051,
+              1122
+            ],
+            "source_bbox": [
+              54,
+              36,
+              312,
+              185
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 6,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 2,
+            "rect": [
+              692,
+              192,
+              173,
+              100
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.74371729993996,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1051,
+              897,
+              1402,
+              1122
+            ],
+            "source_bbox": [
+              35,
+              13,
+              305,
+              188
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 2,
+            "source_normalization": 1.0,
+            "index": 3,
+            "rect": [
+              1014,
+              175,
+              182,
+              118
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.8696162528217,
+            "support_y": 289
+          }
+        ],
+        "sha256": "098cfd6a2ee467dae5b33ffee4cec435f14c5a6a2dc3c2f4fd441d72f74b0717"
+      }
     },
-    {
-      "direction": "sw",
-      "index": 1,
-      "source_bbox_alpha24": [
-        309,
-        30,
-        461,
-        218
-      ],
-      "raw_rectangular_crop": [
-        306,
-        27,
-        464,
-        221
-      ],
-      "size": [
-        158,
-        194
-      ]
-    },
-    {
-      "direction": "sw",
-      "index": 2,
-      "source_bbox_alpha24": [
-        538,
-        66,
-        714,
-        215
-      ],
-      "raw_rectangular_crop": [
-        535,
-        63,
-        717,
-        218
-      ],
-      "size": [
-        182,
-        155
-      ]
-    },
-    {
-      "direction": "sw",
-      "index": 3,
-      "source_bbox_alpha24": [
-        773,
-        90,
-        977,
-        220
-      ],
-      "raw_rectangular_crop": [
-        770,
-        87,
-        980,
-        223
-      ],
-      "size": [
-        210,
-        136
-      ]
-    },
-    {
-      "direction": "sw",
-      "index": 4,
-      "source_bbox_alpha24": [
-        64,
-        231,
-        228,
-        404
-      ],
-      "raw_rectangular_crop": [
-        61,
-        228,
-        231,
-        407
-      ],
-      "size": [
-        170,
-        179
-      ]
-    },
-    {
-      "direction": "sw",
-      "index": 5,
-      "source_bbox_alpha24": [
-        310,
-        229,
-        483,
-        406
-      ],
-      "raw_rectangular_crop": [
-        307,
-        226,
-        486,
-        409
-      ],
-      "size": [
-        179,
-        183
-      ]
-    },
-    {
-      "direction": "sw",
-      "index": 6,
-      "source_bbox_alpha24": [
-        547,
-        227,
-        717,
-        405
-      ],
-      "raw_rectangular_crop": [
-        544,
-        224,
-        720,
-        408
-      ],
-      "size": [
-        176,
-        184
-      ]
-    },
-    {
-      "direction": "sw",
-      "index": 7,
-      "source_bbox_alpha24": [
-        802,
-        231,
-        955,
-        405
-      ],
-      "raw_rectangular_crop": [
-        799,
-        228,
-        958,
-        408
-      ],
-      "size": [
-        159,
-        180
-      ]
-    },
-    {
-      "direction": "sw",
-      "index": 8,
-      "source_bbox_alpha24": [
-        45,
-        415,
-        225,
-        583
-      ],
-      "raw_rectangular_crop": [
-        42,
-        412,
-        228,
-        586
-      ],
-      "size": [
-        186,
-        174
-      ]
-    },
-    {
-      "direction": "sw",
-      "index": 9,
-      "source_bbox_alpha24": [
-        287,
-        409,
-        466,
-        584
-      ],
-      "raw_rectangular_crop": [
-        284,
-        406,
-        469,
-        587
-      ],
-      "size": [
-        185,
-        181
-      ]
-    },
-    {
-      "direction": "sw",
-      "index": 10,
-      "source_bbox_alpha24": [
-        530,
-        415,
-        722,
-        587
-      ],
-      "raw_rectangular_crop": [
-        527,
-        412,
-        725,
-        590
-      ],
-      "size": [
-        198,
-        178
-      ]
-    },
-    {
-      "direction": "sw",
-      "index": 11,
-      "source_bbox_alpha24": [
-        790,
-        412,
-        958,
-        578
-      ],
-      "raw_rectangular_crop": [
-        787,
-        409,
-        961,
-        581
-      ],
-      "size": [
-        174,
-        172
-      ]
-    },
-    {
-      "direction": "sw",
-      "index": 12,
-      "source_bbox_alpha24": [
-        44,
-        594,
-        253,
-        759
-      ],
-      "raw_rectangular_crop": [
-        41,
-        591,
-        256,
-        762
-      ],
-      "size": [
-        215,
-        171
-      ]
-    },
-    {
-      "direction": "sw",
-      "index": 13,
-      "source_bbox_alpha24": [
-        289,
-        592,
-        492,
-        764
-      ],
-      "raw_rectangular_crop": [
-        286,
-        589,
-        495,
-        767
-      ],
-      "size": [
-        209,
-        178
-      ]
-    },
-    {
-      "direction": "sw",
-      "index": 14,
-      "source_bbox_alpha24": [
-        533,
-        598,
-        742,
-        767
-      ],
-      "raw_rectangular_crop": [
-        530,
-        595,
-        745,
-        770
-      ],
-      "size": [
-        215,
-        175
-      ]
-    },
-    {
-      "direction": "sw",
-      "index": 15,
-      "source_bbox_alpha24": [
-        782,
-        585,
-        985,
-        761
-      ],
-      "raw_rectangular_crop": [
-        779,
-        582,
-        988,
-        764
-      ],
-      "size": [
-        209,
-        182
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 0,
-      "source_bbox_alpha24": [
-        63,
-        772,
-        231,
-        941
-      ],
-      "raw_rectangular_crop": [
-        60,
-        769,
-        234,
-        944
-      ],
-      "size": [
-        174,
-        175
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 1,
-      "source_bbox_alpha24": [
-        313,
-        773,
-        480,
-        941
-      ],
-      "raw_rectangular_crop": [
-        310,
-        770,
-        483,
-        944
-      ],
-      "size": [
-        173,
-        174
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 2,
-      "source_bbox_alpha24": [
-        556,
-        793,
-        724,
-        947
-      ],
-      "raw_rectangular_crop": [
-        553,
-        790,
-        727,
-        950
-      ],
-      "size": [
-        174,
-        160
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 3,
-      "source_bbox_alpha24": [
-        788,
-        825,
-        977,
-        950
-      ],
-      "raw_rectangular_crop": [
-        785,
-        822,
-        980,
-        953
-      ],
-      "size": [
-        195,
-        131
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 4,
-      "source_bbox_alpha24": [
-        62,
-        952,
-        230,
-        1125
-      ],
-      "raw_rectangular_crop": [
-        59,
-        949,
-        233,
-        1128
-      ],
-      "size": [
-        174,
-        179
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 5,
-      "source_bbox_alpha24": [
-        304,
-        952,
-        473,
-        1130
-      ],
-      "raw_rectangular_crop": [
-        301,
-        949,
-        476,
-        1133
-      ],
-      "size": [
-        175,
-        184
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 6,
-      "source_bbox_alpha24": [
-        544,
-        962,
-        720,
-        1128
-      ],
-      "raw_rectangular_crop": [
-        541,
-        959,
-        723,
-        1131
-      ],
-      "size": [
-        182,
-        172
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 7,
-      "source_bbox_alpha24": [
-        786,
-        957,
-        957,
-        1126
-      ],
-      "raw_rectangular_crop": [
-        783,
-        954,
-        960,
-        1129
-      ],
-      "size": [
-        177,
-        175
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 8,
-      "source_bbox_alpha24": [
-        46,
-        1131,
-        237,
-        1307
-      ],
-      "raw_rectangular_crop": [
-        43,
-        1128,
-        240,
-        1310
-      ],
-      "size": [
-        197,
-        182
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 9,
-      "source_bbox_alpha24": [
-        288,
-        1133,
-        494,
-        1303
-      ],
-      "raw_rectangular_crop": [
-        285,
-        1130,
-        497,
-        1306
-      ],
-      "size": [
-        212,
-        176
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 10,
-      "source_bbox_alpha24": [
-        541,
-        1133,
-        739,
-        1290
-      ],
-      "raw_rectangular_crop": [
-        538,
-        1130,
-        742,
-        1293
-      ],
-      "size": [
-        204,
-        163
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 11,
-      "source_bbox_alpha24": [
-        791,
-        1132,
-        975,
-        1300
-      ],
-      "raw_rectangular_crop": [
-        788,
-        1129,
-        978,
-        1303
-      ],
-      "size": [
-        190,
-        174
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 12,
-      "source_bbox_alpha24": [
-        36,
-        1314,
-        253,
-        1486
-      ],
-      "raw_rectangular_crop": [
-        33,
-        1311,
-        256,
-        1489
-      ],
-      "size": [
-        223,
-        178
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 13,
-      "source_bbox_alpha24": [
-        288,
-        1310,
-        493,
-        1489
-      ],
-      "raw_rectangular_crop": [
-        285,
-        1307,
-        496,
-        1492
-      ],
-      "size": [
-        211,
-        185
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 14,
-      "source_bbox_alpha24": [
-        530,
-        1311,
-        758,
-        1486
-      ],
-      "raw_rectangular_crop": [
-        527,
-        1308,
-        761,
-        1489
-      ],
-      "size": [
-        232,
-        179
-      ]
-    },
-    {
-      "direction": "ne",
-      "index": 15,
-      "source_bbox_alpha24": [
-        779,
-        1310,
-        992,
-        1483
-      ],
-      "raw_rectangular_crop": [
-        776,
-        1307,
-        995,
-        1486
-      ],
-      "size": [
-        219,
-        179
-      ]
+    "ne": {
+      "combat": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\crumpled_map\\crumpled_map_sheet_ne.png",
+        "frames": [
+          {
+            "source_slice": [
+              0,
+              0,
+              350,
+              225
+            ],
+            "source_bbox": [
+              57,
+              49,
+              338,
+              222
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 0,
+            "rect": [
+              61,
+              174,
+              194,
+              120
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.61888188745604,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              350,
+              0,
+              701,
+              225
+            ],
+            "source_bbox": [
+              52,
+              57,
+              341,
+              225
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 1,
+            "rect": [
+              375,
+              175,
+              200,
+              116
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.07914095870905,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              701,
+              0,
+              1051,
+              225
+            ],
+            "source_bbox": [
+              32,
+              85,
+              329,
+              225
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 2,
+            "rect": [
+              684,
+              194,
+              205,
+              97
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.74064753337615,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1051,
+              0,
+              1402,
+              225
+            ],
+            "source_bbox": [
+              29,
+              97,
+              307,
+              212
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 3,
+            "rect": [
+              1010,
+              214,
+              192,
+              79
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.70680551838245,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              225,
+              350,
+              449
+            ],
+            "source_bbox": [
+              70,
+              46,
+              344,
+              220
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 4,
+            "rect": [
+              59,
+              486,
+              189,
+              120
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.6086965839441,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              350,
+              225,
+              701,
+              449
+            ],
+            "source_bbox": [
+              53,
+              51,
+              323,
+              220
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 25,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 5,
+            "rect": [
+              400,
+              490,
+              187,
+              117
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.74350030804226,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              701,
+              225,
+              1051,
+              449
+            ],
+            "source_bbox": [
+              45,
+              48,
+              306,
+              218
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 28,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 6,
+            "rect": [
+              689,
+              489,
+              180,
+              117
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.76927494615938,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1051,
+              225,
+              1402,
+              449
+            ],
+            "source_bbox": [
+              34,
+              49,
+              314,
+              211
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 7,
+            "rect": [
+              989,
+              494,
+              193,
+              112
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.20448346664216,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              449,
+              350,
+              673
+            ],
+            "source_bbox": [
+              79,
+              19,
+              337,
+              209
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 8,
+            "rect": [
+              63,
+              790,
+              178,
+              131
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.85880357344791,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              350,
+              449,
+              701,
+              673
+            ],
+            "source_bbox": [
+              69,
+              38,
+              348,
+              218
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 9,
+            "rect": [
+              377,
+              796,
+              193,
+              124
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.2376146788991,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              701,
+              449,
+              1051,
+              673
+            ],
+            "source_bbox": [
+              60,
+              62,
+              350,
+              208
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 10,
+            "rect": [
+              699,
+              821,
+              200,
+              101
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.3619393844375,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1051,
+              449,
+              1402,
+              673
+            ],
+            "source_bbox": [
+              45,
+              60,
+              310,
+              216
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 11,
+            "rect": [
+              1002,
+              813,
+              183,
+              108
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.1781151155804,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              887,
+              0,
+              1774,
+              453
+            ],
+            "source_bbox": [
+              138,
+              102,
+              742,
+              453
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 25,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_4.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "attempt": 4,
+            "source_normalization": 0.462624584717608,
+            "index": 12,
+            "rect": [
+              87,
+              1123,
+              188,
+              109
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.31016883771994,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              350,
+              673,
+              701,
+              889
+            ],
+            "source_bbox": [
+              56,
+              36,
+              350,
+              210
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 13,
+            "rect": [
+              363,
+              1113,
+              203,
+              120
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.74569604086844,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              701,
+              673,
+              1051,
+              889
+            ],
+            "source_bbox": [
+              52,
+              28,
+              349,
+              199
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 14,
+            "rect": [
+              668,
+              1115,
+              205,
+              118
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.66732072180855,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1051,
+              673,
+              1402,
+              889
+            ],
+            "source_bbox": [
+              38,
+              38,
+              315,
+              205
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 5,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 15,
+            "rect": [
+              988,
+              1118,
+              191,
+              115
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.36009611986714,
+            "support_y": 289
+          }
+        ],
+        "sha256": "e72538a7a5d656208b15f6e2076cb74757f8dbae1470e82659dd358306ce70b9"
+      },
+      "hurt": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\crumpled_map\\crumpled_map_hurt_ne.png",
+        "frames": [
+          {
+            "source_slice": [
+              0,
+              453,
+              887,
+              887
+            ],
+            "source_bbox": [
+              201,
+              46,
+              820,
+              392
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 184,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_4.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "attempt": 4,
+            "source_normalization": 0.462624584717608,
+            "index": 0,
+            "rect": [
+              84,
+              185,
+              193,
+              108
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.05905956485554,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              887,
+              453,
+              1774,
+              887
+            ],
+            "source_bbox": [
+              212,
+              46,
+              744,
+              373
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 863,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_4.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "attempt": 4,
+            "source_normalization": 0.462624584717608,
+            "index": 1,
+            "rect": [
+              402,
+              191,
+              165,
+              102
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.99900389652242,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              701,
+              889,
+              1051,
+              1122
+            ],
+            "source_bbox": [
+              54,
+              57,
+              320,
+              194
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 2,
+            "rect": [
+              677,
+              198,
+              184,
+              95
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.70830428852855,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1051,
+              889,
+              1402,
+              1122
+            ],
+            "source_bbox": [
+              41,
+              39,
+              315,
+              204
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\crumpled_map\\retry\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "attempt": 3,
+            "source_normalization": 1.0276752767527675,
+            "index": 3,
+            "rect": [
+              987,
+              179,
+              189,
+              114
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.57811064687232,
+            "support_y": 289
+          }
+        ],
+        "sha256": "148f55e696696a5ae3b863bbd00d8d9087bc2d5c1732e1d7166115353ea8b766"
+      }
     }
-  ]
+  },
+  "camera_reference": "0098 C + adopted 0101a frog/snail; elevated camera evaluated visually",
+  "measurement_note": "Contact is alpha>=192 bottom8px weighted center, not anatomical foot tracking. One uniform size conversion per source sheet. Original RGBA retained; no drawing, warping, masking, background removal or mirroring."
 }

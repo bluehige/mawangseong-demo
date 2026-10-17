@@ -2,11 +2,27 @@
   "day_1": [
     {
       "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 1.9845,
+      "atk_scale": 1.16,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 3,
       "spawn_delay": 0.0,
-      "spawn_interval": 2.8,
-      "hp_scale": 2.1,
-      "atk_scale": 0.58
+      "spawn_interval": 2.24,
+      "hp_scale": 3.969,
+      "atk_scale": 1.16,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_2": [
@@ -14,360 +30,699 @@
       "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 0.0,
-      "spawn_interval": 5.0,
-      "hp_scale": 4.6,
-      "atk_scale": 0.7
+      "spawn_interval": 1.4,
+      "hp_scale": 2.9808,
+      "atk_scale": 1.4,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.0,
+      "hp_scale": 5.9616,
+      "atk_scale": 1.4,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
       "count": 1,
       "spawn_delay": 18.0,
-      "hp_scale": 3.5,
-      "atk_scale": 0.7
+      "hp_scale": 4.536,
+      "atk_scale": 1.4,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_interval": 0.96,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_3": [
     {
       "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 1.8896,
+      "atk_scale": 1.1,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 3,
       "spawn_delay": 0.0,
-      "spawn_interval": 4.5,
-      "hp_scale": 3.4,
-      "atk_scale": 0.55
+      "spawn_interval": 3.6,
+      "hp_scale": 3.7791,
+      "atk_scale": 1.21,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
       "count": 1,
       "spawn_delay": 10.0,
-      "hp_scale": 3.0,
-      "atk_scale": 0.55
+      "hp_scale": 3.3345,
+      "atk_scale": 1.21,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_interval": 0.96,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "trainee_hero",
       "count": 1,
       "spawn_delay": 18.0,
-      "hp_scale": 1.8,
-      "atk_scale": 0.55
+      "hp_scale": 1.62,
+      "atk_scale": 0.55,
+      "objective_priority": 0,
+      "route_variation": true,
+      "spawn_interval": 0.96,
+      "spawn_jitter": 0.35,
+      "formation": "front_support"
     }
   ],
   "day_4": [
     {
       "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 1.8457,
+      "atk_scale": 1.24,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 4,
       "spawn_delay": 0.0,
-      "spawn_interval": 4.0,
-      "hp_scale": 3.9,
-      "atk_scale": 0.62
+      "spawn_interval": 3.2,
+      "hp_scale": 3.9868,
+      "atk_scale": 1.24,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
-      "count": 2,
+      "count": 1,
       "spawn_delay": 14.0,
-      "spawn_interval": 6.0,
-      "hp_scale": 3.2,
-      "atk_scale": 0.62
+      "spawn_interval": 4.8,
+      "hp_scale": 3.2712,
+      "atk_scale": 1.24,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_5": [
     {
       "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 2.376,
+      "atk_scale": 1.24,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 3,
       "spawn_delay": 0.0,
-      "spawn_interval": 4.4,
-      "hp_scale": 4.0,
-      "atk_scale": 0.62
+      "spawn_interval": 3.52,
+      "hp_scale": 4.752,
+      "atk_scale": 1.116,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 16.0,
-      "spawn_interval": 5.2,
-      "hp_scale": 4.2,
-      "atk_scale": 0.64
+      "spawn_interval": 4.16,
+      "hp_scale": 4.9896,
+      "atk_scale": 1.152,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_6": [
     {
       "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 4.0824,
+      "atk_scale": 1.28,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 3,
       "spawn_delay": 0.0,
-      "spawn_interval": 4.8,
-      "hp_scale": 4.2,
-      "atk_scale": 0.64
+      "spawn_interval": 3.84,
+      "hp_scale": 8.1648,
+      "atk_scale": 1.216,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
-      "count": 2,
+      "count": 1,
       "spawn_delay": 12.0,
-      "spawn_interval": 7.0,
-      "hp_scale": 3.6,
-      "atk_scale": 0.66
+      "spawn_interval": 5.6,
+      "hp_scale": 6.9984,
+      "atk_scale": 1.254,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_7": [
     {
       "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 3.267,
+      "atk_scale": 1.32,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 4,
       "spawn_delay": 0.0,
-      "spawn_interval": 4.2,
-      "hp_scale": 4.4,
-      "atk_scale": 0.66
+      "spawn_interval": 3.36,
+      "hp_scale": 6.534,
+      "atk_scale": 1.122,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
-      "count": 2,
+      "count": 1,
       "spawn_delay": 14.0,
-      "spawn_interval": 6.5,
-      "hp_scale": 3.8,
-      "atk_scale": 0.68
+      "spawn_interval": 5.2,
+      "hp_scale": 5.643,
+      "atk_scale": 1.156,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_8": [
     {
       "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 4.4179,
+      "atk_scale": 1.12,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 4,
       "spawn_delay": 0.0,
-      "spawn_interval": 4.2,
-      "hp_scale": 4.25,
-      "atk_scale": 0.56
+      "spawn_interval": 3.36,
+      "hp_scale": 11.4865,
+      "atk_scale": 1.12,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
       "count": 1,
       "spawn_delay": 20.0,
-      "spawn_interval": 7.0,
-      "hp_scale": 3.6,
-      "atk_scale": 0.56
+      "spawn_interval": 5.6,
+      "hp_scale": 9.7297,
+      "atk_scale": 1.12,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_9": [
     {
       "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 4.8195,
+      "atk_scale": 1.04,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 3,
       "spawn_delay": 0.0,
-      "spawn_interval": 4.4,
-      "hp_scale": 4.25,
-      "atk_scale": 0.52
+      "spawn_interval": 3.52,
+      "hp_scale": 9.639,
+      "atk_scale": 1.2917,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 11.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.2,
-      "atk_scale": 0.55
+      "spawn_interval": 0.8,
+      "hp_scale": 4.9896,
+      "atk_scale": 1.3662,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
-      "count": 2,
+      "count": 1,
       "spawn_delay": 19.0,
-      "spawn_interval": 7.0,
-      "hp_scale": 3.35,
-      "atk_scale": 0.55
+      "spawn_interval": 5.6,
+      "hp_scale": 7.5978,
+      "atk_scale": 1.3662,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_10": [
     {
       "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 4.5806,
+      "atk_scale": 1.08,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 3,
       "spawn_delay": 0.0,
-      "spawn_interval": 4.1,
-      "hp_scale": 4.35,
-      "atk_scale": 0.54
+      "spawn_interval": 3.28,
+      "hp_scale": 11.4514,
+      "atk_scale": 1.08,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 12.5,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.3,
-      "atk_scale": 0.58
+      "spawn_interval": 0.8,
+      "hp_scale": 6.0548,
+      "atk_scale": 1.16,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
       "count": 1,
       "spawn_delay": 20.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 3.5,
-      "atk_scale": 0.56
+      "spawn_interval": 0.8,
+      "hp_scale": 9.2138,
+      "atk_scale": 1.12,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "trainee_hero",
       "count": 1,
       "spawn_delay": 30.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 0.9,
-      "atk_scale": 0.35
+      "spawn_interval": 0.8,
+      "hp_scale": 2.3693,
+      "atk_scale": 0.7,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_11": [
     {
       "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 4.8762,
+      "atk_scale": 1.08,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 4,
       "spawn_delay": 0.0,
-      "spawn_interval": 4.2,
-      "hp_scale": 4.3,
-      "atk_scale": 0.54
+      "spawn_interval": 3.36,
+      "hp_scale": 12.1905,
+      "atk_scale": 1.08,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 15.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.25,
-      "atk_scale": 0.56
+      "spawn_interval": 0.8,
+      "hp_scale": 6.3788,
+      "atk_scale": 1.12,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
-      "count": 2,
+      "count": 1,
       "spawn_delay": 24.0,
-      "spawn_interval": 7.0,
-      "hp_scale": 3.45,
-      "atk_scale": 0.54
+      "spawn_interval": 5.6,
+      "hp_scale": 9.7808,
+      "atk_scale": 1.08,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_12": [
     {
       "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 5.103,
+      "atk_scale": 1.0,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 4,
       "spawn_delay": 0.0,
-      "spawn_interval": 4.1,
-      "hp_scale": 4.2,
-      "atk_scale": 0.5
+      "spawn_interval": 3.28,
+      "hp_scale": 13.0024,
+      "atk_scale": 1.0,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 15.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.15,
-      "atk_scale": 0.52
+      "spawn_interval": 0.8,
+      "hp_scale": 6.6561,
+      "atk_scale": 1.04,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
-      "count": 2,
+      "count": 1,
       "spawn_delay": 34.0,
-      "spawn_interval": 8.5,
-      "hp_scale": 3.25,
-      "atk_scale": 0.5
+      "spawn_interval": 6.8,
+      "hp_scale": 10.0615,
+      "atk_scale": 1.0,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "trainee_hero",
       "count": 1,
       "spawn_delay": 50.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 0.28,
-      "atk_scale": 0.18
+      "spawn_interval": 0.8,
+      "hp_scale": 0.8668,
+      "atk_scale": 0.36,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_13": [
     {
       "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 6.1992,
+      "atk_scale": 1.0,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 3,
       "spawn_delay": 0.0,
-      "spawn_interval": 4.3,
-      "hp_scale": 4.1,
-      "atk_scale": 0.5
+      "spawn_interval": 3.44,
+      "hp_scale": 12.3984,
+      "atk_scale": 1.0625,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 12.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.0,
-      "atk_scale": 0.48
+      "spawn_interval": 0.8,
+      "hp_scale": 6.048,
+      "atk_scale": 1.02,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 23.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.05,
-      "atk_scale": 0.52
+      "spawn_interval": 0.8,
+      "hp_scale": 6.1992,
+      "atk_scale": 1.105,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
-      "count": 2,
+      "count": 1,
       "spawn_delay": 37.0,
-      "spawn_interval": 8.0,
-      "hp_scale": 3.15,
-      "atk_scale": 0.5
+      "spawn_interval": 6.4,
+      "hp_scale": 9.5256,
+      "atk_scale": 1.0625,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_14": [
     {
       "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 6.667,
+      "atk_scale": 1.0,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 3,
       "spawn_delay": 0.0,
-      "spawn_interval": 4.1,
-      "hp_scale": 4.15,
-      "atk_scale": 0.5
+      "spawn_interval": 3.28,
+      "hp_scale": 13.3339,
+      "atk_scale": 1.1,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 16.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.05,
-      "atk_scale": 0.52
+      "spawn_interval": 0.8,
+      "hp_scale": 6.5867,
+      "atk_scale": 1.144,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 28.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.6,
-      "atk_scale": 0.48
+      "spawn_interval": 0.8,
+      "hp_scale": 5.1408,
+      "atk_scale": 1.056,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
-      "count": 2,
+      "count": 1,
       "spawn_delay": 40.0,
-      "spawn_interval": 10.0,
-      "hp_scale": 2.8,
-      "atk_scale": 0.5
+      "spawn_interval": 8.0,
+      "hp_scale": 8.9964,
+      "atk_scale": 1.1,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_15": [
     {
       "enemy_id": "explorer",
-      "count": 2,
+      "count": 3,
       "spawn_delay": 0.0,
-      "spawn_interval": 4.2,
-      "hp_scale": 4.1,
-      "atk_scale": 0.5
+      "spawn_interval": 1.4,
+      "hp_scale": 4.428,
+      "atk_scale": 1.0,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 3.36,
+      "hp_scale": 6.4034,
+      "atk_scale": 2.5889,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 11.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.05,
-      "atk_scale": 0.52
+      "spawn_interval": 0.8,
+      "hp_scale": 4.5608,
+      "atk_scale": 2.5742,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 22.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.55,
-      "atk_scale": 0.48
+      "spawn_interval": 0.8,
+      "hp_scale": 3.4484,
+      "atk_scale": 2.3762,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
       "count": 1,
       "spawn_delay": 35.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.75,
-      "atk_scale": 0.48
+      "spawn_interval": 0.8,
+      "hp_scale": 6.1182,
+      "atk_scale": 2.3762,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "selen_trainee_paladin",
       "count": 1,
       "spawn_delay": 48.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.12,
-      "atk_scale": 0.42
+      "spawn_interval": 0.8,
+      "hp_scale": 6.2793,
+      "atk_scale": 3.3267,
+      "objective_priority": 0.9,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_16": [
@@ -375,665 +730,1236 @@
       "enemy_id": "explorer",
       "count": 3,
       "spawn_delay": 0.0,
-      "spawn_interval": 4.2,
-      "hp_scale": 4.1,
-      "atk_scale": 0.5
+      "spawn_interval": 1.4,
+      "hp_scale": 5.8117,
+      "atk_scale": 1.0,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 3.36,
+      "hp_scale": 12.6162,
+      "atk_scale": 1.3431,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 15.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.05,
-      "atk_scale": 0.52
+      "spawn_interval": 0.8,
+      "hp_scale": 6.308,
+      "atk_scale": 1.3968,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 27.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.55,
-      "atk_scale": 0.48
+      "spawn_interval": 0.8,
+      "hp_scale": 4.7695,
+      "atk_scale": 1.2894,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
       "count": 1,
       "spawn_delay": 39.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.75,
-      "atk_scale": 0.48
+      "spawn_interval": 0.8,
+      "hp_scale": 8.462,
+      "atk_scale": 1.2894,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_17": [
     {
       "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 9.504,
+      "atk_scale": 0.96,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0.05,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 0.0,
-      "spawn_interval": 5.0,
-      "hp_scale": 4.0,
-      "atk_scale": 0.48
+      "spawn_interval": 4.0,
+      "hp_scale": 18.4378,
+      "atk_scale": 1.497,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
       "count": 1,
       "spawn_delay": 10.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.65,
-      "atk_scale": 0.46
+      "spawn_interval": 0.8,
+      "hp_scale": 12.215,
+      "atk_scale": 1.4346,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 22.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.0,
-      "atk_scale": 0.48
+      "spawn_interval": 0.8,
+      "hp_scale": 9.2189,
+      "atk_scale": 1.497,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
       "count": 1,
       "spawn_delay": 34.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.65,
-      "atk_scale": 0.46
+      "spawn_interval": 0.8,
+      "hp_scale": 12.215,
+      "atk_scale": 1.4346,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_18": [
     {
       "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 9.6255,
+      "atk_scale": 0.96,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 0.0,
-      "spawn_interval": 5.0,
-      "hp_scale": 4.0,
-      "atk_scale": 0.48
+      "spawn_interval": 4.0,
+      "hp_scale": 18.866,
+      "atk_scale": 1.1601,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
-      "count": 2,
+      "count": 1,
       "spawn_delay": 12.0,
-      "spawn_interval": 26.0,
-      "hp_scale": 2.65,
-      "atk_scale": 0.46
+      "spawn_interval": 20.8,
+      "hp_scale": 12.4987,
+      "atk_scale": 1.1117,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 22.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.0,
-      "atk_scale": 0.48
+      "spawn_interval": 0.8,
+      "hp_scale": 9.433,
+      "atk_scale": 1.1601,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 34.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.3,
+      "spawn_interval": 0.8,
+      "hp_scale": 6.1315,
       "def_scale": 0.6,
-      "atk_scale": 0.48
+      "atk_scale": 1.1601,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_19": [
     {
       "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 6.3,
+      "atk_scale": 1.68,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 0.0,
-      "spawn_interval": 5.0,
-      "hp_scale": 4.0,
-      "atk_scale": 0.48
+      "spawn_interval": 4.0,
+      "hp_scale": 12.6,
+      "atk_scale": 3.024,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 14.0,
-      "spawn_interval": 4.0,
-      "hp_scale": 1.85,
-      "atk_scale": 0.46
+      "spawn_interval": 3.2,
+      "hp_scale": 5.8275,
+      "atk_scale": 2.898,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 20.0,
-      "spawn_interval": 4.0,
-      "hp_scale": 1.15,
+      "spawn_interval": 3.2,
+      "hp_scale": 3.6225,
       "def_scale": 0.65,
-      "atk_scale": 0.46
+      "atk_scale": 2.898,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
       "count": 1,
       "spawn_delay": 36.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.55,
-      "atk_scale": 0.45
+      "spawn_interval": 0.8,
+      "hp_scale": 8.0325,
+      "atk_scale": 2.835,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "trainee_hero",
       "count": 1,
       "spawn_delay": 48.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 0.75,
-      "atk_scale": 0.35
+      "spawn_interval": 0.8,
+      "hp_scale": 2.3625,
+      "atk_scale": 2.205,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_20": [
     {
       "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 7.245,
+      "atk_scale": 1.61,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 0.0,
-      "spawn_interval": 5.0,
-      "hp_scale": 4.0,
-      "atk_scale": 0.46
+      "spawn_interval": 4.4,
+      "hp_scale": 16.2288,
+      "atk_scale": 3.0461,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "engineer",
       "count": 1,
       "spawn_delay": 15.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.8,
-      "atk_scale": 0.45
+      "spawn_interval": 0.8,
+      "hp_scale": 7.303,
+      "atk_scale": 2.9799,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 25.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.15,
+      "spawn_interval": 0.8,
+      "hp_scale": 4.6658,
       "def_scale": 0.65,
-      "atk_scale": 0.44
+      "atk_scale": 2.9137,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "engineer",
       "count": 1,
       "spawn_delay": 36.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.8,
-      "atk_scale": 0.45
+      "spawn_interval": 0.8,
+      "hp_scale": 7.303,
+      "atk_scale": 2.9799,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 48.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.75,
-      "atk_scale": 0.45
+      "spawn_interval": 0.8,
+      "hp_scale": 7.1001,
+      "atk_scale": 2.9799,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "roman",
       "count": 1,
       "spawn_delay": 56.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 0.78,
-      "atk_scale": 0.42,
-      "def_scale": 0.82
+      "spawn_interval": 0.8,
+      "hp_scale": 3.1647,
+      "atk_scale": 2.7812,
+      "def_scale": 0.82,
+      "objective_priority": 0.6,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_21": [
     {
       "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 9.135,
+      "atk_scale": 1.645,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 0.0,
-      "spawn_interval": 5.0,
-      "hp_scale": 4.0,
-      "atk_scale": 0.47
+      "spawn_interval": 4.0,
+      "hp_scale": 20.097,
+      "atk_scale": 1.645,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "selen_trainee_paladin",
       "count": 1,
       "spawn_delay": 11.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 0.75,
-      "atk_scale": 0.48,
-      "def_scale": 0.85
+      "spawn_interval": 0.8,
+      "hp_scale": 3.7683,
+      "atk_scale": 1.68,
+      "def_scale": 0.85,
+      "objective_priority": 0.6,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 22.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.2,
-      "atk_scale": 0.45,
-      "def_scale": 0.65
+      "spawn_interval": 0.8,
+      "hp_scale": 6.0291,
+      "atk_scale": 1.575,
+      "def_scale": 0.65,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "explorer",
       "count": 1,
       "spawn_delay": 31.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 4.0,
-      "atk_scale": 0.47
+      "spawn_interval": 0.8,
+      "hp_scale": 20.097,
+      "atk_scale": 1.645,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 42.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.8,
-      "atk_scale": 0.46
+      "spawn_interval": 0.8,
+      "hp_scale": 9.0437,
+      "atk_scale": 1.61,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_22": [
     {
       "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 10.332,
+      "atk_scale": 1.68,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0.05,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 0.0,
-      "spawn_interval": 6.0,
-      "hp_scale": 4.1,
-      "atk_scale": 0.48
+      "spawn_interval": 4.8,
+      "hp_scale": 21.5468,
+      "atk_scale": 1.7136,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 12.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.0,
-      "atk_scale": 0.47
+      "spawn_interval": 0.8,
+      "hp_scale": 10.5106,
+      "atk_scale": 1.6778,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "engineer",
       "count": 1,
       "spawn_delay": 18.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.95,
-      "atk_scale": 0.46
+      "spawn_interval": 0.8,
+      "hp_scale": 10.2477,
+      "atk_scale": 1.6422,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "explorer",
       "count": 1,
       "spawn_delay": 26.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 4.1,
-      "atk_scale": 0.48
+      "spawn_interval": 0.8,
+      "hp_scale": 21.5468,
+      "atk_scale": 1.7136,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
       "count": 1,
       "spawn_delay": 34.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.8,
-      "atk_scale": 0.46
+      "spawn_interval": 0.8,
+      "hp_scale": 14.7148,
+      "atk_scale": 1.6422,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_23": [
     {
       "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 11.3006,
+      "atk_scale": 1.68,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 0.0,
-      "spawn_interval": 6.0,
-      "hp_scale": 4.1,
-      "atk_scale": 0.48
+      "spawn_interval": 4.8,
+      "hp_scale": 23.564,
+      "atk_scale": 1.9152,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 14.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.25,
-      "atk_scale": 0.46,
-      "def_scale": 0.68
+      "spawn_interval": 0.8,
+      "hp_scale": 7.1842,
+      "atk_scale": 1.8354,
+      "def_scale": 0.68,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 22.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.0,
-      "atk_scale": 0.47
+      "spawn_interval": 0.8,
+      "hp_scale": 11.4945,
+      "atk_scale": 1.8752,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "engineer",
       "count": 1,
       "spawn_delay": 30.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.95,
-      "atk_scale": 0.46
+      "spawn_interval": 0.8,
+      "hp_scale": 11.2073,
+      "atk_scale": 1.8354,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "explorer",
       "count": 1,
       "spawn_delay": 38.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 4.1,
-      "atk_scale": 0.48
+      "spawn_interval": 0.8,
+      "hp_scale": 23.564,
+      "atk_scale": 1.9152,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "thief",
       "count": 1,
       "spawn_delay": 46.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.8,
-      "atk_scale": 0.46
+      "spawn_interval": 0.8,
+      "hp_scale": 16.0926,
+      "atk_scale": 1.8354,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_24": [
     {
       "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 8.4971,
+      "atk_scale": 1.715,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 0.0,
-      "spawn_interval": 6.0,
-      "hp_scale": 4.15,
-      "atk_scale": 0.49
+      "spawn_interval": 4.8,
+      "hp_scale": 21.2429,
+      "atk_scale": 1.8865,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 12.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.3,
-      "atk_scale": 0.47,
-      "def_scale": 0.68
+      "spawn_interval": 0.8,
+      "hp_scale": 6.6544,
+      "atk_scale": 1.8095,
+      "def_scale": 0.68,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "engineer",
       "count": 1,
       "spawn_delay": 24.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.0,
-      "atk_scale": 0.47
+      "spawn_interval": 0.8,
+      "hp_scale": 10.2375,
+      "atk_scale": 1.8095,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "explorer",
       "count": 1,
       "spawn_delay": 30.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 4.15,
-      "atk_scale": 0.49
+      "spawn_interval": 0.8,
+      "hp_scale": 21.2429,
+      "atk_scale": 1.8865,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 36.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.3,
-      "atk_scale": 0.47,
-      "def_scale": 0.68
+      "spawn_interval": 0.8,
+      "hp_scale": 6.6544,
+      "atk_scale": 1.8095,
+      "def_scale": 0.68,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 39.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.05,
-      "atk_scale": 0.48
+      "spawn_interval": 0.8,
+      "hp_scale": 10.4935,
+      "atk_scale": 1.848,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_25": [
     {
       "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 7.0265,
+      "atk_scale": 1.715,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 0.0,
-      "spawn_interval": 5.0,
-      "hp_scale": 4.15,
-      "atk_scale": 0.49
+      "spawn_interval": 4.0,
+      "hp_scale": 14.053,
+      "atk_scale": 2.1952,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "trainee_hero",
       "count": 1,
       "spawn_delay": 13.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.65,
-      "atk_scale": 0.55,
-      "def_scale": 0.95
+      "spawn_interval": 0.8,
+      "hp_scale": 5.5873,
+      "atk_scale": 2.464,
+      "def_scale": 0.95,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 24.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.3,
-      "atk_scale": 0.47,
-      "def_scale": 0.68
+      "spawn_interval": 0.8,
+      "hp_scale": 4.4022,
+      "atk_scale": 2.1056,
+      "def_scale": 0.68,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "engineer",
       "count": 1,
       "spawn_delay": 34.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.0,
-      "atk_scale": 0.47
+      "spawn_interval": 0.8,
+      "hp_scale": 6.7725,
+      "atk_scale": 2.1056,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 46.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.05,
-      "atk_scale": 0.48
+      "spawn_interval": 0.8,
+      "hp_scale": 6.9418,
+      "atk_scale": 2.1504,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_26": [
     {
       "enemy_id": "explorer",
+      "count": 3,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 8.4341,
+      "atk_scale": 1.75,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 0.0,
-      "spawn_interval": 5.0,
-      "hp_scale": 4.2,
-      "atk_scale": 0.5
+      "spawn_interval": 4.0,
+      "hp_scale": 16.8682,
+      "atk_scale": 1.75,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "selen_trainee_paladin",
       "count": 1,
       "spawn_delay": 10.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 0.88,
-      "atk_scale": 0.52,
-      "def_scale": 0.9
+      "spawn_interval": 0.8,
+      "hp_scale": 3.5343,
+      "atk_scale": 1.82,
+      "def_scale": 0.9,
+      "objective_priority": 0.6,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 20.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.35,
-      "atk_scale": 0.48,
-      "def_scale": 0.7
+      "spawn_interval": 0.8,
+      "hp_scale": 5.422,
+      "atk_scale": 1.68,
+      "def_scale": 0.7,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "engineer",
       "count": 1,
       "spawn_delay": 32.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.05,
-      "atk_scale": 0.48
+      "spawn_interval": 0.8,
+      "hp_scale": 8.2333,
+      "atk_scale": 1.68,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 42.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.35,
-      "atk_scale": 0.48,
-      "def_scale": 0.7
+      "spawn_interval": 0.8,
+      "hp_scale": 5.422,
+      "atk_scale": 1.68,
+      "def_scale": 0.7,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 50.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.1,
-      "atk_scale": 0.49
+      "spawn_interval": 0.8,
+      "hp_scale": 8.4342,
+      "atk_scale": 1.715,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_27": [
     {
       "enemy_id": "explorer",
+      "count": 4,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 6.12,
+      "atk_scale": 2.295,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 0.0,
-      "spawn_interval": 5.0,
-      "hp_scale": 4.25,
-      "atk_scale": 0.51
+      "spawn_interval": 4.0,
+      "hp_scale": 12.1788,
+      "atk_scale": 4.0813,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 11.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.4,
-      "atk_scale": 0.49,
-      "def_scale": 0.72
+      "spawn_interval": 0.8,
+      "hp_scale": 4.0118,
+      "atk_scale": 3.9211,
+      "def_scale": 0.72,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "engineer",
       "count": 1,
       "spawn_delay": 16.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.15,
-      "atk_scale": 0.49
+      "spawn_interval": 0.8,
+      "hp_scale": 6.161,
+      "atk_scale": 3.9211,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 33.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.4,
-      "atk_scale": 0.49,
-      "def_scale": 0.72
+      "spawn_interval": 0.8,
+      "hp_scale": 4.0118,
+      "atk_scale": 3.9211,
+      "def_scale": 0.72,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "engineer",
       "count": 1,
       "spawn_delay": 38.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.15,
-      "atk_scale": 0.49
+      "spawn_interval": 0.8,
+      "hp_scale": 6.161,
+      "atk_scale": 3.9211,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 2,
       "spawn_delay": 44.0,
-      "spawn_interval": 5.0,
-      "hp_scale": 1.95,
-      "atk_scale": 0.5
+      "spawn_interval": 4.0,
+      "hp_scale": 5.5879,
+      "atk_scale": 4.0012,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
   "day_28": [
     {
       "enemy_id": "explorer",
+      "count": 4,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 6.192,
+      "atk_scale": 2.295,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 0.0,
-      "spawn_interval": 5.0,
-      "hp_scale": 4.3,
-      "atk_scale": 0.51
+      "spawn_interval": 4.0,
+      "hp_scale": 12.384,
+      "atk_scale": 4.2917,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 12.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.0,
-      "atk_scale": 0.5
+      "spawn_interval": 0.8,
+      "hp_scale": 5.76,
+      "atk_scale": 4.2075,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 17.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.42,
-      "atk_scale": 0.49,
-      "def_scale": 0.72
+      "spawn_interval": 0.8,
+      "hp_scale": 4.0896,
+      "atk_scale": 4.1234,
+      "def_scale": 0.72,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "engineer",
       "count": 1,
       "spawn_delay": 22.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.2,
-      "atk_scale": 0.49
+      "spawn_interval": 0.8,
+      "hp_scale": 6.336,
+      "atk_scale": 4.1234,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 35.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.42,
-      "atk_scale": 0.49,
-      "def_scale": 0.72
+      "spawn_interval": 0.8,
+      "hp_scale": 4.0896,
+      "atk_scale": 4.1234,
+      "def_scale": 0.72,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "engineer",
       "count": 1,
       "spawn_delay": 40.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.2,
-      "atk_scale": 0.49
+      "spawn_interval": 0.8,
+      "hp_scale": 6.336,
+      "atk_scale": 4.1234,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 50.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.0,
-      "atk_scale": 0.5
+      "spawn_interval": 0.8,
+      "hp_scale": 5.76,
+      "atk_scale": 4.2075,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ],
-  "day_29": [],
-  "day_30": [
+  "day_29": [
+    {
+      "enemy_id": "explorer",
+      "count": 4,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 6.192,
+      "atk_scale": 2.295,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
     {
       "enemy_id": "explorer",
       "count": 2,
       "spawn_delay": 0.0,
-      "spawn_interval": 5.0,
-      "hp_scale": 4.3,
-      "atk_scale": 0.51,
-      "finale_phase": "kingdom_vanguard"
+      "spawn_interval": 4.0,
+      "hp_scale": 12.384,
+      "atk_scale": 4.2917,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 12.0,
+      "spawn_interval": 0.8,
+      "hp_scale": 5.76,
+      "atk_scale": 4.2075,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 17.0,
+      "spawn_interval": 0.8,
+      "hp_scale": 4.0896,
+      "atk_scale": 4.1234,
+      "def_scale": 0.72,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
+    },
+    {
+      "enemy_id": "engineer",
+      "count": 1,
+      "spawn_delay": 22.0,
+      "spawn_interval": 0.8,
+      "hp_scale": 6.336,
+      "atk_scale": 4.1234,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
+    },
+    {
+      "enemy_id": "shieldbearer",
+      "count": 1,
+      "spawn_delay": 35.0,
+      "spawn_interval": 0.8,
+      "hp_scale": 4.0896,
+      "atk_scale": 4.1234,
+      "def_scale": 0.72,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
+    },
+    {
+      "enemy_id": "engineer",
+      "count": 1,
+      "spawn_delay": 40.0,
+      "spawn_interval": 0.8,
+      "hp_scale": 6.336,
+      "atk_scale": 4.1234,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
+    },
+    {
+      "enemy_id": "investigator",
+      "count": 1,
+      "spawn_delay": 50.0,
+      "spawn_interval": 0.8,
+      "hp_scale": 5.76,
+      "atk_scale": 4.2075,
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
+    }
+  ],
+  "day_30": [
+    {
+      "enemy_id": "explorer",
+      "count": 4,
+      "spawn_delay": 0.0,
+      "spawn_interval": 1.4,
+      "hp_scale": 6.966,
+      "atk_scale": 2.295,
+      "spawn_jitter": 0.35,
+      "route_variation": true,
+      "objective_priority": 0,
+      "formation": "front_pressure"
+    },
+    {
+      "enemy_id": "explorer",
+      "count": 2,
+      "spawn_delay": 0.0,
+      "spawn_interval": 4.0,
+      "hp_scale": 13.7927,
+      "atk_scale": 2.6392,
+      "finale_phase": "kingdom_vanguard",
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 8.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.44,
-      "atk_scale": 0.5,
+      "spawn_interval": 0.8,
+      "hp_scale": 4.6189,
+      "atk_scale": 2.5875,
       "def_scale": 0.74,
-      "finale_phase": "kingdom_vanguard"
+      "finale_phase": "kingdom_vanguard",
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "shieldbearer",
       "count": 1,
       "spawn_delay": 16.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.44,
-      "atk_scale": 0.5,
+      "spawn_interval": 0.8,
+      "hp_scale": 4.6189,
+      "atk_scale": 2.5875,
       "def_scale": 0.74,
-      "finale_phase": "kingdom_vanguard"
+      "finale_phase": "kingdom_vanguard",
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "investigator",
       "count": 1,
       "spawn_delay": 18.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 2.05,
-      "atk_scale": 0.5,
-      "finale_phase": "kingdom_vanguard"
+      "spawn_interval": 0.8,
+      "hp_scale": 6.5756,
+      "atk_scale": 2.5875,
+      "finale_phase": "kingdom_vanguard",
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "selen_trainee_paladin",
       "count": 1,
       "spawn_delay": 24.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 0.92,
-      "atk_scale": 0.53,
+      "spawn_interval": 0.8,
+      "hp_scale": 2.951,
+      "atk_scale": 2.7427,
       "def_scale": 0.92,
-      "finale_phase": "selen_engineer_assault"
+      "finale_phase": "selen_engineer_assault",
+      "objective_priority": 0.6,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "engineer",
       "count": 2,
       "spawn_delay": 34.0,
-      "spawn_interval": 7.0,
-      "hp_scale": 2.2,
-      "atk_scale": 0.5,
-      "finale_phase": "selen_engineer_assault"
+      "spawn_interval": 5.6,
+      "hp_scale": 7.0567,
+      "atk_scale": 2.5875,
+      "finale_phase": "selen_engineer_assault",
+      "objective_priority": 1,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     },
     {
       "enemy_id": "official_hero_leon",
       "count": 1,
       "spawn_delay": 54.0,
-      "spawn_interval": 1.0,
-      "hp_scale": 1.0,
-      "atk_scale": 1.0,
+      "spawn_interval": 0.8,
+      "hp_scale": 3.2076,
+      "atk_scale": 5.175,
       "def_scale": 1.0,
-      "finale_phase": "official_hero_duel"
+      "finale_phase": "official_hero_duel",
+      "objective_priority": 0.6,
+      "route_variation": true,
+      "spawn_jitter": 0.35,
+      "formation": "objective_push"
     }
   ]
 }

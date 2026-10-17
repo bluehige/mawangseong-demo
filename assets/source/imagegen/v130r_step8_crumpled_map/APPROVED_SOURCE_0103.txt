@@ -1,0 +1,54 @@
+# crumpled_map retry / 0103
+
+Generation model: GPT internal image generation
+Generated date: 2026-10-17
+Target version: 1.3.0
+Status: ACCEPTED_OFFLINE_NOT_INTEGRATED
+
+Source image path: _mockup/monsters_v130r/quarter_final/crumpled_map/retry/approved_0101a_camera.png
+Source SHA-256: 8e7020529a261915f4b6a0bfe4ba318bc08ad70e80b3633cf6d92a2b180cc6f5
+Source image path: _mockup/monsters_v130r/quarter_final/crumpled_map/retry/approved_C_camera.png
+Source SHA-256: 1e73c910d483994e3741addf53462f6746fb03c6cb0c7f4f219fedb71cac2097
+Source image path: _mockup/monsters_v130r/quarter_final/crumpled_map/retry/attempt_1_review.png
+Source SHA-256: 286334cc3cfb34b3b6f3c29455d67c50fa8830e90da2f4f967ee5e0b488ff09a
+Source image path: _mockup/monsters_v130r/quarter_final/crumpled_map/retry/attempt_2_review.png
+Source SHA-256: 63b35bd39ec08acb91bf7aff5c907d65e92ab7d5e786ea4ed563e68e1da331c7
+Source image path: _mockup/monsters_v130r/quarter_final/crumpled_map/retry/attempt_3_review.png
+Source SHA-256: 64df9804c2719b870f1d4a645118a7d26c6000c82dd8a27ebcbce6e209074d5c
+Source image path: _mockup/monsters_v130r/quarter_final/crumpled_map/retry/attempt_4_review.png
+Source SHA-256: ff5e97545508dd5c697f2646e82c9fc737622b7b097b11fcf917f19abc31cb5a
+Source image path: _mockup/monsters_v130r/quarter_final/crumpled_map/retry/final_40_review.png
+Source SHA-256: c14979179a826f137eae7fbc6fbd23aaa3b289794134d55526da6b8bb20adf6e
+Source image path: _mockup/monsters_v130r/quarter_final/crumpled_map/retry/generated_attempt_1.png
+Source SHA-256: f22d56bc08bf3ad1ed605090a69be40decac051eef7d2a572d93cb29799e3406
+Source image path: _mockup/monsters_v130r/quarter_final/crumpled_map/retry/generated_attempt_2.png
+Source SHA-256: 90f8ecf11ca77c830ac911aac783b7e790f80e5979cde109205970439bc84e90
+Source image path: _mockup/monsters_v130r/quarter_final/crumpled_map/retry/generated_attempt_3.png
+Source SHA-256: cb979d8ac25d6e4455b180b59eea7db60171730979094d705001b95607a5852c
+Source image path: _mockup/monsters_v130r/quarter_final/crumpled_map/retry/generated_attempt_4.png
+Source SHA-256: e061d5f7181aa88134076bf59eb2c3749f9c211427842976383f805a94fe218e
+Source image path: _mockup/monsters_v130r/quarter_final/crumpled_map/retry/reference.png
+Source SHA-256: 200fdedd6e61c201be302ee76f8dd501fcbc9434f1d035597fdaf98a81cfe8d9
+Source image path: _mockup/monsters_v130r/quarter_final/review_0103.png
+Source SHA-256: 5bb494e6d9a056194210025d1c54c5fd6727c9dba97670863989e76489556907
+Source image path: _mockup/monsters_v130r/quarter_final/review_0103_review.png
+Source SHA-256: f9f2dc1793f5a27cd31d626ba73b97cf0e3dae0e19c9218dbcb708a41b797a25
+Runtime image path: assets/sprites/v130r/quarter_final/crumpled_map/crumpled_map_hurt_ne.png
+Runtime SHA-256: 148f55e696696a5ae3b863bbd00d8d9087bc2d5c1732e1d7166115353ea8b766
+Runtime image path: assets/sprites/v130r/quarter_final/crumpled_map/crumpled_map_hurt_sw.png
+Runtime SHA-256: 098cfd6a2ee467dae5b33ffee4cec435f14c5a6a2dc3c2f4fd441d72f74b0717
+Runtime image path: assets/sprites/v130r/quarter_final/crumpled_map/crumpled_map_sheet.png
+Runtime SHA-256: d5b44043d62e98247cc17a28313adb745b8befc9f28af6a9ec3b9eea8377c449
+Runtime image path: assets/sprites/v130r/quarter_final/crumpled_map/crumpled_map_sheet_ne.png
+Runtime SHA-256: e72538a7a5d656208b15f6e2076cb74757f8dbae1470e82659dd358306ce70b9
+
+Original generator locations/alpha/hashes: `_mockup/monsters_v130r/quarter_final/crumpled_map/retry/generation_attempt_*.json`.
+Exact prompts and reference roles: `_mockup/monsters_v130r/quarter_final/crumpled_map/retry/prompts.md`.
+4 calls total. First rejected. Selected SW attempt2(19), NE attempt3(17), repair4(4).
+References copied/assembled from approved original pixels only. Raw4 PNGs kept unchanged in requested retry directory.
+Postprocessing: rectangular source crop; uniform scale per source sheet normalized by median unchanged floor footprint width; translation and direct alpha compositing. No pixel painting, background removal, alpha cleanup, warping, mirroring or fabricated animation. Source rectangles and sizes fully recorded in runtime art_review.json.
+Contract: combat1254x1254,4x4 edges[0,313,627,940,1254]; hurt1254x313 each4frames; logical384x384 anchor192,345; atlas support156.5,289.
+Native alpha verified numerically. Very faint detached residue outside significant-component rectangles may be omitted by rectangular cropping only.
+Visual T/F/H/E/S pass; camera angle/top-area and partially occluded2:1 shadow are visual judgements, not a3D reconstruction. Three red throne doodles on SW; some hidden on NE; tiny folds/marks vary.
+Godot not launched. No gameplay integration. Historical0101a rejections remain archived.
+0102 integrated board still needs crumpled_map replacement.

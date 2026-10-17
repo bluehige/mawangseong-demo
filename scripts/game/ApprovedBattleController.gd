@@ -70,6 +70,11 @@ func begin(map_view: Control) -> void:
 	spawn_monsters()
 	monster_skills.setup(self)
 	root.wave_manager.setup(GameState.day,DataRegistry.waves)
+	# Small seeded timing variation belongs to the approved map's wave entries.
+	for entry in root.wave_manager.schedule:
+		var jitter := maxf(0,float(entry.get("spawn_jitter",0)))
+		if jitter>0: entry.time = maxf(0,float(entry.time)+randf_range(-jitter,jitter))
+	root.wave_manager.schedule.sort_custom(func(a,b): return float(a.time)<float(b.time))
 	running = true
 
 func make_unit(id: String, stats: Dictionary, faction: String, room_id: String) -> Node:
@@ -102,9 +107,16 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	if stats.is_empty(): return
 	var unit = make_unit(enemy_id,stats,Constants.FACTION_ENEMY,"entrance")
 	var front: Array = map.layout.doors.entrance.front
-	unit.position = map.world(front[root.spawned_count%front.size()])
+	var lane: int = randi_range(0,front.size()-1) if bool(wave_entry.get("route_variation",false)) else root.spawned_count%front.size()
+	unit.position = map.world(front[lane])
 	unit.goal_room = map.goal_for(stats,unit.position,str(wave_entry.get("target_room_id","")))
+	# Recon thieves may take the other branch directly to the real vault.
+	if enemy_id=="thief" and bool(wave_entry.get("route_variation",false)) and randf()<.5 and str(wave_entry.get("target_room_id",""))=="": unit.goal_room = "vault"
+	if enemy_id=="investigator" and bool(wave_entry.get("route_variation",false)) and randf()<.5 and map.layout.doors.has("ward_core"):
+		unit.set_meta("next_objective",unit.goal_room); unit.goal_room = "ward_core"
 	unit.set_meta("goal_type",str(stats.get("goal_type","throne")))
+	var objective_chance := clampf(float(wave_entry.get("objective_priority",0)),0,1)
+	unit.set_meta("objective_priority",objective_chance>0 and randf()<objective_chance)
 	unit.set_meta("base_attack_range",unit.attack_range)
 	unit.set_path(map.path_to_point(unit.position,map.center(unit.goal_room)))
 	root.enemy_units.append(unit); root.spawned_count += 1
@@ -187,10 +199,13 @@ func return_home(unit: Node) -> void:
 
 func update_enemy_path(unit: Node) -> void:
 	if monster_skills.update_false_goal(unit): return
+	if str(unit.get_meta("next_objective",""))!="" and unit.position.distance_to(map.center(unit.goal_room))<18:
+		unit.goal_room = str(unit.get_meta("next_objective")); unit.remove_meta("next_objective")
 	if unit.unit_id=="thief" and float(root.thief_steal_timers.get(unit,0))<-100:
 		unit.goal_room = "entrance"
 	var target: Node = unit.forced_attack_target(root.monster_units,260)
-	if target==null: target = TargetingService.nearest(unit,root.monster_units,maxf(80,unit.attack_range))
+	if target==null and not bool(unit.get_meta("objective_priority",false)):
+		target = TargetingService.nearest(unit,root.monster_units,maxf(80,unit.attack_range))
 	if target!=null:
 		if _hold_attack_position(unit,target): return
 		_move_to_attack_target(unit,target,true); return
@@ -230,6 +245,9 @@ func _hold_attack_position(unit: Node, target: Node) -> bool:
 	return true
 
 func try_attack(attacker: Node, opponents: Array) -> void:
+	# Objective squads advance under fire; taunts still force an interception.
+	if attacker.faction==Constants.FACTION_ENEMY and bool(attacker.get_meta("objective_priority",false)):
+		if attacker.position.distance_to(map.center(attacker.goal_room))>=18 and attacker.forced_attack_target(root.monster_units,260)==null: return
 	if attacker==direct_unit and not attacker.path_points.is_empty(): return
 	if attacker.faction==Constants.FACTION_MONSTER and root.combat_time<command_until and command in ["rally","emergency_retreat","lure_retreat"] and not attacker.path_points.is_empty(): return
 	super.try_attack(attacker,opponents)
