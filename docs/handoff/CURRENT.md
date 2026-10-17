@@ -1,5 +1,7 @@
 ## 2026-10-17 V130R Step10B D/C 유료 건설·경유 / PARTIAL · 사용자 확인 대기
 
+repository-policy PASS: `2130d958`에서 변경10파일/3커밋 검사. 이 결과 기록은 인계 문서만 변경하며 Reviewed SHA `e9900413`의 소스는 그대로다.
+
 [인계·변경 목록](V130R_STEP10B_DC_SPREAD_2026-10-17.md), [최종400행 비교·예산·미달](../../_mockup/game_step10b_dc_spread/result_table.md), [D 추천 건설](../../_mockup/game_step10b_dc_spread/d_recommended_buildings.png), [C 두 문](../../_mockup/game_step10b_dc_spread/c_split_gates.png). 실제 작업10/18. 브랜치 `codex/v130r-defense-layout`, 기준 `18931a116c5562c2bddd12be08da76882e6c1921`, 제품·검증 `e99004132bc6753e79d9aed429d5d57d66e0e8a1`. 이 로컬 브랜치 인계이며 로컬 main 없음·원격 최신 권위 미확정 상태는 유지한다.
 
 추천 비교에 실제 비용을 지불한 D10/C12개 건물을 사용했다. DAY19 시험 금1200/마나600에서 정산한 조건부 기준 경로이며 개인 세이브 잔액이 아니다. 지도 전용 날짜 이동은 추가 금32/마나18을 주지 않는다. 이를 잘못 추가한 초기 실험은 폐기 보관하고 기준선400회를 새로 측정했다. 건설 후 D1574/434, C5896/122, DAY28은6688/246, DAY29·30은7480/254다.

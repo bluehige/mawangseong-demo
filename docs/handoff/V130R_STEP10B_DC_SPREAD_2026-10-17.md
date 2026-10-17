@@ -68,7 +68,7 @@
 | 5 | 최종400행 조합 | 중복0, 실제 제품 웨이브·소유·정산 잔액·식량·레벨 일치 | `final_rows.json`, `final_rows_summary.json` |
 | 6 | 경제 기준 재생성·직접 검사 | 10회 재생성·1,027검사/실패0, 매일 잔액·비용·소유 상태·정산6종 전부 일치 | `economy.json`, `direct_checks.json` |
 | 7 | 실제 렌더 두 화면 및 전투 결과 일치 | 1920×1080 PNG2장 육안 확인, 497검사/실패0, D21/C27 각seed0의18필드 전부 일치 | 요청 PNG2개, `capture_rows.json` |
-| 8 | 원본1751해시·수치 불변·문법·정책 | 원본1751해시 일치, 금지 수치 변경0, Python/PowerShell 문법·staged diff-check PASS. 정책 검사는 문서 커밋 뒤 실행 | `final_verification.json` |
+| 8 | 원본1751해시·수치 불변·문법·정책 | 원본1751해시 일치, 금지 수치 변경0, Python/PowerShell 문법·staged diff-check·repository-policy PASS | `final_verification.json`, 아래 정책 기록 |
 | 9 | 전체 회귀·전체 플레이·검수 에이전트·export | NOT_REQUESTED / 미실행 | 현재 요청 범위 밖 |
 
 주요 실행 명령:
@@ -106,6 +106,8 @@ headless는 체력바·자세·가림 등 표시만 생략하며 전투·이동�
 
 별도 검수 에이전트 없음. TARGETED_PASS는 직접 검사·원자료 무결성·해당 화면 확인에만 적용한다. **추천 우위·곡선 전체 목표의 PASS가 아니다.** 미달 날짜는 숨기지 않고 다음 항목에 남긴다. Reviewed SHA 이후에는 인계 문서만 변경한다.
 
+정책 검증: `tools/ci/ValidateRepositoryPolicy.ps1 -BaseRef 18931a116c5562c2bddd12be08da76882e6c1921 -HeadRef codex/v130r-defense-layout`를 문서 커밋 `2130d958911b746724b23f4aba5902122c7bd067`에서 실행했다. 결과는 `REPOSITORY_POLICY: PASS (10 final files, 3 commits inspected)`다. 이 결과 기록도 문서만 변경하며 제품·검증 SHA `e99004132bc6753e79d9aed429d5d57d66e0e8a1`은 그대로다.
+
 ## 7. 미해결 항목과 위험
 
 - 상세 결과: [result_table.md](../../_mockup/game_step10b_dc_spread/result_table.md), [final_rows.json](../../_mockup/game_step10b_dc_spread/final_rows.json), [선택 근거](../../_mockup/game_step10b_dc_spread/selection.json), [정산·비용](../../_mockup/game_step10b_dc_spread/economy.json).
@@ -130,7 +132,8 @@ headless는 체력바·자세·가림 등 표시만 생략하며 전투·이동�
 - 명시한 소스·최종 표·인계만 스테이징한다. `git add -A`, reset, stash, 브랜치 전환 없음.
 - 미커밋 산출물: `_mockup/game_step10b_dc_spread/`의 두 PNG, JSON·후보·대조 자료 및 `tmp/v130r_step10b/`의 격리 데이터·로그. 원자료·캡처를 삭제하지 않는다.
 - 초기 마나142 고정 C 후기 실험은 `scout_upgrade_wallet_rows.json`으로 보존한 미채택 자료다. 최종 DAY28/30에는 지도 전용 정산을 보정한246/254를 사용한다. 예산을 잘못 맞춘 과거 실험 행을 최종 표에 사용하지 않았다.
-- 최종 작업 트리·의도한 커밋·Godot 프로세스 수: 종료 검증 참조.
+- 소스8파일 커밋 `e99004132bc6753e79d9aed429d5d57d66e0e8a1`, 인계2파일 `4e0ffbac05c67ad687ad2d6253811a1df4fb5073`, 명령 예시 끝 공백 정리 `2130d958911b746724b23f4aba5902122c7bd067`까지 영어 로컬 커밋이다. 이 정책 결과는 후속 인계 전용 커밋으로 남긴다.
+- 종료 확인: Godot0개, 기존 `.import` 수정1307개와 보호1751파일은 보존했다. 원격 동작·main·태그·Steam·개인 세이브 수정 없음. 의도한 소스·문서는 커밋했고 캡처·원자료는 로컬에 유지했다.
 
 ## 10. 종료 체크리스트
 
