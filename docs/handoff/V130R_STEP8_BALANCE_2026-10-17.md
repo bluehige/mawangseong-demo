@@ -1,5 +1,7 @@
 # V130R Step8 — 꼬깃 시트 교체·DAY 1~30 난이도 재조정
 
+> 최신 정정: 2026-10-17 09:08 사용자 지시에 따라 DAY 29 전투 추가를 되돌렸다. 현재 DAY 29는 준비일(전투 없음)이며, 아래 0104 결과 중 DAY 29 전투 수치는 역사 기록이다. 최종 근거는 문서 끝의 §11을 따른다.
+
 ## 1. 메타데이터
 
 - 작성일: 2026-10-17 KST. WORKSTREAM_ID: V130R_STEP8_BALANCE.
@@ -230,3 +232,51 @@ DAY15는60초, DAY30은66초 이후(보스 등장 후)에 실제 살아 있는 �
 - [x] 전체 회귀·전체 플레이·별도 검수는 미요청·미실행으로 명시.
 
 사용자 확인 대기.
+
+## 11. DAY 29 준비일 복원 — 2026-10-17 후속 작업
+
+### 메타데이터와 범위
+
+- WORKSTREAM_ID: V130R_STEP8_DAY29_REVERT. 목표 버전 1.3.0, 버전 변경 없음.
+- 사용자 지시: 2026-10-17 09:08, DAY 29는 원래 적 없는 준비일 유지. 다른 날짜 수치 변경 금지.
+- 브랜치: `codex/v130r-defense-layout`.
+- 기준 SHA: 0104 `8ee2908c54b01e86750fa3a0a1df17459c08efce`.
+- 마지막 제품/직접 테스트/보고서 커밋: `db507a8686e6019c32b1385f218e5ce38f5b77b3` (`Restore DAY 29 as a preparation-only day`). 이후 변경은 이 인계와 CURRENT 문서뿐이다.
+- 원격 최신성 한계 유지: 로컬 main 부재, 캐시 origin/main `0ac9fdc7f1a5f3d2e8cc23ca2ec771873094c53b`. fetch·원격 조회·push·태그·Steam·main 변경·PR 없음.
+
+### 변경 내용과 파일
+
+- `data/waves.json`: `day_29 = []`. 0104가 추가한 8개 웨이브 항목만 제거했다. 원본 0102 `35de2147fb75e097abefa5abf5d5436e627b8771`의 DAY 29와 동일하다. 다른 모든 키/날짜의 데이터는 0104와 동일함을 JSON 대조로 확인했다.
+- `tools/tests/V130RStep8BalanceTest.gd`: `preparation_day` 설정으로 실제 DAY 29 관리일 진입과 기존 전투 시작 차단을 검사하는 직접 테스트 1개(확인 항목 7개)를 추가했다. 기존 시뮬레이션 계산은 변경하지 않았다.
+- `_mockup/game_step8_balance/balance_before_after.md`: DAY 29 결과 행을 **준비일(전투 없음)**으로 정정하고 전투 통계에서 제외했다. 다른 날짜 수치 유지.
+- `_mockup/game_step8_balance/changed_values.md`: DAY 29의 8개 변경 항목을 삭제했다. 위 두 문서는 이전에 미추적 상태였으며 이번에는 요청된 두 파일만 명시적으로 커밋했다.
+- 데스크톱 `C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/game_step8_balance/`의 같은 두 문서도 동기화했다. 기존 전후 원자료 JSON은 0104 당시 기록으로 보존했다.
+- `docs/handoff/CURRENT.md`: 이 후속 결과로 진입할 수 있도록 갱신했다.
+- 스토리·준비일 조건·보상·세이브 형식·몬스터 수치·스킬·그래픽·오디오 변경 없음. 개인 세이브 접근/수정 없음.
+
+### 검증 결과
+
+| 검증 | 결과 | 근거 |
+|---|---|---|
+| DAY 29 준비일 진입 직접 테스트 1개 | PASS, 7확인/실패0. 관리일 유지·빈 웨이브·방어 웨이브 부재·management_only 일정/시작 차단·적 미생성·날짜/옥좌 HP 유지 | `tmp/v130r_step8/day29_preparation_checks.json`, `day29_preparation_final.log`, `day29_preparation_final.err.log` |
+| DAY 28 추천 배치 10회 | 0104와 일치: 승률90%, 평균 옥좌HP42.7% | `tmp/v130r_step8/day29_revert_regression.json` |
+| DAY 30 추천 배치 10회 | 0104와 일치: 승률80%, 평균 옥좌HP38.7% | 같은 회귀 원자료 |
+| 시드별 기존 원자료 대조 | PASS. 승패·HP·시간·생성 수·금 손실·도둑/탈출/절도·시간초과·웨이브·배치·레벨 일치, 시간초과0 | `tmp/v130r_step8/check_day29_revert.py`, `day29_revert_summary.json` |
+| 다른 날짜 데이터/기존 파일 보존 | PASS. 변경 웨이브 키는 day_29 하나, 기존1397파일 SHA256 불변 | 같은 요약 및 `day29_preservation.json` |
+| 관련 변경 `git diff --check` / 스테이징 검사 | PASS | 세션 명령 출력 |
+| Godot 동시 실행/종료 | 최대1, 최종0. 격리 APPDATA/LOCALAPPDATA 사용 | 실행기 및 프로세스 확인 |
+| 전체 회귀·전체 플레이·빌드/export·별도 검수 에이전트 | NOT_REQUESTED / 미실행 | 이번 요청 범위 밖 |
+
+명령: `powershell -NoProfile -File tools/run_v130r_step8.ps1`. 회귀 설정은 `days=[28,30], layouts=[recommended], trials=10, hz=60`, seed130800~130809로 0104와 동일하다. 최종 직접 확인은 `days=[], preparation_day=true, name=day29_preparation_final`로 실행했다. 요약 대조 명령은 `python -X utf8 tmp/v130r_step8/check_day29_revert.py`이다.
+
+초기 직접 시험은 화면 진입 시 해제된 화면 참조 때문에 중단됐다. 이후 회귀20회는 완료했으나 이전 전투의 누적 생성 수를 0과 비교한 시험 조건이 실패했다. 화면 참조 의존을 제거하고 진입 전후 생성 수 불변으로 고친 최종 직접 시험은 7/7 통과했다. 회귀20회의 전투 계산은 수정하지 않았으며 0104와의 시드별 대조도 통과했다. 실패 로그는 실행기 백업에 보존했고 최종 직접 시험으로 이전 실패를 대체한다.
+
+### 최종 판정과 남은 작업
+
+- Review task ID: NOT_REQUESTED
+- Reviewed SHA: db507a8686e6019c32b1385f218e5ce38f5b77b3
+- Review range: 8ee2908c54b01e86750fa3a0a1df17459c08efce..db507a8686e6019c32b1385f218e5ce38f5b77b3
+- Remaining P1/P2: N/A
+- Final review result: TARGETED_PASS
+
+DAY 29 복원 요청의 미해결 항목 없음. 위 §3/§7과 기존 CURRENT에 있던 'DAY29 전투 추가 사용자 확인 대기'는 이번 복원 지시로 종료했다. 그 밖의 꼬깃 화면·성장/계약 가정 확인은 기존 범위로 남는다. 기존 혼합 작업트리와 미추적 자산·UID·설계 자료는 보존했으며 이번 대상 파일만 로컬 커밋했다. 공개 배포를 진행하지 않는다.
