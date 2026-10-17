@@ -1,7 +1,7 @@
 # Achievement secret icon
 - Generation model: GPT internal image generation
 - Generated date: 2026-10-18
-- Target version: 1.3.0
+- Target version: v1.3.0
 - Source image path: assets/source/imagegen/achievement_ui_v130r/question_original.png
 - Runtime image path: assets/ui/v130r/achievements/question.png
 
