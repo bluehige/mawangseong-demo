@@ -2,3 +2,5 @@ assets/audio/bgm/*.ogg filter=lfs diff=lfs merge=lfs -text
 assets/audio/bgm/v130/*.ogg filter=lfs diff=lfs merge=lfs -text
 assets/source/audio/lyria/**/source.mp3 filter=lfs diff=lfs merge=lfs -text
 tools/tests/core_verification_suite.json text eol=lf
+addons/godotsteam/godotsteam.gdextension text eol=lf
+addons/godotsteam/license.md text eol=lf
