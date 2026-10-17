@@ -110,6 +110,12 @@ func direct_story() -> void:
 		expect(not game.v130r_story.bark(game,speaker,event),"same bark cooldown "+event)
 	game.v130r_story.bark_clock += 26
 	expect(game.v130r_story.bark(game,speaker,"deployed"),"bark eligible after cooldown")
+	var child_count: int = game.ui_layer.get_child_count()
+	game.v130r_story.show_victory(game)
+	var victory_panel: Control = game.ui_layer.get_children()[-1]
+	expect(game.ui_layer.get_child_count()==child_count+1 and victory_panel.mouse_filter==Control.MOUSE_FILTER_IGNORE,"victory bark is visible without owning input")
+	await get_tree().create_timer(3.7).timeout
+	expect(not is_instance_valid(victory_panel),"victory bark expires instead of covering result controls")
 	for locale in ["ko","en","zh_CN"]:
 		LanguageSettings.set_locale(locale,false)
 		var joined: Array = game.v130r_story.join_entries("river_frog")

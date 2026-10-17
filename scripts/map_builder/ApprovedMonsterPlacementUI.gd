@@ -303,6 +303,7 @@ func show_info(id: String) -> void:
 	memory_button.text = view.root.continuity.localized("유대 기억","Bond memories","羁绊记忆")
 	memory_button.pressed.connect(func():
 		persist(); view.root.selected_monster_id = row.species_id
+		view.root.management_scene.monster_ui.inspected_id = row.species_id
 		view.root.management_scene.monster_ui.active_tab = "memory"
 		view.root._set_screen(Constants.SCREEN_MONSTER))
 	var duo_button := Button.new(); detail.add_child(duo_button)
