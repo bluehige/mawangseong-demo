@@ -1,3 +1,13 @@
+## 2026-10-17 V130R Step8B 합법 집중·경로 분산 / TARGETED_PASS
+
+[인계](V130R_STEP8B_SPREAD_2026-10-17.md), [결과 표](../../_mockup/game_step8b_spread/result_table.md). 기준0105 `414c8881b7f7664563e8843f29e8c4adc8286602`, 검수 `cb6841452e315d25831959f600ea9ff0d0f8b4d0`. E 지도·시설Lv1, 실제 API·정원·식량 안의 집중9/6/5명을 비교했다. 최초160회에서 DAY27/30 평균HP 역전을 재현하여 적 목표·경유를 분산했다. DAY17 investigator 행4: waypoint_room_id=bait_treasure; DAY19 investigator 행3: waypoint_room_id=watchtower; DAY21 investigator 행6: waypoint_room_id=recovery_nest; DAY26 engineer 행5: target_room_id=barracks; DAY27 engineer 행6: target_room_id=recovery_nest; DAY28 investigator 행3: waypoint_room_id=watchtower; DAY28 engineer 행5: target_room_id=ward_core; DAY30 engineer 행7: target_room_id=watchtower.
+
+최종750회에서 추천 승률·평균HP가 합법3종 이상,0104 곡선 이탈0건. 경로 직접78검사, 기존 계산 대응16회씩 두 묶음,75개 배치와 DAY29 시작 차단, 실제 화면2장을 확인했다. 시설 손실은 일시 무력화다. DAY29 준비일·전투 없음 유지. 과밀·새 범위 공격 미적용. 강화 이후 최대 정원은 미검증이며 범위 확인을 사용자에게 요청한 상태다.
+
+기존 1414파일 보존·세이브 미수정·Godot 동시1/종료0. 로컬 영어 커밋만. push/main/태그/Steam/PR 없음. 원격 최신성 미확인. 전체 회귀·전체 플레이·export·검수 에이전트 미요청/미실행. **다음: 사용자 확인 대기.**
+
+---
+
 ## 2026-10-17 V130R Step8 후속 — DAY 29 준비일 복원 / TARGETED_PASS
 
 사용자 09:08 지시에 따라 0104 `8ee2908c` 위에서 DAY 29 웨이브만 원본의 빈 배열로 되돌렸다. 제품/검증 커밋 `db507a8686e6019c32b1385f218e5ce38f5b77b3`, 브랜치 `codex/v130r-defense-layout`. [Step8 인계 §11](V130R_STEP8_BALANCE_2026-10-17.md#11-day-29-준비일-복원--2026-10-17-후속-작업)에 근거와 변경 파일을 기록했다.
