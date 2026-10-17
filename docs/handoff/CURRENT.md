@@ -1,3 +1,13 @@
+## 2026-10-17 V130R Step13 도전과제 100개 / TARGETED_PASS · 사용자 확인 대기
+
+[인계·정확한 변경 목록·사용자 Steam 절차](V130R_STEP13_ACHIEVEMENTS_2026-10-17.md), [100개 판정](../../_mockup/game_step13_ach/unit_tests.md), [오프라인](../../_mockup/game_step13_ach/offline_test.md), [소급](../../_mockup/game_step13_ach/retro_unlock_test.md), [Windows DLL/export](../../_mockup/game_step13_ach/export_dll_check.md). 기준 `82fec09596abd45bf2c0b723d6a0ab9f96d7720b`, 최종 제품·검증 `8ac1fce9cbd249eabfa94eb0943bbf2c31cddaf7`. 브랜치 codex/v130r-defense-layout, 0114 위. 실제 작업일 10/18. 로컬 main 없음/원격 최신 권위 미확정. 영어 로컬 커밋만 했다.
+
+지정 100개·8세트·숨김8·3언어 아이콘/기획을 가져와 AchievementService/실제 효과 카운터/고유 기록/실패 큐/세이브 소급/메뉴/토스트를 연결했다. 공식 GodotSteam4.23.1·SDK1.65·Godot4.6.3, Windows x64 debug/release DLL과 출처·SHA-256 인계. Steam 없이 타이틀 정상, 원격 stat 최고치/저장 확인·진행 팝업 콜백 분리. 개발 리셋은 debug만. 신규 GPT 그림1(네이티브 투명 프레임), 기존100개 그림 재생성0. 원문 trigger 보존, 기억74개, 바티는 소비한 표시100회. 새 소스에 공식 archive나 빌드 실행 파일은 커밋하지 않았다.
+
+직접636·오프라인640·실제화면/실전649·산출물631검사 실패0, 100개 양성/음성/중복 전수 통과. 실제 DAY1은 고정 시드130013 자연 승리. 난수 미고정1패 후 시험만 고정했고 밸런스 전수 통과를 주장하지 않는다. v1/v5 DAY2 시험 사본·합성 완료 기록·이전 저장으로 패배/굶주림이 지워지지 않는 것 검사. Windows release export/부팅 성공, DLL2개 해시 일치/PCK5024항목에 steam_appid.txt와 원본/검수 자료 없음. 필수4PNG 각각1280×720. 실제 사용자 저장 미접근/미수정, 격리 APPDATA/시험 사본만, Godot동시1/종료0. 기존 .import1307개 미커밋 유지. 전체회귀/전체캠페인/성능/별도검수 미요청·미실행. push/main/태그/Steam 업로드/게임 저장소 fetch0. **다음: 화면·토스트와 실제 Steam 클라이언트 해제 사용자 확인 대기. Steam 세트 실제 ID 등록/정의 게시/계정 해제는 사용자 후속 절차다.**
+
+---
+
 ## 2026-10-17 V130R Step14 시작 흐름 / TARGETED_PASS · 사용자 확인 대기
 
 [인계·전체 변경 목록](V130R_STEP14_START_2026-10-17.md), [수정 전 진단](../../_mockup/game_step14_start/diagnosis.md), [수정 후 순서표·캡처 안내](../../_mockup/game_step14_start/flow_after.md). 기준 `8d8d42f48e8beee6924d804afebe5b219b74314d`, 제품·검증 커밋 `7c77ac4cc2b1a3e1315e9fa2e917b7ff56d988cb`. 브랜치 `codex/v130r-defense-layout`. 사용자 10/17 19:39 요청, 실제 작업일 10/18. 로컬 main 없음/원격 최신 권위 미확정이며 영어 로컬 커밋만 했다.
