@@ -1012,7 +1012,15 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "grade_routes": {
+        "D": {
+          "atk_scale": 2.13227,
+          "attack_throne": true,
+          "attack_throne_lane": 1.0,
+          "hp_scale": 12.1716
+        }
+      }
     },
     {
       "enemy_id": "engineer",
@@ -1100,7 +1108,14 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "grade_routes": {
+        "D": {
+          "attack_throne": true,
+          "attack_throne_lane": 1.0,
+          "hp_scale": 15.07275
+        }
+      }
     },
     {
       "enemy_id": "selen_trainee_paladin",
@@ -1177,7 +1192,13 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "grade_routes": {
+        "D": {
+          "attack_throne": true,
+          "attack_throne_lane": 1.0
+        }
+      }
     },
     {
       "enemy_id": "investigator",
@@ -1251,7 +1272,15 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "grade_routes": {
+        "D": {
+          "atk_scale": 1.4,
+          "attack_throne": true,
+          "attack_throne_lane": 1.0,
+          "hp_scale": 17.90864
+        }
+      }
     },
     {
       "enemy_id": "shieldbearer",
@@ -1338,7 +1367,15 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "grade_routes": {
+        "D": {
+          "atk_scale": 1.32055,
+          "attack_throne": true,
+          "attack_throne_lane": 1.0,
+          "hp_scale": 15.932175
+        }
+      }
     },
     {
       "enemy_id": "shieldbearer",
@@ -1426,7 +1463,13 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "grade_routes": {
+        "D": {
+          "attack_throne": true,
+          "attack_throne_lane": 1.0
+        }
+      }
     },
     {
       "enemy_id": "trainee_hero",
@@ -1502,7 +1545,15 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "grade_routes": {
+        "D": {
+          "atk_scale": 1.225,
+          "attack_throne": true,
+          "attack_throne_lane": 1.0,
+          "hp_scale": 12.65115
+        }
+      }
     },
     {
       "enemy_id": "selen_trainee_paladin",
@@ -1515,7 +1566,14 @@
       "objective_priority": 0.6,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "grade_routes": {
+        "D": {
+          "atk_scale": 1.183,
+          "attack_throne": true,
+          "objective_priority": 1.0
+        }
+      }
     },
     {
       "enemy_id": "shieldbearer",
@@ -1592,7 +1650,15 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "grade_routes": {
+        "C": {
+          "atk_scale": 2.652845,
+          "attack_throne": true,
+          "attack_throne_lane": 1.0,
+          "hp_scale": 9.1341
+        }
+      }
     },
     {
       "enemy_id": "shieldbearer",
@@ -1681,7 +1747,15 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "grade_routes": {
+        "C": {
+          "atk_scale": 2.789605,
+          "attack_throne": true,
+          "attack_throne_lane": 1.0,
+          "hp_scale": 9.288
+        }
+      }
     },
     {
       "enemy_id": "investigator",
@@ -1785,7 +1859,15 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "grade_routes": {
+        "C": {
+          "atk_scale": 1.71548,
+          "attack_throne": true,
+          "attack_throne_lane": 1.0,
+          "hp_scale": 10.344525
+        }
+      }
     },
     {
       "enemy_id": "shieldbearer",
@@ -1868,7 +1950,12 @@
       "objective_priority": 0.6,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "grade_routes": {
+        "C": {
+          "objective_priority": 0.3
+        }
+      }
     }
   ]
 }

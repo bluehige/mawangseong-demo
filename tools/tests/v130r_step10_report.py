@@ -1,6 +1,7 @@
 """D/C evidence aggregation; never changes measured outcomes or wave values."""
 from pathlib import Path
 import json
+import math
 import subprocess
 from statistics import mean
 from PIL import Image
@@ -55,10 +56,12 @@ def report(name='final_rows'):
         ms={k:metrics(v) for k,v in groups.items() if v};summary[str(day)]=ms
         reference=metrics([r for r in old if r['day']==day and r['layout']=='recommended'])
         lo,hi,hlo,hhi=target(day);rec=ms.get('recommended')
-        curve=bool(rec and rec['n']==10 and lo<=rec['win']<=hi and hlo<=rec['hp']<=hhi and rec['gold']<=150)
+        curve=bool(rec and rec['n']==10 and lo<=rec['win']<=hi and hlo<=rec['hp']<=hhi and 0<=rec['gold']<=150)
         superior=bool(rec and len(ms)==4 and all(v['n']==10 and v['win']<=rec['win'] and v['hp']<=rec['hp']+.0001 for k,v in ms.items() if k!='recommended'))
         if not curve or not superior: issues.append(dict(day=day,curve=curve,superior=superior))
-        lines.append(f"| {day}/{'D' if day<27 else 'C'} | {lo}~{hi}% / {hlo}~{hhi}% | {reference['win']:.0f}% / {reference['hp']:.1f}% | "+' | '.join(cell(ms.get(k)) for k in MODES)+f" | {'충족' if curve else '미충족/미완료'} / {'충족' if superior else '미충족/미완료'} |")
+        curve_label='충족' if curve else '미충족' if rec and rec['n']==10 else '미측정'
+        superiority_label='충족' if superior else '미충족' if len(ms)==4 and all(v['n']==10 for v in ms.values()) else '미측정'
+        lines.append(f"| {day}/{'D' if day<27 else 'C'} | {lo}~{hi}% / {hlo}~{hhi}% | {reference['win']:.0f}% / {reference['hp']:.1f}% | "+' | '.join(cell(ms.get(k)) for k in MODES)+f" | {curve_label} / {superiority_label} |")
     lines+=['| 29/C | 준비일 | — | — | — | — | — | 전투 없음 |','',
       '각 결과: 승률 / 패배0 포함 평균 옥좌HP / 금고 순손실 / 고유 시설 일시 무력화. 10회 표본은 누적 캠페인 승률 추정이 아니다.','',
       '## 출전 인원 / 식량 유지비','', '| DAY | 추천 | 집중① | 집중② | 집중③ |','|---|---|---|---|---|']
@@ -75,12 +78,18 @@ def report(name='final_rows'):
     checks['day29_empty']=waves.get('day_29')==[]
     checks['measured_wave_matches_runtime']=bool(rows) and all(r['wave_entries']==waves['day_'+str(r['day'])] for r in rows)
     checks['only_requested_wave_days']=all(int(day.removeprefix('day_')) in DAYS for day,entries in waves.items() if any('grade_routes' in row for row in entries))
+    checks['finished_results']=bool(rows) and all(isinstance(r.get('win'),bool) and math.isfinite(r.get('duration',float('nan'))) and 0<r['duration']<=360 and 0<=r['throne_hp']<=r['throne_max'] and math.isfinite(r['gold_loss']) and r['gold_loss']>=0 for r in rows)
     checks['complete_and_pass']=all(value for key,value in checks.items() if key not in ['rows','expected','unique','issues'])
+    # Preserve the stricter design observation even when the requested curves pass.
+    checks['curve_pass']=all(issue['curve'] for issue in issues)
+    checks['comparison_complete']=all(summary[str(day)].get(mode,{}).get('n')==10 for day in DAYS for mode in MODES)
+    checks['recommendation_dominates']=not any(not issue['superior'] for issue in issues)
+    checks['requested_checks_pass']=all(checks[key] for key in ['complete','curve_pass','comparison_complete','legal','no_timeout','correct_map','legacy_wave_fields_unchanged','day29_empty','measured_wave_matches_runtime','only_requested_wave_days','finished_results'])
     lines+=['','## 채택한 지도·목표 규칙','',
       '- D의 레인1 진격은 아래 최종 다리를 경유한다. C는 기존 레인0/1을 서문/남문에 대응시킨다. 추가 난수 없음.',
       '- 두 칸 문 중앙을 목적지로 사용하며 실제 이동·공격·옥좌 도달이 같은 점을 참조한다. 도발·시설 목표가 우선한다.',
       '- 새 자동 추천은 돌콩·벙벙·핀·꼬깃의 옥좌 네 자리를 먼저 확보하고 C에서는 두 문으로 나눈다. 기존 저장 배치는 자동 교체하지 않는다.',
-      '- 지정한 진격 행의 우회 레인은 문 도착 후 옥좌를 우선 공격한다. 다른 레인은 기존 교전 규칙을 따르고 도발은 두 경우 모두 우선한다.',
+      '- attack_throne을 지정한 진격 병력은 문 도착 후에도 옥좌를 우선 공격한다. attack_throne_lane이 있으면 그 레인만 적용하며 도발은 항상 우선한다.',
       '- 경유·목표 우선 후보를 먼저 시험한 뒤 아래 등급별 수치만 보정했다. 몬스터 기본 능력·스킬·성장·보유·식량은 변경하지 않았다.','',
       '## waves.json 변경값','', '| DAY | 행(1부터)/적 | 지도 | 필드 | 기존 | 적용 |','|---|---|---|---|---|---|']
     changed=0
@@ -91,7 +100,12 @@ def report(name='final_rows'):
                     changed+=1
                     lines.append(f"| {day} | {index}/{row['enemy_id']} | {grade} | {field} | {row.get(field,'없음')} | {value} |")
     if not changed: lines.append('| — | — | — | 변경 없음 | — | — |')
-    lines+=['','## 완료 상태','',f"- 실측 {len(rows)}/400행, 중복 제외 {len(unique)}행.",f"- 목표 이탈 또는 미완료: {', '.join(str(i['day']) for i in issues) or '없음'}.",'- DAY29 준비일 유지. 전체 회귀·전체 캠페인·출시 검수는 미요청.','- 사용자 확인 대기.']
+    lines+=['','## 근거와 제한','',
+      f'- 전투 원자료: [{path.name}]({path.name}).',
+      '- 도면·이전·카메라·추가 부지·소유 함정 차이: [구현 기록](implementation_notes.md).',
+      '- 탐색 중 DAY26의 회복이 겹친 장기 교전과360초 시간 초과는 [별도 진단](timeout_analysis.json)에 기록했다. 시간 초과를 승패 표본으로 채택하지 않는다.',
+      '- 중간 후보는 [탐색 요약](balance_experiments.json)이며 최종 원자료와 구분한다.']
+    lines+=['','## 완료 상태','',f"- 실측 {len(rows)}/400행, 중복 제외 {len(unique)}행.",f"- 추천 곡선 이탈 또는 미완료: {', '.join(str(i['day']) for i in issues if not i['curve']) or '없음'}.",f"- 추천 우위 미충족 또는 미측정: {', '.join(str(i['day']) for i in issues if not i['superior']) or '없음'}.",'- 요청한 난이도 곡선·합법 집중 비교와, 설계 의도인 추천 우위는 구분한다. 집중 배치가 더 강한 결과를 통과로 바꾸거나 숨기지 않는다. 우위만 맞추기 위한 추가 웨이브 수치 조정은 채택하지 않았다.','- DAY29 준비일 유지. 전체 회귀·전체 캠페인·출시 검수는 미요청.','- 사용자 확인 대기.']
     (OUT/'balance_dc.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
     (OUT/'balance_summary.json').write_text(json.dumps(dict(checks=checks,summary=summary),ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(checks,ensure_ascii=False))
