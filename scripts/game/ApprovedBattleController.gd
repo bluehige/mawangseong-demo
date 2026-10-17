@@ -112,8 +112,13 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	unit.goal_room = map.goal_for(stats,unit.position,str(wave_entry.get("target_room_id","")))
 	# Recon thieves may take the other branch directly to the real vault.
 	if enemy_id=="thief" and bool(wave_entry.get("route_variation",false)) and randf()<.5 and str(wave_entry.get("target_room_id",""))=="": unit.goal_room = "vault"
+	var objective_room := str(unit.goal_room)
 	if enemy_id=="investigator" and bool(wave_entry.get("route_variation",false)) and randf()<.5 and map.layout.doors.has("ward_core"):
 		unit.set_meta("next_objective",unit.goal_room); unit.goal_room = "ward_core"
+	# An explicit flank preserves the final objective and the default RNG draws.
+	var waypoint := str(wave_entry.get("waypoint_room_id",""))
+	if enemy_id in ["investigator","royal_scout"] and map.layout.doors.has(waypoint) and waypoint!=objective_room:
+		unit.set_meta("next_objective",objective_room); unit.goal_room = waypoint
 	unit.set_meta("goal_type",str(stats.get("goal_type","throne")))
 	var objective_chance := clampf(float(wave_entry.get("objective_priority",0)),0,1)
 	unit.set_meta("objective_priority",objective_chance>0 and randf()<objective_chance)

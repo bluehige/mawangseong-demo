@@ -834,7 +834,8 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "bait_treasure"
     },
     {
       "enemy_id": "thief",
@@ -947,7 +948,8 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "watchtower"
     },
     {
       "enemy_id": "shieldbearer",
@@ -1148,7 +1150,8 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "recovery_nest"
     }
   ],
   "day_22": [
@@ -1537,7 +1540,8 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "target_room_id": "barracks"
     },
     {
       "enemy_id": "shieldbearer",
@@ -1638,7 +1642,8 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "target_room_id": "recovery_nest"
     },
     {
       "enemy_id": "investigator",
@@ -1688,7 +1693,8 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "watchtower"
     },
     {
       "enemy_id": "shieldbearer",
@@ -1713,7 +1719,8 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "target_room_id": "ward_core"
     },
     {
       "enemy_id": "shieldbearer",
@@ -1846,7 +1853,8 @@
       "objective_priority": 1,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "target_room_id": "watchtower"
     },
     {
       "enemy_id": "official_hero_leon",
