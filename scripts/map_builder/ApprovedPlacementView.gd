@@ -485,6 +485,7 @@ func update_preview(point: Vector2) -> void:
 
 func commit_preview() -> void:
 	if not preview.get("ok",false): return
+	preload("res://scripts/achievements/AchievementGameplay.gd").construction(placement,preview,build_kind,moving_id)
 	placement = preview; cancel_build(); render_map(); update_wallet()
 	last_save_error = monster_ui.persist()
 	status_text.text = "저장됨" if last_save_error==OK else "테스트 저장 실패: "+str(last_save_error)
@@ -697,6 +698,7 @@ func confirm_upgrade() -> void:
 
 func apply_action(next: Dictionary) -> bool:
 	if not next.get("ok",false): status_text.text = " · ".join(next.get("errors",[])); return false
+	preload("res://scripts/achievements/AchievementGameplay.gd").construction(placement,next,"","")
 	placement = next; clear_context(); cancel_build(); render_map(); update_wallet()
 	last_save_error = monster_ui.persist()
 	status_text.text = "저장됨" if last_save_error==OK else "테스트 저장 실패"

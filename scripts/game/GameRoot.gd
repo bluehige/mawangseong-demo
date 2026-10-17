@@ -929,10 +929,12 @@ func _campaign_checkpoint_label(checkpoint: String) -> String:
 			return "후일담 관리" if campaign_postgame_active else "성 관리"
 
 func _campaign_save_payload(checkpoint: String) -> Dictionary:
+	AchievementService.observe_game(self)
 	return {
 		"checkpoint": checkpoint,
 		"screen": current_screen,
 		"game_state": GameState.campaign_snapshot(),
+		"achievements": AchievementService.snapshot(),
 		"world": {
 			"quarter_layout_id": quarter_layout_id,
 			"quarter_layout": DataRegistry.quarter_layout(quarter_layout_id),
@@ -1448,6 +1450,7 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 		var setup_screen := _next_update2_cycle_setup_screen()
 		if setup_screen != Constants.SCREEN_MANAGEMENT:
 			restored_screen = setup_screen
+	AchievementService.retroactive(payload,update4_profile)
 	logs.append("저장 기록을 불러왔습니다. DAY %d." % GameState.day)
 	_set_screen(restored_screen)
 	campaign_save_restore_active = false
@@ -7220,6 +7223,7 @@ func _onboarding_start_quick_game() -> void:
 	_onboarding_enter_management_day(1, false)
 
 func _onboarding_reset_game(preserve_story_read_state: bool = false) -> void:
+	AchievementService.fresh_campaign()
 	var preserved_story_cues: Array[String] = story_director.seen_cue_ids.duplicate()
 	var preserved_story_auto: bool = bool(story_director.auto_enabled)
 	GameState.reset()
@@ -7407,6 +7411,7 @@ func _onboarding_show_name_comment(trigger_id: String) -> void:
 	onboarding_bati_comment_label.text = _onboarding_line_text(entries[0])
 
 func _onboarding_begin_dialogue(entries: Array, return_screen: String, complete_action: String = ONBOARDING_ACTION_NONE) -> void:
+	set_meta("ach_dialogue_skipped",false)
 	if entries.is_empty():
 		_onboarding_complete_dialogue_action(complete_action, return_screen)
 		return
@@ -7420,6 +7425,8 @@ func _onboarding_begin_dialogue(entries: Array, return_screen: String, complete_
 func _onboarding_advance_dialogue(manual: bool = true) -> void:
 	if continuity.backlog_open or pause_menu_open or current_screen == Constants.SCREEN_SETTINGS: return
 	if onboarding_dialogue_queue.is_empty(): return
+	var ach_line: Dictionary = onboarding_dialogue_queue[onboarding_dialogue_index]
+	preload("res://scripts/achievements/AchievementGameplay.gd").read_line(str(ach_line.get("id","")),str(ach_line.get("speaker","")))
 	if manual: story_presenter.legacy_auto_enabled = false
 	if onboarding_dialogue_index + 1 < onboarding_dialogue_queue.size():
 		onboarding_dialogue_index += 1
@@ -7439,6 +7446,7 @@ func _onboarding_advance_dialogue(manual: bool = true) -> void:
 func _onboarding_skip_dialogue() -> void:
 	if campaign_cycle_index < 2 or onboarding_dialogue_queue.is_empty() or continuity.backlog_open or pause_menu_open:
 		return
+	set_meta("ach_dialogue_skipped",true)
 	var return_screen := onboarding_dialogue_return_screen
 	var complete_action := onboarding_dialogue_complete_action
 	onboarding_dialogue_queue.clear()
@@ -10612,6 +10620,7 @@ func _commit_selected_raid() -> void:
 	for key in before:
 		delta[key] = int(after[key]) - int(before[key])
 	completed_raids[raid_selected_mission_id] = true
+	if _raid_fixed_captain_id(mission) == KOBOLD_SCOUT_ID: AchievementService.count("STAT_ROLO_RAID")
 	if DataRegistry.update3_front_operations.has(raid_selected_mission_id):
 		var operation_result := FrontCampaignServiceScript.select_operation(update3_active_run, raid_selected_mission_id, GameState.day, DataRegistry.update3_front_operations)
 		if bool(operation_result.get("ok", false)):

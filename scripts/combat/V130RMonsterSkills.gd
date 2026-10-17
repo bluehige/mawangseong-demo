@@ -65,9 +65,14 @@ func tick(delta: float) -> void:
 		if unit.reassemble_pending>=0:
 			unit.reassemble_pending -= delta
 			if unit.reassemble_pending<=0:
-				unit.reassemble_pending = -1; unit.heal(roundi(unit.max_hp*.25))
+				unit.reassemble_pending = -1
+				var before: int = unit.hp
+				unit.heal(roundi(unit.max_hp*.25))
+				if unit.hp > before: unit.set_meta("ach_reassembled",true)
 		if unit.unit_id=="candle_wisp":
-			for enemy in enemies(unit,3): enemy.set_meta("revealed_until",enemy.new_skill_clock+.2)
+			for enemy in enemies(unit,3):
+				if not enemy.is_targetable_by(unit): AchievementService.count("STAT_WISP_REVEAL")
+				enemy.set_meta("revealed_until",enemy.new_skill_clock+.2)
 
 func slow_theft(thief: Node) -> float:
 	for unit in battle.root.monster_units:
@@ -95,6 +100,7 @@ func on_downed(unit: Node) -> void:
 	for ally in battle.root.monster_units:
 		if ally.is_alive() and ally.unit_id=="rat_union" and ally.position.distance_to(unit.position)<=float(flag(ally,"recovery_radius_cells",3))*CELL:
 			var recovered := recover_gold(unit,1.0)
+			AchievementService.count("STAT_RAT_GOLD",recovered)
 			GameState.gold += roundi(recovered*(float(flag(ally,"recovery_gold_multiplier",1))-1))
 			return
 
@@ -107,6 +113,7 @@ func toll(thief: Node, caster: Node = null) -> void:
 	# A completed thief's negative escape sentinel must survive the progress reset.
 	if float(battle.root.thief_steal_timers.get(thief,0))>=0: battle.root.thief_steal_timers[thief] = 0.0
 	var recovered := recover_gold(thief,.5)
+	AchievementService.count("STAT_TROLL_TOLL",recovered)
 	if caster!=null and float(flag(caster,"toll_recovery_ratio",0))>0:
 		# Toll gold is picked up at settlement, not minted twice.
 		GameState.gold -= recovered
@@ -160,6 +167,7 @@ func cast(unit: Node, id: String, automatic: bool = false) -> bool:
 			candidates = candidates.filter(func(u): return u.is_targetable_by(unit) and (u.get_cell_tags().bridge or u.get_cell_tags().water_adjacent))
 			if candidates.is_empty(): return false
 			enemy = candidates[0]; enemy.apply_root(v(unit,id,"root_seconds",1.5)); enemy.apply_slow(3,.6); affected = [enemy]
+			if enemy.root_timer > 0 and enemy.get_cell_tags().bridge: AchievementService.count("STAT_FROG_SNAG")
 		"puddle_song":
 			if friends.is_empty() or (automatic and enemies(unit,3).is_empty()): return false
 			for ally in friends: ally.activate_guard(5,roundi(v(unit,id,"def_bonus",3)))
@@ -192,7 +200,10 @@ func cast(unit: Node, id: String, automatic: bool = false) -> bool:
 			if enemy==null or not unit.stealthed() or unit.position.distance_to(enemy.position)>unit.attack_range: return false
 			var fear := v(unit,id,"fear_radius_cells",0)
 			deal(unit,enemy,1.8); affected = nearby(enemy,battle.root.enemy_units,fear) if fear>0 else [enemy]
-			for opponent in affected: false_goal(opponent,"entrance",v(unit,id,"duration",2.5))
+			for opponent in affected:
+				if opponent.is_alive():
+					false_goal(opponent,"entrance",v(unit,id,"duration",2.5))
+					AchievementService.count("STAT_SHADOW_FEAR")
 		"blanket_hide":
 			if automatic and unit.stealthed(): return false
 			unit.hidden_until = unit.new_skill_clock+3; unit.quiet_seconds = 0
@@ -222,12 +233,15 @@ func cast(unit: Node, id: String, automatic: bool = false) -> bool:
 			candidates.sort_custom(func(a,b): return "engineer" in str(a.unit_id) and not "engineer" in str(b.unit_id))
 			if candidates.is_empty(): return false
 			enemy = candidates[0]; enemy.apply_action_interrupt(v(unit,id,"interrupt_seconds",2.5)); enemy.apply_armor_break(3,4,id); affected = [enemy]
+			if "engineer" in str(enemy.unit_id) and enemy.action_interrupt_timer > 0: AchievementService.count("STAT_MOLE_SABOTAGE")
 		"wrong_way":
 			affected = enemies(unit,2.5).filter(func(u): return "explorer" in str(u.unit_id) or (bool(flag(unit,"wrong_way_investigator",false)) and "investigator" in str(u.unit_id)))
 			if affected.is_empty(): return false
 			for opponent in affected:
 				var goals: Array = battle.map.layout.doors.keys().filter(func(key): return key!=opponent.goal_room and key!="entrance")
-				if not goals.is_empty(): false_goal(opponent,str(goals[0]),v(unit,id,"duration",4))
+				if not goals.is_empty():
+					false_goal(opponent,str(goals[0]),v(unit,id,"duration",4))
+					if "explorer" in str(opponent.unit_id): AchievementService.count("STAT_MAP_LOST")
 		"map_spread":
 			if friends.is_empty() or (automatic and enemies(unit,3).is_empty()): return false
 			for ally in friends: ally.apply_night_relay_buff(id,5,v(unit,id,"move_multiplier",1.15),1.0)

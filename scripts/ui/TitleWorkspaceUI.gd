@@ -58,8 +58,7 @@ func build_title() -> void:
 			info.add_theme_font_override("font",UIFont.font_for_role(UIFont.ROLE_BODY)); info.add_theme_font_size_override("font_size",20)
 			info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER; menu.add_child(info)
 		_menu_button(menu,root.start_flow.text("settings"),Callable(root,"_open_settings_screen"),"TitleSettingsButton")
-		var achievements := _menu_button(menu,root.start_flow.text("achievements"),Callable(),"TitleAchievementsButton")
-		achievements.disabled = true; achievements.tooltip_text = root.start_flow.text("locked")
+		_menu_button(menu,root.start_flow.text("achievements"),Callable(AchievementService,"open_screen"),"TitleAchievementsButton")
 		_menu_button(menu,root.start_flow.text("quit"),Callable(root,"_onboarding_quit_requested"),"TitleQuitButton")
 	var language_margin := MarginContainer.new()
 	language_margin.name = "TitleLanguages"

@@ -1,0 +1,1026 @@
+[
+  {
+    "index": 1,
+    "api_name": "ACH_FIRST_NIGHT",
+    "set": "base_campaign",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon, no lettering, no numbers, no watermark. Cute horror comedy fantasy mobile-readable painterly 2D game art, not pixel art. Full-bleed opaque square, a thick polished black obsidian rounded-square frame with restrained antique GOLD bevel, tiny gold corner flourishes, dark damp cavern background. Keep frame at x/y 3%-97%, all subject inside inner 15%-85%, strong clean silhouette and warm rim light, clear when reduced to 64px. Subject for FIRST NIGHT: a tiny cozy ramshackle horned demon castle front door carved in a wet cavern, one warmly glowing door and a little puddle reflecting candlelight, whimsical slightly spooky welcoming first visitor atmosphere. No characters needed. One single icon, not sheet. Final intended 256x256 after downsampling. Consistent collectible achievement badge.",
+    "referenced_image_paths": [],
+    "transparent_background": false
+  },
+  {
+    "index": 2,
+    "api_name": "ACH_THIEF_DENIED",
+    "set": "base_campaign",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel and tiny gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A locked golden treasure chest firmly refusing a sneaky gloved hand; a stout lock and a little barred thief silhouette. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 3,
+    "api_name": "ACH_HERO_TRAINEE",
+    "set": "base_campaign",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel and tiny gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A tiny wooden practice sword politely bouncing off a sturdy shield, defeated novice helmet tilted comically. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 4,
+    "api_name": "ACH_GRADE_E",
+    "set": "base_campaign",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel and tiny gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A modest fortified cave castle with a proud little tower and a warm hearth, becoming a true home. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 5,
+    "api_name": "ACH_GRADE_D",
+    "set": "base_campaign",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel and tiny gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A stone fortress at a forked cavern road, two diverging paths under a watchful tower. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 6,
+    "api_name": "ACH_GRADE_C",
+    "set": "base_campaign",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel and tiny gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Two different fortified gateways, one sunset west gate and one warm south gate, joined by a sheltered castle. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 7,
+    "api_name": "ACH_SELEN",
+    "set": "base_campaign",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel and tiny gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A brave little melting candle facing a grand holy ray with its own tiny flame, cute determination. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\candle_wisp\\portrait_candle_wisp_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 8,
+    "api_name": "ACH_ROMAN",
+    "set": "base_campaign",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel and tiny gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A guild inspection clipboard shut firmly by a wax seal, quill fallen aside, inspection finally over; no writing on paper. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 9,
+    "api_name": "ACH_LEON",
+    "set": "base_campaign",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel and tiny gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A golden heroic sword resting defeated beside a small horned castle banner, dawn after final defense. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 10,
+    "api_name": "ACH_DAY29",
+    "set": "base_campaign",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel and tiny gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A peaceful moonlit cave throne, unused crossed swords set down, a little steaming mug and folded blanket. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 11,
+    "api_name": "ACH_BUILD_FIRST",
+    "set": "castle_builder",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with STONE GRAY bevel and carved stone corner ornaments, small gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A sturdy shovel breaking cave soil beside a newly laid cobblestone path to a small room. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 12,
+    "api_name": "ACH_BUILD_ALL5",
+    "set": "castle_builder",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with STONE GRAY bevel and carved stone corner ornaments, small gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Five tiny distinct castle facilities in a compact cluster: barracks shields, healing nest, glowing ward crystal, watchtower, decoy treasure chest. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 13,
+    "api_name": "ACH_BUILD_MAX",
+    "set": "castle_builder",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with STONE GRAY bevel and carved stone corner ornaments, small gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A stout upgraded tower with an extra golden roof and scaffolding, triumphant hammer raised above. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 14,
+    "api_name": "ACH_TRAPS_50",
+    "set": "castle_builder",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with STONE GRAY bevel and carved stone corner ornaments, small gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A cartoon bear trap on the cave floor, small careful boot tip, clear spring mechanism, no injury. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 15,
+    "api_name": "ACH_TRAP_KILLS_100",
+    "set": "castle_builder",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with STONE GRAY bevel and carved stone corner ornaments, small gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A spiky trap tile popping a tiny empty invader helmet upward in a comic puff, no injury or gore. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 16,
+    "api_name": "ACH_STONE_BRIDGE",
+    "set": "castle_builder",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with STONE GRAY bevel and carved stone corner ornaments, small gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A weathered wooden bridge transitioning naturally to a solid stone arch bridge over a cavern stream. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 17,
+    "api_name": "ACH_NO_THRONE_DMG",
+    "set": "castle_builder",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with STONE GRAY bevel and carved stone corner ornaments, small gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A spotless royal throne protected inside a shimmering shield bubble, pristine velvet and a tiny cleaning feather. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 18,
+    "api_name": "ACH_SPLIT_DEFENSE",
+    "set": "castle_builder",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with STONE GRAY bevel and carved stone corner ornaments, small gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Two crossed shields guarding two diverging entry paths with a horned castle behind. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 19,
+    "api_name": "ACH_ALL_FACILITIES_ALIVE",
+    "set": "castle_builder",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with STONE GRAY bevel and carved stone corner ornaments, small gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Five small working facility symbols protected in a single translucent ward dome, steady warm lights. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 20,
+    "api_name": "ACH_FAMILY_10",
+    "set": "monster_family",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with AMETHYST PURPLE bevel and tiny purple-gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A welcoming open door with a bunch of colorful tiny monster pawprints converging, a family invitation. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 21,
+    "api_name": "ACH_FAMILY_24",
+    "set": "monster_family",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with AMETHYST PURPLE bevel and tiny purple-gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A cozy cave banquet with many colorful monster silhouettes, long feast table and warm lamps, large found family. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 22,
+    "api_name": "ACH_FIRST_MEMORY",
+    "set": "monster_family",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with AMETHYST PURPLE bevel and tiny purple-gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Pudding the blue slime gently offering its soft gel hand toward a glowing memory orb; preserve reference identity. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\uiux3d\\pudding_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 23,
+    "api_name": "ACH_ALL_MEMORIES",
+    "set": "monster_family",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with AMETHYST PURPLE bevel and tiny purple-gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A small magical bookcase of glowing memory orbs and soft monster-shaped bookends, fond memories. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 24,
+    "api_name": "ACH_FIRST_DUO",
+    "set": "monster_family",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with AMETHYST PURPLE bevel and tiny purple-gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Pudding and Gob performing a cheerful high five; preserve both exact reference identities, blue slime and green goblin. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\uiux3d\\pudding_base.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\uiux3d\\gob_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 25,
+    "api_name": "ACH_ALL_DUOS",
+    "set": "monster_family",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with AMETHYST PURPLE bevel and tiny purple-gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Two different friendly monster hands touching in a high five, a ring of little spark stars and joined ribbons. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 26,
+    "api_name": "ACH_FIRST_SPEC",
+    "set": "monster_family",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with AMETHYST PURPLE bevel and tiny purple-gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A blank branching career signpost with a sword, shield and wand as visual symbols, no writing. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 27,
+    "api_name": "ACH_SPEC_24",
+    "set": "monster_family",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with AMETHYST PURPLE bevel and tiny purple-gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A many-branched tree with twenty-four tiny colored lanterns suggesting different careers, one cozy root. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 28,
+    "api_name": "ACH_NO_HUNGER",
+    "set": "monster_family",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with AMETHYST PURPLE bevel and tiny purple-gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A brimming hot stew pot, bread and happy monster-shaped spoons, everyone fed in a cozy cave kitchen. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 29,
+    "api_name": "ACH_FULL_HOUSE",
+    "set": "monster_family",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with AMETHYST PURPLE bevel and tiny purple-gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A full defensive formation of little shield emblems on stone floor sockets and a stocked food basket. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 30,
+    "api_name": "ACH_M_FROG",
+    "set": "monster_moments",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with teal green bevel with tiny gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Pongdang the sleepy teal cave frog snaring a tiny invader boot with its long sticky tongue from a bridge; preserve lily-pad cap and exact reference appearance. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\river_frog\\portrait_river_frog_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 31,
+    "api_name": "ACH_M_SNAIL",
+    "set": "monster_moments",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with pastel lilac bevel with tiny gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Neurit the lilac snail with a miniature house shell leaving a glossy sticky trail that slows a tiny boot; match reference eyes and house shell. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\glue_snail\\portrait_glue_snail_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 32,
+    "api_name": "ACH_M_TROLL",
+    "set": "monster_moments",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with mossy blue bevel with tiny gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Beongbeong the soft mossy blue troll collecting a gold coin from a timid gloved thief at a tiny bridge; keep reference face, moss hair and wooden sign. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\bridge_troll\\portrait_bridge_troll_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 33,
+    "api_name": "ACH_M_SHADOW",
+    "set": "monster_moments",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with inky purple bevel with tiny gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Shh the purple shadow peeking playfully from its pale tattered sheet, two luminous eyes, a startled empty helmet; match reference. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\under_bed_shadow\\portrait_under_bed_shadow_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 34,
+    "api_name": "ACH_M_ARMOR",
+    "set": "monster_moments",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with steel blue bevel with tiny gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Teongteong the small hollow armored knight standing bravely with a freshly reassembled plate and shield; match silver armor, red plume, glowing eyes. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\hollow_armor\\portrait_hollow_armor_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 35,
+    "api_name": "ACH_M_WISP",
+    "set": "monster_moments",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with warm candle ivory bevel with tiny gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Noknok the cute melting wax candle casting a moonlike pool of light that reveals a tiny shadow helmet; match reference white wax and anxious eyes. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\candle_wisp\\portrait_candle_wisp_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 36,
+    "api_name": "ACH_M_MOLE",
+    "set": "monster_moments",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with amber yellow bevel with tiny gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Papa the brown mole in yellow hardhat with round glasses and huge claws stopping a tiny construction pickaxe; exact reference identity. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\mole_digger\\portrait_mole_digger_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 37,
+    "api_name": "ACH_M_MAP",
+    "set": "monster_moments",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with parchment ochre bevel with tiny gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Kkogit the friendly crumpled parchment map with curled limbs unfolding three little throne silhouettes with confusing paths; no letters or numbers; match reference. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\crumpled_map\\portrait_crumpled_map_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 38,
+    "api_name": "ACH_M_RATS",
+    "set": "monster_moments",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with rat gray with red accents bevel with tiny gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: The Jjikjjik Union: three tiny gray rats with red headbands guarding a little pile of gold and cheese; exactly three reference rats, no sign writing. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\rat_union\\portrait_rat_union_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 39,
+    "api_name": "ACH_M_DOLL",
+    "set": "monster_moments",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with dusty rose bevel with tiny gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Nubi the pink patchwork rag doll with mismatched button eyes and stitches gently shielding a small glowing heart, loose thread absorbing a harmless impact; match reference. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\curse_doll\\portrait_curse_doll_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 40,
+    "api_name": "ACH_M_PUDDING",
+    "set": "monster_moments",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with bright azure bevel with tiny gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Pudding the bright blue glossy slime with its little round shield bulging into a soft protective wall; preserve reference eyes, color and shield. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\uiux3d\\pudding_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 41,
+    "api_name": "ACH_M_GOB",
+    "set": "monster_moments",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with goblin green bevel with tiny gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Gob the small green goblin with red scarf and dagger springing from hiding behind a tiny treasure chest to stop a shadow thief; preserve exact face, ears and gear. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\uiux3d\\gob_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 42,
+    "api_name": "ACH_M_PYNN",
+    "set": "monster_moments",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with ember orange bevel with tiny gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Pynn the red winged horned imp gleefully casting a single large orange fireball; preserve reference red skin, dark horns and violet costume. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\uiux3d\\pynn_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 43,
+    "api_name": "ACH_M_ROLO",
+    "set": "monster_moments",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with forest green bevel with tiny gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Rolo the older green goblin expedition captain with beard, leather gear and banner leading a cave expedition with a compass; preserve reference. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\uiux3d\\rolo_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 44,
+    "api_name": "ACH_SEAL_NO_THRONE",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with DEEP CRIMSON bevel and RED WAX SEAL corner ornaments. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A spotless throne embossed on a thick red wax seal, solid shield motif, triumphant challenge emblem. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 45,
+    "api_name": "ACH_SEAL_NO_DOWN",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with DEEP CRIMSON bevel and RED WAX SEAL corner ornaments. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: An unbroken little monster heart encircled by a protective shield, embossed red wax challenge seal, no fallen allies. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 46,
+    "api_name": "ACH_SEAL_LOW_MANA",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with DEEP CRIMSON bevel and RED WAX SEAL corner ornaments. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A tiny wizard wand squeezing one last drop from a near-empty mana flask, red wax seal emblem, comically thrifty magic. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 47,
+    "api_name": "ACH_SEAL_NO_DISABLE",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with DEEP CRIMSON bevel and RED WAX SEAL corner ornaments. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Five interlocking little gears turning smoothly under a protective arch, embossed red wax challenge seal. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 48,
+    "api_name": "ACH_SEAL_CONTRACT_VANGUARD",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with DEEP CRIMSON bevel and RED WAX SEAL corner ornaments. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A rolled blank contract and small shield spear formation, embossed red wax challenge seal. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 49,
+    "api_name": "ACH_SEAL_ADAPTIVE",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with DEEP CRIMSON bevel and RED WAX SEAL corner ornaments. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A mirrored pair of rival chess knights facing one another, shifting strategy arrows, embossed red wax challenge seal. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 50,
+    "api_name": "ACH_SECRET_BUCKET",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with DEEP CRIMSON bevel and RED WAX SEAL corner ornaments. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Two buckets catching separate dripping leaks from a dark cave ceiling, warm comic candlelight; hide no words in scene. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 51,
+    "api_name": "ACH_SECRET_DIRECT_LEON",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with DEEP CRIMSON bevel and RED WAX SEAL corner ornaments. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A confident monster claw holding a small controller, golden heroic sword tipped down defeated behind, red wax badge. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 52,
+    "api_name": "ACH_SECRET_ALL_IN_ONE",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with DEEP CRIMSON bevel and RED WAX SEAL corner ornaments. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Many little helmets crowded at a single small doorway while a tiny fallen flag droops, comic tactical blunder, no injuries. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 53,
+    "api_name": "ACH_SECRET_HUNGRY_WIN",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with DEEP CRIMSON bevel and RED WAX SEAL corner ornaments. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: An almost empty bowl and five tiny eager monster pawprints around a victory ribbon, comic hungry triumph. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 54,
+    "api_name": "ACH_SECRET_37",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with DEEP CRIMSON bevel and RED WAX SEAL corner ornaments. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Pongdang the teal frog earnestly presenting a soggy BLANK paper beside its tiny pond, tiny lily cap; match reference, absolutely no letters or numerals. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\river_frog\\portrait_river_frog_base.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 55,
+    "api_name": "ACH_END_TRUE_DEMON_CASTLE",
+    "set": "endings",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel, a small ornate CROWN integrated at the top center. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A majestic warm horned demon castle growing proudly out of its cavern, one ornate crown above. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 56,
+    "api_name": "ACH_END_MONSTER_FAMILY_CASTLE",
+    "set": "endings",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel, a small ornate CROWN integrated at the top center. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A cozy cave castle with a glowing heart-shaped window and a ring of assorted monster pawprints, ornate crown above. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 57,
+    "api_name": "ACH_END_IMPREGNABLE_DEMON_CITADEL",
+    "set": "endings",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel, a small ornate CROWN integrated at the top center. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: An imposing but cute impenetrable stone citadel behind a giant shield, ornate crown above. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 58,
+    "api_name": "ACH_END_DREAD_OVERLORD_RISES",
+    "set": "endings",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel, a small ornate CROWN integrated at the top center. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A little shadowy demon crown radiating friendly spooky purple flame above a horned tower, dramatic but cute. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 59,
+    "api_name": "ACH_END_DEMON_HERO_RIVAL_PACT",
+    "set": "endings",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel, a small ornate CROWN integrated at the top center. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A demon gauntlet and hero gauntlet clasping hands across two crossed swords beneath an ornate crown. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 60,
+    "api_name": "ACH_END_CONTRACT_MONSTER_ALLIANCE",
+    "set": "endings",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel, a small ornate CROWN integrated at the top center. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A blank rolled contract tied with different monster paw-shaped seals, alliance ribbon and ornate crown. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 61,
+    "api_name": "ACH_END_ROYAL_DOCTRINE_BROKEN",
+    "set": "endings",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel, a small ornate CROWN integrated at the top center. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A cracked royal doctrine tablet breaking into harmless paper scraps before a horned crown; no lettering. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 62,
+    "api_name": "ACH_END_CHALLENGE_SEAL_LEGEND",
+    "set": "endings",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel, a small ornate CROWN integrated at the top center. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Six different little red challenge wax seals orbiting an ornate gold crown, legendary completed collection. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 63,
+    "api_name": "ACH_END_EVELYNS_COUNTERLEDGER",
+    "set": "endings",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel, a small ornate CROWN integrated at the top center. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A clever abacus beside an open blank accounting ledger with coins flowing back into a chest, ornate crown overhead; no text. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 64,
+    "api_name": "ACH_END_ADAPTIVE_RIVAL_MASTERY",
+    "set": "endings",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel, a small ornate CROWN integrated at the top center. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Two rival chess knights converging into a masterful single strategy emblem, ornate crown above. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 65,
+    "api_name": "ACH_END_CASTLE_WITHOUT_RESERVES",
+    "set": "endings",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel, a small ornate CROWN integrated at the top center. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A castle gate defended by a single complete front rank of shields, empty rear staging area, ornate crown above. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 66,
+    "api_name": "ACH_END_TWELVE_ENDINGS_CHRONICLE",
+    "set": "endings",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel, a small ornate CROWN integrated at the top center. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A great illuminated chronicle book with twelve tiny star-like crown emblems, final ornate crown above, no lettering. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 67,
+    "api_name": "ACH_FRONT_FRONT_HERO_OATH",
+    "set": "update3_fronts",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with weathered BRONZE bevel and tiny bronze corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A heroic oath sword and ribbon stopped by a sturdy cavern barricade, bronze obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 68,
+    "api_name": "ACH_FRONT_FRONT_HOLY_PURIFICATION",
+    "set": "update3_fronts",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with weathered BRONZE bevel and tiny bronze corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A holy sunburst meeting an unbroken cavern ward crystal, bronze obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 69,
+    "api_name": "ACH_FRONT_FRONT_GUILD_REPOSSESSION",
+    "set": "update3_fronts",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with weathered BRONZE bevel and tiny bronze corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A guild collection hook and chain kept outside a locked treasury door, bronze obsidian frame, no writing. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 70,
+    "api_name": "ACH_END3_ENDING_HOLY_OPEN_GATE",
+    "set": "update3_fronts",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with weathered BRONZE bevel and tiny bronze corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: An open holy castle gate admitting gentle sunlight into the cavern, bronze obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 71,
+    "api_name": "ACH_END3_ENDING_OFF_LEDGER_INDEPENDENCE",
+    "set": "update3_fronts",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with weathered BRONZE bevel and tiny bronze corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A tiny free-standing horned castle stepping beyond the edge of a blank ledger page, bronze obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 72,
+    "api_name": "ACH_END3_ENDING_LIVING_CASTLE_VOICE",
+    "set": "update3_fronts",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with weathered BRONZE bevel and tiny bronze corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A living friendly stone castle face softly speaking with glowing windows and one magical sound wave, bronze obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 73,
+    "api_name": "ACH_END3_ENDING_LINKED_CORRIDORS",
+    "set": "update3_fronts",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with weathered BRONZE bevel and tiny bronze corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Two beautifully joined arched stone corridors linked by a warm thread of light, bronze obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 74,
+    "api_name": "ACH_END3_ENDING_THREE_FRONT_ARMISTICE",
+    "set": "update3_fronts",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with weathered BRONZE bevel and tiny bronze corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Three different lowered weapons resting together under a peaceful white ribbon, bronze obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 75,
+    "api_name": "ACH_END4_ENDING_COUNCIL_SEAT",
+    "set": "update4_council",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with polished SILVER bevel and tiny silver corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A small unoccupied ornate council chair before a round table with several candlelit chairs, silver obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 76,
+    "api_name": "ACH_END4_ENDING_TWO_FLOORS_ONE_THRONE",
+    "set": "update4_council",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with polished SILVER bevel and tiny silver corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Two tiers of a castle neatly joined beneath one central glowing throne, silver obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 77,
+    "api_name": "ACH_END4_ENDING_MINION_WEARS_THE_CROWN",
+    "set": "update4_council",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with polished SILVER bevel and tiny silver corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A small humble monster-shaped cushion holding an oversized ornate crown, silver obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 78,
+    "api_name": "ACH_END4_ENDING_OUTPOST_BECOMES_HOME",
+    "set": "update4_council",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with polished SILVER bevel and tiny silver corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A little fortified outpost transformed into a cozy lit home with a chimney and a doormat, silver obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 79,
+    "api_name": "ACH_END4_ENDING_THREE_RIVALS_COSIGN",
+    "set": "update4_council",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with polished SILVER bevel and tiny silver corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Three different gloved hands joining quills above a blank treaty tied with three colored seals, silver obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 80,
+    "api_name": "ACH_END4_ENDING_COUNCIL_DISSOLVED",
+    "set": "update4_council",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with polished SILVER bevel and tiny silver corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A peaceful empty council table with neatly pushed-back chairs and an extinguished central candle, silver obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 81,
+    "api_name": "ACH_CROWN_CROWN_PUDDING_ROYAL_BASTION",
+    "set": "update4_council",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with polished SILVER bevel and tiny silver corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Royal Bastion Pudding crown evolution: exact reference royal purple slime inside blue-gold castle armor, ornate crown, blue shields, silver obsidian frame. Preserve evolved form, not ordinary blue Pudding. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\update4\\crowns\\portrait_slime_crown_bastion_council.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 82,
+    "api_name": "ACH_CROWN_CROWN_GOB_MIDNIGHT_MARSHAL",
+    "set": "update4_council",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with polished SILVER bevel and tiny silver corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Midnight Marshal Gob crown evolution: exact reference weathered green goblin in dark spiked marshal armor, ceremonial spear and crown, silver obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\update4\\crowns\\portrait_goblin_crown_marshal_council.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 83,
+    "api_name": "ACH_CROWN_CROWN_PYNN_CASTLE_FLAME_SAGE",
+    "set": "update4_council",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with polished SILVER bevel and tiny silver corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Castle Flame Sage Pynn crown evolution: exact reference magenta-red horned imp in elaborate crimson-gold robes holding violet flame, silver obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\update4\\crowns\\portrait_imp_crown_flame_sage_council.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 84,
+    "api_name": "ACH_CROWN_CROWN_MORI_GRAND_MYCELIAL_PRIEST",
+    "set": "update4_council",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with polished SILVER bevel and tiny silver corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Grand Mycelial Priest Mori crown evolution: exact reference pale mushroom priest with ornate red cap and gold decorations, leafy robe and glowing green staff, silver obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\update4\\crowns\\portrait_mori_crown_priest_council.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 85,
+    "api_name": "ACH_CROWN_CROWN_TOKTOK_ROYAL_ARMORER",
+    "set": "update4_council",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with polished SILVER bevel and tiny silver corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Royal Armorer Toktok crown evolution: exact reference dark bronze armored beetle with purple eyes and purple-gem gold crown, silver obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\update4\\crowns\\portrait_toktok_crown_armorer_council.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 86,
+    "api_name": "ACH_CROWN_CROWN_POPO_GRAND_NIGHT_COURIER",
+    "set": "update4_council",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with polished SILVER bevel and tiny silver corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Grand Night Courier Popo crown evolution: exact reference cute violet-black bat with huge ears, navy cap and messenger satchel, holding sealed envelope, silver obsidian frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\achievements_v130\\originals\\ACH_FIRST_NIGHT.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\update4\\crowns\\portrait_popo_crown_courier_council.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 87,
+    "api_name": "ACH_MILO",
+    "set": "base_campaign",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel and tiny gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A blank explorer survey parchment with a horned castle pictogram, quill correcting the sketch, exactly three bright golden stars overhead; no writing. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\achievements\\v130\\icons\\ACH_FIRST_NIGHT_ACHIEVED.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 88,
+    "api_name": "ACH_NIA",
+    "set": "base_campaign",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel and tiny gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A tightly locked treasure vault protected by a glowing shield, a defeated lockpick lying outside, a tiny approving star medallion; no letters. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\achievements\\v130\\icons\\ACH_FIRST_NIGHT_ACHIEVED.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 89,
+    "api_name": "ACH_ENGINEERS",
+    "set": "base_campaign",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel and tiny gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A sturdy castle facility with intact gears and stonework, a broken invader construction pickaxe resting harmlessly outside its protective ward. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\achievements\\v130\\icons\\ACH_FIRST_NIGHT_ACHIEVED.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 90,
+    "api_name": "ACH_PERFECT_CAMPAIGN",
+    "set": "base_campaign",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with antique GOLD bevel and tiny gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: An unbroken shield in front of a proud horned castle at dawn, a flawless victory laurel surrounding the shield, no defeated allies. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\achievements\\v130\\icons\\ACH_FIRST_NIGHT_ACHIEVED.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 91,
+    "api_name": "ACH_MOVE_BUILDING",
+    "set": "castle_builder",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with STONE GRAY bevel and carved stone corner ornaments, small gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A small stone castle building lifted safely by a magical moving crane above two floor sockets, curved relocation arrow, distinct bold silhouette. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\achievements\\v130\\icons\\ACH_BUILD_FIRST_ACHIEVED.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 92,
+    "api_name": "ACH_GATE_BRIDGE",
+    "set": "castle_builder",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with STONE GRAY bevel and carved stone corner ornaments, small gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A fortified stone gate bridge over a dark cavern stream, little shields holding its gateway, warm castle lights behind, clear single arch. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\achievements\\v130\\icons\\ACH_BUILD_FIRST_ACHIEVED.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 93,
+    "api_name": "ACH_VAULT_1000",
+    "set": "castle_builder",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with STONE GRAY bevel and carved stone corner ornaments, small gold pin details. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A deep treasury vault brimming with golden coins around a stout lock and one shield, guardian of saved wealth, no numbers. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\achievements\\v130\\icons\\ACH_BUILD_FIRST_ACHIEVED.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 94,
+    "api_name": "ACH_LEVEL_10",
+    "set": "monster_family",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with AMETHYST PURPLE bevel and tiny purple-gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A seasoned friendly blue slime veteran with a tiny shield and a prominent gold star medal, confident caring expression, purple family frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\achievements\\v130\\icons\\ACH_FAMILY_10_ACHIEVED.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 95,
+    "api_name": "ACH_FIRST_JOIN_SCENE",
+    "set": "monster_family",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with AMETHYST PURPLE bevel and tiny purple-gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A cozy open castle door welcoming a small new green goblin, blue slime offering a warm lantern and festive monster pawprint bunting. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\achievements\\v130\\icons\\ACH_FAMILY_10_ACHIEVED.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 96,
+    "api_name": "ACH_ALL_BARKS",
+    "set": "monster_family",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with AMETHYST PURPLE bevel and tiny purple-gold corner flourishes. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Three different friendly little monster silhouettes conversing through glowing empty speech bubbles around a tiny castle, found-family warmth. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\achievements\\v130\\icons\\ACH_FAMILY_10_ACHIEVED.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 97,
+    "api_name": "ACH_SPEED_X3_WIN",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with DEEP CRIMSON bevel and RED WAX SEAL corner ornaments. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A victorious little horned crown racing forward with three bold speed chevrons and a flowing ribbon, energetic fast-forward motion, red wax frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\achievements\\v130\\icons\\ACH_SEAL_NO_THRONE_ACHIEVED.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 98,
+    "api_name": "ACH_SECRET_ZERO_FOOD",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with DEEP CRIMSON bevel and RED WAX SEAL corner ornaments. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: An empty wooden food bin with its lid open and a single stray grain, a small victory shield glowing beyond it, cute hungry triumph, red wax frame. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\achievements\\v130\\icons\\ACH_SEAL_NO_THRONE_ACHIEVED.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 99,
+    "api_name": "ACH_SECRET_BATI",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with DEEP CRIMSON bevel and RED WAX SEAL corner ornaments. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: Bati the deadpan batlike castle adviser holding a blank ledger and quill, one empty speech bubble, dry unimpressed expression; preserve exact character identity from second reference. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\achievements\\v130\\icons\\ACH_SEAL_NO_THRONE_ACHIEVED.png",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\v1213_bati_cute\\bati_standing_dry.png"
+    ],
+    "transparent_background": false
+  },
+  {
+    "index": 100,
+    "api_name": "ACH_100",
+    "set": "challenge_and_secret",
+    "prompt": "Use case: stylized-concept. Create ONE square Steam achievement icon. Cute horror comedy fantasy, polished painterly 2D game illustration, chibi proportions when characters appear. Opaque full-bleed square. Dark damp cave backdrop, warm rim light, readable silhouette at 64px. Thick polished BLACK OBSIDIAN rounded-square frame with ALL EIGHT SET COLORS combined in a regal CROWN border, antique gold, stone gray, purple, multicolor gems, crimson wax, crowned gold, bronze and silver. Match the common frame dimensions and polished material of the FIRST reference icon; replace its subject completely. Frame occupies 3%-97%, keep the unique central subject within 15%-85%. Subject: A magnificent horned crown above a tiny completed demon castle, surrounded by eight jewel accents. SPECIAL MASTER ACHIEVEMENT frame: keep the same thick polished obsidian rounded square but integrate ALL EIGHT set colors and materials into one regal crown-shaped border: antique gold, stone gray, amethyst purple, multicolor character gems, crimson wax seals, crowned gold, bronze and silver. Symmetric ornate crown integrated at top center, clearly grander than ordinary badges, legible bold central crown, no text or numerals. Other reference images, if supplied, are character identity references ONLY: reproduce exact species, face, colors, costume and distinctive props. Simple bold readable composition, not crowded. Absolutely NO TEXT, letters, numerals, logos, labels or watermark. Blank any paper or sign. No sheet, no multiple icons. Intended final size 256x256.",
+    "referenced_image_paths": [
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\achievements\\v130\\icons\\ACH_SEAL_NO_THRONE_ACHIEVED.png"
+    ],
+    "transparent_background": false
+  }
+]

@@ -108,6 +108,8 @@ func start_scene(scene_id: String, facts: Dictionary = {}, return_screen: String
 func advance(stop_auto: bool = true) -> Dictionary:
 	if not is_active():
 		return {"advanced": false, "completed": false}
+	var consumed := current_cue()
+	preload("res://scripts/achievements/AchievementGameplay.gd").read_line(current_cue_id,str(consumed.get("speaker_id","")))
 	var consumed_cue_id := current_cue_id
 	_add_unique(seen_cue_ids, consumed_cue_id)
 	if stop_auto:
@@ -247,6 +249,7 @@ func import_state(raw_state, current_day: int, had_story_payload: bool = true) -
 
 
 func _complete_active_scene(skipped: bool, consumed_cue_id: String) -> Dictionary:
+	preload("res://scripts/achievements/AchievementGameplay.gd").scene_completed(current_scene_id,skipped)
 	var completed_scene_id := current_scene_id
 	var completed_scene := current_scene()
 	var completed_scope_key := _scene_scope_key(completed_scene, current_facts)

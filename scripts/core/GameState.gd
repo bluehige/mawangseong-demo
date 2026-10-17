@@ -163,6 +163,7 @@ func advance_day() -> void:
 	SignalBus.resources_changed.emit()
 
 func damage_throne(amount: int) -> void:
+	AchievementService.battle_throne_damage += mini(demon_lord_hp,maxi(0,amount))
 	demon_lord_hp = max(0, demon_lord_hp - amount)
 	if demon_lord_hp <= 0:
 		defeat = true

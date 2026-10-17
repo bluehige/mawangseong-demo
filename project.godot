@@ -30,6 +30,7 @@ UISettings="*res://scripts/core/UISettings.gd"
 LanguageSettings="*res://scripts/core/LanguageSettings.gd"
 TutorialGuidanceHistory="*res://scripts/core/TutorialGuidanceHistory.gd"
 InputSettings="*res://scripts/core/InputSettings.gd"
+AchievementService="*res://scripts/achievements/AchievementService.gd"
 
 [debug]
 

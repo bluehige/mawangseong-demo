@@ -70,6 +70,7 @@ func start(game: Node, lines: Array, ids: Array, action: String = "v130r_story")
 
 func finish(game: Node) -> void:
 	for id in game.get_meta("v130r_story_pending",[]):
+		preload("res://scripts/achievements/AchievementGameplay.gd").scene_completed(str(id),bool(game.get_meta("ach_dialogue_skipped",false)))
 		if not game.story_director.seen_scene_ids.has(id): game.story_director.seen_scene_ids.append(id)
 	game.remove_meta("v130r_story_pending")
 
@@ -172,6 +173,7 @@ func tick_barks(game: Node, delta: float) -> void:
 		# Same dark bordered panel, portrait and typography as CombatStoryFeed.
 		bark_panel = game.hud.panel(Rect2(32,212,1080,160),Color("#0b0e18ec"),Color("#655578"),"V130RCombatBark","flat")
 		bark_panel.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED; bark_panel.z_index = 116
+		AchievementService.count("STAT_BARK_SPECIES",1,str(unit.unit_id))
 		var cue: Dictionary = next.cue
 		var path: String = game._onboarding_speaker_portrait_path(cue.speaker_id,cue.portrait_emotion,true)
 		if path!="": game.hud.texture(bark_panel,path,Rect2(16,20,100,112))

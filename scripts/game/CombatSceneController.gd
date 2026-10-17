@@ -5779,6 +5779,7 @@ func _mark_action_target(attacker: Node, target: Node) -> void:
 func _record_damage_contribution(attacker: Node, target: Node, incoming_damage: int, dealt_damage: int, hp_before: int, attacker_unit_id: String = "", heart_attack_token: String = "") -> void:
 	if target == null or not is_instance_valid(target) or not root.has_method("_record_monster_contribution"):
 		return
+	preload("res://scripts/achievements/AchievementGameplay.gd").damage(self,attacker,target,hp_before,incoming_damage,dealt_damage,attacker_unit_id)
 	var actual_hp_loss = max(0, hp_before - int(target.hp))
 	var resolved_attacker_id = attacker_unit_id
 	var attacker_is_monster = false
@@ -5980,6 +5981,8 @@ func _watch_post_pressure_rooms() -> Array:
 	return []
 
 func on_unit_downed(unit: Node) -> void:
+	if unit.faction == "enemy" and (bool(DataRegistry.enemies.get(unit.unit_id,{}).get("boss",false)) or "selen" in str(unit.unit_id) or "roman" in str(unit.unit_id)):
+		AchievementService.record("boss_defeated",{"boss":"roman" if "roman" in str(unit.unit_id) else str(unit.unit_id),"direct_control":false})
 	if unit.faction == Constants.FACTION_ENEMY:
 		if str(unit.unit_id) == "ledger_binder":
 			var cleared := _clear_ledger_marks_from_source(unit)
@@ -6058,6 +6061,7 @@ func finish_combat(win: bool, reason: String) -> void:
 		growth_summary = root._finalize_battle_growth(true)
 		GameState.add_rewards(root.rewards_pending)
 	var food_ledger: Dictionary = root._settle_monster_food() if root.has_method("_settle_monster_food") else {}
+	AchievementService.note_hunger(GameState.day,not GameState.food_state.get("hungry",[]).is_empty())
 	var challenge_seal_result_line := ""
 	if root.has_method("_resolve_update2_challenge_seal"):
 		challenge_seal_result_line = root._resolve_update2_challenge_seal(win)
@@ -7631,6 +7635,7 @@ func _resolve_projectile_damage(attacker_instance_id: int, target_instance_id: i
 	var hp_before = int(target.hp)
 	var dealt_damage = _receive_context_damage(target,damage,attacker,false,true) if hit_kind == "fireball" else target.receive_damage(damage)
 	_record_damage_contribution(attacker, target, damage, dealt_damage, hp_before, attacker_unit_id)
+	if attacker_unit_id == "imp" and hit_kind == "fireball" and dealt_damage > 0: AchievementService.count("STAT_PYNN_FIRE")
 	if attacker_unit_id == "imp" and hit_kind == "fireball" and dealt_damage > 0 and root.has_method("_record_update3_duo_link_action"):
 		root._record_update3_duo_link_action("mon_core_pynn", "fire_skill_hit", 1, "pynn_fire:%d:%d" % [target.get_instance_id(), Time.get_ticks_usec()])
 	var tail := Callable(self, "_complete_projectile_hit").bind(attacker, target, source_position, attacker_unit_id, attacker_name, dealt_damage, force_camera_kick, hit_kind)

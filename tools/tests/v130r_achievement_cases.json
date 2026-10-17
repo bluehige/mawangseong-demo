@@ -1,0 +1,830 @@
+[
+  {
+    "id": "ACH_FIRST_NIGHT",
+    "event": "battle_finished",
+    "facts": {
+      "win": true,
+      "day": 1
+    },
+    "source_trigger": "day_victory==1"
+  },
+  {
+    "id": "ACH_THIEF_DENIED",
+    "event": "battle_finished",
+    "facts": {
+      "win": true,
+      "thief_day": true,
+      "vault_loss": 0
+    },
+    "source_trigger": "victory && thief_day && vault_loss==0"
+  },
+  {
+    "id": "ACH_HERO_TRAINEE",
+    "event": "battle_finished",
+    "facts": {
+      "win": true,
+      "day": 3
+    },
+    "source_trigger": "day_victory==3"
+  },
+  {
+    "id": "ACH_GRADE_E",
+    "event": "snapshot",
+    "facts": {
+      "castle_stage": 2
+    },
+    "source_trigger": "castle_stage>=2"
+  },
+  {
+    "id": "ACH_GRADE_D",
+    "event": "snapshot",
+    "facts": {
+      "castle_stage": 3
+    },
+    "source_trigger": "castle_stage>=3"
+  },
+  {
+    "id": "ACH_GRADE_C",
+    "event": "snapshot",
+    "facts": {
+      "castle_stage": 4
+    },
+    "source_trigger": "castle_stage>=4"
+  },
+  {
+    "id": "ACH_SELEN",
+    "event": "boss_defeated",
+    "facts": {
+      "boss": "selen_trainee_paladin"
+    },
+    "source_trigger": "boss_defeated(selen_*)"
+  },
+  {
+    "id": "ACH_ROMAN",
+    "event": "boss_defeated",
+    "facts": {
+      "boss": "roman"
+    },
+    "source_trigger": "boss_defeated(roman)"
+  },
+  {
+    "id": "ACH_LEON",
+    "event": "campaign_complete",
+    "facts": {
+      "completed": true
+    },
+    "source_trigger": "campaign_complete"
+  },
+  {
+    "id": "ACH_DAY29",
+    "event": "snapshot",
+    "facts": {
+      "day_reached": 30
+    },
+    "source_trigger": "day_reached==30"
+  },
+  {
+    "id": "ACH_BUILD_FIRST",
+    "event": "construction",
+    "facts": {
+      "buildings_built": 1
+    },
+    "source_trigger": "buildings_built>=1"
+  },
+  {
+    "id": "ACH_BUILD_ALL5",
+    "event": "construction",
+    "facts": {
+      "built_types": 5
+    },
+    "source_trigger": "built_types>=5"
+  },
+  {
+    "id": "ACH_BUILD_MAX",
+    "event": "construction",
+    "facts": {
+      "building_level_max": true
+    },
+    "source_trigger": "building_level_max"
+  },
+  {
+    "id": "ACH_TRAPS_50",
+    "event": "progress",
+    "facts": {
+      "STAT_TRAPS_PLACED": 50
+    },
+    "source_trigger": "traps_placed"
+  },
+  {
+    "id": "ACH_TRAP_KILLS_100",
+    "event": "progress",
+    "facts": {
+      "STAT_TRAP_KILLS": 100
+    },
+    "source_trigger": "trap_kills"
+  },
+  {
+    "id": "ACH_STONE_BRIDGE",
+    "event": "snapshot",
+    "facts": {
+      "castle_stage": 3
+    },
+    "source_trigger": "castle_stage>=3"
+  },
+  {
+    "id": "ACH_NO_THRONE_DMG",
+    "event": "battle_finished",
+    "facts": {
+      "win": true,
+      "throne_damage": 0,
+      "day": 10
+    },
+    "source_trigger": "victory && throne_damage==0 && day>=10"
+  },
+  {
+    "id": "ACH_SPLIT_DEFENSE",
+    "event": "battle_finished",
+    "facts": {
+      "win": true,
+      "grade": "C",
+      "both_final_lines_held": true
+    },
+    "source_trigger": "victory && grade==C && both_final_lines_held"
+  },
+  {
+    "id": "ACH_ALL_FACILITIES_ALIVE",
+    "event": "battle_finished",
+    "facts": {
+      "win": true,
+      "facility_disabled": 0,
+      "castle_stage": 3
+    },
+    "source_trigger": "victory && facility_disabled==0 && grade>=D"
+  },
+  {
+    "id": "ACH_FAMILY_10",
+    "event": "progress",
+    "facts": {
+      "STAT_ROSTER": 10
+    },
+    "source_trigger": "roster_count>=10"
+  },
+  {
+    "id": "ACH_FAMILY_24",
+    "event": "progress",
+    "facts": {
+      "STAT_ROSTER": 24
+    },
+    "source_trigger": "roster_count>=24"
+  },
+  {
+    "id": "ACH_FIRST_MEMORY",
+    "event": "collection",
+    "facts": {
+      "memories": 1
+    },
+    "source_trigger": "memories>=1"
+  },
+  {
+    "id": "ACH_ALL_MEMORIES",
+    "event": "progress",
+    "facts": {
+      "STAT_MEMORIES": 74
+    },
+    "source_trigger": "memories>=all"
+  },
+  {
+    "id": "ACH_FIRST_DUO",
+    "event": "collection",
+    "facts": {
+      "duos": 1
+    },
+    "source_trigger": "duos>=1"
+  },
+  {
+    "id": "ACH_ALL_DUOS",
+    "event": "progress",
+    "facts": {
+      "STAT_DUOS": 16
+    },
+    "source_trigger": "duos>=16"
+  },
+  {
+    "id": "ACH_FIRST_SPEC",
+    "event": "collection",
+    "facts": {
+      "specs": 1
+    },
+    "source_trigger": "specs>=1"
+  },
+  {
+    "id": "ACH_SPEC_24",
+    "event": "progress",
+    "facts": {
+      "STAT_SPECS": 24
+    },
+    "source_trigger": "spec_species>=24"
+  },
+  {
+    "id": "ACH_NO_HUNGER",
+    "event": "campaign_complete",
+    "facts": {
+      "completed": true,
+      "hunger_days": 0,
+      "complete_history": true
+    },
+    "source_trigger": "campaign_complete && hunger_days==0"
+  },
+  {
+    "id": "ACH_FULL_HOUSE",
+    "event": "battle_finished",
+    "facts": {
+      "win": true,
+      "slots_full": true,
+      "food_shortage": 0
+    },
+    "source_trigger": "victory && slots_full && food_shortage==0"
+  },
+  {
+    "id": "ACH_M_FROG",
+    "event": "progress",
+    "facts": {
+      "STAT_FROG_SNAG": 30
+    },
+    "source_trigger": "species stat or event"
+  },
+  {
+    "id": "ACH_M_SNAIL",
+    "event": "progress",
+    "facts": {
+      "STAT_SNAIL_SLOW": 200
+    },
+    "source_trigger": "species stat or event"
+  },
+  {
+    "id": "ACH_M_TROLL",
+    "event": "progress",
+    "facts": {
+      "STAT_TROLL_TOLL": 500
+    },
+    "source_trigger": "species stat or event"
+  },
+  {
+    "id": "ACH_M_SHADOW",
+    "event": "progress",
+    "facts": {
+      "STAT_SHADOW_FEAR": 50
+    },
+    "source_trigger": "species stat or event"
+  },
+  {
+    "id": "ACH_M_ARMOR",
+    "event": "battle_finished",
+    "facts": {
+      "leon_battle": true,
+      "armor_reassembled_alive": true
+    },
+    "source_trigger": "species stat or event"
+  },
+  {
+    "id": "ACH_M_WISP",
+    "event": "progress",
+    "facts": {
+      "STAT_WISP_REVEAL": 20
+    },
+    "source_trigger": "species stat or event"
+  },
+  {
+    "id": "ACH_M_MOLE",
+    "event": "progress",
+    "facts": {
+      "STAT_MOLE_SABOTAGE": 30
+    },
+    "source_trigger": "species stat or event"
+  },
+  {
+    "id": "ACH_M_MAP",
+    "event": "progress",
+    "facts": {
+      "STAT_MAP_LOST": 100
+    },
+    "source_trigger": "species stat or event"
+  },
+  {
+    "id": "ACH_M_RATS",
+    "event": "progress",
+    "facts": {
+      "STAT_RAT_GOLD": 1000
+    },
+    "source_trigger": "species stat or event"
+  },
+  {
+    "id": "ACH_M_DOLL",
+    "event": "monster_moment",
+    "facts": {
+      "doll_saved_ally_in_boss": true
+    },
+    "source_trigger": "species stat or event"
+  },
+  {
+    "id": "ACH_M_PUDDING",
+    "event": "monster_moment",
+    "facts": {
+      "pudding_blocked": 1000
+    },
+    "source_trigger": "species stat or event"
+  },
+  {
+    "id": "ACH_M_GOB",
+    "event": "progress",
+    "facts": {
+      "STAT_GOB_THIEF": 30
+    },
+    "source_trigger": "species stat or event"
+  },
+  {
+    "id": "ACH_M_PYNN",
+    "event": "progress",
+    "facts": {
+      "STAT_PYNN_FIRE": 300
+    },
+    "source_trigger": "species stat or event"
+  },
+  {
+    "id": "ACH_M_ROLO",
+    "event": "progress",
+    "facts": {
+      "STAT_ROLO_RAID": 10
+    },
+    "source_trigger": "species stat or event"
+  },
+  {
+    "id": "ACH_SEAL_NO_THRONE",
+    "event": "seal_cleared",
+    "facts": {
+      "seal": "no_throne_damage"
+    },
+    "source_trigger": "challenge_seal cleared"
+  },
+  {
+    "id": "ACH_SEAL_NO_DOWN",
+    "event": "seal_cleared",
+    "facts": {
+      "seal": "no_monster_down"
+    },
+    "source_trigger": "challenge_seal cleared"
+  },
+  {
+    "id": "ACH_SEAL_LOW_MANA",
+    "event": "seal_cleared",
+    "facts": {
+      "seal": "low_mana"
+    },
+    "source_trigger": "challenge_seal cleared"
+  },
+  {
+    "id": "ACH_SEAL_NO_DISABLE",
+    "event": "seal_cleared",
+    "facts": {
+      "seal": "no_facility_disable"
+    },
+    "source_trigger": "challenge_seal cleared"
+  },
+  {
+    "id": "ACH_SEAL_CONTRACT_VANGUARD",
+    "event": "seal_cleared",
+    "facts": {
+      "seal": "contract_vanguard"
+    },
+    "source_trigger": "challenge_seal cleared"
+  },
+  {
+    "id": "ACH_SEAL_ADAPTIVE",
+    "event": "seal_cleared",
+    "facts": {
+      "seal": "adaptive_rival"
+    },
+    "source_trigger": "challenge_seal cleared"
+  },
+  {
+    "id": "ACH_SECRET_BUCKET",
+    "event": "dialogue_completed",
+    "facts": {
+      "leak_complete": true
+    },
+    "source_trigger": "dialogue_seen(DAY1 leak)"
+  },
+  {
+    "id": "ACH_SECRET_DIRECT_LEON",
+    "event": "boss_defeated",
+    "facts": {
+      "boss": "official_hero_leon",
+      "direct_control": true
+    },
+    "source_trigger": "killing_blow(leon) by direct_control"
+  },
+  {
+    "id": "ACH_SECRET_ALL_IN_ONE",
+    "event": "battle_finished",
+    "facts": {
+      "win": false,
+      "all_units_one_building": true
+    },
+    "source_trigger": "defeat && all_units_one_building"
+  },
+  {
+    "id": "ACH_SECRET_HUNGRY_WIN",
+    "event": "battle_finished",
+    "facts": {
+      "win": true,
+      "hungry_units": 5
+    },
+    "source_trigger": "victory && hungry_units>=5"
+  },
+  {
+    "id": "ACH_SECRET_37",
+    "event": "dialogue_completed",
+    "facts": {
+      "join_species": "river_frog"
+    },
+    "source_trigger": "dialogue_seen(join_river_frog)"
+  },
+  {
+    "id": "ACH_END_TRUE_DEMON_CASTLE",
+    "event": "ending",
+    "facts": {
+      "ending": "true_demon_castle"
+    },
+    "source_trigger": "ending==true_demon_castle"
+  },
+  {
+    "id": "ACH_END_MONSTER_FAMILY_CASTLE",
+    "event": "ending",
+    "facts": {
+      "ending": "monster_family_castle"
+    },
+    "source_trigger": "ending==monster_family_castle"
+  },
+  {
+    "id": "ACH_END_IMPREGNABLE_DEMON_CITADEL",
+    "event": "ending",
+    "facts": {
+      "ending": "impregnable_demon_citadel"
+    },
+    "source_trigger": "ending==impregnable_demon_citadel"
+  },
+  {
+    "id": "ACH_END_DREAD_OVERLORD_RISES",
+    "event": "ending",
+    "facts": {
+      "ending": "dread_overlord_rises"
+    },
+    "source_trigger": "ending==dread_overlord_rises"
+  },
+  {
+    "id": "ACH_END_DEMON_HERO_RIVAL_PACT",
+    "event": "ending",
+    "facts": {
+      "ending": "demon_hero_rival_pact"
+    },
+    "source_trigger": "ending==demon_hero_rival_pact"
+  },
+  {
+    "id": "ACH_END_CONTRACT_MONSTER_ALLIANCE",
+    "event": "ending",
+    "facts": {
+      "ending": "contract_monster_alliance"
+    },
+    "source_trigger": "ending==contract_monster_alliance"
+  },
+  {
+    "id": "ACH_END_ROYAL_DOCTRINE_BROKEN",
+    "event": "ending",
+    "facts": {
+      "ending": "royal_doctrine_broken"
+    },
+    "source_trigger": "ending==royal_doctrine_broken"
+  },
+  {
+    "id": "ACH_END_CHALLENGE_SEAL_LEGEND",
+    "event": "ending",
+    "facts": {
+      "ending": "challenge_seal_legend"
+    },
+    "source_trigger": "ending==challenge_seal_legend"
+  },
+  {
+    "id": "ACH_END_EVELYNS_COUNTERLEDGER",
+    "event": "ending",
+    "facts": {
+      "ending": "evelyns_counterledger"
+    },
+    "source_trigger": "ending==evelyns_counterledger"
+  },
+  {
+    "id": "ACH_END_ADAPTIVE_RIVAL_MASTERY",
+    "event": "ending",
+    "facts": {
+      "ending": "adaptive_rival_mastery"
+    },
+    "source_trigger": "ending==adaptive_rival_mastery"
+  },
+  {
+    "id": "ACH_END_CASTLE_WITHOUT_RESERVES",
+    "event": "ending",
+    "facts": {
+      "ending": "castle_without_reserves"
+    },
+    "source_trigger": "ending==castle_without_reserves"
+  },
+  {
+    "id": "ACH_END_TWELVE_ENDINGS_CHRONICLE",
+    "event": "ending",
+    "facts": {
+      "ending": "twelve_endings_chronicle"
+    },
+    "source_trigger": "ending==twelve_endings_chronicle"
+  },
+  {
+    "id": "ACH_FRONT_FRONT_HERO_OATH",
+    "event": "front_cleared",
+    "facts": {
+      "front": "front_hero_oath"
+    },
+    "source_trigger": "front_cleared(front_hero_oath)"
+  },
+  {
+    "id": "ACH_FRONT_FRONT_HOLY_PURIFICATION",
+    "event": "front_cleared",
+    "facts": {
+      "front": "front_holy_purification"
+    },
+    "source_trigger": "front_cleared(front_holy_purification)"
+  },
+  {
+    "id": "ACH_FRONT_FRONT_GUILD_REPOSSESSION",
+    "event": "front_cleared",
+    "facts": {
+      "front": "front_guild_repossession"
+    },
+    "source_trigger": "front_cleared(front_guild_repossession)"
+  },
+  {
+    "id": "ACH_END3_ENDING_HOLY_OPEN_GATE",
+    "event": "ending",
+    "facts": {
+      "ending": "ending_holy_open_gate"
+    },
+    "source_trigger": "ending==ending_holy_open_gate"
+  },
+  {
+    "id": "ACH_END3_ENDING_OFF_LEDGER_INDEPENDENCE",
+    "event": "ending",
+    "facts": {
+      "ending": "ending_off_ledger_independence"
+    },
+    "source_trigger": "ending==ending_off_ledger_independence"
+  },
+  {
+    "id": "ACH_END3_ENDING_LIVING_CASTLE_VOICE",
+    "event": "ending",
+    "facts": {
+      "ending": "ending_living_castle_voice"
+    },
+    "source_trigger": "ending==ending_living_castle_voice"
+  },
+  {
+    "id": "ACH_END3_ENDING_LINKED_CORRIDORS",
+    "event": "ending",
+    "facts": {
+      "ending": "ending_linked_corridors"
+    },
+    "source_trigger": "ending==ending_linked_corridors"
+  },
+  {
+    "id": "ACH_END3_ENDING_THREE_FRONT_ARMISTICE",
+    "event": "ending",
+    "facts": {
+      "ending": "ending_three_front_armistice"
+    },
+    "source_trigger": "ending==ending_three_front_armistice"
+  },
+  {
+    "id": "ACH_END4_ENDING_COUNCIL_SEAT",
+    "event": "ending",
+    "facts": {
+      "ending": "ending_council_seat"
+    },
+    "source_trigger": "ending==ending_council_seat"
+  },
+  {
+    "id": "ACH_END4_ENDING_TWO_FLOORS_ONE_THRONE",
+    "event": "ending",
+    "facts": {
+      "ending": "ending_two_floors_one_throne"
+    },
+    "source_trigger": "ending==ending_two_floors_one_throne"
+  },
+  {
+    "id": "ACH_END4_ENDING_MINION_WEARS_THE_CROWN",
+    "event": "ending",
+    "facts": {
+      "ending": "ending_minion_wears_the_crown"
+    },
+    "source_trigger": "ending==ending_minion_wears_the_crown"
+  },
+  {
+    "id": "ACH_END4_ENDING_OUTPOST_BECOMES_HOME",
+    "event": "ending",
+    "facts": {
+      "ending": "ending_outpost_becomes_home"
+    },
+    "source_trigger": "ending==ending_outpost_becomes_home"
+  },
+  {
+    "id": "ACH_END4_ENDING_THREE_RIVALS_COSIGN",
+    "event": "ending",
+    "facts": {
+      "ending": "ending_three_rivals_cosign"
+    },
+    "source_trigger": "ending==ending_three_rivals_cosign"
+  },
+  {
+    "id": "ACH_END4_ENDING_COUNCIL_DISSOLVED",
+    "event": "ending",
+    "facts": {
+      "ending": "ending_council_dissolved"
+    },
+    "source_trigger": "ending==ending_council_dissolved"
+  },
+  {
+    "id": "ACH_CROWN_CROWN_PUDDING_ROYAL_BASTION",
+    "event": "crown_evolved",
+    "facts": {
+      "crown": "crown_pudding_royal_bastion"
+    },
+    "source_trigger": "crown_evolved(crown_pudding_royal_bastion)"
+  },
+  {
+    "id": "ACH_CROWN_CROWN_GOB_MIDNIGHT_MARSHAL",
+    "event": "crown_evolved",
+    "facts": {
+      "crown": "crown_gob_midnight_marshal"
+    },
+    "source_trigger": "crown_evolved(crown_gob_midnight_marshal)"
+  },
+  {
+    "id": "ACH_CROWN_CROWN_PYNN_CASTLE_FLAME_SAGE",
+    "event": "crown_evolved",
+    "facts": {
+      "crown": "crown_pynn_castle_flame_sage"
+    },
+    "source_trigger": "crown_evolved(crown_pynn_castle_flame_sage)"
+  },
+  {
+    "id": "ACH_CROWN_CROWN_MORI_GRAND_MYCELIAL_PRIEST",
+    "event": "crown_evolved",
+    "facts": {
+      "crown": "crown_mori_grand_mycelial_priest"
+    },
+    "source_trigger": "crown_evolved(crown_mori_grand_mycelial_priest)"
+  },
+  {
+    "id": "ACH_CROWN_CROWN_TOKTOK_ROYAL_ARMORER",
+    "event": "crown_evolved",
+    "facts": {
+      "crown": "crown_toktok_royal_armorer"
+    },
+    "source_trigger": "crown_evolved(crown_toktok_royal_armorer)"
+  },
+  {
+    "id": "ACH_CROWN_CROWN_POPO_GRAND_NIGHT_COURIER",
+    "event": "crown_evolved",
+    "facts": {
+      "crown": "crown_popo_grand_night_courier"
+    },
+    "source_trigger": "crown_evolved(crown_popo_grand_night_courier)"
+  },
+  {
+    "id": "ACH_MILO",
+    "event": "battle_finished",
+    "facts": {
+      "win": true,
+      "day": 5
+    },
+    "source_trigger": "day_victory==5"
+  },
+  {
+    "id": "ACH_NIA",
+    "event": "battle_finished",
+    "facts": {
+      "win": true,
+      "day": 6,
+      "vault_loss": 0
+    },
+    "source_trigger": "day_victory==6 && vault_loss==0"
+  },
+  {
+    "id": "ACH_ENGINEERS",
+    "event": "battle_finished",
+    "facts": {
+      "win": true,
+      "day": 20,
+      "facility_disabled": 0
+    },
+    "source_trigger": "day_victory==20 && facility_disabled==0"
+  },
+  {
+    "id": "ACH_PERFECT_CAMPAIGN",
+    "event": "campaign_complete",
+    "facts": {
+      "completed": true,
+      "defeats": 0,
+      "complete_history": true
+    },
+    "source_trigger": "campaign_complete && defeats==0"
+  },
+  {
+    "id": "ACH_MOVE_BUILDING",
+    "event": "progress",
+    "facts": {
+      "STAT_BUILDING_MOVES": 20
+    },
+    "source_trigger": "building_moves"
+  },
+  {
+    "id": "ACH_GATE_BRIDGE",
+    "event": "battle_finished",
+    "facts": {
+      "win": true,
+      "grade": "C"
+    },
+    "source_trigger": "victory && grade==C"
+  },
+  {
+    "id": "ACH_VAULT_1000",
+    "event": "settlement",
+    "facts": {
+      "gold": 1000
+    },
+    "source_trigger": "gold>=1000 at settlement"
+  },
+  {
+    "id": "ACH_LEVEL_10",
+    "event": "collection",
+    "facts": {
+      "monster_level": 10
+    },
+    "source_trigger": "monster_level>=10"
+  },
+  {
+    "id": "ACH_FIRST_JOIN_SCENE",
+    "event": "dialogue_completed",
+    "facts": {
+      "join_scene_seen": 1
+    },
+    "source_trigger": "join_scene_seen>=1"
+  },
+  {
+    "id": "ACH_ALL_BARKS",
+    "event": "progress",
+    "facts": {
+      "STAT_BARK_SPECIES": 24
+    },
+    "source_trigger": "barks_species>=24"
+  },
+  {
+    "id": "ACH_SPEED_X3_WIN",
+    "event": "battle_finished",
+    "facts": {
+      "win": true,
+      "speed_always_x3": true
+    },
+    "source_trigger": "victory && speed_always_x3"
+  },
+  {
+    "id": "ACH_SECRET_ZERO_FOOD",
+    "event": "battle_finished",
+    "facts": {
+      "win": true,
+      "previous_settlement_zero_food": true
+    },
+    "source_trigger": "food==0 at settlement then victory"
+  },
+  {
+    "id": "ACH_SECRET_BATI",
+    "event": "progress",
+    "facts": {
+      "STAT_BATI_LINES": 100
+    },
+    "source_trigger": "bati_lines_seen>=100"
+  },
+  {
+    "id": "ACH_100",
+    "event": "meta",
+    "facts": {
+      "achievements": 99
+    },
+    "source_trigger": "achievements>=99"
+  }
+]

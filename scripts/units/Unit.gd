@@ -536,6 +536,7 @@ func receive_damage(amount: int) -> int:
 	# A cancelled or rounded-to-zero hit must not consume HP or barriers.
 	if down or amount <= 0:
 		return 0
+	set_meta("redirect_actual_hp_loss",0)
 	var redirect_target: UnitActor = duo_redirect_target if duo_redirect_timer > 0.0 and is_instance_valid(duo_redirect_target) and duo_redirect_target.is_alive() else null
 	var redirect_fraction := duo_redirect_fraction if redirect_target != null else 0.0
 	if royal_jelly_redirect_timer > 0.0 and is_instance_valid(royal_jelly_redirect_target) and royal_jelly_redirect_target.is_alive() and royal_jelly_redirect_fraction > redirect_fraction:
@@ -590,8 +591,16 @@ func receive_damage(amount: int) -> int:
 	if hp-final_amount<=0:
 		var game_root=_game_root()
 		if game_root!=null and game_root.combat_scene.royal_support.prevent_fatal(self,final_amount):final_amount=maxi(0,hp-1)
+	if unit_id == "slime" and amount > final_amount:
+		var blocked: int = int(get_meta("ach_blocked",0))+maxi(0,amount-final_amount)
+		set_meta("ach_blocked",blocked)
+		AchievementService.record("monster_moment",{"pudding_blocked":blocked})
 	var native_hp_before:int=hp
 	hp = max(0, hp - final_amount)
+	if hp > 0 and is_instance_valid(redirect_target) and redirect_target.unit_id == "curse_doll" and int(get_meta("redirect_actual_hp_loss",0)) > 0 and native_hp_before <= final_amount+int(get_meta("redirect_actual_hp_loss",0)):
+		var ach_game = _game_root()
+		if ach_game != null and ach_game.enemy_units.any(func(u): return is_instance_valid(u) and (bool(DataRegistry.enemies.get(u.unit_id,{}).get("boss",false)) or "leon" in str(u.unit_id))):
+			AchievementService.record("monster_moment",{"doll_saved_ally_in_boss":true})
 	var native_root=_game_root()
 	if native_root!=null and native_hp_before>hp:
 		native_root.combat_scene.native_objectives.damage_received(self,native_hp_before,hp)

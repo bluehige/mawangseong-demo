@@ -37,6 +37,8 @@ var original_graph
 var original_rooms: Dictionary
 var spec_effects = preload("res://scripts/systems/SpecializationEffects.gd").new()
 var monster_skills = preload("res://scripts/combat/V130RMonsterSkills.gd").new()
+const Ach = preload("res://scripts/achievements/AchievementGameplay.gd")
+var achievement_state := {}
 var duos = preload("res://scripts/combat/V130RDuoRuntime.gd").new()
 
 func activate_v130r_duo(id: String) -> bool:
@@ -86,6 +88,7 @@ func begin(map_view: Control) -> void:
 		var jitter := maxf(0,float(entry.get("spawn_jitter",0)))
 		if jitter>0: entry.time = maxf(0,float(entry.time)+randf_range(-jitter,jitter))
 	root.wave_manager.schedule.sort_custom(func(a,b): return float(a.time)<float(b.time))
+	achievement_state = Ach.begin(self)
 	running = true
 
 func make_unit(id: String, stats: Dictionary, faction: String, room_id: String) -> Node:
@@ -168,6 +171,7 @@ func route_path(unit: Node, desired: Vector2) -> Array:
 
 func physics_process(delta: float) -> void:
 	if not running or root.current_screen!=Constants.SCREEN_COMBAT or root.combat_paused: return
+	Ach.tick(self)
 	var sim_delta: float = delta*root.combat_speed
 	root.combat_time += sim_delta
 	monster_skills.tick(sim_delta)
@@ -356,7 +360,8 @@ func update_room_effects(delta: float) -> void:
 			if not root.monster_units.any(func(u): return u.is_alive()): damage *= 3
 			GameState.damage_throne(damage); enemy.attack_cooldown = enemy.effective_attack_interval()
 		elif enemy.unit_id=="thief": tick_theft(enemy,delta)
-		elif str(enemy.get_meta("goal_type",""))=="facility" and (map.layout.get("grade","") not in ["D","C"] or enemy.goal_room not in ["entrance","throne","vault"]) and enemy.attack_cooldown<=0:
+		elif str(enemy.get_meta("goal_type",""))=="facility" and (map.layout.get("grade","") not in ["D","C"] or enemy.goal_room not in ["entrance","throne","vault"]) and enemy.attack_cooldown<=0 and enemy.action_interrupt_timer<=0:
+			achievement_state.facility_disabled = int(achievement_state.facility_disabled)+1
 			map.rooms[enemy.goal_room]["disabled_until"] = root.combat_time+ENGINEER_DISABLE_SECONDS
 			enemy.attack_cooldown = enemy.effective_attack_interval()
 			enemy.goal_room = "throne"
@@ -389,8 +394,13 @@ func apply_cell_traps(enemy: Node) -> void:
 	if root.combat_time<float(trap_next_hits.get(key,0)): return
 	trap_next_hits[key] = root.combat_time+2.0
 	var damage := 0
-	if kind=="spikes": damage = enemy.receive_damage(14)
-	else: enemy.apply_slow(2.0*trap_duration_multiplier(c)+monster_skills.sticky_extra(c),.55)
+	if kind=="spikes":
+		damage = enemy.receive_damage(14)
+		if not enemy.is_alive(): AchievementService.count("STAT_TRAP_KILLS")
+	else:
+		enemy.apply_slow(2.0*trap_duration_multiplier(c)+monster_skills.sticky_extra(c),.55)
+		if temporary_traps.any(func(t): return t.cell == c and str(t.source_id) == "slime_trail"):
+			AchievementService.count("STAT_SNAIL_SLOW")
 	trap_events.append({"time":root.combat_time,"kind":kind,"cell":str(c),"damage":damage,"enemy":enemy.unit_id})
 	# Existing GPT tile artwork flashes; no procedural geometry or new drawing.
 	var flash: Sprite2D = view.cell_highlight(visuals,c,Color(1,.5,.15,.8) if kind=="spikes" else Color(.35,1,.6,.8))
@@ -459,6 +469,7 @@ func _flame_zone_targets() -> Array:
 
 func set_speed(speed: float) -> void:
 	root.combat_speed = clampf(speed,1,3); root.combat_paused = false
+	if not is_equal_approx(speed,3.0): achievement_state.speed_x3 = false
 	for unit in root.monster_units+root.enemy_units: unit.set_simulation_speed(root.combat_speed); unit.set_physics_process(running)
 
 func set_pause_state(paused: bool, _emit_log: bool = true) -> void:
@@ -566,6 +577,7 @@ func finish_combat(win: bool, reason: String) -> void:
 	if not running: return
 	if win:
 		for unit in root.monster_units: root.v130r_story.bark(root,unit,"victory")
+	Ach.finish(self,win)
 	running = false
 	spec_effects.refund_tolls()
 	last_result = {"win":win,"reason":reason,"duration":root.combat_time,"spawned":root.spawned_count,"trap_hits":trap_events.size(),"skills":skill_events.size(),"gold_stolen":root.treasure_gold_stolen_this_battle}
@@ -582,6 +594,8 @@ func call_deferred_result(win: bool, reason: String) -> void:
 
 func settle_result(win: bool, reason: String) -> void:
 	super.finish_combat(win,reason)
+	AchievementService.record("battle_finished",{"win":win,"slots_full":bool(achievement_state.get("full_house",false)),"food_shortage":int(GameState.food_state.get("last",{}).get("shortfall",0))})
+	Ach.settlement(root)
 
 func try_auto_monster_skill(unit: Node) -> bool:
 	if DataRegistry.monster(unit.unit_id).get("instance_id","").begins_with("mon_v130r_"):

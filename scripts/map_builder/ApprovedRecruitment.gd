@@ -71,6 +71,7 @@ static func finish(game: Node) -> void:
 	for id in game.get_meta("approved_join_pending",[]):
 		if not members.has(id) or id in state.owned: continue
 		state.owned.append(id)
+		if not bool(game.get_meta("ach_dialogue_skipped",false)): AchievementService.record("dialogue_completed",{"join_scene_seen":1,"join_species":str(members[id].species_id)})
 		var species: String = members[id].species_id
 		if DataRegistry.update2_contracts.has(species): game._add_contract_monster_to_roster(species)
 		else: game._add_update3_monster_to_roster(species,id)

@@ -73,6 +73,7 @@ func open_menu() -> void:
 	menu_open = true; root._onboarding_set_stage("LV00_START_MENU"); root._set_screen("title",false)
 
 func reset_run() -> void:
+	AchievementService.fresh_campaign()
 	fresh = true; intro_complete = false; guide_step = 1; command_seen = false
 	play_seconds = 0.0; naming = false; prologue_index = 0; replaying = false; replay_on_continue = false
 	if root.has_meta(Grade.SESSION): root.remove_meta(Grade.SESSION)
@@ -119,6 +120,7 @@ func begin_naming() -> void:
 	root._set_screen("name_entry",false)
 
 func next_naming() -> void:
+	preload("res://scripts/achievements/AchievementGameplay.gd").read_line("START_NAME_QUESTION_"+str(naming_turn),"CHR_BATI")
 	naming_turn += 1; root._set_screen("name_entry",false)
 
 func build_naming_talk() -> void:

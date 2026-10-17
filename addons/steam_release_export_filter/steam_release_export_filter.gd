@@ -29,6 +29,10 @@ func _get_name() -> String:
 
 
 func _export_file(path: String, _type: String, features: PackedStringArray) -> void:
+	if path == "res://steam_appid.txt":
+		skip(); return
+	if path.begins_with("res://addons/godotsteam/") and not features.has("windows"):
+		skip(); return
 	if not features.has("steam"):
 		return
 	if BLOCKED_FILES.has(path):

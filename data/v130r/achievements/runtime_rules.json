@@ -1,0 +1,1142 @@
+{
+  "ACH_FIRST_NIGHT": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        true
+      ],
+      [
+        "day",
+        "eq",
+        1
+      ]
+    ]
+  },
+  "ACH_HERO_TRAINEE": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        true
+      ],
+      [
+        "day",
+        "eq",
+        3
+      ]
+    ]
+  },
+  "ACH_MILO": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        true
+      ],
+      [
+        "day",
+        "eq",
+        5
+      ]
+    ]
+  },
+  "ACH_THIEF_DENIED": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        true
+      ],
+      [
+        "thief_day",
+        "eq",
+        true
+      ],
+      [
+        "vault_loss",
+        "eq",
+        0
+      ]
+    ]
+  },
+  "ACH_GRADE_E": {
+    "event": "snapshot",
+    "terms": [
+      [
+        "castle_stage",
+        "gte",
+        2
+      ]
+    ]
+  },
+  "ACH_GRADE_D": {
+    "event": "snapshot",
+    "terms": [
+      [
+        "castle_stage",
+        "gte",
+        3
+      ]
+    ]
+  },
+  "ACH_GRADE_C": {
+    "event": "snapshot",
+    "terms": [
+      [
+        "castle_stage",
+        "gte",
+        4
+      ]
+    ]
+  },
+  "ACH_STONE_BRIDGE": {
+    "event": "snapshot",
+    "terms": [
+      [
+        "castle_stage",
+        "gte",
+        3
+      ]
+    ]
+  },
+  "ACH_SELEN": {
+    "event": "boss_defeated",
+    "terms": [
+      [
+        "boss",
+        "prefix",
+        "selen_"
+      ]
+    ]
+  },
+  "ACH_ROMAN": {
+    "event": "boss_defeated",
+    "terms": [
+      [
+        "boss",
+        "eq",
+        "roman"
+      ]
+    ]
+  },
+  "ACH_LEON": {
+    "event": "campaign_complete",
+    "terms": [
+      [
+        "completed",
+        "eq",
+        true
+      ]
+    ]
+  },
+  "ACH_DAY29": {
+    "event": "snapshot",
+    "terms": [
+      [
+        "day_reached",
+        "eq",
+        30
+      ]
+    ]
+  },
+  "ACH_BUILD_FIRST": {
+    "event": "construction",
+    "terms": [
+      [
+        "buildings_built",
+        "gte",
+        1
+      ]
+    ]
+  },
+  "ACH_BUILD_ALL5": {
+    "event": "construction",
+    "terms": [
+      [
+        "built_types",
+        "gte",
+        5
+      ]
+    ]
+  },
+  "ACH_BUILD_MAX": {
+    "event": "construction",
+    "terms": [
+      [
+        "building_level_max",
+        "eq",
+        true
+      ]
+    ]
+  },
+  "ACH_NO_THRONE_DMG": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        true
+      ],
+      [
+        "throne_damage",
+        "eq",
+        0
+      ],
+      [
+        "day",
+        "gte",
+        10
+      ]
+    ]
+  },
+  "ACH_SPLIT_DEFENSE": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        true
+      ],
+      [
+        "grade",
+        "eq",
+        "C"
+      ],
+      [
+        "both_final_lines_held",
+        "eq",
+        true
+      ]
+    ]
+  },
+  "ACH_ALL_FACILITIES_ALIVE": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        true
+      ],
+      [
+        "facility_disabled",
+        "eq",
+        0
+      ],
+      [
+        "castle_stage",
+        "gte",
+        3
+      ]
+    ]
+  },
+  "ACH_FIRST_MEMORY": {
+    "event": "collection",
+    "terms": [
+      [
+        "memories",
+        "gte",
+        1
+      ]
+    ]
+  },
+  "ACH_FIRST_DUO": {
+    "event": "collection",
+    "terms": [
+      [
+        "duos",
+        "gte",
+        1
+      ]
+    ]
+  },
+  "ACH_FIRST_SPEC": {
+    "event": "collection",
+    "terms": [
+      [
+        "specs",
+        "gte",
+        1
+      ]
+    ]
+  },
+  "ACH_NO_HUNGER": {
+    "event": "campaign_complete",
+    "terms": [
+      [
+        "completed",
+        "eq",
+        true
+      ],
+      [
+        "complete_history",
+        "eq",
+        true
+      ],
+      [
+        "hunger_days",
+        "eq",
+        0
+      ]
+    ]
+  },
+  "ACH_FULL_HOUSE": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        true
+      ],
+      [
+        "slots_full",
+        "eq",
+        true
+      ],
+      [
+        "food_shortage",
+        "eq",
+        0
+      ]
+    ]
+  },
+  "ACH_M_ARMOR": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "leon_battle",
+        "eq",
+        true
+      ],
+      [
+        "armor_reassembled_alive",
+        "eq",
+        true
+      ]
+    ]
+  },
+  "ACH_M_DOLL": {
+    "event": "monster_moment",
+    "terms": [
+      [
+        "doll_saved_ally_in_boss",
+        "eq",
+        true
+      ]
+    ]
+  },
+  "ACH_M_PUDDING": {
+    "event": "monster_moment",
+    "terms": [
+      [
+        "pudding_blocked",
+        "gte",
+        1000
+      ]
+    ]
+  },
+  "ACH_SEAL_NO_THRONE": {
+    "event": "seal_cleared",
+    "terms": [
+      [
+        "seal",
+        "eq",
+        "no_throne_damage"
+      ]
+    ]
+  },
+  "ACH_SEAL_NO_DOWN": {
+    "event": "seal_cleared",
+    "terms": [
+      [
+        "seal",
+        "eq",
+        "no_monster_down"
+      ]
+    ]
+  },
+  "ACH_SEAL_LOW_MANA": {
+    "event": "seal_cleared",
+    "terms": [
+      [
+        "seal",
+        "eq",
+        "low_mana"
+      ]
+    ]
+  },
+  "ACH_SEAL_NO_DISABLE": {
+    "event": "seal_cleared",
+    "terms": [
+      [
+        "seal",
+        "eq",
+        "no_facility_disable"
+      ]
+    ]
+  },
+  "ACH_SEAL_CONTRACT_VANGUARD": {
+    "event": "seal_cleared",
+    "terms": [
+      [
+        "seal",
+        "eq",
+        "contract_vanguard"
+      ]
+    ]
+  },
+  "ACH_SEAL_ADAPTIVE": {
+    "event": "seal_cleared",
+    "terms": [
+      [
+        "seal",
+        "eq",
+        "adaptive_rival"
+      ]
+    ]
+  },
+  "ACH_SECRET_BUCKET": {
+    "event": "dialogue_completed",
+    "terms": [
+      [
+        "leak_complete",
+        "eq",
+        true
+      ]
+    ]
+  },
+  "ACH_SECRET_DIRECT_LEON": {
+    "event": "boss_defeated",
+    "terms": [
+      [
+        "boss",
+        "eq",
+        "official_hero_leon"
+      ],
+      [
+        "direct_control",
+        "eq",
+        true
+      ]
+    ]
+  },
+  "ACH_SECRET_ALL_IN_ONE": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        false
+      ],
+      [
+        "all_units_one_building",
+        "eq",
+        true
+      ]
+    ]
+  },
+  "ACH_SECRET_HUNGRY_WIN": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        true
+      ],
+      [
+        "hungry_units",
+        "gte",
+        5
+      ]
+    ]
+  },
+  "ACH_SECRET_37": {
+    "event": "dialogue_completed",
+    "terms": [
+      [
+        "join_species",
+        "eq",
+        "river_frog"
+      ]
+    ]
+  },
+  "ACH_NIA": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        true
+      ],
+      [
+        "day",
+        "eq",
+        6
+      ],
+      [
+        "vault_loss",
+        "eq",
+        0
+      ]
+    ]
+  },
+  "ACH_ENGINEERS": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        true
+      ],
+      [
+        "day",
+        "eq",
+        20
+      ],
+      [
+        "facility_disabled",
+        "eq",
+        0
+      ]
+    ]
+  },
+  "ACH_PERFECT_CAMPAIGN": {
+    "event": "campaign_complete",
+    "terms": [
+      [
+        "completed",
+        "eq",
+        true
+      ],
+      [
+        "complete_history",
+        "eq",
+        true
+      ],
+      [
+        "defeats",
+        "eq",
+        0
+      ]
+    ]
+  },
+  "ACH_GATE_BRIDGE": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        true
+      ],
+      [
+        "grade",
+        "eq",
+        "C"
+      ]
+    ]
+  },
+  "ACH_VAULT_1000": {
+    "event": "settlement",
+    "terms": [
+      [
+        "gold",
+        "gte",
+        1000
+      ]
+    ]
+  },
+  "ACH_LEVEL_10": {
+    "event": "collection",
+    "terms": [
+      [
+        "monster_level",
+        "gte",
+        10
+      ]
+    ]
+  },
+  "ACH_FIRST_JOIN_SCENE": {
+    "event": "dialogue_completed",
+    "terms": [
+      [
+        "join_scene_seen",
+        "gte",
+        1
+      ]
+    ]
+  },
+  "ACH_SPEED_X3_WIN": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        true
+      ],
+      [
+        "speed_always_x3",
+        "eq",
+        true
+      ]
+    ]
+  },
+  "ACH_SECRET_ZERO_FOOD": {
+    "event": "battle_finished",
+    "terms": [
+      [
+        "win",
+        "eq",
+        true
+      ],
+      [
+        "previous_settlement_zero_food",
+        "eq",
+        true
+      ]
+    ]
+  },
+  "ACH_100": {
+    "event": "meta",
+    "terms": [
+      [
+        "achievements",
+        "gte",
+        99
+      ]
+    ]
+  },
+  "ACH_TRAPS_50": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_TRAPS_PLACED",
+        "gte",
+        50
+      ]
+    ]
+  },
+  "ACH_TRAP_KILLS_100": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_TRAP_KILLS",
+        "gte",
+        100
+      ]
+    ]
+  },
+  "ACH_FAMILY_10": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_ROSTER",
+        "gte",
+        10
+      ]
+    ]
+  },
+  "ACH_FAMILY_24": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_ROSTER",
+        "gte",
+        24
+      ]
+    ]
+  },
+  "ACH_ALL_MEMORIES": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_MEMORIES",
+        "gte",
+        74
+      ]
+    ]
+  },
+  "ACH_ALL_DUOS": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_DUOS",
+        "gte",
+        16
+      ]
+    ]
+  },
+  "ACH_SPEC_24": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_SPECS",
+        "gte",
+        24
+      ]
+    ]
+  },
+  "ACH_M_FROG": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_FROG_SNAG",
+        "gte",
+        30
+      ]
+    ]
+  },
+  "ACH_M_SNAIL": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_SNAIL_SLOW",
+        "gte",
+        200
+      ]
+    ]
+  },
+  "ACH_M_TROLL": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_TROLL_TOLL",
+        "gte",
+        500
+      ]
+    ]
+  },
+  "ACH_M_SHADOW": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_SHADOW_FEAR",
+        "gte",
+        50
+      ]
+    ]
+  },
+  "ACH_M_WISP": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_WISP_REVEAL",
+        "gte",
+        20
+      ]
+    ]
+  },
+  "ACH_M_MOLE": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_MOLE_SABOTAGE",
+        "gte",
+        30
+      ]
+    ]
+  },
+  "ACH_M_MAP": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_MAP_LOST",
+        "gte",
+        100
+      ]
+    ]
+  },
+  "ACH_M_RATS": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_RAT_GOLD",
+        "gte",
+        1000
+      ]
+    ]
+  },
+  "ACH_M_GOB": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_GOB_THIEF",
+        "gte",
+        30
+      ]
+    ]
+  },
+  "ACH_M_PYNN": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_PYNN_FIRE",
+        "gte",
+        300
+      ]
+    ]
+  },
+  "ACH_M_ROLO": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_ROLO_RAID",
+        "gte",
+        10
+      ]
+    ]
+  },
+  "ACH_END_TRUE_DEMON_CASTLE": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "true_demon_castle"
+      ]
+    ]
+  },
+  "ACH_END_MONSTER_FAMILY_CASTLE": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "monster_family_castle"
+      ]
+    ]
+  },
+  "ACH_END_IMPREGNABLE_DEMON_CITADEL": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "impregnable_demon_citadel"
+      ]
+    ]
+  },
+  "ACH_END_DREAD_OVERLORD_RISES": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "dread_overlord_rises"
+      ]
+    ]
+  },
+  "ACH_END_DEMON_HERO_RIVAL_PACT": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "demon_hero_rival_pact"
+      ]
+    ]
+  },
+  "ACH_END_CONTRACT_MONSTER_ALLIANCE": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "contract_monster_alliance"
+      ]
+    ]
+  },
+  "ACH_END_ROYAL_DOCTRINE_BROKEN": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "royal_doctrine_broken"
+      ]
+    ]
+  },
+  "ACH_END_CHALLENGE_SEAL_LEGEND": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "challenge_seal_legend"
+      ]
+    ]
+  },
+  "ACH_END_EVELYNS_COUNTERLEDGER": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "evelyns_counterledger"
+      ]
+    ]
+  },
+  "ACH_END_ADAPTIVE_RIVAL_MASTERY": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "adaptive_rival_mastery"
+      ]
+    ]
+  },
+  "ACH_END_CASTLE_WITHOUT_RESERVES": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "castle_without_reserves"
+      ]
+    ]
+  },
+  "ACH_END_TWELVE_ENDINGS_CHRONICLE": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "twelve_endings_chronicle"
+      ]
+    ]
+  },
+  "ACH_FRONT_FRONT_HERO_OATH": {
+    "event": "front_cleared",
+    "terms": [
+      [
+        "front",
+        "eq",
+        "front_hero_oath"
+      ]
+    ]
+  },
+  "ACH_FRONT_FRONT_HOLY_PURIFICATION": {
+    "event": "front_cleared",
+    "terms": [
+      [
+        "front",
+        "eq",
+        "front_holy_purification"
+      ]
+    ]
+  },
+  "ACH_FRONT_FRONT_GUILD_REPOSSESSION": {
+    "event": "front_cleared",
+    "terms": [
+      [
+        "front",
+        "eq",
+        "front_guild_repossession"
+      ]
+    ]
+  },
+  "ACH_END3_ENDING_HOLY_OPEN_GATE": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "ending_holy_open_gate"
+      ]
+    ]
+  },
+  "ACH_END3_ENDING_OFF_LEDGER_INDEPENDENCE": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "ending_off_ledger_independence"
+      ]
+    ]
+  },
+  "ACH_END3_ENDING_LIVING_CASTLE_VOICE": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "ending_living_castle_voice"
+      ]
+    ]
+  },
+  "ACH_END3_ENDING_LINKED_CORRIDORS": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "ending_linked_corridors"
+      ]
+    ]
+  },
+  "ACH_END3_ENDING_THREE_FRONT_ARMISTICE": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "ending_three_front_armistice"
+      ]
+    ]
+  },
+  "ACH_END4_ENDING_COUNCIL_SEAT": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "ending_council_seat"
+      ]
+    ]
+  },
+  "ACH_END4_ENDING_TWO_FLOORS_ONE_THRONE": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "ending_two_floors_one_throne"
+      ]
+    ]
+  },
+  "ACH_END4_ENDING_MINION_WEARS_THE_CROWN": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "ending_minion_wears_the_crown"
+      ]
+    ]
+  },
+  "ACH_END4_ENDING_OUTPOST_BECOMES_HOME": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "ending_outpost_becomes_home"
+      ]
+    ]
+  },
+  "ACH_END4_ENDING_THREE_RIVALS_COSIGN": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "ending_three_rivals_cosign"
+      ]
+    ]
+  },
+  "ACH_END4_ENDING_COUNCIL_DISSOLVED": {
+    "event": "ending",
+    "terms": [
+      [
+        "ending",
+        "eq",
+        "ending_council_dissolved"
+      ]
+    ]
+  },
+  "ACH_CROWN_CROWN_PUDDING_ROYAL_BASTION": {
+    "event": "crown_evolved",
+    "terms": [
+      [
+        "crown",
+        "eq",
+        "crown_pudding_royal_bastion"
+      ]
+    ]
+  },
+  "ACH_CROWN_CROWN_GOB_MIDNIGHT_MARSHAL": {
+    "event": "crown_evolved",
+    "terms": [
+      [
+        "crown",
+        "eq",
+        "crown_gob_midnight_marshal"
+      ]
+    ]
+  },
+  "ACH_CROWN_CROWN_PYNN_CASTLE_FLAME_SAGE": {
+    "event": "crown_evolved",
+    "terms": [
+      [
+        "crown",
+        "eq",
+        "crown_pynn_castle_flame_sage"
+      ]
+    ]
+  },
+  "ACH_CROWN_CROWN_MORI_GRAND_MYCELIAL_PRIEST": {
+    "event": "crown_evolved",
+    "terms": [
+      [
+        "crown",
+        "eq",
+        "crown_mori_grand_mycelial_priest"
+      ]
+    ]
+  },
+  "ACH_CROWN_CROWN_TOKTOK_ROYAL_ARMORER": {
+    "event": "crown_evolved",
+    "terms": [
+      [
+        "crown",
+        "eq",
+        "crown_toktok_royal_armorer"
+      ]
+    ]
+  },
+  "ACH_CROWN_CROWN_POPO_GRAND_NIGHT_COURIER": {
+    "event": "crown_evolved",
+    "terms": [
+      [
+        "crown",
+        "eq",
+        "crown_popo_grand_night_courier"
+      ]
+    ]
+  },
+  "ACH_MOVE_BUILDING": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_BUILDING_MOVES",
+        "gte",
+        20
+      ]
+    ]
+  },
+  "ACH_ALL_BARKS": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_BARK_SPECIES",
+        "gte",
+        24
+      ]
+    ]
+  },
+  "ACH_SECRET_BATI": {
+    "event": "progress",
+    "terms": [
+      [
+        "STAT_BATI_LINES",
+        "gte",
+        100
+      ]
+    ]
+  }
+}
