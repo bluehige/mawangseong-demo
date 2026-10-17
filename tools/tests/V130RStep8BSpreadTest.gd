@@ -85,7 +85,7 @@ func trial(day: int, trial_index: int, layout_mode: String, capture: bool = fals
 				if (enemy.goal_room=="bait_treasure" and c.y>=10) or (enemy.goal_room=="ward_core" and c.x>=16) or (enemy.goal_room=="vault" and c.x>=25 and c.y>=10): side_route = true
 				if enemy.goal_room=="throne" and c.x>=8: throne_route = true
 			var lost_facility: bool = battle.facility_losses.any(func(e): return e.building=="recovery_nest")
-			if (day==24 and game.combat_time>=24 and side_route and throne_route) or (day==27 and lost_facility):
+			if capture_ready(day,side_route,throne_route,lost_facility):
 				await capture_spread(day,layout_mode); captured = true
 		if steps%300==0: await get_tree().process_frame
 	var result: Dictionary = battle.last_result.duplicate(true)
@@ -98,6 +98,9 @@ func trial(day: int, trial_index: int, layout_mode: String, capture: bool = fals
 		view.battle_ui.queue_free(); view.battle_ui = null; view.battle = null
 	battle.release(); battle = null; await get_tree().process_frame
 	return result
+
+func capture_ready(day: int, side_route: bool, throne_route: bool, lost_facility: bool) -> bool:
+	return (day==24 and game.combat_time>=24 and side_route and throne_route) or (day==27 and lost_facility)
 
 func preparation_day_checks() -> void:
 	prepare(29,"recommended")

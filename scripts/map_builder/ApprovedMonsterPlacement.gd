@@ -71,6 +71,7 @@ static func auto_place(layout: Dictionary, members: Dictionary, unlocked: Array,
 	var roster_order: Array = members.keys()
 	var order := roster_order.duplicate()
 	var first := ["slime","imp","spore_healer","mimic_porter"]
+	if layout.get("grade","") in ["D","C"]: first.append_array(["stone_sentinel","bridge_troll","crumpled_map"])
 	order.sort_custom(func(a,b):
 		var pa: int = first.find(members[a].species_id); var pb: int = first.find(members[b].species_id)
 		if pa<0: pa = first.size()
@@ -80,12 +81,24 @@ static func auto_place(layout: Dictionary, members: Dictionary, unlocked: Array,
 		var row: Dictionary = members[id]
 		if id not in unlocked or spent+row.upkeep>limit: continue
 		var placed := false
-		for kind in preferences(row.species_id):
+		var preferred := preferences(row.species_id)
+		# Guard the larger final apron with two durable defenders, retaining the
+		# imp/map support pair. C divides that quartet between independent doors.
+		if layout.get("grade","") in ["D","C"] and row.species_id in ["stone_sentinel","bridge_troll"]: preferred = ["throne","barracks","ward_core","recovery_nest","vault"]
+		for kind in preferred:
 			for b in layout.buildings:
 				if b.kind!=kind: continue
 				var slots: Array = range(layout.defense_points[b.id].size())
 				# Front line tanks face the entrance, ranged defenders use rear slots.
 				slots.sort_custom(func(a,b_index):
+					if layout.get("grade","")=="C" and b.kind=="throne":
+						var a_port: int = int(a)/2; var b_port: int = int(b_index)/2
+						var counts := [0,0]
+						for target in next.values():
+							if target.building==b.id: counts[int(target.slot)/2] += 1
+						if counts[a_port]!=counts[b_port]: return counts[a_port]<counts[b_port]
+						if a_port!=b_port: return a_port<b_port
+						return a%2>b_index%2 if row.species_id in RANGED or row.species_id in SUPPORT else a%2<b_index%2
 					var pa: Vector2i = layout.defense_points[b.id][a]; var pb: Vector2i = layout.defense_points[b.id][b_index]
 					return pa.x>pb.x if row.species_id in RANGED else pa.x<pb.x)
 				for slot in slots:

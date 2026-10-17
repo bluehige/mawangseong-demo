@@ -20,10 +20,13 @@ func expected_level(day: int, species: String) -> int:
 	if species in game.selected_contract_ids: joined = 1
 	return 1+floori(maxi(0,day-joined)/3.0)
 
+func layout_for_day(day: int) -> Dictionary:
+	return Buildings.initial(game,"F" if day<15 else "E")
+
 func prepare(day: int, layout_mode: String) -> void:
-	view.placement = Buildings.initial(game,"F" if day<15 else "E")
+	view.placement = layout_for_day(day)
 	view.placement.day = day; view.placement.food_state = Food.fresh()
-	view.state = preload("res://scripts/map_builder/ApprovedMapLayout.gd").read("F" if day<15 else "E")
+	view.state = preload("res://scripts/map_builder/ApprovedMapLayout.gd").read(str(view.placement.grade))
 	view.monster_ui.food_income = Food.income(day)
 	view.placement.resources = {"gold":1200,"mana":600,"food":Food.capacity(day)}
 	GameState.day = day; GameState.max_day = 30

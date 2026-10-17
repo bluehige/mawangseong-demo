@@ -32,19 +32,31 @@ static func initial(game: Node, grade: String = "E") -> Dictionary:
 		state.catalog[id] = {"name":NAMES[id],"size":Vector2i.ONE,"capacity":0,"cost":{"gold":40 if id=="spikes" else 60},"unique":false,"stage":1,"aura":0.0}
 	for b in plan.buildings:
 		var r: Array = b.rect
-		var cap := int(state.catalog.get(b.id,{}).get("capacity",0))
+		var kind: String = b.get("kind",b.id)
+		var cap := int(state.catalog.get(kind,{}).get("capacity",0))
+		if grade in ["D","C"] and not b.fixed: cap += 2 if grade=="D" else 3
 		if b.id=="throne": cap = 4
 		if b.id=="vault": cap = 2
-		var paid: Dictionary = state.catalog.get(b.id,{}).get("cost",{}).duplicate()
-		var row := {"id":b.id,"kind":b.id,"rect":Rect2i(r[0],r[1],r[2],r[3]),"fixed":b.fixed,"capacity":cap,"aura":float(state.catalog.get(b.id,{}).get("aura",0.0)),"level":1,"preferred":b.door,"paid":paid}
+		var paid: Dictionary = state.catalog.get(kind,{}).get("cost",{}).duplicate()
+		var row := {"id":b.id,"kind":kind,"rect":Rect2i(r[0],r[1],r[2],r[3]),"fixed":b.fixed,"capacity":cap,"aura":float(state.catalog.get(kind,{}).get("aura",0.0)),"level":1,"preferred":b.door,"paid":paid}
+		if grade in ["D","C"]:
+			row["capacity_bonus"] = 0 if b.fixed else 2 if grade=="D" else 3
+			row["plan_site_id"] = b.id
 		if b.has("defense_cells"):
 			var points: Array = []
 			for c in b.defense_cells: points.append(Vector2i(c[0],c[1]))
-			state.plan_defense[b.id] = {"rect":row.rect,"cells":points}
+			state.plan_defense[b.id] = {"rect":row.rect,"cells":points,"front":b.get("door_outside",[]),"side":b.door,"kind":kind,"secondary":b.get("secondary_doors",[])}
 		if b.fixed:
 			row["socket_front"] = []
 			for c in b.get("door_outside",[[3,8],[3,9]]): row.socket_front.append([int(c[0]),int(c[1])])
 		state.buildings.append(row)
+	if grade in ["D","C"]:
+		state["door_goal_center"] = bool(plan.get("door_goal_center",false))
+		state["branch_routes"] = bool(plan.get("branch_routes",false))
+		state.stage = 3 if grade=="D" else 4
+		state.day = 20 if grade=="D" else 27
+		state["plan_roads"] = {}
+		for c in Layout.cells(plan,"=BXm"): state.plan_roads[c] = true
 	return rebuild(state)
 
 static func inside(c: Vector2i) -> bool:
@@ -90,6 +102,7 @@ static func rebuild(source: Dictionary) -> Dictionary:
 		for c in occ:
 			if occ[c]==b.id and s.water.has(c): s.errors.append("물길 위")
 	if not s.errors.is_empty(): return s
+	if s.get("grade","E") in ["D","C"]: return rebuild_dc(s,occ)
 	var clear := clear_anchors(s,occ)
 	var fixed := {}
 	var ids := {}
@@ -161,6 +174,61 @@ static func rebuild(source: Dictionary) -> Dictionary:
 	s.ok = s.errors.is_empty()
 	return s
 
+static func plan_site(s: Dictionary, b: Dictionary) -> Dictionary:
+	for id in s.get("plan_defense",{}):
+		var hint: Dictionary = s.plan_defense[id]
+		if hint.kind==b.kind and hint.rect==b.rect: return hint
+	return {}
+
+static func door_from_front(id: String, side: String, pairs: Array) -> Dictionary:
+	var front: Array = []
+	for c in pairs: front.append(Vector2i(c[0],c[1]))
+	var direction: Vector2i = {"N":Vector2i.UP,"E":Vector2i.RIGHT,"S":Vector2i.DOWN,"W":Vector2i.LEFT}[side]
+	var anchor: Vector2i = front[0]+(direction if side in ["N","W"] else Vector2i.ZERO)
+	return {"id":id,"side":side,"front":front,"cells":[front[0]-direction,front[1]-direction],"anchor":anchor}
+
+static func rebuild_dc(s: Dictionary, occ: Dictionary) -> Dictionary:
+	# The approved width-two network is the permanent trunk; moved facilities
+	# attach dynamically with the same anchor search used by F/E.
+	var clear := clear_anchors(s,occ)
+	for a in clear.keys():
+		for d in Roads.footprint_offsets():
+			if s.water.has(a+d) and not s.plan_roads.has(a+d): clear.erase(a); break
+	s.road_cells = s.plan_roads.duplicate()
+	for c in s.road_cells:
+		if occ.has(c): s.errors.append("승인 주 통로 위 시설"); return s
+	for a in clear:
+		var full := true
+		for d in Roads.footprint_offsets():
+			if not s.road_cells.has(a+d): full = false
+		if full: s.anchor_network[a] = true
+	for b in s.buildings:
+		var hint := plan_site(s,b)
+		if not hint.is_empty():
+			var door := door_from_front(b.id,hint.side,hint.front)
+			door["secondary"] = []
+			for extra in hint.secondary: door.secondary.append(door_from_front(b.id,extra.side,extra.front))
+			s.doors[b.id] = door
+			continue
+		var best := {}
+		for d in candidates(b):
+			if not clear.has(d.anchor): continue
+			var path := Roads.defense_search(d.anchor,s.anchor_network,clear,s.anchor_network,occ)
+			if path.is_empty(): continue
+			if best.is_empty() or path.size()<best.path.size(): best = {"door":d,"path":path}
+			if d.side==b.preferred: break
+		if best.is_empty(): s.errors.append("문에서 2칸 길 연결 불가: "+b.id); return s
+		s.doors[b.id] = best.door
+		Roads._add_path(best.path,s.anchor_network,s.road_cells)
+	s.bridges = bridge_cells(s.road_cells,s.water)
+	assign_defenders(s,occ)
+	for trap in s.traps:
+		var c := Vector2i(trap.cell[0],trap.cell[1])
+		if not s.road_cells.has(c) or s.water.has(c): s.errors.append("함정의 길이 사라짐: "+str(c))
+	s.errors.append_array(validate_routes(s))
+	s.ok = s.errors.is_empty()
+	return s
+
 static func bridge_cells(roads: Dictionary, water: Dictionary) -> Dictionary:
 	var result := {}
 	for c in roads:
@@ -173,6 +241,7 @@ static func assign_defenders(s: Dictionary, occ: Dictionary) -> void:
 	var used := {}
 	for b in s.buildings:
 		var d: Dictionary = s.doors[b.id]
+		var dc: bool = s.get("grade","E") in ["D","C"]
 		var wanted: Array = []
 		var a: Vector2i = d.anchor
 		if b.kind=="throne": a += Vector2i.RIGHT
@@ -192,13 +261,25 @@ static func assign_defenders(s: Dictionary, occ: Dictionary) -> void:
 		var hint: Dictionary = s.get("plan_defense",{}).get(b.kind,{})
 		if s.get("grade","E")=="F" and not hint.is_empty() and b.rect==hint.rect:
 			wanted = hint.cells+wanted
+		var space := int(b.capacity)
+		if dc:
+			hint = plan_site(s,b)
+			if not hint.is_empty():
+				wanted = hint.cells.duplicate(); space = mini(space,wanted.size())
+			else:
+				wanted = wanted.filter(func(c): return d.front.any(func(p): return Defense.manhattan(c,p)<=1))
+				var local: Array = []
+				for c in wanted:
+					if c not in local and not used.has(c) and not occ.has(c) and not s.water.has(c) and s.road_cells.has(c): local.append(c)
+				wanted = local; space = mini(space,local.size())
+				if b.capacity>0 and space==0: s.errors.append("문 앞 수비 공간 부족")
 		var points: Array = []
 		for c in wanted:
-			if points.size()>=b.capacity: break
+			if points.size()>=space: break
 			if used.has(c) or occ.has(c) or s.water.has(c) or not s.road_cells.has(c): continue
 			used[c] = true; points.append(c)
 		s.defense_points[b.id] = points
-		if points.size()!=b.capacity: s.errors.append("수비 정원 자리 부족")
+		if points.size()!=space: s.errors.append("수비 정원 자리 부족")
 		var aura: Array = []
 		var center: Vector2 = Vector2(b.rect.get_center())
 		for y in range(dimensions(s).y):
@@ -219,7 +300,20 @@ static func validate_routes(s: Dictionary) -> Array:
 	for id in s.doors:
 		for c in s.doors[id].front:
 			if not reached.has(c): errors.append("끊어진 문·주 통로: "+id)
+		for extra in s.doors[id].get("secondary",[]):
+			for c in extra.front:
+				if not reached.has(c): errors.append("끊어진 보조 문: "+id)
 	if reached.size()!=s.road_cells.size(): errors.append("떨어진 길")
+	if s.get("grade","")=="C":
+		var final_reached := {}; var final_todo: Array = [s.doors.throne.front[0]]
+		while not final_todo.is_empty():
+			var c: Vector2i = final_todo.pop_back()
+			if c.x<38 or final_reached.has(c) or not s.road_cells.has(c): continue
+			final_reached[c] = true
+			for direction in Roads.DIRS: final_todo.append(c+direction)
+		for d in s.doors.throne.get("secondary",[]):
+			for c in d.front:
+				if final_reached.has(c): errors.append("C 최종 진입로 분리 필요")
 	return errors
 
 static func building(s: Dictionary, id: String) -> Dictionary:
@@ -251,11 +345,19 @@ static func preview(s: Dictionary, kind: String, origin: Vector2i, moving: Strin
 		if s.buildings.size()>=int(stage_rule(s).get("area_room_count",s.buildings.size()+1)):
 			return {"ok":false,"errors":["성 단계 건설 수 제한"]}
 		if rule.unique:
+			var maximum := 2 if s.get("grade","") in ["D","C"] and kind=="bait_treasure" or s.get("grade","")=="C" and kind=="recovery_nest" else 1
+			var count := 0
 			for b in s.buildings:
-				if b.kind==kind: return {"ok":false,"errors":["고유 시설: 원형 메뉴에서 이동"]}
+				if b.kind==kind: count += 1
+			if count>=maximum: return {"ok":false,"errors":["고유 시설: 원형 메뉴에서 이동"]}
 		candidate.serial += 1
 		var capacity: int = int(rule.capacity)+int(stage_rule(s).get("facility_capacity_bonus",0))
-		candidate.buildings.append({"id":kind+"_"+str(candidate.serial),"kind":kind,"rect":Rect2i(origin,rule.size),"fixed":false,"capacity":capacity,"aura":rule.aura,"level":1,"preferred":"S","paid":rule.cost.duplicate()})
+		var prefix := "_owned_" if s.get("grade","") in ["D","C"] else "_"
+		candidate.buildings.append({"id":kind+prefix+str(candidate.serial),"kind":kind,"rect":Rect2i(origin,rule.size),"fixed":false,"capacity":capacity,"aura":rule.aura,"level":1,"preferred":"S","paid":rule.cost.duplicate()})
+		candidate.buildings[-1]["capacity_bonus"] = int(stage_rule(s).get("facility_capacity_bonus",0))
+		for site_id in s.get("plan_defense",{}):
+			var site: Dictionary = s.plan_defense[site_id]
+			if site.get("kind","")==kind and site.rect.position==origin: candidate.buildings[-1]["plan_site_id"] = site_id
 		pay(candidate,rule.cost)
 	else:
 		var found := building(candidate,moving)
@@ -325,6 +427,7 @@ static func restore(data: Variant, baseline: Dictionary) -> Dictionary:
 		var row: Dictionary = b.duplicate(true)
 		row.rect = Rect2i(b.rect[0],b.rect[1],b.rect[2],b.rect[3])
 		row.capacity = int(b.capacity); row.level = int(b.level); row.aura = float(b.aura)
+		if row.has("capacity_bonus"): row.capacity_bonus = int(row.capacity_bonus)
 		row.paid = integer_values(b.paid)
 		if row.kind in FIXED:
 			var original := building(baseline,row.kind)
@@ -342,7 +445,10 @@ static func restore(data: Variant, baseline: Dictionary) -> Dictionary:
 	s.traps = []
 	for trap in data.get("traps",baseline.traps):
 		if not trap is Dictionary or not trap.get("cell") is Array or trap.cell.size()!=2 or trap.get("kind","") not in ["spikes","sticky"]: return {"ok":false,"errors":["함정 저장 형식 오류"]}
-		s.traps.append({"kind":str(trap.kind),"cell":[int(trap.cell[0]),int(trap.cell[1])]})
+		var restored: Dictionary = trap.duplicate(true)
+		restored.kind = str(trap.kind); restored.cell = [int(trap.cell[0]),int(trap.cell[1])]
+		if restored.has("owned_count"): restored.owned_count = int(restored.owned_count)
+		s.traps.append(restored)
 	return rebuild(s)
 
 static func integer_values(data: Dictionary) -> Dictionary:

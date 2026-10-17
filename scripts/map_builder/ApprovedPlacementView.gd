@@ -7,7 +7,7 @@ const ScreenLayout = preload("res://scripts/map_builder/ApprovedPlacementLayout.
 const Monsters = preload("res://scripts/map_builder/ApprovedMonsterPlacement.gd")
 const MonsterUI = preload("res://scripts/map_builder/ApprovedMonsterPlacementUI.gd")
 const KIT := "res://assets/ui/kit/icons/icon_"
-const MINIMAP_BOUNDS := Rect2(-144,135,4000,2319)
+var MINIMAP_BOUNDS := Rect2(-144,135,4000,2319)
 const UI_ART := "res://assets/maps/v130r_step2/ui/"
 const TITLE_FONT = preload("res://assets/fonts/NEXON_Maplestory_Bold.otf")
 const BODY_FONT = preload("res://assets/fonts/NEXON_Maplestory_Light.otf")
@@ -112,7 +112,22 @@ func texture(path: String) -> Texture2D:
 	return textures[path]
 
 func render_map() -> void:
+	if placement.get("grade","") in ["D","C"]:
+		terrain_data = JSON.parse_string(FileAccess.get_file_as_string("res://data/maps/v130r_step10/terrain_"+str(placement.grade).to_lower()+".json"))
+		var extent := Placement.dimensions(placement)
+		var a := project(Vector2(0,0)); var b := project(Vector2(extent))
+		MINIMAP_BOUNDS = Rect2(Vector2(a.x-220,project(Vector2(extent.x,0)).y-260),Vector2(b.x-a.x+440,(extent.x+extent.y)*32+600))
+	else:
+		terrain_data = JSON.parse_string(FileAccess.get_file_as_string("res://data/maps/v130r_step2/terrain.json"))
+		MINIMAP_BOUNDS = Rect2(-144,135,4000,2319)
 	Assembly.populate(self,placement)
+	if placement.get("grade","") in ["D","C"]:
+		var first := true
+		for child in world.get_children():
+			if not child is Sprite2D or child.name=="DynamicCaveBackground": continue
+			var r: Rect2 = child.transform*child.get_rect()
+			MINIMAP_BOUNDS = r if first else MINIMAP_BOUNDS.merge(r); first = false
+		MINIMAP_BOUNDS = MINIMAP_BOUNDS.grow(45)
 	sites_layer = Node2D.new(); sites_layer.name = "ValidPlacementCells"; world.add_child(sites_layer)
 	preview_layer = Node2D.new(); preview_layer.name = "PlacementGhost"; world.add_child(preview_layer)
 	selection_layer = Node2D.new(); selection_layer.name = "SelectedBuildingOutline"; world.add_child(selection_layer)
@@ -212,18 +227,22 @@ func build_chrome() -> void:
 		tab.stretch_mode = TextureRect.STRETCH_SCALE
 		tab.name = ["BuildTab","PlaceTab","CombatTab"][i]
 		tab.modulate = Color(1.25,1.12,.75) if i==0 else Color(.5,.5,.58)
-		var icon: String = ["build","monster","battle_start"][i]
+		var preparation := preparation_only()
+		var icon: String = ["build","monster","check" if preparation else "battle_start"][i]
 		var tab_icon := art_at(tabs,KIT+icon+"_64.png",Rect2(i*190+17,17,36,36))
-		var title := label_at(tabs,["건설","몬스터 배치","전투"][i],Vector2(i*190+57,24),18,true)
+		var title := label_at(tabs,["건설","몬스터 배치","준비 확정" if preparation else "전투"][i],Vector2(i*190+57,24),18,true)
 		if i==2:
+			tab.name = "ApprovedDayAction"
 			tab_icon.modulate = Color(.45,.45,.5); title.modulate = Color(.5,.5,.56)
 			tab_icon.modulate = Color.WHITE; title.modulate = Color.WHITE
-			tab.tooltip_text = "현재 배치로 DAY %d 전투 시작" % int(placement.day)
+			tab.tooltip_text = "전투 없이 다음 날로 넘어갑니다" if preparation else "현재 배치로 DAY %d 전투 시작" % int(placement.day)
 			tab.mouse_filter = Control.MOUSE_FILTER_STOP
 			tab.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 			tab.gui_input.connect(func(event):
 				if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and event.pressed:
-					start_battle.call_deferred(); tab.accept_event())
+					if preparation_only(): confirm_preparation_day.call_deferred()
+					else: start_battle.call_deferred()
+					tab.accept_event())
 		else:
 			tab.mouse_filter = Control.MOUSE_FILTER_STOP
 			tab.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
@@ -348,7 +367,7 @@ func show_default() -> void:
 	# Match Step2B gui(): set_camera(Vector2(1930,1390),.75) before radial_edge.
 	# Scale with the shorter viewport ratio; wider aspects reveal extra cells.
 	var center := START_CENTER
-	if placement.get("grade","E")=="F": center = project(Vector2(Placement.dimensions(placement))/2)
+	if placement.get("grade","E") in ["F","D","C"]: center = project(Vector2(Placement.dimensions(placement))/2)
 	start_solution = {"center":center,"zoom":START_ZOOM*ScreenLayout.unit(size)}
 	set_camera(start_solution.center,start_solution.zoom)
 
@@ -361,6 +380,12 @@ func start_targets() -> Array[Rect2]:
 	return result
 
 func show_full() -> void:
+	if placement.get("grade","") in ["D","C"]:
+		var bounds := MINIMAP_BOUNDS
+		var safe := Rect2(Vector2(24,100)*ui_unit,size-Vector2(48,300)*ui_unit)
+		var zoom := minf(safe.size.x/bounds.size.x,safe.size.y/bounds.size.y)
+		set_camera(bounds.get_center()+(size/2-safe.get_center())/zoom,zoom)
+		return
 	var center := MINIMAP_BOUNDS.get_center()
 	if placement.get("grade","E")=="F": center += Vector2(120,-90)
 	set_camera(center,minf(size.x/MINIMAP_BOUNDS.size.x,size.y/MINIMAP_BOUNDS.size.y))
@@ -369,7 +394,8 @@ func set_camera(center: Vector2, factor: float) -> void:
 	camera_scale = clampf(factor,.05*ui_unit,1.5*ui_unit)
 	camera_center = center
 	var half := size/2/camera_scale
-	camera_center = camera_center.clamp(CAMERA_BOUNDS.position,CAMERA_BOUNDS.end)
+	var bounds := MINIMAP_BOUNDS if placement.get("grade","") in ["D","C"] else CAMERA_BOUNDS
+	camera_center = camera_center.clamp(bounds.position,bounds.end)
 	world.scale = Vector2.ONE*camera_scale
 	world.position = size/2-camera_center*camera_scale
 	var cave: Sprite2D = world.get_node_or_null("DynamicCaveBackground")
@@ -725,8 +751,23 @@ func handle_key(event: InputEvent) -> bool:
 		if event.keycode==KEY_ESCAPE: cancel_build(); clear_context(); return true
 	return super.handle_key(event)
 
+func preparation_only() -> bool:
+	return int(placement.day)==29 and not root._has_defense_wave_for_day(29)
+
+func confirm_preparation_day() -> bool:
+	if not preparation_only() or not Grade.enabled() or battle!=null or finish_pending: return false
+	finish_pending = true
+	# Management purchases live in placement, not in a battle settlement.
+	GameState.gold = int(placement.resources.gold); GameState.mana = int(placement.resources.mana); GameState.food = int(placement.resources.food)
+	if monster_ui.persist()!=OK: finish_pending = false; return false
+	Grade.stash(root,placement,monster_ui.assignments)
+	Grade.continue_after_result(root)
+	return true
+
 func start_battle() -> bool:
 	if battle!=null: return false
+	if not root._has_defense_wave_for_day(int(placement.day)):
+		status_text.text = "오늘은 전투 없는 준비일입니다. 준비를 확정해 다음 날로 넘어가세요"; return false
 	if monster_ui.assignments.is_empty():
 		status_text.text = "몬스터 배치 탭에서 수비대를 배치하세요"; return false
 	monster_ui.set_mode("battle"); monster_ui.unit_layer.hide()

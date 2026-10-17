@@ -11,11 +11,14 @@ static func enabled() -> bool:
 	return bool(ProjectSettings.get_setting("debug/approved_map_step1", false)) or OS.get_cmdline_user_args().has("--approved-map-step1")
 
 static func read(grade: String = "E") -> Dictionary:
-	var path := "res://data/maps/v130r_step5/layout_f.json" if grade=="F" else DATA
+	var path := "res://data/maps/v130r_step5/layout_f.json" if grade=="F" else "res://data/maps/v130r_step10/layout_"+grade.to_lower()+".json" if grade in ["D","C"] else DATA
 	var data = JSON.parse_string(FileAccess.get_file_as_string(path))
-	if grade=="F" and data is Dictionary:
+	if grade in ["F","D","C"] and data is Dictionary:
 		var base: Dictionary = read()
 		base.merge(data,true)
+		if grade in ["D","C"] and FileAccess.file_exists("res://data/maps/v130r_step10/art.json"):
+			var art: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/maps/v130r_step10/art.json"))
+			base.assets.merge(art,true)
 		return base
 	return data if data is Dictionary else {}
 

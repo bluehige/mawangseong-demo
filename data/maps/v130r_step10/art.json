@@ -1,0 +1,62 @@
+{
+  "dc/stone_deck.png": {
+    "size": [
+      256,
+      128
+    ],
+    "pivot": [
+      128.0,
+      64.0
+    ]
+  },
+  "dc/gate_frame.png": {
+    "size": [
+      152,
+      152
+    ],
+    "pivot": [
+      76,
+      120
+    ]
+  },
+  "dc/rail_back.png": {
+    "size": [
+      140,
+      80
+    ],
+    "pivot": [
+      70,
+      60
+    ]
+  },
+  "dc/rail_front.png": {
+    "size": [
+      140,
+      80
+    ],
+    "pivot": [
+      70,
+      60
+    ]
+  },
+  "dc/abutment.png": {
+    "size": [
+      144,
+      80
+    ],
+    "pivot": [
+      72,
+      40
+    ]
+  },
+  "dc/throne_arch.png": {
+    "size": [
+      160,
+      180
+    ],
+    "pivot": [
+      80,
+      150
+    ]
+  }
+}

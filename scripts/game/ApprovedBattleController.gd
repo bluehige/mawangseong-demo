@@ -106,12 +106,18 @@ func spawn_monsters() -> void:
 		root.monster_units.append(unit)
 
 func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
+	if map.layout.get("grade","") in ["D","C"]:
+		wave_entry = wave_entry.duplicate(true)
+		wave_entry.merge(wave_entry.get("grade_routes",{}).get(str(map.layout.grade),{}),true)
 	var stats := _scaled_enemy_stats(enemy_id,wave_entry)
 	if stats.is_empty(): return
 	var unit = make_unit(enemy_id,stats,Constants.FACTION_ENEMY,"entrance")
 	var front: Array = map.layout.doors.entrance.front
 	var lane: int = randi_range(0,front.size()-1) if bool(wave_entry.get("route_variation",false)) else root.spawned_count%front.size()
 	unit.position = map.world(front[lane])
+	unit.set_meta("approved_route_lane",lane)
+	unit.set_meta("approved_route_variation",bool(wave_entry.get("route_variation",false)))
+	if map.layout.get("grade","")=="C": unit.set_meta("throne_door",str(wave_entry.get("throne_door","W" if lane==0 else "S")))
 	unit.goal_room = map.goal_for(stats,unit.position,str(wave_entry.get("target_room_id","")))
 	# Recon thieves may take the other branch directly to the real vault.
 	if enemy_id=="thief" and bool(wave_entry.get("route_variation",false)) and randf()<.5 and str(wave_entry.get("target_room_id",""))=="": unit.goal_room = "vault"
@@ -119,17 +125,37 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	if enemy_id=="investigator" and bool(wave_entry.get("route_variation",false)) and randf()<.5 and map.layout.doors.has("ward_core"):
 		unit.set_meta("next_objective",unit.goal_room); unit.goal_room = "ward_core"
 	# An explicit flank preserves the final objective and the default RNG draws.
-	var waypoint := str(wave_entry.get("waypoint_room_id",""))
-	if enemy_id in ["investigator","royal_scout"] and map.layout.doors.has(waypoint) and waypoint!=objective_room:
+	var waypoint_id := str(wave_entry.get("waypoint_room_id",""))
+	var lane_waypoints: Array = wave_entry.get("waypoint_room_ids",[]) if map.layout.get("grade","") in ["D","C"] and wave_entry.get("waypoint_room_ids",[]) is Array else []
+	if not lane_waypoints.is_empty(): waypoint_id = str(lane_waypoints[lane%lane_waypoints.size()])
+	var waypoint := map.resolve_site(waypoint_id)
+	var dc_flank: bool = map.layout.get("grade","") in ["D","C"] and enemy_id not in ["engineer","thief"]
+	if (enemy_id in ["investigator","royal_scout"] or dc_flank) and map.layout.doors.has(waypoint) and waypoint!=objective_room:
 		unit.set_meta("next_objective",objective_room); unit.goal_room = waypoint
 	unit.set_meta("goal_type",str(stats.get("goal_type","throne")))
 	var objective_chance := clampf(float(wave_entry.get("objective_priority",0)),0,1)
 	unit.set_meta("objective_priority",objective_chance>0 and randf()<objective_chance)
+	unit.set_meta("attack_throne",map.layout.get("grade","") in ["D","C"] and bool(wave_entry.get("attack_throne",false)) and int(wave_entry.get("attack_throne_lane",lane))==lane)
 	unit.set_meta("base_attack_range",unit.attack_range)
-	unit.set_path(map.path_to_point(unit.position,map.center(unit.goal_room)))
+	unit.set_path(route_path(unit,goal_point(unit)))
 	root.enemy_units.append(unit); root.spawned_count += 1
 	if enemy_id=="thief": root.thieves_spawned_this_battle += 1
-	goal_events.append({"time":root.combat_time,"id":enemy_id,"goal":unit.goal_room,"spawn_cell":str(map.cell(unit.position))})
+	goal_events.append({"time":root.combat_time,"id":enemy_id,"goal":unit.goal_room,"spawn_cell":str(map.cell(unit.position)),"throne_door":unit.get_meta("throne_door","")})
+
+func goal_point(unit: Node) -> Vector2:
+	return map.target_point(unit.goal_room,unit.position,str(unit.get_meta("throne_door","")) if unit.goal_room=="throne" else "")
+
+func route_path(unit: Node, desired: Vector2) -> Array:
+	# D has two legal final crossings to one throne. Retain the seeded entrance
+	# lane while pursuing the throne; taunts and facility goals still move directly.
+	if unit.faction==Constants.FACTION_ENEMY and unit.goal_room=="throne" and map.layout.get("grade","")=="D" and bool(map.layout.get("branch_routes",false)) and bool(unit.get_meta("approved_route_variation",false)) and int(unit.get_meta("approved_route_lane",0))==1:
+		var crossing: Vector2i = map.lower_throne_exit
+		if map.is_road(crossing) and map.cell(unit.position).x<crossing.x and desired.distance_to(goal_point(unit))<1:
+			var via: Vector2 = map.world(crossing)
+			var first: Array = map.path_to_point(unit.position,via)
+			var last: Array = map.path_to_point(via,desired)
+			if not first.is_empty() and not last.is_empty(): first.append_array(last); return first
+	return map.path_to_point(unit.position,desired)
 
 func physics_process(delta: float) -> void:
 	if not running or root.current_screen!=Constants.SCREEN_COMBAT or root.combat_paused: return
@@ -211,7 +237,7 @@ func return_home(unit: Node) -> void:
 
 func update_enemy_path(unit: Node) -> void:
 	if monster_skills.update_false_goal(unit): return
-	if str(unit.get_meta("next_objective",""))!="" and unit.position.distance_to(map.center(unit.goal_room))<18:
+	if str(unit.get_meta("next_objective",""))!="" and unit.position.distance_to(goal_point(unit))<18:
 		unit.goal_room = str(unit.get_meta("next_objective")); unit.remove_meta("next_objective")
 	if unit.unit_id=="thief" and float(root.thief_steal_timers.get(unit,0))<-100:
 		unit.goal_room = "entrance"
@@ -223,12 +249,12 @@ func update_enemy_path(unit: Node) -> void:
 		_move_to_attack_target(unit,target,true); return
 	if _run_enemy_behavior(unit): return
 	if _hero_skills_enabled() and _is_hero_unit(unit) and _run_hero_skill(unit): return
-	if unit.position.distance_to(map.center(unit.goal_room))<18:
+	if unit.position.distance_to(goal_point(unit))<18:
 		unit.stop_navigation(); return
 	move_unit_to_room(unit,unit.goal_room)
 
 func move_unit_to_room(unit: Node, room_id: String) -> void:
-	var point: Vector2 = map.center(room_id)
+	var point: Vector2 = goal_point(unit) if room_id==unit.goal_room else map.target_point(room_id,unit.position)
 	if unit.faction==Constants.FACTION_MONSTER:
 		var target := local_target(unit)
 		var guarded: Node = _most_wounded_ally(unit) if root._monster_ai_behavior(unit.unit_id)=="ally_guard" else null
@@ -246,7 +272,7 @@ func move_unit_to_point(unit: Node, point: Vector2, _preserve_goal: bool = false
 	var destination: Vector2i = map.nearest_cell(desired)
 	if unit.get_meta("road_destination",Vector2i(-999,-999))==destination and not unit.path_points.is_empty(): return
 	unit.set_meta("road_destination",destination)
-	unit.set_path(map.path_to_point(unit.position,desired))
+	unit.set_path(route_path(unit,desired))
 
 func _move_to_attack_target(unit: Node, target: Node, _preserve_goal: bool = false) -> void:
 	if unit.faction==Constants.FACTION_MONSTER and command=="focus_attack" and is_instance_valid(command_target) and command_target.is_alive() and command_target.position.distance_to(home(unit))<=leash_radius(unit): target = command_target
@@ -262,10 +288,16 @@ func _hold_attack_position(unit: Node, target: Node) -> bool:
 func try_attack(attacker: Node, opponents: Array) -> void:
 	# Objective squads advance under fire; taunts still force an interception.
 	if attacker.faction==Constants.FACTION_ENEMY and bool(attacker.get_meta("objective_priority",false)):
-		if attacker.position.distance_to(map.center(attacker.goal_room))>=18 and attacker.forced_attack_target(root.monster_units,260)==null: return
+		if attacker.position.distance_to(goal_point(attacker))>=18 and attacker.forced_attack_target(root.monster_units,260)==null: return
+		# Explicit siege squads retain the throne objective after reaching its door.
+		# Forced taunts still intercept them, including after a facility waypoint.
+		if prioritizes_throne(attacker): return
 	if attacker==direct_unit and not attacker.path_points.is_empty(): return
 	if attacker.faction==Constants.FACTION_MONSTER and root.combat_time<command_until and command in ["rally","emergency_retreat","lure_retreat"] and not attacker.path_points.is_empty(): return
 	super.try_attack(attacker,opponents)
+
+func prioritizes_throne(enemy: Node) -> bool:
+	return enemy.faction==Constants.FACTION_ENEMY and enemy.goal_room=="throne" and bool(enemy.get_meta("attack_throne",false)) and bool(enemy.get_meta("objective_priority",false)) and enemy.forced_attack_target(root.monster_units,260)==null
 
 func _combat_action_target(attacker: Node, opponents: Array, max_distance: float) -> Node:
 	if attacker.faction==Constants.FACTION_MONSTER and command=="focus_attack" and is_instance_valid(command_target) and command_target in opponents and command_target.is_alive() and command_target.is_targetable_by(attacker):
@@ -306,14 +338,15 @@ func update_room_effects(delta: float) -> void:
 	for enemy in root.enemy_units:
 		if not enemy.is_alive(): continue
 		apply_cell_traps(enemy)
-		var reached: bool = enemy.position.distance_to(map.center(enemy.goal_room))<18
+		var reached: bool = enemy.position.distance_to(goal_point(enemy))<18
 		if not reached: continue
-		if enemy.goal_room=="throne" and enemy.attack_cooldown<=0 and TargetingService.nearest(enemy,root.monster_units,enemy.attack_range)==null:
+		var throne_open: bool = prioritizes_throne(enemy) if bool(enemy.get_meta("attack_throne",false)) and bool(enemy.get_meta("objective_priority",false)) else TargetingService.nearest(enemy,root.monster_units,enemy.attack_range)==null
+		if enemy.goal_room=="throne" and enemy.attack_cooldown<=0 and throne_open:
 			var damage: int = maxi(8,enemy.effective_atk())
 			if not root.monster_units.any(func(u): return u.is_alive()): damage *= 3
 			GameState.damage_throne(damage); enemy.attack_cooldown = enemy.effective_attack_interval()
 		elif enemy.unit_id=="thief": tick_theft(enemy,delta)
-		elif str(enemy.get_meta("goal_type",""))=="facility" and enemy.attack_cooldown<=0:
+		elif str(enemy.get_meta("goal_type",""))=="facility" and (map.layout.get("grade","") not in ["D","C"] or enemy.goal_room not in ["entrance","throne","vault"]) and enemy.attack_cooldown<=0:
 			map.rooms[enemy.goal_room]["disabled_until"] = root.combat_time+ENGINEER_DISABLE_SECONDS
 			enemy.attack_cooldown = enemy.effective_attack_interval()
 			enemy.goal_room = "throne"

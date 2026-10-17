@@ -6,16 +6,25 @@ var layout: Dictionary
 var rooms: Dictionary = {}
 var astar := AStarGrid2D.new()
 var cached_paths := {}
+var cached_targets := {}
 var cell_tags := {}
 var trap_cells := {}
 var route_queries := 0
 var water_cuts: Array[int] = []
+var lower_throne_exit := Vector2i(-1,-1)
 
 func setup(source: Dictionary) -> void:
 	layout = source.duplicate(true)
+	rooms.clear(); cached_paths.clear(); cached_targets.clear(); cell_tags.clear(); trap_cells.clear()
 	water_cuts.clear()
 	for x in range(Buildings.dimensions(layout).x):
 		if layout.water.has(Vector2i(x,0)) and (x==0 or not layout.water.has(Vector2i(x-1,0))): water_cuts.append(x)
+	lower_throne_exit = Vector2i(-1,-1)
+	if layout.get("grade","")=="D" and water_cuts.size()==2:
+		var last_row := -1
+		for c in layout.bridges:
+			if c.x==water_cuts[1]: last_row = maxi(last_row,c.y)
+		if last_row>=1: lower_throne_exit = Vector2i(water_cuts[1]+2,last_row-1)
 	# A 5x5 recovery building with a 2.5 centre-radius otherwise covers no
 	# external road at some door orientations. Its own defense cells belong to
 	# the building influence as well; radius outside that apron is unchanged.
@@ -54,6 +63,7 @@ func setup(source: Dictionary) -> void:
 			if id!=other and line_for(cell(center(id)))==line_for(cell(center(other))): rooms[id].exits.append(other)
 
 func line_for(c: Vector2i) -> String:
+	if layout.get("grade","") in ["D","C"]: return "1" if c.x<10 else "2" if c.x<(32 if layout.grade=="D" else 38) else "final"
 	if water_cuts.size()==1: return "1" if c.x<water_cuts[0]+2 else "final"
 	if water_cuts.size()<2: return "1"
 	return "1" if c.x<water_cuts[0]+2 else "2" if c.x<water_cuts[1]+2 else "final"
@@ -110,10 +120,32 @@ func center(id: String) -> Vector2:
 	if layout.doors.has(id): return world(layout.doors[id].front[0])
 	return world(layout.doors.entrance.front[0])
 
+func target_point(id: String, from: Vector2, side: String = "") -> Vector2:
+	# C throne's two separated final roads retain independent reachable doors.
+	if not layout.doors.has(id): return center(id)
+	var doors: Array = [layout.doors[id]]+layout.doors[id].get("secondary",[])
+	var midpoint: bool = id=="throne" and bool(layout.get("door_goal_center",false))
+	if doors.size()==1 and not midpoint: return center(id)
+	var start := nearest_cell(from)
+	var cache_key := id+"|"+side+"|"+str(start)
+	if cached_targets.has(cache_key): return cached_targets[cache_key]
+	if side!="": doors = doors.filter(func(d): return d.side==side)
+	var best := center(id); var length := 2147483647
+	var selected := {}
+	for d in doors:
+		for c in d.front:
+			var path := path_cells(start,c)
+			if not path.is_empty() and path.size()<length: length = path.size(); best = world(c); selected = d
+	if midpoint and not selected.is_empty(): best = (world(selected.front[0])+world(selected.front[1]))/2
+	cached_targets[cache_key] = best
+	return best
+
 func room_at_world(point: Vector2) -> String:
 	var c := cell(point)
 	for id in ["throne","vault","entrance"]:
 		if c in layout.doors[id].front: return id
+		for d in layout.doors[id].get("secondary",[]):
+			if c in d.front: return id
 	var tags := tags_at(c)
 	if not tags.aura.is_empty(): return str(tags.aura[0])
 	return "line_"+str(tags.defense_line)
@@ -128,20 +160,37 @@ func room_patrol_path(id: String) -> Array: return [center(id)]
 func debug_socket_cells() -> Array:
 	var sockets: Array = []
 	for id in layout.doors:
-		var front: Array = layout.doors[id].front
-		sockets.append({"instance_id":id,"socket_id":"front_a","cell":front[0],"state":"connected"})
-		sockets.append({"instance_id":"line_"+line_for(front[1]),"socket_id":id+"_front_b","cell":front[1],"state":"connected"})
+		var doors: Array = [layout.doors[id]]+layout.doors[id].get("secondary",[])
+		for index in range(doors.size()):
+			var front: Array = doors[index].front
+			var suffix := "" if index==0 else "_"+str(index)
+			sockets.append({"instance_id":id,"socket_id":"front"+suffix+"_a","cell":front[0],"state":"connected"})
+			sockets.append({"instance_id":"line_"+line_for(front[1]),"socket_id":id+"_front"+suffix+"_b","cell":front[1],"state":"connected"})
 	return sockets
 
 func connection_pairs() -> Array:
 	var pairs: Array = []
 	for id in layout.doors:
-		var front: Array = layout.doors[id].front
-		pairs.append({"from_instance":id,"from_socket":"front_a","to_instance":"line_"+line_for(front[1]),"to_socket":id+"_front_b"})
+		var doors: Array = [layout.doors[id]]+layout.doors[id].get("secondary",[])
+		for index in range(doors.size()):
+			var front: Array = doors[index].front
+			var suffix := "" if index==0 else "_"+str(index)
+			pairs.append({"from_instance":id,"from_socket":"front"+suffix+"_a","to_instance":"line_"+line_for(front[1]),"to_socket":id+"_front"+suffix+"_b"})
 	return pairs
 
+func resolve_site(id: String) -> String:
+	if layout.doors.has(id): return id
+	# Plan IDs describe sites; purchased instances retain their own serial IDs.
+	var site: Dictionary = layout.get("plan_defense",{}).get(id,{})
+	if site.is_empty(): return ""
+	for b in layout.buildings:
+		if b.kind==site.get("kind","") and b.get("plan_site_id","")==id: return b.id
+		if b.kind==site.get("kind","") and b.rect==site.rect: return b.id
+	return "" # An empty site must never become an enemy objective.
+
 func goal_for(stats: Dictionary, from: Vector2, preferred: String = "") -> String:
-	if layout.doors.has(preferred): return preferred
+	var actual := resolve_site(preferred)
+	if actual!="": return actual
 	match str(stats.get("goal_type","throne")):
 		"treasure":
 			for b in layout.buildings:
