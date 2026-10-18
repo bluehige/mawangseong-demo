@@ -1,0 +1,410 @@
+{
+  "status": "DIAGNOSTIC_ONLY_TIMEOUT_7200S",
+  "source_commit": "652e737b",
+  "run": {
+    "command": [
+      "D:\\Godot_v4.6.3-stable_win64.exe\\Godot_v4.6.3-stable_win64.exe",
+      "--path",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-action",
+      "--rendering-method",
+      "gl_compatibility",
+      "--resolution",
+      "1280x720",
+      "--headless",
+      "--scene",
+      "res://tools/tests/V130RB04Campaign.tscn",
+      "--",
+      "label=campaign_v5",
+      "seeds=130401,130402,130403,130404,130405,130406,130407,130408,130409,130410",
+      "last_day=30",
+      "layout=recommended",
+      "retries=1"
+    ],
+    "exit_code": 1,
+    "seconds": 7200.39,
+    "peak_godot": 1,
+    "godot_after": [],
+    "stderr": "",
+    "waves_sha256": "d113b2c419b53db16f1e5bea2bf930bbd94e48c5d241dbc9976a1e1e5eebf3f4",
+    "waves_unchanged_during_run": true,
+    "inputs_unchanged": true
+  },
+  "input_hashes": {
+    "data/waves.json": "d113b2c419b53db16f1e5bea2bf930bbd94e48c5d241dbc9976a1e1e5eebf3f4",
+    "data/v122/dual_front_day01_05_waves.json": "7f969ab9bd90aa3450ba0e242309dc5cf3a5145b4e0654e642fe33ab830c5d47",
+    "scripts/game/GameRoot.gd": "0183c1352e0a5b32b7084f574f1bff96f1db2e7856507ed4fe469258ca8e96ea",
+    "scripts/game/ApprovedBattleController.gd": "6fa287fb4500af3dcdee3b86d768389370d23315c5f73c850b408805bed80f5c",
+    "scripts/map_builder/ApprovedMonsterPlacement.gd": "fafad94b6b0d315c337168807eabb888dff29e8dac7f34e70c5f00c128869b4b",
+    "scripts/map_builder/ApprovedPlacement.gd": "265bdcf7cacb78701ebcf3ae1f62fcafe26cd10fbf040c72c90cc2a65711cf69",
+    "tools/tests/V130RB04Campaign.gd": "fb9c7f433e5303a6bb21e2a1de49c60bb0dd214d45dce8c05f3c13aab618b608",
+    "tools/tests/V130RB04FastController.gd": "e00f7ac7b076827a6c2df304e70edc0c5aee9c96fa0d1a0654fb05c52a935ce5",
+    "tools/tests/V130RB04FastUnit.gd": "4d38a9399e026819384e188877df3c22f760046080302c360a26eeb2d370770f",
+    "tools/tests/V130RB04FastMap.gd": "f48fecefd1ba10c29223f7a4588f7fe37a5e16a4e020d0e3848edd24ed718588"
+  },
+  "first_life_deaths": [
+    [
+      130401,
+      17
+    ],
+    [
+      130402,
+      30
+    ],
+    [
+      130403,
+      19
+    ],
+    [
+      130404,
+      8
+    ],
+    [
+      130407,
+      27
+    ],
+    [
+      130408,
+      27
+    ],
+    [
+      130409,
+      15
+    ],
+    [
+      130410,
+      25
+    ]
+  ],
+  "first_life_curve": {
+    "1": {
+      "reached": 10,
+      "wins": 10,
+      "rate": 100.0,
+      "hp": 94.66666666666666,
+      "total_rate": 100.0,
+      "cohort_hp": 94.66666666666666,
+      "conditional_rate": 100.0,
+      "conditional_hp": 94.66666666666666,
+      "passed": true
+    },
+    "2": {
+      "reached": 10,
+      "wins": 10,
+      "rate": 100.0,
+      "hp": 94.66666666666666,
+      "total_rate": 100.0,
+      "cohort_hp": 94.66666666666666,
+      "conditional_rate": 100.0,
+      "conditional_hp": 94.66666666666666,
+      "passed": true
+    },
+    "3": {
+      "reached": 10,
+      "wins": 10,
+      "rate": 100.0,
+      "hp": 94.66666666666666,
+      "total_rate": 100.0,
+      "cohort_hp": 94.66666666666666,
+      "conditional_rate": 100.0,
+      "conditional_hp": 94.66666666666666,
+      "passed": true
+    },
+    "4": {
+      "reached": 10,
+      "wins": 10,
+      "rate": 100.0,
+      "hp": 94.66666666666666,
+      "total_rate": 100.0,
+      "cohort_hp": 94.66666666666666,
+      "conditional_rate": 100.0,
+      "conditional_hp": 94.66666666666666,
+      "passed": true
+    },
+    "5": {
+      "reached": 10,
+      "wins": 10,
+      "rate": 100.0,
+      "hp": 77.60000000000001,
+      "total_rate": 100.0,
+      "cohort_hp": 77.60000000000001,
+      "conditional_rate": 100.0,
+      "conditional_hp": 77.60000000000001,
+      "passed": true
+    },
+    "6": {
+      "reached": 10,
+      "wins": 10,
+      "rate": 100.0,
+      "hp": 74.32000000000001,
+      "total_rate": 100.0,
+      "cohort_hp": 74.32000000000001,
+      "conditional_rate": 100.0,
+      "conditional_hp": 74.32000000000001,
+      "passed": true
+    },
+    "7": {
+      "reached": 10,
+      "wins": 10,
+      "rate": 100.0,
+      "hp": 74.32000000000001,
+      "total_rate": 100.0,
+      "cohort_hp": 74.32000000000001,
+      "conditional_rate": 100.0,
+      "conditional_hp": 74.32000000000001,
+      "passed": true
+    },
+    "8": {
+      "reached": 10,
+      "wins": 9,
+      "rate": 90.0,
+      "hp": 67.92,
+      "total_rate": 90.0,
+      "cohort_hp": 67.92,
+      "conditional_rate": 90.0,
+      "conditional_hp": 67.92,
+      "passed": true
+    },
+    "9": {
+      "reached": 9,
+      "wins": 9,
+      "rate": 90.0,
+      "hp": 67.92,
+      "total_rate": 90.0,
+      "cohort_hp": 67.92,
+      "conditional_rate": 100.0,
+      "conditional_hp": 75.46666666666667,
+      "passed": true
+    },
+    "10": {
+      "reached": 9,
+      "wins": 9,
+      "rate": 90.0,
+      "hp": 67.92,
+      "total_rate": 90.0,
+      "cohort_hp": 67.92,
+      "conditional_rate": 100.0,
+      "conditional_hp": 75.46666666666667,
+      "passed": true
+    },
+    "11": {
+      "reached": 9,
+      "wins": 9,
+      "rate": 90.0,
+      "hp": 64.81333333333333,
+      "total_rate": 90.0,
+      "cohort_hp": 64.81333333333333,
+      "conditional_rate": 100.0,
+      "conditional_hp": 72.01481481481481,
+      "passed": true
+    },
+    "12": {
+      "reached": 9,
+      "wins": 9,
+      "rate": 90.0,
+      "hp": 64.81333333333333,
+      "total_rate": 90.0,
+      "cohort_hp": 64.81333333333333,
+      "conditional_rate": 100.0,
+      "conditional_hp": 72.01481481481481,
+      "passed": true
+    },
+    "13": {
+      "reached": 9,
+      "wins": 9,
+      "rate": 90.0,
+      "hp": 61.260000000000005,
+      "total_rate": 90.0,
+      "cohort_hp": 61.260000000000005,
+      "conditional_rate": 100.0,
+      "conditional_hp": 68.06666666666666,
+      "passed": true
+    },
+    "14": {
+      "reached": 9,
+      "wins": 9,
+      "rate": 90.0,
+      "hp": 61.260000000000005,
+      "total_rate": 90.0,
+      "cohort_hp": 61.260000000000005,
+      "conditional_rate": 100.0,
+      "conditional_hp": 68.06666666666666,
+      "passed": true
+    },
+    "15": {
+      "reached": 9,
+      "wins": 8,
+      "rate": 80.0,
+      "hp": 51.81333333333333,
+      "total_rate": 80.0,
+      "cohort_hp": 51.81333333333333,
+      "conditional_rate": 88.88888888888889,
+      "conditional_hp": 57.57037037037037,
+      "passed": true
+    },
+    "16": {
+      "reached": 8,
+      "wins": 8,
+      "rate": 80.0,
+      "hp": 53.44,
+      "total_rate": 80.0,
+      "cohort_hp": 53.44,
+      "conditional_rate": 100.0,
+      "conditional_hp": 66.8,
+      "passed": true
+    },
+    "17": {
+      "reached": 8,
+      "wins": 7,
+      "rate": 70.0,
+      "hp": 42.28571428571429,
+      "total_rate": 70.0,
+      "cohort_hp": 42.28571428571429,
+      "conditional_rate": 87.5,
+      "conditional_hp": 52.85714285714286,
+      "passed": false
+    },
+    "18": {
+      "reached": 7,
+      "wins": 7,
+      "rate": 70.0,
+      "hp": 37.21142857142857,
+      "total_rate": 70.0,
+      "cohort_hp": 37.21142857142857,
+      "conditional_rate": 100.0,
+      "conditional_hp": 53.159183673469386,
+      "passed": false
+    },
+    "19": {
+      "reached": 7,
+      "wins": 6,
+      "rate": 60.0,
+      "hp": 21.228571428571428,
+      "total_rate": 60.0,
+      "cohort_hp": 21.228571428571428,
+      "conditional_rate": 85.71428571428571,
+      "conditional_hp": 30.3265306122449,
+      "passed": false
+    },
+    "20": {
+      "reached": 6,
+      "wins": 6,
+      "rate": 60.0,
+      "hp": 19.428571428571427,
+      "total_rate": 60.0,
+      "cohort_hp": 19.428571428571427,
+      "conditional_rate": 100.0,
+      "conditional_hp": 32.38095238095238,
+      "passed": false
+    },
+    "21": {
+      "reached": 6,
+      "wins": 6,
+      "rate": 60.0,
+      "hp": 21.314285714285717,
+      "total_rate": 60.0,
+      "cohort_hp": 21.314285714285717,
+      "conditional_rate": 100.0,
+      "conditional_hp": 35.523809523809526,
+      "passed": false
+    },
+    "22": {
+      "reached": 6,
+      "wins": 6,
+      "rate": 60.0,
+      "hp": 19.885714285714283,
+      "total_rate": 60.0,
+      "cohort_hp": 19.885714285714283,
+      "conditional_rate": 100.0,
+      "conditional_hp": 33.14285714285714,
+      "passed": false
+    },
+    "23": {
+      "reached": 6,
+      "wins": 6,
+      "rate": 60.0,
+      "hp": 19.885714285714283,
+      "total_rate": 60.0,
+      "cohort_hp": 19.885714285714283,
+      "conditional_rate": 100.0,
+      "conditional_hp": 33.14285714285714,
+      "passed": false
+    },
+    "24": {
+      "reached": 6,
+      "wins": 6,
+      "rate": 60.0,
+      "hp": 17.152380952380952,
+      "total_rate": 60.0,
+      "cohort_hp": 17.152380952380952,
+      "conditional_rate": 100.0,
+      "conditional_hp": 28.587301587301585,
+      "passed": false
+    },
+    "25": {
+      "reached": 6,
+      "wins": 5,
+      "rate": 50.0,
+      "hp": 12.795238095238094,
+      "total_rate": 50.0,
+      "cohort_hp": 12.795238095238094,
+      "conditional_rate": 83.33333333333333,
+      "conditional_hp": 21.325396825396826,
+      "passed": false
+    },
+    "26": {
+      "reached": 5,
+      "wins": 5,
+      "rate": 50.0,
+      "hp": 11.08095238095238,
+      "total_rate": 50.0,
+      "cohort_hp": 11.08095238095238,
+      "conditional_rate": 100.0,
+      "conditional_hp": 22.16190476190476,
+      "passed": false
+    },
+    "27": {
+      "reached": 5,
+      "wins": 3,
+      "rate": 30.0,
+      "hp": 3.9142857142857146,
+      "total_rate": 30.0,
+      "cohort_hp": 3.9142857142857146,
+      "conditional_rate": 60.0,
+      "conditional_hp": 7.828571428571429,
+      "passed": false
+    },
+    "28": {
+      "reached": 3,
+      "wins": 3,
+      "rate": 30.0,
+      "hp": 6.632,
+      "total_rate": 30.0,
+      "cohort_hp": 6.632,
+      "conditional_rate": 100.0,
+      "conditional_hp": 22.106666666666666,
+      "passed": false
+    },
+    "29": {
+      "reached": 3,
+      "wins": 0,
+      "rate": 0.0,
+      "hp": 0.0,
+      "total_rate": 0.0,
+      "cohort_hp": 0.0,
+      "conditional_rate": null,
+      "conditional_hp": null,
+      "passed": true
+    },
+    "30": {
+      "reached": 3,
+      "wins": 2,
+      "rate": 20.0,
+      "hp": 3.404,
+      "total_rate": 20.0,
+      "cohort_hp": 3.404,
+      "conditional_rate": 66.66666666666667,
+      "conditional_hp": 11.346666666666666,
+      "passed": false
+    }
+  }
+}

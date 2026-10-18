@@ -6,8 +6,31 @@
 
 | DAY | 행(1부터) | 필드 | 이전 | 이후 |
 |---|---:|---|---|---|
+| day_6 | 2 | objective_priority | 1 | 0.25 |
+| day_6 | 2 | spawn_interval | 3.84 | 5.376 |
+| day_6 | 2 | waypoint_room_id | null | "barracks" |
+| day_6 | 3 | objective_priority | 1 | 0.25 |
+| day_6 | 3 | spawn_interval | 5.6 | 7.84 |
+| day_7 | 2 | objective_priority | 1 | 0.25 |
+| day_7 | 2 | spawn_interval | 3.36 | 4.704 |
+| day_7 | 2 | waypoint_room_id | null | "barracks" |
+| day_7 | 3 | objective_priority | 1 | 0.25 |
+| day_7 | 3 | spawn_interval | 5.2 | 7.28 |
+| day_8 | 2 | objective_priority | 1 | 0.25 |
+| day_8 | 2 | spawn_interval | 3.36 | 4.704 |
+| day_8 | 2 | waypoint_room_id | null | "barracks" |
+| day_8 | 3 | objective_priority | 1 | 0.25 |
+| day_8 | 3 | spawn_interval | 5.6 | 7.84 |
+| day_9 | 2 | objective_priority | 1 | 0.25 |
+| day_9 | 2 | spawn_interval | 3.52 | 4.928 |
+| day_9 | 2 | waypoint_room_id | null | "barracks" |
+| day_9 | 3 | objective_priority | 1 | 0.25 |
+| day_9 | 3 | spawn_interval | 0.8 | 1.12 |
+| day_9 | 4 | objective_priority | 1 | 0.25 |
+| day_9 | 4 | spawn_interval | 5.6 | 7.84 |
 | day_10 | 2 | objective_priority | 1 | 0.25 |
 | day_10 | 2 | spawn_interval | 3.28 | 4.592 |
+| day_10 | 2 | waypoint_room_id | null | "barracks" |
 | day_10 | 3 | objective_priority | 1 | 0.25 |
 | day_10 | 3 | spawn_interval | 0.8 | 1.12 |
 | day_10 | 4 | objective_priority | 1 | 0.25 |
@@ -16,12 +39,14 @@
 | day_10 | 5 | spawn_interval | 0.8 | 1.12 |
 | day_11 | 2 | objective_priority | 1 | 0.25 |
 | day_11 | 2 | spawn_interval | 3.36 | 4.704 |
+| day_11 | 2 | waypoint_room_id | null | "barracks" |
 | day_11 | 3 | objective_priority | 1 | 0.25 |
 | day_11 | 3 | spawn_interval | 0.8 | 1.12 |
 | day_11 | 4 | objective_priority | 1 | 0.25 |
 | day_11 | 4 | spawn_interval | 5.6 | 7.84 |
 | day_12 | 2 | objective_priority | 1 | 0.25 |
 | day_12 | 2 | spawn_interval | 3.28 | 4.592 |
+| day_12 | 2 | waypoint_room_id | null | "barracks" |
 | day_12 | 3 | objective_priority | 1 | 0.25 |
 | day_12 | 3 | spawn_interval | 0.8 | 1.12 |
 | day_12 | 4 | objective_priority | 1 | 0.25 |
@@ -30,6 +55,7 @@
 | day_12 | 5 | spawn_interval | 0.8 | 1.12 |
 | day_13 | 2 | objective_priority | 1 | 0.25 |
 | day_13 | 2 | spawn_interval | 3.44 | 4.816 |
+| day_13 | 2 | waypoint_room_id | null | "barracks" |
 | day_13 | 3 | objective_priority | 1 | 0.25 |
 | day_13 | 3 | spawn_interval | 0.8 | 1.12 |
 | day_13 | 4 | objective_priority | 1 | 0.25 |
@@ -38,6 +64,7 @@
 | day_13 | 5 | spawn_interval | 6.4 | 8.96 |
 | day_14 | 2 | objective_priority | 1 | 0.25 |
 | day_14 | 2 | spawn_interval | 3.28 | 4.592 |
+| day_14 | 2 | waypoint_room_id | null | "barracks" |
 | day_14 | 3 | objective_priority | 1 | 0.25 |
 | day_14 | 3 | spawn_interval | 0.8 | 1.12 |
 | day_14 | 4 | objective_priority | 1 | 0.25 |
@@ -69,6 +96,7 @@
 | day_17 | 1 | spawn_interval | 1.4 | 1.68 |
 | day_17 | 2 | objective_priority | 1 | 0.25 |
 | day_17 | 2 | spawn_interval | 4.0 | 4.8 |
+| day_17 | 2 | waypoint_room_id | null | "barracks" |
 | day_17 | 3 | objective_priority | 1 | 0.25 |
 | day_17 | 3 | spawn_interval | 0.8 | 0.96 |
 | day_17 | 4 | objective_priority | 1 | 0.25 |
@@ -87,6 +115,7 @@
 | day_19 | 1 | spawn_interval | 1.4 | 1.68 |
 | day_19 | 2 | objective_priority | 1 | 0.25 |
 | day_19 | 2 | spawn_interval | 4.0 | 4.8 |
+| day_19 | 2 | waypoint_room_id | null | "barracks" |
 | day_19 | 3 | objective_priority | 1 | 0.25 |
 | day_19 | 3 | spawn_interval | 3.2 | 3.84 |
 | day_19 | 4 | objective_priority | 1 | 0.25 |
@@ -135,12 +164,14 @@
 | day_26 | 5 | objective_priority | 1 | 0.4 |
 | day_26 | 6 | objective_priority | 1 | 0.4 |
 | day_26 | 7 | objective_priority | 1 | 0.4 |
+| day_27 | 2 | grade_routes.C.waypoint_room_id | null | "watchtower_2" |
 | day_27 | 2 | objective_priority | 1 | 0.5 |
 | day_27 | 3 | objective_priority | 1 | 0.5 |
 | day_27 | 4 | objective_priority | 1 | 0.5 |
 | day_27 | 5 | objective_priority | 1 | 0.5 |
 | day_27 | 6 | objective_priority | 1 | 0.5 |
 | day_27 | 7 | objective_priority | 1 | 0.5 |
+| day_28 | 2 | grade_routes.C.waypoint_room_id | null | "watchtower_2" |
 | day_28 | 2 | objective_priority | 1 | 0.5 |
 | day_28 | 3 | objective_priority | 1 | 0.5 |
 | day_28 | 4 | objective_priority | 1 | 0.5 |
@@ -148,33 +179,19 @@
 | day_28 | 6 | objective_priority | 1 | 0.5 |
 | day_28 | 7 | objective_priority | 1 | 0.5 |
 | day_28 | 8 | objective_priority | 1 | 0.5 |
+| day_30 | 2 | grade_routes.C.waypoint_room_id | null | "watchtower_2" |
 | day_30 | 2 | objective_priority | 1 | 0.5 |
 | day_30 | 3 | objective_priority | 1 | 0.5 |
 | day_30 | 4 | objective_priority | 1 | 0.5 |
 | day_30 | 5 | objective_priority | 1 | 0.5 |
+| day_30 | 6 | grade_routes | null | {"C": {"throne_door": "S", "objective_priority": 1.0}} |
 | day_30 | 6 | objective_priority | 0.6 | 0.5 |
 | day_30 | 7 | objective_priority | 1 | 0.5 |
 | day_30 | 8 | grade_routes.C.objective_priority | 0.3 | 0.1 |
+| day_30 | 8 | grade_routes.C.throne_door | null | "W" |
 | day_30 | 8 | grade_routes.C.waypoint_room_id | null | "ward_core" |
 | day_30 | 8 | objective_priority | 0.6 | 0.1 |
-| day_6 | 2 | objective_priority | 1 | 0.25 |
-| day_6 | 2 | spawn_interval | 3.84 | 5.376 |
-| day_6 | 3 | objective_priority | 1 | 0.25 |
-| day_6 | 3 | spawn_interval | 5.6 | 7.84 |
-| day_7 | 2 | objective_priority | 1 | 0.25 |
-| day_7 | 2 | spawn_interval | 3.36 | 4.704 |
-| day_7 | 3 | objective_priority | 1 | 0.25 |
-| day_7 | 3 | spawn_interval | 5.2 | 7.28 |
-| day_8 | 2 | objective_priority | 1 | 0.25 |
-| day_8 | 2 | spawn_interval | 3.36 | 4.704 |
-| day_8 | 3 | objective_priority | 1 | 0.25 |
-| day_8 | 3 | spawn_interval | 5.6 | 7.84 |
-| day_9 | 2 | objective_priority | 1 | 0.25 |
-| day_9 | 2 | spawn_interval | 3.52 | 4.928 |
-| day_9 | 3 | objective_priority | 1 | 0.25 |
-| day_9 | 3 | spawn_interval | 0.8 | 1.12 |
-| day_9 | 4 | objective_priority | 1 | 0.25 |
-| day_9 | 4 | spawn_interval | 5.6 | 7.84 |
+| day_30 | 8 | spawn_delay | 54.0 | 84.0 |
 
 `data/v122/dual_front_day01_05_waves.json` — 실제 DAY1~5 선택 파일
 
@@ -216,4 +233,4 @@
 - `ApprovedBattleController.spawn_enemy`: 명시적 옥좌 우선 공격·경유를 F/E에서도 지정 웨이브에 적용. 공병·도둑의 최종 목표 정책은 유지.
 - `ApprovedMonsterPlacement.auto_place`: D는 실제 가용 탱커 2명을 옥좌 호위로 우선 배치. C는 입구 슬라임을 유지하고 가용 다리 트롤·접착 달팽이 등을 양쪽 옥좌 입구에 분산.
 
-웨이브 SHA-256: `d113b2c419b53db16f1e5bea2bf930bbd94e48c5d241dbc9976a1e1e5eebf3f4`.
+웨이브 SHA-256: `70bd31acd3b42cac9d08079b914309ead7063bddd311e203b43a5a1f7fa56741`.

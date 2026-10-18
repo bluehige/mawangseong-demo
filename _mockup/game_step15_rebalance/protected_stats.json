@@ -3,7 +3,7 @@
   "checks": {
     "data/waves.json": {
       "unchanged_hp_atk_coefficients": 312,
-      "sha256": "d113b2c419b53db16f1e5bea2bf930bbd94e48c5d241dbc9976a1e1e5eebf3f4"
+      "sha256": "70bd31acd3b42cac9d08079b914309ead7063bddd311e203b43a5a1f7fa56741"
     },
     "data/v122/dual_front_day01_05_waves.json": {
       "unchanged_hp_atk_coefficients": 32,

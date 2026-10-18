@@ -98,8 +98,16 @@ static func auto_place(layout: Dictionary, members: Dictionary, unlocked: Array,
 		# imp/map support pair. C divides that quartet between independent doors.
 		if row.species_id in core_guards: preferred = ["throne","barracks","ward_core","recovery_nest","vault"]
 		for kind in preferred:
-			for b in layout.buildings:
-				if b.kind!=kind: continue
+			var candidates: Array=layout.buildings.filter(func(b): return b.kind==kind)
+			if layout.get("grade","") in ["D","C"]:
+				# A newly purchased rear site must receive defenders too.
+				candidates.sort_custom(func(a,b):
+					var ac := 0; var bc := 0
+					for target in next.values():
+						if target.building==a.id: ac+=1
+						if target.building==b.id: bc+=1
+					return ac<bc or (ac==bc and layout.buildings.find(a)<layout.buildings.find(b)))
+			for b in candidates:
 				var slots: Array = range(layout.defense_points[b.id].size())
 				# Front line tanks face the entrance, ranged defenders use rear slots.
 				slots.sort_custom(func(a,b_index):

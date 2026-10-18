@@ -212,7 +212,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "barracks"
     },
     {
       "enemy_id": "thief",
@@ -250,7 +251,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "barracks"
     },
     {
       "enemy_id": "thief",
@@ -288,7 +290,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "barracks"
     },
     {
       "enemy_id": "thief",
@@ -326,7 +329,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "barracks"
     },
     {
       "enemy_id": "investigator",
@@ -376,7 +380,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "barracks"
     },
     {
       "enemy_id": "investigator",
@@ -438,7 +443,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "barracks"
     },
     {
       "enemy_id": "investigator",
@@ -488,7 +494,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "barracks"
     },
     {
       "enemy_id": "investigator",
@@ -550,7 +557,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "barracks"
     },
     {
       "enemy_id": "shieldbearer",
@@ -612,7 +620,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "barracks"
     },
     {
       "enemy_id": "investigator",
@@ -811,7 +820,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "barracks"
     },
     {
       "enemy_id": "thief",
@@ -937,7 +947,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "barracks"
     },
     {
       "enemy_id": "investigator",
@@ -1665,7 +1676,8 @@
           "atk_scale": 2.652845,
           "attack_throne": true,
           "attack_throne_lane": 1.0,
-          "hp_scale": 9.1341
+          "hp_scale": 9.1341,
+          "waypoint_room_id": "watchtower_2"
         }
       }
     },
@@ -1762,7 +1774,8 @@
           "atk_scale": 2.789605,
           "attack_throne": true,
           "attack_throne_lane": 1.0,
-          "hp_scale": 9.288
+          "hp_scale": 9.288,
+          "waypoint_room_id": "watchtower_2"
         }
       }
     },
@@ -1874,7 +1887,8 @@
           "atk_scale": 1.71548,
           "attack_throne": true,
           "attack_throne_lane": 1.0,
-          "hp_scale": 10.344525
+          "hp_scale": 10.344525,
+          "waypoint_room_id": "watchtower_2"
         }
       }
     },
@@ -1931,7 +1945,13 @@
       "objective_priority": 0.5,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "grade_routes": {
+        "C": {
+          "throne_door": "S",
+          "objective_priority": 1.0
+        }
+      }
     },
     {
       "enemy_id": "engineer",
@@ -1950,7 +1970,7 @@
     {
       "enemy_id": "official_hero_leon",
       "count": 1,
-      "spawn_delay": 54.0,
+      "spawn_delay": 84.0,
       "spawn_interval": 0.8,
       "hp_scale": 3.2076,
       "atk_scale": 5.175,
@@ -1963,7 +1983,8 @@
       "grade_routes": {
         "C": {
           "objective_priority": 0.1,
-          "waypoint_room_id": "ward_core"
+          "waypoint_room_id": "ward_core",
+          "throne_door": "W"
         }
       }
     }

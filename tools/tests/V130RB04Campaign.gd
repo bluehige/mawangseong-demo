@@ -14,7 +14,7 @@ var fast := true
 var cosmetic_controller: Script
 var checkpoint_source := ""
 var checkpoint_day := 1
-var retries := 1
+var retries := 0
 var failures: Array = []
 var checks := 0
 var rows: Array = []
@@ -147,7 +147,7 @@ func battle_day() -> Dictionary:
 			if tween!=null and tween.is_valid(): tween.pause(); tween.custom_step(1.0/60.0)
 		steps+=1
 		if steps%3600==0: print("B04_PROGRESS ",run_seed," D",GameState.day," t=",game.combat_time," screen=",game.current_screen," paused=",game.combat_paused," queue=",game.onboarding_dialogue_queue.size())
-		if GameState.day==30 and not captured and game.combat_time>35 and DisplayServer.get_name()!="headless":
+		if GameState.day==30 and not captured and game.combat_time>95 and DisplayServer.get_name()!="headless":
 			await RenderingServer.frame_post_draw
 			get_viewport().get_texture().get_image().save_png("res://_mockup/game_step15_rebalance/battle_day30.png")
 			captured=true
@@ -405,4 +405,3 @@ func button_rows(node: Node) -> Array:
 	if node is BaseButton and node.is_visible_in_tree(): result.append({"name":node.name,"text":node.text if node is Button else "","disabled":node.disabled,"tooltip":node.tooltip_text})
 	for child in node.get_children(): result.append_array(button_rows(child))
 	return result
-

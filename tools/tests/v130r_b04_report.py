@@ -58,11 +58,12 @@ def summarize(rows, seeds=SEEDS, denominator="cohort"):
         daily[day] = dict(reached=len(reached), wins=wins, rate=rate, hp=mean, total_rate=cohort_rate, cohort_hp=cohort_hp, conditional_rate=observed_rate,conditional_hp=observed_hp, passed=(rate is not None and lo<=rate<=hi and hlo<=mean<=hhi) if day!=29 else bool(reached))
     return lookup, daily
 
-def paired_report(labels, lookup, selected_days):
+def paired_report(labels, lookup, selected_days, source):
     modes=["recommended","anchor_cluster","final_line","first_line"]
     pairs={}
     for label in labels:
-        verify_run(label)
+        info,checks,_=verify_run(label)
+        assert 'stack_source='+source in info['command'] and checks['source']==source, 'Pairs must restore this exact primary campaign'
         for r in read(label):
             key=(r["seed"],r["day"])
             group=pairs.setdefault(key,{})
@@ -189,7 +190,7 @@ def main():
     (OUT / "day_curve.md").write_text("\n".join(text)+"\n", encoding="utf-8")
     selected_days=sorted(set(map(int,args.stack_days.split(','))))
     assert {4,14,15,19,20,21,22,23,26,27,28,30}<=set(selected_days)
-    stack_failures, missing = paired_report(args.paired, lookup,selected_days)
+    stack_failures, missing = paired_report(args.paired, lookup,selected_days,args.recommended)
     changed_report()
     result=dict(completed=completed,completed_without_retry=no_retry_completed,curve_failures=[d for d,r in daily.items() if d!=29 and not r['passed']],stack_failures=stack_failures,unmeasured_paired_entries=len(missing))
     result['curve_denominator']=args.curve_denominator

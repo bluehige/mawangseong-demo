@@ -1,0 +1,9 @@
+{
+  "fast": "cache_canary30",
+  "full": "cache_full30",
+  "equal_fields": 28,
+  "different_fields": [],
+  "units": 26,
+  "steps": 2234,
+  "hp": 2122
+}

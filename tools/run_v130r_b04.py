@@ -34,7 +34,8 @@ def main():
     parser.add_argument("--full-raster", action="store_true")
     parser.add_argument("--checkpoint", default="")
     parser.add_argument("--day", type=int, default=1)
-    parser.add_argument("--retries", type=int, choices=[0,1], default=1)
+    parser.add_argument("--retries", type=int, choices=[0,1], default=0)
+    parser.add_argument("--timeout", type=int, default=14400)
     parser.add_argument("--stack-source", default="")
     parser.add_argument("--stack-days", default="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,30")
     args = parser.parse_args()
@@ -49,6 +50,7 @@ def main():
     if args.stack_source:
         input_paths.append("tools/tests/V130RB04Stacking.gd")
     input_paths.append("tools/tests/V130RB04FastMap.gd")
+    input_paths += ["scripts/game/CombatSceneController.gd", "scripts/units/Unit.gd", "scripts/units/ApprovedBattleUnit.gd", "scripts/map_builder/ApprovedBattleMap.gd"]
     input_hashes = {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in input_paths}
     (folder / "input_hashes.json").write_text(json.dumps(input_hashes, indent=2), encoding="utf-8")
     wrapper = Path(subprocess.check_output(["where.exe", "godot.cmd"], text=True).splitlines()[0])
@@ -77,7 +79,7 @@ def main():
             while process.poll() is None:
                 peak = max(peak, len(engines()))
                 errors = (folder / "stderr.log").read_text(encoding="utf-8", errors="replace")
-                if time.monotonic() - started > 7200 or "SCRIPT ERROR" in errors or peak > 1:
+                if time.monotonic() - started > args.timeout or "SCRIPT ERROR" in errors or peak > 1:
                     process.kill()
                     break
                 time.sleep(.3)

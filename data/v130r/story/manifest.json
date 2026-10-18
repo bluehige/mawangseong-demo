@@ -47,7 +47,7 @@
     "data/story/v122_main/day_28.json": "98e3dc1e896b161ca9c7721751cb2246cf993c0b5b96897da77dea8303007c72",
     "data/story/v122_main/day_29.json": "5e9a681fe9089117c498c5b2b49c4c54915a0de3da1e141b7f6bfc231e094861",
     "data/story/v122_main/day_30.json": "a073472be86a1ff3c746e27f7123f91f040d05b27b84a37b9781db62732e0fad",
-    "data/waves.json": "a90c34a4767f2002305f1261a52c5926a121cb9c814fd7ffc6ffa51b17281945"
+    "data/waves.json": "70bd31acd3b42cac9d08079b914309ead7063bddd311e203b43a5a1f7fa56741"
   },
   "runtime_side_effects": [],
   "join_policy": "existing_condition_first; fallback join_day only where explicitly provided",
@@ -98,5 +98,12 @@
       "reason": "Step10B: DAY21 and DAY26 add watchtower_2 to the second advance-soldier row for Grade D only; preserve numeric stats, counts and intervals. Baseline is committed 0117, excluding the pre-existing uncommitted Step10C balance work.",
       "byte_convention": "UTF-8, CRLF; same convention as existing protected files"
     }
+  },
+  "balance_baseline_update_b04_2026_10_18": {
+    "previous_sha256": "a90c34a4767f2002305f1261a52c5926a121cb9c814fd7ffc6ffa51b17281945",
+    "sha256": "70bd31acd3b42cac9d08079b914309ead7063bddd311e203b43a5a1f7fa56741",
+    "intent_baseline": "0a90971c970ac2a65ed6c6661b5c9d66a3e07704",
+    "reason": "B04: replace stopped pre-B02 0115 using actual uninterrupted campaigns; wave count, timing, waypoints and objective priority only. Preserve HP/ATK coefficients and DAY29 no combat.",
+    "byte_convention": "UTF-8, CRLF; same convention as existing protected files"
   }
 }
