@@ -4416,6 +4416,10 @@ func _create_controllers() -> void:
 	combat_scene.setup(self, hud)
 
 func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
+	# The Approved view owns its live HUD and reparented unit sprites. A combat
+	# refresh must never let hud.clear() destroy that owner.
+	if screen_name == Constants.SCREEN_COMBAT and current_screen == Constants.SCREEN_COMBAT and start_flow.has_live_battle_view():
+		return
 	start_flow.before_screen_change(screen_name)
 	if screen_name not in [Constants.SCREEN_MONSTER,Constants.SCREEN_CHRONICLE,Constants.SCREEN_ENDING_ARCHIVE,Constants.SCREEN_SETTINGS]:
 		records_companion_return = false
@@ -7692,7 +7696,9 @@ func _story_run_completion_action(action: String, return_screen: String) -> void
 		"finish_day29_declaration_story":
 			_finish_day29_declaration_story()
 		_:
-			_set_screen(return_screen if return_screen != "" else Constants.SCREEN_MANAGEMENT)
+			# Closing an overlay only releases its pause/input ownership.
+			if return_screen != Constants.SCREEN_COMBAT or current_screen != Constants.SCREEN_COMBAT:
+				_set_screen(return_screen if return_screen != "" else Constants.SCREEN_MANAGEMENT)
 
 
 func _story_queue_combat_trigger(trigger: String, facts: Dictionary = {}) -> bool:

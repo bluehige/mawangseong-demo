@@ -706,6 +706,12 @@ func apply_action(next: Dictionary) -> bool:
 
 func _input(event: InputEvent) -> void:
 	if battle!=null:
+		if root.current_screen!=Constants.SCREEN_COMBAT: return
+		# GameRoot normally disables its own map input during Approved combat;
+		# forward modal dialogue keys before considering battle shortcuts.
+		if root.story_combat_overlay_open or root.continuity.backlog_open or root.pause_menu_open:
+			root._input(event)
+			return
 		if handle_key(event): get_viewport().set_input_as_handled(); return
 		# Direct movement also works when the adjacent skill popup covers a road.
 		if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_RIGHT and event.pressed:
@@ -754,6 +760,7 @@ func _gui_input(event: InputEvent) -> void:
 	else: super._gui_input(event)
 
 func handle_key(event: InputEvent) -> bool:
+	if battle!=null and (root.current_screen!=Constants.SCREEN_COMBAT or root.story_combat_overlay_open or root.continuity.backlog_open or root.pause_menu_open): return false
 	if battle!=null and root.start_flow.guide_key=="command" and event is InputEventKey and event.pressed and event.keycode==KEY_SPACE:
 		root.start_flow.ack_commands(); return true
 	if battle!=null and event is InputEventKey and event.pressed:

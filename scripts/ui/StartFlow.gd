@@ -24,6 +24,11 @@ var command_pause_owned := false
 var replaying := false
 var replay_on_continue := false
 var suspended_map: Control
+var suspended_battle_paused := false
+
+func has_live_battle_view() -> bool:
+	var view: Node = root.ui_layer.get_node_or_null("ApprovedMapManagement")
+	return view != null and view.get("battle") != null and view.battle.running
 
 func setup(game: Node) -> void:
 	root = game
@@ -35,14 +40,17 @@ func setup(game: Node) -> void:
 
 func before_screen_change(destination: String) -> void:
 	if is_instance_valid(suspended_map):
-		if destination not in ["settings","combat"]: abandon_battle(suspended_map); suspended_map.queue_free(); suspended_map = null
+		if destination not in ["settings","dialogue","combat"]: abandon_battle(suspended_map); suspended_map.queue_free(); suspended_map = null
 		return
 	var view: Node = root.ui_layer.get_node_or_null("ApprovedMapManagement") if root.ui_layer!=null else null
-	if view==null or view.battle==null or not view.battle.running or destination=="combat": return
-	if destination=="settings":
+	if view==null or view.get("battle")==null or not view.battle.running or destination=="combat": return
+	if destination in ["settings","dialogue"]:
 		Grade.stash(root,view.placement,view.monster_ui.assignments)
+		suspended_battle_paused = root.combat_paused
+		view.battle.set_pause_state(true,false)
 		view.get_parent().remove_child(view); root.add_child(view)
 		view.hide(); view.set_physics_process(false); suspended_map = view
+		root.set_process_input(true)
 	else: abandon_battle(view)
 
 func restore_battle_view() -> bool:
@@ -51,6 +59,9 @@ func restore_battle_view() -> bool:
 	suspended_map.show(); suspended_map.set_physics_process(true); suspended_map = null
 	root.world_overlay_layer.hide()
 	if root.quarter_renderer!=null: root.quarter_renderer.set_world_layers_visible(false)
+	# Dialogue, settings and their rebuilds all resume the same simulation.
+	root.combat_scene.set_pause_state(suspended_battle_paused,false)
+	root.set_physics_process(false); root.set_process_input(false)
 	return true
 
 func abandon_battle(view: Node) -> void:

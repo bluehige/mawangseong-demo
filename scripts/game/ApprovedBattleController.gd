@@ -44,6 +44,23 @@ var duos = preload("res://scripts/combat/V130RDuoRuntime.gd").new()
 func activate_v130r_duo(id: String) -> bool:
 	return duos.activate(id)
 
+func build_combat_ui() -> void:
+	# Inherited command/selection refreshes may request a HUD rebuild. This
+	# controller's HUD is owned by view.battle_ui, never CombatWorkspaceUI.
+	root.start_flow.restore_battle_view()
+
+func _create_combat_tween() -> Tween:
+	var tween := super._create_combat_tween()
+	# A finished tween can remain valid until the next frame; dialogue resume
+	# must not play it again in that interval.
+	tween.finished.connect(_forget_finished_tween.bind(tween.get_instance_id()),CONNECT_ONE_SHOT)
+	return tween
+
+func _forget_finished_tween(tween_id: int) -> void:
+	for index in range(active_combat_tweens.size()-1,-1,-1):
+		if active_combat_tweens[index].get_instance_id()==tween_id:
+			active_combat_tweens.remove_at(index)
+
 func begin(map_view: Control) -> void:
 	view = map_view; root = view.root
 	original_controller = root.combat_scene; original_graph = root.graph; original_rooms = root.rooms
@@ -468,19 +485,22 @@ func _flame_zone_targets() -> Array:
 	return root.enemy_units.filter(func(u): return u.is_alive() and map.tags_for(u).defense_line=="1")
 
 func set_speed(speed: float) -> void:
-	root.combat_speed = clampf(speed,1,3); root.combat_paused = false
+	root.combat_speed = clampf(speed,1,3)
 	if not is_equal_approx(speed,3.0): achievement_state.speed_x3 = false
-	for unit in root.monster_units+root.enemy_units: unit.set_simulation_speed(root.combat_speed); unit.set_physics_process(running)
+	for unit in root.monster_units+root.enemy_units: unit.set_simulation_speed(root.combat_speed)
+	set_pause_state(false,false)
 
 func set_pause_state(paused: bool, _emit_log: bool = true) -> void:
+	requested_pause = paused
 	root.combat_paused = paused
 	for tween in active_combat_tweens:
 		if tween!=null and tween.is_valid():
 			if paused: tween.pause()
 			else: tween.play()
 	for unit in root.monster_units+root.enemy_units:
+		if not is_instance_valid(unit): continue
 		unit.set_physics_process(not paused and running)
-		if unit.sprite!=null: unit.sprite.speed_scale = 0 if paused else root.combat_speed
+		if is_instance_valid(unit.sprite): unit.sprite.speed_scale = 0 if paused else root.combat_speed
 
 func spawn_projectile(from_position: Vector2, to_position: Vector2, on_arrival: Callable = Callable(), impact_on_arrival: bool = true) -> void:
 	var sprite = _make_effect_sprite("fireball",true,0)
@@ -579,6 +599,7 @@ func finish_combat(win: bool, reason: String) -> void:
 		for unit in root.monster_units: root.v130r_story.bark(root,unit,"victory")
 	Ach.finish(self,win)
 	running = false
+	set_pause_state(true,false)
 	spec_effects.refund_tolls()
 	last_result = {"win":win,"reason":reason,"duration":root.combat_time,"spawned":root.spawned_count,"trap_hits":trap_events.size(),"skills":skill_events.size(),"gold_stolen":root.treasure_gold_stolen_this_battle}
 	# Restore the campaign graph before existing result/settlement services run.

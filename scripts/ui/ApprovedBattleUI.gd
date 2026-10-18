@@ -140,6 +140,10 @@ func refresh() -> void:
 	view.update_wallet()
 
 func _process(delta: float) -> void:
+	# Approved combat disables GameRoot's physics loop. Keep nonblocking story
+	# expiry and dialogue auto timing alive under the same modal input owner.
+	if battle.root.current_screen==Constants.SCREEN_COMBAT:
+		battle.root._suspended_interface_tick(delta)
 	position_skills(); layout_vitals(); refresh_clock += delta
 	if refresh_clock>=.1: refresh_clock = 0; refresh()
 
