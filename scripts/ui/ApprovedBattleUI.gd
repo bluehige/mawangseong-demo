@@ -10,6 +10,7 @@ var bar: Control
 var skills: Control
 var skill_buttons: Array[TextureButton] = []
 var command_buttons := {}
+var command_timers := {}
 var speed_buttons := {}
 var battle_status: Label
 var health_status: Label
@@ -24,6 +25,11 @@ func setup(owner_view: Control, controller) -> void:
 	for i in range(TACTICS.size()):
 		var id: String = TACTICS[i]
 		command_buttons[id] = button(bar,ART+"tactic_"+id+".png",Vector2(18+i*84,10),76,func(): choose_command(id),LanguageSettings.text(TITLES[i]))
+		var timer: Label = view.label_at(command_buttons[id],"",Vector2(0,52),18,true)
+		timer.name = "CommandRemaining"; timer.size = Vector2(76,24)
+		timer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		timer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		command_timers[id] = timer
 	for i in range(4):
 		var id: String = ["pause","1","2","3"][i]
 		speed_buttons[id] = button(bar,ART+"speed_"+id+".png",Vector2(460+i*66,19),58,func(): choose_speed(id),LanguageSettings.text("map.paused") if i==0 else LanguageSettings.text("map.speed")+id)
@@ -132,7 +138,12 @@ func refresh() -> void:
 	health_status.text = LanguageSettings.text("map.throne_d_d_gold_stolen_d_s") % [GameState.demon_lord_hp,GameState.demon_lord_max_hp,battle.root.treasure_gold_stolen_this_battle,
 		LanguageSettings.text("map.paused") if battle.root.combat_paused else LanguageSettings.text("map.d_1fs") % [battle.root.combat_speed,battle.root.combat_time]]
 	if pending_command!="": battle_status.text += " · "+LanguageSettings.text(TITLES[TACTICS.find(pending_command)])
-	for id in command_buttons: command_buttons[id].modulate = Color(1.25,1.15,.7) if id==battle.command or id==pending_command else Color.WHITE
+	var remaining: float = battle.command_remaining()
+	for id in command_buttons:
+		var active: bool = id==battle.command and remaining>0
+		command_buttons[id].modulate = Color(1.25,1.15,.7) if active or id==pending_command else Color.WHITE
+		command_timers[id].text = "%.1fs"%remaining if active else ""
+		command_timers[id].visible = active
 	for id in speed_buttons:
 		var active: bool = battle.root.combat_paused if id=="pause" else not battle.root.combat_paused and int(id)==int(battle.root.combat_speed)
 		speed_buttons[id].modulate = Color(1.25,1.15,.7) if active else Color.WHITE

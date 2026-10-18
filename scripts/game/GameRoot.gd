@@ -946,7 +946,7 @@ func _campaign_save_payload(checkpoint: String) -> Dictionary:
 			"rooms": rooms.duplicate(true),
 			"selected_room": selected_room,
 			"selected_monster_id": selected_monster_id,
-			"global_directive": global_directive,
+			"global_directive": Constants.DIRECTIVE_DEFENSE if combat_scene.has_method("reset_command") else global_directive,
 			"room_directives": room_directives.duplicate(true),
 			"monster_roster": monster_roster.duplicate(true),
 			"logs": logs.duplicate()
@@ -1321,7 +1321,8 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	if not rooms.has(selected_room):
 		selected_room = "entrance"
 	selected_monster_id = _legacy_species_reference(str(world.get("selected_monster_id", "slime")))
-	global_directive = str(world.get("global_directive", Constants.DIRECTIVE_DEFENSE))
+	# Command stances belong to one battle; older saves may contain a leaked order.
+	global_directive = Constants.DIRECTIVE_DEFENSE
 	room_directives = world.get("room_directives", {}).duplicate(true)
 	for room_id_value in rooms.keys():
 		if not room_directives.has(room_id_value):

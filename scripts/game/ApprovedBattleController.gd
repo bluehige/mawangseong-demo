@@ -15,7 +15,8 @@ var visuals: Node2D
 var assignments := {}
 var members := {}
 var homes := {}
-var command := "hold_ground"
+const COMMAND_SECONDS := 6.0
+var command := ""
 var command_point := Vector2.ZERO
 var command_target: Node
 var command_until := 0.0
@@ -71,6 +72,7 @@ func begin(map_view: Control) -> void:
 	root.world_overlay_layer.hide()
 	if root.quarter_renderer!=null: root.quarter_renderer.set_world_layers_visible(false)
 	root.current_screen = Constants.SCREEN_COMBAT
+	reset_command()
 	root.combat_time = 0.0; root.combat_speed = UISettings.preferred_combat_speed if UISettings.remember_combat_speed else 1.0; root.combat_paused = false
 	root.spawned_count = 0; root.thief_steal_timers.clear(); root.treasure_gold_stolen_this_battle = 0
 	root.thieves_spawned_this_battle = 0; root.thieves_escaped_this_battle = 0
@@ -196,6 +198,7 @@ func physics_process(delta: float) -> void:
 	Ach.tick(self)
 	var sim_delta: float = delta*root.combat_speed
 	root.combat_time += sim_delta
+	if command!="" and command_remaining()<=0: reset_command()
 	root._tick_update3_heart(sim_delta)
 	for unit in root.monster_units: root._update3_refresh_monster_heart_position(unit)
 	for unit in root.enemy_units: root._update3_refresh_enemy_heart_control(unit)
@@ -245,7 +248,7 @@ func local_target(unit: Node) -> Node:
 	var candidates: Array = []
 	for enemy in root.enemy_units:
 		if enemy.is_alive() and enemy.position.distance_to(home(unit))<=leash_radius(unit): candidates.append(enemy)
-	if is_instance_valid(command_target) and command_target in candidates: return command_target
+	if command_remaining()>0 and command=="focus_attack" and is_instance_valid(command_target) and command_target in candidates: return command_target
 	if unit.new_skill_clock<float(unit.get_meta("spec_team_until",0)):
 		var marked = instance_from_id(int(unit.get_meta("spec_team_target",0)))
 		if is_instance_valid(marked) and marked in candidates: return marked
@@ -253,6 +256,9 @@ func local_target(unit: Node) -> Node:
 
 func update_monster_path(unit: Node) -> void:
 	if unit==direct_unit: return
+	# Orders retain the ordinary defense safety response while changing intent.
+	if command_remaining()>0 and command in ["focus_attack","hold_ground"] and float(unit.hp)/maxf(1,float(unit.max_hp))<=.55:
+		unit.activate_shield(.6,.70)
 	if root.combat_time<command_until and command=="hold_ground":
 		try_auto_monster_skill(unit); return_home(unit); return
 	if root.combat_time<command_until and command in ["rally","emergency_retreat","lure_retreat"]:
@@ -270,7 +276,10 @@ func update_monster_path(unit: Node) -> void:
 	for enemy in all_enemies:
 		if enemy.is_alive() and enemy.position.distance_to(home(unit))<=leash_radius(unit): local_enemies.append(enemy)
 	root.enemy_units = local_enemies
+	var directive: String = root.global_directive
+	if command_remaining()>0 and command=="focus_attack": root.global_directive = Constants.DIRECTIVE_DEFENSE
 	super.update_monster_path(unit)
+	root.global_directive = directive
 	root.enemy_units = all_enemies
 	if not unit.path_points.is_empty():
 		for p in unit.path_points:
@@ -324,7 +333,7 @@ func move_unit_to_point(unit: Node, point: Vector2, _preserve_goal: bool = false
 	unit.set_path(route_path(unit,desired))
 
 func _move_to_attack_target(unit: Node, target: Node, _preserve_goal: bool = false) -> void:
-	if unit.faction==Constants.FACTION_MONSTER and command=="focus_attack" and is_instance_valid(command_target) and command_target.is_alive() and command_target.position.distance_to(home(unit))<=leash_radius(unit): target = command_target
+	if unit.faction==Constants.FACTION_MONSTER and command_remaining()>0 and command=="focus_attack" and is_instance_valid(command_target) and command_target.is_alive() and command_target.position.distance_to(home(unit))<=leash_radius(unit): target = command_target
 	move_unit_to_point(unit,target.position,true)
 	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET,LanguageSettings.text("map.engaging"),target.display_name)
 
@@ -349,7 +358,7 @@ func prioritizes_throne(enemy: Node) -> bool:
 	return enemy.faction==Constants.FACTION_ENEMY and enemy.goal_room=="throne" and bool(enemy.get_meta("attack_throne",false)) and bool(enemy.get_meta("objective_priority",false)) and enemy.forced_attack_target(root.monster_units,260)==null
 
 func _combat_action_target(attacker: Node, opponents: Array, max_distance: float) -> Node:
-	if attacker.faction==Constants.FACTION_MONSTER and command=="focus_attack" and is_instance_valid(command_target) and command_target in opponents and command_target.is_alive() and command_target.is_targetable_by(attacker):
+	if attacker.faction==Constants.FACTION_MONSTER and command_remaining()>0 and command=="focus_attack" and is_instance_valid(command_target) and command_target in opponents and command_target.is_alive() and command_target.is_targetable_by(attacker):
 		if attacker.position.distance_to(command_target.position)<=max_distance: return command_target
 	return super._combat_action_target(attacker,opponents,max_distance)
 
@@ -598,7 +607,9 @@ func _spawn_contact_damage_number(target: Node, damage: int, _attacker, _attacke
 
 func issue_command(id: String, point: Vector2 = Vector2.INF, target: Node = null) -> bool:
 	if id not in ["rally","focus_attack","emergency_retreat","hold_ground","lure_retreat"] or not running: return false
-	command = id; command_target = target; command_until = root.combat_time+6.0
+	if id=="focus_attack" and (not is_instance_valid(target) or target not in root.enemy_units or not target.is_alive()): return false
+	reset_command()
+	command = id; command_target = target if id=="focus_attack" else null; command_until = root.combat_time+COMMAND_SECONDS
 	command_point = map.clamp_to_walkable(point) if point!=Vector2.INF else map.center("recovery_nest" if map.layout.doors.has("recovery_nest") else "throne")
 	root.global_directive = Constants.DIRECTIVE_DEFENSE
 	if id=="emergency_retreat": root.global_directive = Constants.DIRECTIVE_SURVIVAL
@@ -611,11 +622,31 @@ func issue_command(id: String, point: Vector2 = Vector2.INF, target: Node = null
 		if id=="hold_ground": return_home(unit)
 	return true
 
+func command_remaining() -> float:
+	return maxf(0,command_until-root.combat_time) if running and command!="" else 0.0
+
+func _apply_directive_damage_taken_modifier(target: Node, damage: int) -> int:
+	# A short focus order adds offense without removing the defense baseline.
+	# The legacy all-out policy's 2.3x incoming penalty is not a command cost.
+	if target.faction==Constants.FACTION_MONSTER and command=="focus_attack" and command_remaining()>0:
+		return maxi(1,roundi(damage*DEFENSE_DAMAGE_TAKEN_MULTIPLIER))
+	return super._apply_directive_damage_taken_modifier(target,damage)
+
+func _record_directive_damage_taken_effect(target: Node, before: int, after: int) -> void:
+	if target.faction==Constants.FACTION_MONSTER and command=="focus_attack" and command_remaining()>0:
+		root._record_directive_effect_stat("defense_damage_reduced",maxi(0,before-after))
+	else: super._record_directive_damage_taken_effect(target,before,after)
+
+func reset_command() -> void:
+	command = ""; command_target = null; command_point = Vector2.ZERO; command_until = 0.0
+	root.global_directive = Constants.DIRECTIVE_DEFENSE
+
 func finish_combat(win: bool, reason: String) -> void:
 	if not running: return
 	if win:
 		for unit in root.monster_units: root.v130r_story.bark(root,unit,"victory")
 	Ach.finish(self,win)
+	reset_command()
 	running = false
 	set_pause_state(true,false)
 	spec_effects.refund_tolls()
