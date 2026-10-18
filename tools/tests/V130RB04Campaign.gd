@@ -2,6 +2,7 @@ extends Node
 const Grade = preload("res://scripts/map_builder/ApprovedGradeProgression.gd")
 const Buildings = preload("res://scripts/map_builder/ApprovedPlacement.gd")
 const Members = preload("res://scripts/map_builder/ApprovedMonsterPlacement.gd")
+const RandomState = preload("res://tools/tests/V130RB04RandomState.gd")
 var game: Node
 var mode := "b04"
 var run_seed := 130401
@@ -15,6 +16,12 @@ var cosmetic_controller: Script
 var checkpoint_source := ""
 var checkpoint_day := 1
 var retries := 0
+var record_rng := false
+var replay_rng := false
+var capture_next := false
+var skip_missing := false
+var rng_draws := 0
+var pending_rng := {}
 var failures: Array = []
 var checks := 0
 var rows: Array = []
@@ -108,9 +115,13 @@ func battle_day() -> Dictionary:
 		return {"seed":run_seed,"day":29,"preparation_only":true,"advanced":ok}
 	v.monster_ui.set_mode("place"); place_defenders(v)
 	await frames(2)
+	if not pending_rng.is_empty():
+		expect(RandomState.restore(pending_rng),"exact original global RNG stream restores before battle")
+		rng_draws=int(pending_rng.draws); pending_rng={}
+		if not failures.is_empty(): return {"error":"RNG replay failed"}
 	if capture_entry:
 		capture_entry=false
-		write_entry_snapshot(v)
+		if not write_entry_snapshot(v): return {"error":"entry snapshot failed"}
 	var assignments: Dictionary=v.monster_ui.assignments.duplicate(true)
 	var battle_grade: String=v.placement.grade
 	var roster: Dictionary=game.monster_roster.duplicate(true)
@@ -171,17 +182,35 @@ func battle_day() -> Dictionary:
 	expect(not result.timeout,"battle completes before timeout")
 	return result
 
-func write_entry_snapshot(v: Node) -> void:
+func write_entry_snapshot(v: Node) -> bool:
 	var folder := "res://tmp/v130r_b04/"+label+"/checkpoints/"
 	DirAccess.make_dir_recursive_absolute(folder)
 	var payload: Dictionary=game._campaign_save_payload("management")
 	var snapshot := {"payload":payload,"approved_map_session":{"layout":Buildings.snapshot(v.placement),"defenders":v.monster_ui.assignments.duplicate(true)},"deployment_context":{"joined":v.monster_ui.joined.duplicate(),"food_income":v.monster_ui.food_income},"update4_profile":game.update4_profile.duplicate(true),"update4_active_run":game.update4_active_run.duplicate(true)}
+	snapshot["start_flow_context"]={"fresh":game.start_flow.fresh,"guide_step":game.start_flow.guide_step,"command_seen":game.start_flow.command_seen}
+	snapshot["live_v122_context"]={}
+	snapshot["live_world_context"]={"runtime_plot_layout":game.runtime_plot_layout.duplicate(true),"plot_unlock_history":game.plot_unlock_history.duplicate(true)}
+	for field in ["v122_connector_state","v122_last_confirmed_placements","v122_retry_snapshot","v122_command_settings","v122_ui_state"]:
+		snapshot.live_v122_context[field]=game.get(field).duplicate(true)
+	if record_rng:
+		var state := RandomState.capture(run_seed,rng_draws)
+		expect(state.ok,"original global RNG position captured without changing stream")
+		if not state.ok: return false
+		rng_draws=int(state.draws); snapshot["rng"]=state
 	var checkpoint := FileAccess.open(folder+str(run_seed)+"_"+str(GameState.day)+".json",FileAccess.WRITE)
-	checkpoint.store_string(JSON.stringify(snapshot)); checkpoint.close()
+	expect(checkpoint!=null,"entry snapshot file opens")
+	if checkpoint==null: return false
+	# Roster iteration order controls the actual first growth-choice button.
+	checkpoint.store_string(JSON.stringify(snapshot,"",false)); checkpoint.close()
+	return true
 
 func restore_test_map(snapshot: Dictionary) -> void:
 	expect(snapshot.has("approved_map_session"),"checkpoint includes actual purchased map")
 	if not snapshot.has("approved_map_session"): return
+	if snapshot.has("live_world_context"):
+		game.runtime_plot_layout=snapshot.live_world_context.runtime_plot_layout.duplicate(true)
+		game.plot_unlock_history=snapshot.live_world_context.plot_unlock_history.duplicate(true)
+		game._setup_dungeon_graph()
 	game.set_meta(Grade.SESSION,snapshot.approved_map_session.duplicate(true))
 	game._set_screen("management")
 	await drain(); await frames(2)
@@ -193,6 +222,9 @@ func restore_test_map(snapshot: Dictionary) -> void:
 	view().placement.food_state=snapshot.approved_map_session.layout.food_state.duplicate(true)
 	view().monster_ui.joined.assign(snapshot.deployment_context.joined)
 	view().monster_ui.food_income=int(snapshot.deployment_context.food_income)
+	for field in snapshot.get("start_flow_context",{}): game.start_flow.set(field,snapshot.start_flow_context[field])
+	# The save adapter normalizes legacy defaults; retain the actual live caches.
+	for field in snapshot.get("live_v122_context",{}): game.set(field,snapshot.live_v122_context[field].duplicate(true))
 	GameState.food_state=snapshot.payload.game_state.food_state.duplicate(true)
 	GameState.food_income=int(snapshot.payload.game_state.food_income)
 	var actual := Buildings.snapshot(view().placement)
@@ -218,47 +250,61 @@ func campaign() -> void:
 		for species in snapshot.payload.world.monster_roster:
 			for field in ["level","exp","bond","promotion_id","specialization_id"]:
 				expect(game.monster_roster.get(species,{}).get(field)==snapshot.payload.world.monster_roster[species].get(field),"checkpoint preserves progression "+species+" "+field)
-		seed(run_seed+checkpoint_day*1000)
-	for day in range(1 if checkpoint_source=="" else checkpoint_day,last_day+1):
+		if replay_rng:
+			expect(snapshot.has("rng"),"exact replay requires original RNG metadata")
+			if not snapshot.has("rng"): return
+			pending_rng=snapshot.rng.duplicate(true)
+		else: seed(run_seed+checkpoint_day*1000)
+	var stop_day := last_day+1 if capture_next else last_day
+	if capture_next and stop_day==29: stop_day=30
+	for day in range(1 if checkpoint_source=="" else checkpoint_day,mini(30,stop_day)+1):
 		await drain(); await frames(3)
 		if game.current_screen!="management" or GameState.day!=day or view()==null:
 			expect(false,"natural management entry DAY"+str(day)+" screen "+game.current_screen); return
-		if game._early_specialization_required_for_current_day():
-			var chosen := false
-			for species in game.monster_roster:
-				for option in game._specializations_for_monster(species):
-					if game._choose_early_specialization(species,str(option.id),false): chosen=true; break
-				if chosen: break
-			expect(chosen,"required early specialization selected legally")
-			Grade.sync_campaign_day(game)
-		if game._first_promotion_required_for_current_day() and not game._first_promotion_ready():
-			view().open_campaign_action("monsters"); await frames(2)
-			var promoted := false
-			for species in game.monster_roster:
-				for rule in game._evolution_rules_for_monster(species):
-					if game._can_promote_monster(species,str(rule.id)):
-						var before := {"gold":GameState.gold,"mana":GameState.mana,"infamy":GameState.infamy}
-						promoted=game._promote_monster(species,str(rule.id))
-						for key in before: expect(GameState.get(key)==before[key]-int(rule.get("cost",{}).get(key,0)),"promotion really pays "+key)
-						break
-				if promoted: break
-			expect(promoted,"required first promotion bought legally")
-			await press("MonsterBackButton"); await drain(); await frames(2)
-		if GameState.day==29 and game._campaign_final_declaration_pending():
-			game._set_campaign_final_declaration("castle_oath"); await drain(); await frames(2)
-		if game._campaign_raid_choice_pending():
-			view().open_campaign_action("raid"); await drain(); await frames(2)
-			var mission: Dictionary=DataRegistry.raid_mission(game.raid_selected_mission_id)
-			for species in game.monster_roster:
-				if game._can_start_selected_raid(): break
-				if species!=game._raid_fixed_captain_id(mission) and species not in game.raid_selected_monster_ids: game._toggle_raid_monster(species)
-			expect(game._can_start_selected_raid(),"required raid affordable and roster eligible")
-			for i in 5:
-				if game.completed_raids.has(game.raid_selected_mission_id): break
-				game._start_selected_raid(); await drain(); await frames(2)
-			expect(game.completed_raids.has(game.raid_selected_mission_id),"required raid completed through real payment")
-			game._onboarding_finish_raid_preview(); await drain(); await frames(2)
-		auto_build()
+		# The recorded entry already includes all legal preparation and purchases.
+		if checkpoint_source=="" or day!=checkpoint_day:
+			if game._early_specialization_required_for_current_day():
+				var chosen := false
+				for species in game.monster_roster:
+					for option in game._specializations_for_monster(species):
+						if game._choose_early_specialization(species,str(option.id),false): chosen=true; break
+					if chosen: break
+				expect(chosen,"required early specialization selected legally")
+				Grade.sync_campaign_day(game)
+			if game._first_promotion_required_for_current_day() and not game._first_promotion_ready():
+				view().open_campaign_action("monsters"); await frames(2)
+				var promoted := false
+				for species in game.monster_roster:
+					for rule in game._evolution_rules_for_monster(species):
+						if game._can_promote_monster(species,str(rule.id)):
+							var before := {"gold":GameState.gold,"mana":GameState.mana,"infamy":GameState.infamy}
+							promoted=game._promote_monster(species,str(rule.id))
+							for key in before: expect(GameState.get(key)==before[key]-int(rule.get("cost",{}).get(key,0)),"promotion really pays "+key)
+							break
+					if promoted: break
+				expect(promoted,"required first promotion bought legally")
+				await press("MonsterBackButton"); await drain(); await frames(2)
+			if GameState.day==29 and game._campaign_final_declaration_pending():
+				game._set_campaign_final_declaration("castle_oath"); await drain(); await frames(2)
+			if game._campaign_raid_choice_pending():
+				view().open_campaign_action("raid"); await drain(); await frames(2)
+				var mission: Dictionary=DataRegistry.raid_mission(game.raid_selected_mission_id)
+				for species in game.monster_roster:
+					if game._can_start_selected_raid(): break
+					if species!=game._raid_fixed_captain_id(mission) and species not in game.raid_selected_monster_ids: game._toggle_raid_monster(species)
+				expect(game._can_start_selected_raid(),"required raid affordable and roster eligible")
+				for i in 5:
+					if game.completed_raids.has(game.raid_selected_mission_id): break
+					game._start_selected_raid(); await drain(); await frames(2)
+				expect(game.completed_raids.has(game.raid_selected_mission_id),"required raid completed through real payment")
+				game._onboarding_finish_raid_preview(); await drain(); await frames(2)
+			auto_build()
+		if capture_next and day>last_day and day!=29:
+			var next_view := view()
+			next_view.monster_ui.set_mode("place"); place_defenders(next_view); await frames(2)
+			write_entry_snapshot(next_view)
+			print("B04_NEXT_ENTRY ",run_seed," D",day)
+			return
 		capture_entry=true
 		var result := await battle_day()
 		result.merge({"seed":run_seed,"day":day},false)
@@ -299,8 +345,13 @@ func run() -> void:
 		if arg.begins_with("checkpoint="): checkpoint_source=arg.get_slice("=",1)
 		if arg.begins_with("day="): checkpoint_day=int(arg.get_slice("=",1))
 		if arg.begins_with("retries="): retries=int(arg.get_slice("=",1))
+		if arg=="record_rng=true": record_rng=true
+		if arg=="replay_rng=true": replay_rng=true
+		if arg=="capture_next=true": capture_next=true
+		if arg=="skip_missing=true": skip_missing=true
 		if arg=="raster=full": fast=false
 	expect(OS.get_user_data_dir().replace("\\","/").contains("v130r_b04"),"isolated test profile")
+	expect(not record_rng or checkpoint_source=="" or replay_rng,"RNG recording after restore requires exact replay")
 	if not failures.is_empty(): get_tree().quit(1); return
 	# Replace only the test process's unit resource with its cosmetic-only subclass.
 	# The actual controller, damage, movement, growth and settlement remain intact.
@@ -309,6 +360,8 @@ func run() -> void:
 		cosmetic_controller.take_over_path("res://scripts/game/ApprovedBattleController.gd")
 	for value in seeds.split(","):
 		run_seed=int(value)
+		if skip_missing and checkpoint_source!="" and not FileAccess.file_exists("res://tmp/v130r_b04/"+checkpoint_source+"/checkpoints/"+str(run_seed)+"_"+str(checkpoint_day)+".json"):
+			print("B04_NOT_REACHED ",run_seed," D",checkpoint_day); continue
 		await create_game()
 		await campaign()
 		write_json("days",rows); write_json("purchases",purchases)
@@ -357,6 +410,7 @@ func create_game() -> void:
 	add_child(game); await frames(8)
 	# GameRoot._ready randomizes; set the audit seed only after that boundary.
 	seed(run_seed)
+	rng_draws=0; pending_rng={}
 	event("boot",{"load_msec":Time.get_ticks_msec()-started,"user_dir":OS.get_user_data_dir()})
 
 

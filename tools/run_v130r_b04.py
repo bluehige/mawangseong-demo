@@ -35,6 +35,10 @@ def main():
     parser.add_argument("--checkpoint", default="")
     parser.add_argument("--day", type=int, default=1)
     parser.add_argument("--retries", type=int, choices=[0,1], default=0)
+    parser.add_argument("--record-rng", action="store_true")
+    parser.add_argument("--replay-rng", action="store_true")
+    parser.add_argument("--capture-next", action="store_true")
+    parser.add_argument("--skip-missing", action="store_true")
     parser.add_argument("--timeout", type=int, default=14400)
     parser.add_argument("--stack-source", default="")
     parser.add_argument("--stack-days", default="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,30")
@@ -50,6 +54,7 @@ def main():
     if args.stack_source:
         input_paths.append("tools/tests/V130RB04Stacking.gd")
     input_paths.append("tools/tests/V130RB04FastMap.gd")
+    input_paths.append("tools/tests/V130RB04RandomState.gd")
     input_paths += ["scripts/game/CombatSceneController.gd", "scripts/units/Unit.gd", "scripts/units/ApprovedBattleUnit.gd", "scripts/map_builder/ApprovedBattleMap.gd"]
     input_paths += ["scripts/map_builder/ApprovedMonsterPlacementUI.gd", "scripts/map_builder/ApprovedGradeProgression.gd", "scripts/ui/StartFlow.gd", "data/monster_instances.json", "data/regular_version/update4/monster_instances.json", "data/v130r/monster_instances_new.json"]
     input_hashes = {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in input_paths}
@@ -68,6 +73,8 @@ def main():
     if args.stack_source:
         command += ["stack_source="+args.stack_source, "stack_days="+args.stack_days]
     command += ["retries="+str(args.retries)]
+    for flag in ["record_rng", "replay_rng", "capture_next", "skip_missing"]:
+        if getattr(args, flag): command.append(flag+"=true")
     if args.full_raster:
         command += ["raster=full"]
     if args.checkpoint:

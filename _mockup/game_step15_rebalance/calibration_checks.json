@@ -201,7 +201,9 @@
         "max_hp": 2500,
         "deployed": 5
       }
-    ]
+    ],
+    "acceptance_evidence": false,
+    "exclusion_reason": "Predates canonical defense eligibility fix; not valid balance evidence. Preserved historical diagnostic only."
   },
   "c_coverage_canary": {
     "role": "CALIBRATION_ONLY; final pairs must use the final fresh campaign",
@@ -549,6 +551,8 @@
         "max_hp": 2500,
         "deployed": 5
       }
-    ]
+    ],
+    "acceptance_evidence": false,
+    "exclusion_reason": "Predates canonical defense eligibility fix; not valid balance evidence. Preserved historical diagnostic only."
   }
 }

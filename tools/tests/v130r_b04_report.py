@@ -44,13 +44,16 @@ def actual_members():
 def validate_actual_records(rows, label):
     members=actual_members()
     deployments=0
+    attempts=0
     for row in rows:
         if row.get('preparation_only'): continue
-        assert row['directive']=='defense', 'Campaign must retain the default defense directive'
-        for instance in row['assignments']:
-            assert members[instance]['species_id'] in row['roster_before'], 'Deployment must not invent an unowned companion'
-            assert row['roster_before'][members[instance]['species_id']].get('defense_enabled',True), 'Raid-only companions must not defend'
-            deployments+=1
+        for attempt in [row]+([row['retry']] if 'retry' in row else []):
+            assert attempt['directive']=='defense', 'Campaign must retain the default defense directive'
+            attempts+=1
+            for instance in attempt['assignments']:
+                assert members[instance]['species_id'] in attempt['roster_before'], 'Deployment must not invent an unowned companion'
+                assert attempt['roster_before'][members[instance]['species_id']].get('defense_enabled',True), 'Raid-only companions must not defend'
+                deployments+=1
     for seed in SEEDS:
         entry=json.loads((TMP/label/'checkpoints'/f'{seed}_1.json').read_text(encoding='utf-8'))
         payload=entry['payload']
@@ -61,7 +64,7 @@ def validate_actual_records(rows, label):
         assert legacy['cycle_index']==1 and not legacy['legacy_monster']
         profile=legacy['profile']
         assert profile['completed_cycles']==0 and not profile['legacy_monster'] and not profile['active_decree_id'] and not profile['active_doctrine_id']
-    return {'fresh_first_cycle_profiles':len(SEEDS),'owned_deployments_checked':deployments,'default_directive_battles':sum(not r.get('preparation_only') for r in rows)}
+    return {'fresh_first_cycle_profiles':len(SEEDS),'owned_deployments_checked':deployments,'default_directive_battles':attempts,'retry_attempts_checked':sum('retry' in r for r in rows)}
 
 def verify_run(label, current=True):
     folder=TMP/label
@@ -90,7 +93,7 @@ def first_life_rows(rows):
         if not row.get('win') and not row.get('preparation_only'): alive.remove(row['seed'])
     return result
 
-def summarize(rows, seeds=SEEDS, denominator="cohort"):
+def summarize(rows, seeds=SEEDS, denominator="reached"):
     lookup = {(r["seed"], r["day"]): r for r in rows if "day" in r}
     daily = {}
     for day in range(1, 31):
@@ -192,7 +195,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--recommended", default="final_recommended")
     parser.add_argument("--paired", nargs="*", default=[])
-    parser.add_argument('--curve-denominator',choices=['cohort','reached'],default='cohort')
+    parser.add_argument('--curve-denominator',choices=['cohort','reached'],default='reached')
     parser.add_argument('--completion-policy',choices=['no_retry','one_retry'],default='no_retry')
     parser.add_argument('--stack-days',default=','.join(str(d) for d in range(1,31) if d!=29))
     args = parser.parse_args()
@@ -204,6 +207,8 @@ def main():
     assert not any(a.startswith(("checkpoint=","stack_source=")) for a in info["command"]), "Primary evidence must start fresh"
     if args.completion_policy=='no_retry':
         assert 'retries=0' in info['command'], 'Final no-retry evidence must actually stop at its first defeat'
+    else:
+        assert 'retries=1' in info['command'], 'Normal retry completion must use the real one-retry route'
     record_validation=validate_actual_records(rows,args.recommended)
     lookup, daily = summarize(rows,denominator=args.curve_denominator)
     progression=[]
@@ -263,6 +268,9 @@ def main():
     (OUT/'first_life_curve.json').write_text(json.dumps(first_life,indent=2)+'\n',encoding='utf-8')
     result['accepted']=completion_count>=7 and not result['curve_failures'] and not stack_failures and not missing
     evidence=dict(primary=args.recommended,paired=args.paired,paired_days=selected_days,input_hashes=hashes,checks=checks,record_validation=record_validation,completed_seeds=endings,raw_sha256={name:hashlib.sha256((TMP/args.recommended/name).read_bytes()).hexdigest() for name in ['days.json','purchases.json','checks.json','run.json']})
+    evidence['paired_raw_sha256']={label:{name:hashlib.sha256((TMP/label/name).read_bytes()).hexdigest() for name in ['days.json','checks.json','run.json','input_hashes.json']} for label in args.paired}
+    evidence['entry_raw_sha256']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((TMP/args.recommended/'checkpoints').glob('*.json'))}
+    evidence['ending_raw_sha256']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((TMP/args.recommended).glob('ending_*.json'))}
     (OUT/'evidence_manifest.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     (OUT/'verification.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
     print(json.dumps(result))

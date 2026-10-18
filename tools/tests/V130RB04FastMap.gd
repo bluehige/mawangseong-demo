@@ -4,13 +4,20 @@ var road_lookup := {}
 var center_lookup := {}
 var room_lookup := {}
 var tag_lookup := {}
+var nearest_lookup := {}
 
 func setup(source: Dictionary) -> void:
-	road_lookup.clear(); center_lookup.clear(); room_lookup.clear(); tag_lookup.clear()
+	road_lookup.clear(); center_lookup.clear(); room_lookup.clear(); tag_lookup.clear(); nearest_lookup.clear()
 	for c in source.road_cells: road_lookup[c]=true
 	super.setup(source)
 
 func is_road(c: Vector2i) -> bool: return road_lookup.has(c)
+
+func nearest_cell(point: Vector2) -> Vector2i:
+	var c := cell(point)
+	if is_road(c): return c
+	if not nearest_lookup.has(point): nearest_lookup[point]=super.nearest_cell(point)
+	return nearest_lookup[point]
 
 func world(c: Vector2i) -> Vector2:
 	if not center_lookup.has(c): center_lookup[c]=super.world(c)
