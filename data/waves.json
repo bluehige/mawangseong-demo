@@ -393,7 +393,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "watchtower"
     },
     {
       "enemy_id": "thief",
@@ -1680,7 +1681,11 @@
           "attack_throne": true,
           "attack_throne_lane": 1.0,
           "hp_scale": 9.1341,
-          "waypoint_room_id": "watchtower_2"
+          "waypoint_room_id": "watchtower_2",
+          "waypoint_room_ids": [
+            "watchtower",
+            "recovery_nest"
+          ]
         }
       }
     },
@@ -1891,7 +1896,11 @@
           "attack_throne": true,
           "attack_throne_lane": 1.0,
           "hp_scale": 10.344525,
-          "waypoint_room_id": "watchtower_2"
+          "waypoint_room_id": "watchtower_2",
+          "waypoint_room_ids": [
+            "watchtower",
+            "recovery_nest"
+          ]
         }
       }
     },

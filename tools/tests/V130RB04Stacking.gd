@@ -1,7 +1,7 @@
 extends "res://tools/tests/V130RB04Campaign.gd"
 ## Counterfactuals restore the exact real campaign entry, never a level/resource fixture.
 var stack_source := "final_recommended"
-var stack_days := "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,30"
+var stack_days := "1,5,10,15,20,24,27,30"
 var stack_seeds := "130401,130402,130403,130404,130405,130406,130407,130408,130409,130410"
 var base_controller: RefCounted
 
@@ -107,6 +107,7 @@ func run() -> void:
 		if arg.begins_with("seeds="): stack_seeds=arg.get_slice("=",1)
 		if arg=="raster=full": fast=false
 	expect(OS.get_user_data_dir().replace("\\","/").contains("v130r_b04"),"isolated paired test profile")
+	if not failures.is_empty(): get_tree().quit(1); return
 	if fast and DisplayServer.get_name()=="headless":
 		cosmetic_controller=load("res://tools/tests/V130RB04FastController.gd")
 		cosmetic_controller.take_over_path("res://scripts/game/ApprovedBattleController.gd")
@@ -124,7 +125,7 @@ func run() -> void:
 				if not await restore_entry(snapshot): await finish_stacking(); return
 				seed(run_seed+day*1000)
 				var result := await battle_day()
-				result.merge({"seed":run_seed,"day":day,"layout":layout_mode,"entry_sha256":JSON.stringify(snapshot).sha256_text()},false)
+				result.merge({"seed":run_seed,"day":day,"layout":layout_mode,"entry_sha256":JSON.stringify(snapshot).sha256_text(),"entry_file_sha256":FileAccess.get_sha256(path)},false)
 				rows.append(result); write_json("days",rows)
 				expect(not result.has("error"),"paired battle completes")
 				print("B04_PAIRED ",run_seed," D",day," ",layout_mode," win=",result.get("win",false)," HP=",result.get("hp",-1))

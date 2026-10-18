@@ -7,10 +7,12 @@ from pathlib import Path
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "_mockup/game_step15_rebalance"
+OUT = ROOT / "tmp/v130r_b04/v9_report"
 TMP = ROOT / "tmp/v130r_b04"
 SEEDS = list(range(130401, 130411))
 BASE = "0a90971c970ac2a65ed6c6661b5c9d66a3e07704"
+REPRESENTATIVE_DAYS = [1, 5, 10, 15, 20, 24, 27, 30]
+WAVE_INPUTS = {'data/waves.json', 'data/v122/dual_front_day01_05_waves.json'}
 
 def read(label):
     return json.loads((TMP / label / "days.json").read_text(encoding="utf-8"))
@@ -80,7 +82,8 @@ def verify_run(label, current=True):
 def target(day):
     if day <= 4: return 100, 100, 85, 95
     if day <= 14: return 90, 100, 60, 85
-    if day <= 26: return 80, 95, 45 if day in [15, 20, 21, 26] else 50, 65 if day in [15, 20, 21, 26] else 75
+    if day <= 23: return 80, 95, 45, 75
+    if day <= 26: return 80, 95, 45 if day == 26 else 50, 65 if day == 26 else 75
     return 70, 90, 35 if day == 30 else 40, 55 if day == 30 else 65
 
 def first_life_rows(rows):
@@ -95,6 +98,7 @@ def first_life_rows(rows):
 
 def summarize(rows, seeds=SEEDS, denominator="reached"):
     lookup = {(r["seed"], r["day"]): r for r in rows if "day" in r}
+    assert len(lookup)==len(rows), 'Duplicate seed/day records must not overwrite evidence'
     daily = {}
     for day in range(1, 31):
         reached = [lookup[(seed, day)] for seed in seeds if (seed, day) in lookup and "error" not in lookup[(seed, day)]]
@@ -113,17 +117,31 @@ def paired_report(labels, lookup, selected_days, source):
     modes=["recommended","anchor_cluster","final_line","first_line"]
     pairs={}
     members=actual_members()
+    current_waves=json.loads((ROOT/'data/waves.json').read_text(encoding='utf-8'))
+    current_early=json.loads((ROOT/'data/v122/dual_front_day01_05_waves.json').read_text(encoding='utf-8'))
     for label in labels:
-        info,checks,_=verify_run(label)
+        info,checks,pair_hashes=verify_run(label,current=False)
+        assert all(hashlib.sha256((ROOT/p).read_bytes()).hexdigest()==h for p,h in pair_hashes.items() if p not in WAVE_INPUTS), f'Stale comparison code or base inputs: {label}'
         assert 'stack_source='+source in info['command'] and checks['source']==source, 'Pairs must restore this exact primary campaign'
+        recorded_waves=json.loads((TMP/label/'input_waves.json').read_text(encoding='utf-8'))
+        recorded_early=json.loads((TMP/label/'input_early_waves.json').read_text(encoding='utf-8'))
+        label_pairs={}
         for r in read(label):
+            assert r['day'] in selected_days, 'Unexpected comparison date'
+            recorded,current=(recorded_early,current_early) if r['day']<=5 else (recorded_waves,current_waves)
+            if recorded[f"day_{r['day']}"]!=current[f"day_{r['day']}"]:
+                continue # A changed date must be replaced by its one allowed recheck.
             key=(r["seed"],r["day"])
-            group=pairs.setdefault(key,{})
+            group=label_pairs.setdefault(key,{})
             assert r["layout"] not in group, f"Duplicate pair {key} {r['layout']}"
             group[r["layout"]]=r
+        assert all(len(group)==4 for group in label_pairs.values()), f'Incomplete comparison batch: {label}'
+        pairs.update(label_pairs)
     for key,group in pairs.items():
         assert set(group)==set(modes), f"Incomplete pair {key}"
         assert len({r["entry_sha256"] for r in group.values()})==1, f"Unequal entry {key}"
+        entry_path=TMP/source/'checkpoints'/f'{key[0]}_{key[1]}.json'
+        assert {r['entry_file_sha256'] for r in group.values()}=={hashlib.sha256(entry_path.read_bytes()).hexdigest()}, f'Pair must identify the original entry bytes: {key}'
         assert len({json.dumps(r["wallet_before"],sort_keys=True) for r in group.values()})==1, f"Unequal wallet {key}"
         primary=lookup[key]
         assert group['recommended']['assignments']==primary['assignments'], f'Restored recommendation must reproduce the real deployment: {key}'
@@ -134,7 +152,7 @@ def paired_report(labels, lookup, selected_days, source):
             assert all(row['roster_before'][members[id]['species_id']].get('defense_enabled',True) for id in row['assignments']), f'Pair must exclude raid-only companions: {key}'
     text=["# 실제 캠페인 진입 상태의 배치 비교", "", "완주·난이도 곡선은 새 게임 연속 10회만 사용한다. 이 표는 각 실제 DAY 진입 사본에서 레벨·EXP·유대·특화·전직·HP·자원·건물·이전 선택을 동일하게 복원한 비교다. 인위적인 날짜별 성장/예산을 주입하지 않는다. 각 쌍은 seed+DAY×1000의 공통 실험 RNG로 첫 전투만 비교한다.", "", "집중① 병영·결계핵·옥좌, 집중② 최종선, 집중③ 1차선. 실제 합류·고유 수비 칸·건물 정원·당일 식량 한도를 검사한다. 미도달 회차는 해당 날짜 비교에 포함하지 않는다. 집중 영역의 실제 정원 때문에 배치 가능한 인원이 달라질 수 있어 평균 배치 수도 표시한다.", "", "| DAY | 등급 | 짝 표본 | 배치 | 평균배치 | 승률% | 평균HP% (패배0) | 추천≥집중 |", "|---:|---|---:|---|---:|---:|---:|---|"]
     failures,missing=[],[]
-    text[6:6] = ['비교 날짜: '+', '.join(map(str,selected_days))+'. DAY29를 제외한 모든 실제 도달 날짜의 진입본을 비교한다. 미도달 상태는 가상 전투로 채우지 않는다.', '']
+    text[6:6] = [f'진입 원본 캠페인: `{source}`. 최종 완주 측정과 별도로, 앞서 실제 진행한 후보 캠페인의 진입 상태를 고정하고 최종 채택 웨이브로 네 배치를 비교한다. 최종 캠페인의 성장 경로와 같다고 가정하지 않는다.', '비교 날짜: '+', '.join(map(str,selected_days))+'. 사용자 지정 대표 날짜의 실제 도달 진입본만 비교한다. 미도달 상태는 가상 전투로 채우지 않는다.', '']
     for day in selected_days:
         if day==29: continue
         expected={(s,day) for s in SEEDS if (s,day) in lookup}
@@ -146,16 +164,18 @@ def paired_report(labels, lookup, selected_days, source):
             continue
         stats={mode:(100*sum(bool(g[mode].get('win')) for g in groups)/len(groups),sum(100*g[mode]['hp']/g[mode]['max_hp'] for g in groups)/len(groups)) for mode in modes}
         rw,rh=stats['recommended']
-        grade='F' if day<15 else 'E' if day<20 else 'D' if day<27 else 'C'
+        grades={g['recommended']['grade'] for g in groups}
+        assert len(grades)==1, f'Mixed map grades on DAY{day}'
+        grade=next(iter(grades))
         for mode,(win,hp) in stats.items():
             passed=rw>=win and rh+.001>=hp
-            if mode!='recommended' and not passed and day in [20,21,26]: failures.append([day,mode])
+            if mode!='recommended' and not passed: failures.append([day,mode])
             result='기준' if mode=='recommended' else 'PASS' if passed else 'FAIL'
             deployed=sum(len(g[mode].get('assignments',{})) for g in groups)/len(groups)
             text.append(f"| {day} | {grade} | {len(groups)} | {mode} | {deployed:.2f} | {win:.2f} | {hp:.2f} | {result} |")
-    text += ['', '등급별 전체 비교와 기존 문제일 DAY20·21·26의 개별 우위를 완료 기준으로 판정한다. 위 날짜별 세부값도 숨기지 않고 모두 제시한다.', '', '| 등급 | 전투 진입 표본 | 배치 | 승률% | 평균HP% | 추천≥집중 |', '|---|---:|---|---:|---:|---|']
+    text += ['', '모든 지정 대표 날짜에서 추천 승률과 평균HP가 각 합법 집중 배치 이상인지 판정한다. 실제 등급은 진입본을 따르며 DAY10은 현재 제품에서 F다.', '', '| 등급 | 전투 진입 표본 | 배치 | 승률% | 평균HP% | 추천≥집중 |', '|---|---:|---|---:|---:|---|']
     for grade,days in [('F',range(1,15)),('E',range(15,20)),('D',range(20,27)),('C',[27,28,30])]:
-        groups=[g for (seed,day),g in pairs.items() if day in days]
+        groups=[g for (seed,day),g in pairs.items() if day in selected_days and g['recommended']['grade']==grade]
         if not groups: continue
         stats={mode:(100*sum(bool(g[mode].get('win')) for g in groups)/len(groups),sum(100*g[mode]['hp']/g[mode]['max_hp'] for g in groups)/len(groups)) for mode in modes}
         rw,rh=stats['recommended']
@@ -184,7 +204,7 @@ def changed_report():
     head=json.loads(subprocess.check_output(['git','show',BASE+':data/waves.json']))
     table('`data/waves.json` — 이번 B04 (0118 커밋 대비)',head,json.loads((ROOT/'data/waves.json').read_text(encoding='utf-8')))
     table('`data/v122/dual_front_day01_05_waves.json` — 실제 DAY1~5 선택 파일',json.loads(subprocess.check_output(['git','show',BASE+':data/v122/dual_front_day01_05_waves.json'])),json.loads((ROOT/'data/v122/dual_front_day01_05_waves.json').read_text(encoding='utf-8')))
-    table('중지된 0115 미커밋 보정→0118 복원 (원문: superseded_0115_waves.json)',json.loads((OUT/'superseded_0115_waves.json').read_text(encoding='utf-8')),head)
+    table('중지된 0115 미커밋 보정→0118 복원 (원문 보존)',json.loads((ROOT/'_mockup/game_step15_rebalance/superseded_0115_waves.json').read_text(encoding='utf-8')),head)
     text += ['코드 변경:','','- `GameRoot._open_intrusion_brief`: 진행 중인 본편/합류 대사를 예약된 관리 복귀가 덮어쓰지 않도록 보호.','- `ApprovedBattleController.spawn_enemy`: 명시적 옥좌 우선 공격·경유를 F/E에서도 지정 웨이브에 적용. 공병·도둑의 최종 목표 정책은 유지.','- `ApprovedMonsterPlacement.auto_place`: E/D부터 실제 가용 탱커 2명과 원거리·지원 동료로 옥좌 정원 4칸을 활용한다. C는 다리 트롤을 서쪽, 성장한 슬라임을 남쪽 옥좌 입구에 배치해 양쪽을 막는다. D/C의 같은 종류 건물은 배치 인원 기준으로 분산해 새 후방 감시탑에도 수비를 둔다.','','웨이브 SHA-256: `'+hashlib.sha256((ROOT/'data/waves.json').read_bytes()).hexdigest()+'`.']
     text.insert(-2,'- `ApprovedMonsterPlacementUI.unlocked`: 실제 캠페인에서는 기존 본편의 보유·방어 자격 판정을 적용해 미보유 동료와 원정 전용 로로를 추천에서 제외한다. 명시적 전체 해금 시험 모드는 유지한다. 종족 능력치·합류 조건은 변경하지 않는다.')
     text.insert(-2,'- F등급 DAY5 이후 지도·쥐 조합의 옥좌 정원을 우선 활용한다. E등급 개구리·쥐 조합은 병영을 우선한다. 자동 건설·강화 점수도 같은 등급·날짜별 배치 선호를 사용한다. C등급 개구리의 후방 감시탑·결계핵 우선 후보는 개선되지 않아 채택하지 않았다.')
@@ -192,13 +212,18 @@ def changed_report():
     protected_stats_report()
 
 def main():
+    global OUT
     parser = argparse.ArgumentParser()
     parser.add_argument("--recommended", default="final_recommended")
     parser.add_argument("--paired", nargs="*", default=[])
+    parser.add_argument('--paired-source',default='',help='Actual campaign whose frozen entries were compared before the final run')
     parser.add_argument('--curve-denominator',choices=['cohort','reached'],default='reached')
-    parser.add_argument('--completion-policy',choices=['no_retry','one_retry'],default='no_retry')
-    parser.add_argument('--stack-days',default=','.join(str(d) for d in range(1,31) if d!=29))
+    parser.add_argument('--completion-policy',choices=['no_retry','one_retry'],default='one_retry')
+    parser.add_argument('--stack-days',default=','.join(map(str,REPRESENTATIVE_DAYS)))
+    parser.add_argument('--output',default='tmp/v130r_b04/v9_report')
     args = parser.parse_args()
+    OUT=ROOT/args.output
+    assert OUT.resolve().is_relative_to(TMP.resolve()), 'Progress reports must remain in the B04 test directory'
     OUT.mkdir(parents=True, exist_ok=True)
     rows = read(args.recommended)
     actual_seeds={r.get("seed") for r in rows}
@@ -254,8 +279,18 @@ def main():
     text += ["", f"완주 정책: `{args.completion_policy}`. 재도전 없는 완주 {no_retry_completed}/10, 정상 재도전 포함 실제 엔딩 {completed}/10. 주 완주 목표(≥7/10): {'PASS' if completion_count>=7 else 'FAIL'}. 날짜 곡선 범위 밖: "+", ".join(str(d) for d,r in daily.items() if d!=29 and not r['passed'])+".", "", "건설 자동화 가정: 제품에 별도 건설 추천 서비스가 없어 승인 도면의 빈 부지를 결계핵·병영·회복 둥지·감시탑·미끼 금고 순으로 구매한다. 실제 추천 배치의 배치 인원 또는 선호 시설 점수가 좋아지는 강화만 낮은 레벨 순으로 구매한다. 모든 구매 뒤 마나 60을 남겨 필수 승급 비용을 보존하며, 실제 구매 API의 해금·부지·수량·가격·잔액 검사를 사용한다. 필수 특화·승급·원정은 선택 가능한 첫 정상 선택지를 사용하고, DAY29 선언은 성 수호(castle_oath)로 고정한다.", "", "저장 증빙 범위: 격리 프로필의 새 게임 런타임을 연속 진행한다. 테스트 씬의 기존 저장 비활성 규칙을 유지하므로 정식 저장/이어하기 게이트 G01 통과 근거가 아니다."]
     (OUT / "day_curve.md").write_text("\n".join(text)+"\n", encoding="utf-8")
     selected_days=sorted(set(map(int,args.stack_days.split(','))))
-    assert set(range(1,31))-{29}==set(selected_days), 'Final comparisons must cover every actual battle day'
-    stack_failures, missing = paired_report(args.paired, lookup,selected_days,args.recommended)
+    assert set(REPRESENTATIVE_DAYS)==set(selected_days), 'Comparisons must cover the eight user-selected dates'
+    paired_source=args.paired_source or args.recommended
+    paired_lookup=lookup
+    if paired_source!=args.recommended:
+        _,_,paired_source_hashes=verify_run(paired_source,current=False)
+        # The requested order compares frozen real entries before the final run.
+        # Wave tuning may differ; all code, base stats and preparation policy must match.
+        assert paired_source_hashes.keys()==hashes.keys()
+        assert all(h==hashes[p] for p,h in paired_source_hashes.items() if p not in WAVE_INPUTS), 'Frozen entry campaign must retain identical code, base stats and preparation inputs'
+        validate_actual_records(read(paired_source),paired_source)
+        paired_lookup=summarize(read(paired_source),denominator=args.curve_denominator)[0]
+    stack_failures, missing = paired_report(args.paired, paired_lookup,selected_days,paired_source)
     changed_report()
     result=dict(completed=completed,completed_without_retry=no_retry_completed,curve_failures=[d for d,r in daily.items() if d!=29 and not r['passed']],stack_failures=stack_failures,unmeasured_paired_entries=len(missing))
     result['curve_denominator']=args.curve_denominator
@@ -267,9 +302,9 @@ def main():
     result['first_life_curve_failures']=[d for d,r in first_life.items() if d!=29 and not r['passed']]
     (OUT/'first_life_curve.json').write_text(json.dumps(first_life,indent=2)+'\n',encoding='utf-8')
     result['accepted']=completion_count>=7 and not result['curve_failures'] and not stack_failures and not missing
-    evidence=dict(primary=args.recommended,paired=args.paired,paired_days=selected_days,input_hashes=hashes,checks=checks,record_validation=record_validation,completed_seeds=endings,raw_sha256={name:hashlib.sha256((TMP/args.recommended/name).read_bytes()).hexdigest() for name in ['days.json','purchases.json','checks.json','run.json']})
+    evidence=dict(primary=args.recommended,paired=args.paired,paired_source=paired_source,paired_days=selected_days,input_hashes=hashes,checks=checks,record_validation=record_validation,completed_seeds=endings,raw_sha256={name:hashlib.sha256((TMP/args.recommended/name).read_bytes()).hexdigest() for name in ['days.json','purchases.json','checks.json','run.json']})
     evidence['paired_raw_sha256']={label:{name:hashlib.sha256((TMP/label/name).read_bytes()).hexdigest() for name in ['days.json','checks.json','run.json','input_hashes.json']} for label in args.paired}
-    evidence['entry_raw_sha256']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((TMP/args.recommended/'checkpoints').glob('*.json'))}
+    evidence['entry_raw_sha256']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((TMP/paired_source/'checkpoints').glob('*.json'))}
     evidence['ending_raw_sha256']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((TMP/args.recommended).glob('ending_*.json'))}
     (OUT/'evidence_manifest.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     (OUT/'verification.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
