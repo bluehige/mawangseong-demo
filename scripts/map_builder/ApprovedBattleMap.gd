@@ -146,6 +146,9 @@ func room_at_world(point: Vector2) -> String:
 		if c in layout.doors[id].front: return id
 		for d in layout.doors[id].get("secondary",[]):
 			if c in d.front: return id
+	# A facility door remains its own room even where influence areas overlap.
+	for id in layout.doors:
+		if c in layout.doors[id].front: return id
 	var tags := tags_at(c)
 	if not tags.aura.is_empty(): return str(tags.aura[0])
 	return "line_"+str(tags.defense_line)

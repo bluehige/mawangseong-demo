@@ -18,8 +18,6 @@ func setup(controller: RefCounted) -> void:
 	definitions = JSON.parse_string(FileAccess.get_file_as_string("res://data/v130r/skills_new.json"))
 	for unit in battle.root.monster_units:
 		if unit.unit_id=="under_bed_shadow": unit.hidden_until = 5.0
-		if unit.unit_id=="curse_doll" and battle.root.monster_units.any(func(u): return u.unit_id=="spider_tailor"):
-			unit.max_hp = roundi(unit.max_hp*1.1); unit.hp = unit.max_hp
 		if unit.unit_id=="bridge_troll":
 			unit.set_meta("bridge_base_hp",unit.max_hp)
 			update_bridge(unit)

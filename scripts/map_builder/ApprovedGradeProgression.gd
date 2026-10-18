@@ -156,15 +156,34 @@ static func load_session(game: Node) -> Dictionary:
 	if not restored.get("ok",false): return {"layout":baseline,"defenders":{}}
 	return {"layout":restored,"defenders":Members.sanitize(restored,raw.get("defenders",{}),Members.roster())}
 
-static func continue_after_result(game: Node) -> void:
+static func reset_campaign_map(game: Node) -> void:
+	if not enabled(): return
+	var baseline := Buildings.initial(game,"F")
+	var grade := grade_for_stage(stage_for_day(GameState.day,baseline.stage_rules),baseline.stage_rules)
+	var layout := Buildings.initial(game,grade)
+	layout.day = GameState.day
+	layout.stage = stage_for_day(GameState.day,baseline.stage_rules)
+	layout.resources = {"gold":GameState.gold,"mana":GameState.mana,"food":GameState.food}
+	layout["food_state"] = GameState.food_state.duplicate(true)
+	stash(game,layout,{})
+
+static func sync_campaign_day(game: Node) -> void:
+	if not enabled(): return
+	if not game.has_meta(SESSION):
+		reset_campaign_map(game)
+		return
 	var session := load_session(game)
-	# Battle rewards are already settled by the existing result service.
-	session.layout.resources = {"gold":GameState.gold,"mana":GameState.mana,"food":GameState.food}
-	if bool(ProjectSettings.get_setting("debug/approved_map_step6",false)): session.layout.food_state = GameState.food_state.duplicate(true)
-	var result := advance(game,session.layout,session.defenders,int(session.layout.day)+1)
+	var result := advance(game,session.layout,session.defenders,GameState.day)
 	if not result.ok:
 		push_error(str(result.errors)); return
+	result.layout.resources = {"gold":GameState.gold,"mana":GameState.mana,"food":GameState.food}
+	result.layout["food_state"] = GameState.food_state.duplicate(true)
+	# Roster choices made in the campaign screens remain authoritative.
+	result.layout["specializations"] = {}
+	for species in game.monster_roster:
+		var choice := str(game.monster_roster[species].get("specialization_id",""))
+		if choice!="": result.layout.specializations[species] = choice
 	stash(game,result.layout,result.defenders)
-	Members.save_copy(result.layout,result.defenders,save_path())
-	GameState.day = int(result.layout.day)
-	game._set_screen("management",false)
+
+static func continue_after_result(game: Node) -> void:
+	game._advance_after_result()

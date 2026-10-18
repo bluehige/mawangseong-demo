@@ -91,7 +91,10 @@ func begin(map_view: Control) -> void:
 	effects_home = root.effect_root.get_parent(); root.effect_root.reparent(view.world,false)
 	root.effect_root.position = Vector2.ZERO; root.effect_root.z_index = 3501
 	root.effect_root.show()
+	prepare_battle_systems()
 	spawn_monsters()
+	root._prepare_update4_council_battle()
+	for unit in root.monster_units: root._update3_refresh_monster_heart_position(unit)
 	monster_skills.setup(self)
 	spec_effects.setup(self)
 	duos.setup(self)
@@ -99,7 +102,6 @@ func begin(map_view: Control) -> void:
 	for unit in root.monster_units:
 		root.v130r_story.bark(root,unit,"deployed")
 		if unit.get_meta("food_hungry",false): root.v130r_story.bark(root,unit,"hungry")
-	root.wave_manager.setup(GameState.day,DataRegistry.waves)
 	# Small seeded timing variation belongs to the approved map's wave entries.
 	for entry in root.wave_manager.schedule:
 		var jitter := maxf(0,float(entry.get("spawn_jitter",0)))
@@ -112,19 +114,19 @@ func make_unit(id: String, stats: Dictionary, faction: String, room_id: String) 
 	var unit = BattleUnit.new(); unit.battle_map = map; unit.battle_runtime = self
 	actors.add_child(unit); unit.setup(id,stats,faction,room_id)
 	unit.attach_map_visuals(visuals)
-	unit.downed.connect(on_unit_downed)
+	root._connect_combat_unit(unit)
 	return unit
 
 func spawn_monsters() -> void:
 	for id in assignments:
 		var row: Dictionary = members[id]; var species := str(row.species_id)
 		var building := str(assignments[id].building)
-		var stats: Dictionary = row.stats.duplicate(true)
-		root._apply_specialization_stats(species,stats)
-		if GameState.is_hungry(species): stats.atk = maxi(1,roundi(float(stats.atk)*.8))
-		# Preview uses the same initial roster level as placement, not personal saves.
+		if not root.monster_roster.has(species): root.monster_roster[species] = {"level":1,"exp":0}
+		var stats: Dictionary = root._monster_combat_stats(species)
 		var unit = make_unit(species,stats,Constants.FACTION_MONSTER,building)
 		unit.set_meta("food_hungry",GameState.is_hungry(species))
+		if root._growth_preparation_active(species):
+			unit.activate_growth_preparation(root._growth_preparation_combat_name(species),root._result_growth_preparation_preview(species))
 		unit.display_name = row.display_name; unit.name_label.text = row.display_name+(" · 굶주림" if GameState.is_hungry(species) else "")
 		unit.set_meta("instance_id",id); unit.set_meta("base_attack_range",unit.attack_range)
 		unit.position = defense_home(assignments[id])
@@ -168,6 +170,8 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	unit.set_meta("base_attack_range",unit.attack_range)
 	unit.set_path(route_path(unit,goal_point(unit)))
 	root.enemy_units.append(unit); root.spawned_count += 1
+	root._update3_refresh_enemy_heart_control(unit)
+	council_objectives.spawn(unit)
 	if enemy_id=="thief": root.thieves_spawned_this_battle += 1
 	goal_events.append({"time":root.combat_time,"id":enemy_id,"goal":unit.goal_room,"spawn_cell":str(map.cell(unit.position)),"throne_door":unit.get_meta("throne_door","")})
 
@@ -191,15 +195,28 @@ func physics_process(delta: float) -> void:
 	Ach.tick(self)
 	var sim_delta: float = delta*root.combat_speed
 	root.combat_time += sim_delta
+	root._tick_update3_heart(sim_delta)
+	for unit in root.monster_units: root._update3_refresh_monster_heart_position(unit)
+	for unit in root.enemy_units: root._update3_refresh_enemy_heart_control(unit)
 	monster_skills.tick(sim_delta)
 	spec_effects.tick(sim_delta)
 	_update_sfx_cooldowns(delta); damage_presentation.tick(delta)
 	spawn_ready_enemies(sim_delta); refresh_unit_rooms()
+	root._update_facility_disables(sim_delta,delta)
+	_update_royal_rally(sim_delta); _update_brave_shout(sim_delta)
+	_update_update2_counterforce(sim_delta); _update_seal_chainbearers(sim_delta)
+	_update_bounty_trackers(sim_delta); _update_combat_alchemists(sim_delta)
+	_update_reliquary_auras(sim_delta); _update_choir_exorcists(sim_delta)
+	_update_ledger_binders(sim_delta); _update_leon_adaptation(sim_delta)
+	_update_official_paladin_selen(sim_delta); _update_guild_commissioner_roman(sim_delta)
 	for unit in root.monster_units+root.enemy_units:
 		unit.set_simulation_speed(root.combat_speed)
 	# Existing status/support and enemy ability runtimes are kept on simulation time.
 	single_floor_support.tick_thread(); royal_support.tick(sim_delta)
 	crown_mobility.tick(sim_delta); native_objectives.tick(sim_delta)
+	crown_facilities.tick(); crown_flame.tick(); crown_command.tick(sim_delta)
+	council_objectives.tick(sim_delta); echo_alarm.tick()
+	_update_defined_crown_support(); _refresh_heart_target_limit()
 	_update_hero_dashes(sim_delta); _update_active_flame_zones(sim_delta)
 	ai_accumulator += sim_delta
 	if ai_accumulator>=ai_interval:
@@ -409,7 +426,7 @@ func apply_cell_traps(enemy: Node) -> void:
 	if kind=="": return
 	var key := str(enemy.get_instance_id())+":"+str(c)
 	if root.combat_time<float(trap_next_hits.get(key,0)): return
-	trap_next_hits[key] = root.combat_time+2.0
+	trap_next_hits[key] = root.combat_time+2.0*root._update2_cycle_effect_value("trap_cooldown_multiplier",1.0)
 	var damage := 0
 	if kind=="spikes":
 		damage = enemy.receive_damage(14)

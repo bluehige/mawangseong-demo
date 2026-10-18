@@ -263,6 +263,17 @@ func build_chrome() -> void:
 		var menu_button := image_button(tools,"place_clear_all",Vector2(140,11),44,Callable(root,"_open_pause_menu"),root.continuity.localized("게임 메뉴","Game menu","游戏菜单"))
 		menu_button.texture_normal = preload("res://scripts/ui/kit/UIKitIcons.gd").get_icon("menu",64)
 	else: image_button(tools,"place_clear_all",Vector2(140,11),44,func(): get_tree().quit(),"테스트 창 닫기")
+	if bool(ProjectSettings.get_setting("debug/start_flow14",false)):
+		var actions := [["records",root.continuity.localized("기록실","Records","记录室")]]
+		if root._raid_unlocked(): actions.append(["raid",root.continuity.localized("원정","Expedition","远征")])
+		if root._update4_council_mode_active(): actions.append(["council",root.continuity.localized("의회 결정","Council decision","议会决策")])
+		if root._campaign_final_declaration_pending(): actions.append(["declaration",root.continuity.localized("최후 선언","Final declaration","最终宣言")])
+		for i in actions.size():
+			var entry: Array = actions[i]
+			var button := Button.new(); button.name = "ApprovedCampaign_"+str(entry[0])
+			button.text = str(entry[1]); button.position = Vector2(24,132+i*48); button.size = Vector2(180,42)
+			button.pressed.connect(open_campaign_action.bind(str(entry[0]))); chrome.add_child(button)
+			ui_rects["campaign_"+str(entry[0])] = Rect2(button.position*ui_unit,button.size*ui_unit)
 	var bar := panel_image(chrome,local_ui("build")); bar.name = "BuildBar"
 	var index := 0
 	for kind in ICONS:
@@ -776,36 +787,70 @@ func handle_key(event: InputEvent) -> bool:
 	return super.handle_key(event)
 
 func preparation_only() -> bool:
-	return int(placement.day)==29 and not root._has_defense_wave_for_day(29)
+	return bool(root._campaign_day_info(int(placement.day)).get("management_only",false)) or (int(placement.day)==29 and not root._has_defense_wave_for_day(29))
 
 func confirm_preparation_day() -> bool:
 	if not preparation_only() or not Grade.enabled() or battle!=null or finish_pending: return false
-	finish_pending = true
-	# Management purchases live in placement, not in a battle settlement.
+	sync_campaign_wallet()
+	root._confirm_management_only_day()
+	return root.current_screen==Constants.SCREEN_RESULT
+
+func sync_campaign_wallet() -> void:
 	GameState.gold = int(placement.resources.gold); GameState.mana = int(placement.resources.mana); GameState.food = int(placement.resources.food)
-	if monster_ui.persist()!=OK: finish_pending = false; return false
+	if food_enabled(): GameState.food_state = placement.food_state.duplicate(true)
 	Grade.stash(root,placement,monster_ui.assignments)
-	Grade.continue_after_result(root)
-	return true
+	root.deployed_instance_ids.assign(monster_ui.assignments.keys())
+
+func open_campaign_action(action: String) -> void:
+	sync_campaign_wallet()
+	if action=="raid": root._open_raid_screen()
+	elif action=="records": root._open_chronicle()
+	elif action=="council":
+		var setup: String = root._update4_management_only_setup_screen()
+		if setup!="": root._set_screen(setup)
+		else: root._build_update4_required_choice_overlay()
+	elif action=="declaration": root._show_day29_finale_eve_dialogue()
+	else: root._open_monster_screen()
+
 
 func start_battle() -> bool:
 	if battle!=null: return false
+	if root.campaign_postgame_active:
+		root._show_campaign_ending(); return false
 	if not root._has_defense_wave_for_day(int(placement.day)):
 		status_text.text = "오늘은 전투 없는 준비일입니다. 준비를 확정해 다음 날로 넘어가세요"; return false
 	if monster_ui.assignments.is_empty():
 		status_text.text = "몬스터 배치 탭에서 수비대를 배치하세요"; return false
+	sync_campaign_wallet()
+	if root._update4_outpost_battle_day():
+		root._request_combat_start(); return false
+	var ready: Dictionary = root._management_start_state(true)
+	if not ready.can_start:
+		status_text.text = str(ready.blocked_reason)
+		if ready.required_action_id=="raid_choice": open_campaign_action("raid")
+		elif ready.required_action_id=="council_choice": open_campaign_action("council")
+		elif ready.required_action_id in ["monsters","specialization"]: open_campaign_action("monsters")
+		return false
 	var species: Array = []
 	for id in monster_ui.assignments: species.append(monster_ui.members[id].species_id)
 	Grade.stash(root,placement,monster_ui.assignments)
 	if bool(ProjectSettings.get_setting("debug/start_flow14",false)) and root.start_flow.before_battle(self): return false
 	if not monster_ui.unlock_all and root.v130r_story.first_battle(root,species): return false
+	if not root._begin_update4_council_combat(): return false
+	root._ensure_story_battle_scope()
+	root._apply_campaign_combat_entry(GameState.day)
 	monster_ui.set_mode("battle"); monster_ui.unit_layer.hide()
 	if bool(ProjectSettings.get_setting("debug/start_flow14",false)) and int(placement.day)<=3:
 		root._onboarding_set_stage(root._onboarding_battle_stage_for_day(int(placement.day)))
 	battle = load("res://scripts/game/ApprovedBattleController.gd").new()
 	battle.begin(self)
-	battle_ui = load("res://scripts/ui/ApprovedBattleUI.gd").new(); add_child(battle_ui); battle_ui.setup(self,battle)
+	show_battle_controls()
 	return true
+
+func show_battle_controls() -> void:
+	for child in chrome.get_children():
+		if str(child.name).begins_with("ApprovedCampaign_"): child.hide()
+	battle_ui = load("res://scripts/ui/ApprovedBattleUI.gd").new(); add_child(battle_ui); battle_ui.setup(self,battle)
 
 func _physics_process(delta: float) -> void:
 	if battle!=null and not finish_pending: battle.physics_process(delta)

@@ -43,6 +43,8 @@ func before_screen_change(destination: String) -> void:
 		if destination not in ["settings","dialogue","combat"]: abandon_battle(suspended_map); suspended_map.queue_free(); suspended_map = null
 		return
 	var view: Node = root.ui_layer.get_node_or_null("ApprovedMapManagement") if root.ui_layer!=null else null
+	if view!=null and view.get("battle")==null and root.current_screen=="management" and GameState.day==int(view.placement.day):
+		view.sync_campaign_wallet()
 	if view==null or view.get("battle")==null or not view.battle.running or destination=="combat": return
 	if destination in ["settings","dialogue"]:
 		Grade.stash(root,view.placement,view.monster_ui.assignments)

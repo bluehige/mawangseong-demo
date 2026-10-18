@@ -531,6 +531,21 @@ func start_combat(precombat_snapshot: Dictionary = {}) -> void:
 	root.combat_time = 0.0
 	set_pause_state(false, false)
 	root.combat_speed = UISettings.preferred_combat_speed if UISettings.remember_combat_speed and root._combat_speed_unlocked() else 1.0
+	prepare_battle_systems(precombat_snapshot)
+	_prepare_v122_combat_contract(precombat_snapshot)
+	spawn_monsters()
+	if root.has_method("_prepare_update4_council_battle"):
+		root._prepare_update4_council_battle()
+	if root.has_method("_prepare_update3_duo_link_battle"):
+		root._prepare_update3_duo_link_battle()
+	for unit in root.monster_units:
+		unit.set_physics_process(true)
+	root._log("DAY %d 침입이 시작되었습니다." % GameState.day)
+	root._set_screen(Constants.SCREEN_COMBAT)
+
+
+func prepare_battle_systems(precombat_snapshot: Dictionary = {}) -> void:
+	# Ordered campaign preparation shared by the legacy and Approved maps.
 	active_flame_zones.clear()
 	combat_overlay_redraw_accumulator = 0.0
 	combat_overlay_was_dynamic = false
@@ -654,7 +669,6 @@ func start_combat(precombat_snapshot: Dictionary = {}) -> void:
 		root.wave_manager.setup(GameState.day, wave_catalog, defense_modifiers)
 	else:
 		root.wave_manager.setup_from_schedule(precombat_snapshot.get("schedule", []))
-	_prepare_v122_combat_contract(precombat_snapshot)
 	_warm_scheduled_enemy_animations()
 	if not defense_modifiers.is_empty():
 		for modifier in defense_modifiers.values():
@@ -665,15 +679,6 @@ func start_combat(precombat_snapshot: Dictionary = {}) -> void:
 				root._log(combat_start_line)
 		if root.has_method("_consume_defense_modifiers"):
 			root._consume_defense_modifiers()
-	spawn_monsters()
-	if root.has_method("_prepare_update4_council_battle"):
-		root._prepare_update4_council_battle()
-	if root.has_method("_prepare_update3_duo_link_battle"):
-		root._prepare_update3_duo_link_battle()
-	for unit in root.monster_units:
-		unit.set_physics_process(true)
-	root._log("DAY %d 침입이 시작되었습니다." % GameState.day)
-	root._set_screen(Constants.SCREEN_COMBAT)
 
 
 func _prepare_v122_combat_contract(precombat_snapshot: Dictionary = {}) -> void:
@@ -1697,8 +1702,7 @@ func spawn_monsters() -> void:
 		var roster: Dictionary = root.monster_roster[monster_id]
 		var fallback_room_id: String = roster.get("room", DataRegistry.monster(monster_id).get("recommended_room", "entrance"))
 		var room_id := _confirmed_monster_spawn_room(str(monster_id), fallback_room_id)
-		var stats = root._scaled_monster_stats(monster_id)
-		if GameState.is_hungry(str(monster_id)): stats.atk = maxi(1,roundi(float(stats.atk)*.8))
+		var stats = root._monster_combat_stats(monster_id)
 		var unit = root._create_unit(monster_id, stats, Constants.FACTION_MONSTER, room_id)
 		unit.set_meta("food_hungry",GameState.is_hungry(str(monster_id)))
 		var count = int(spawn_counts.get(room_id, 0))
@@ -6017,7 +6021,7 @@ func check_combat_end() -> void:
 			alive_enemies += 1
 	if root.wave_manager.is_done() and alive_enemies == 0:
 		var win_text = "DAY %d 방어 성공." % GameState.day
-		if GameState.day == GameState.max_day:
+		if root.onboarding_enabled and not GameState.onboarding_complete and GameState.day == GameState.max_day:
 			GameState.victory = true
 			win_text = "3일차 수련생 용사를 격퇴했습니다."
 		finish_combat(true, win_text)

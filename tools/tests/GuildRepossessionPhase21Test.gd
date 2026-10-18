@@ -59,7 +59,8 @@ func _test_day_overlays_and_roles() -> void:
 	for day in [1, 2, 3]:
 		_expect(FrontServiceScript.overlay_day_entry(run, day, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays).is_empty(), "DAY %d 공통 내용 유지" % day)
 	_expect(not FrontServiceScript.overlay_day_entry(run, 5, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays).has("wave_modifier"), "DAY 05는 등록 비용 이야기만 표시")
-	var totals := {10: 6, 15: 6, 20: 7, 25: 6}
+	# Match the current authored V130R base budgets; retain the role assertions below.
+	var totals := {10: 8, 15: 10, 20: 10, 25: 9}
 	for day in totals:
 		var schedule := _schedule_for(run, day)
 		_expect(schedule.size() == int(totals[day]), "DAY %02d 기존 인원 예산 %d명 유지" % [day, int(totals[day])])

@@ -4490,6 +4490,8 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 		Constants.SCREEN_INTRUSION_BRIEF:
 			management_scene.build_intrusion_brief_ui(intrusion_brief_snapshot)
 		Constants.SCREEN_MANAGEMENT:
+			if previous_screen!=Constants.SCREEN_MANAGEMENT:
+				preload("res://scripts/map_builder/ApprovedGradeProgression.gd").sync_campaign_day(self)
 			management_scene.build_management_ui()
 		Constants.SCREEN_DEFENSE_START:
 			management_scene.build_defense_start_ui(pending_precombat_snapshot, defense_start_remaining)
@@ -6048,6 +6050,7 @@ func _select_campaign_mode(mode_id: String) -> void:
 	update4_profile = result.get("profile", update4_profile).duplicate(true)
 	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
 	GameState.day = CampaignModeServiceScript.start_day(mode_id, DataRegistry.update4_campaign_modes)
+	preload("res://scripts/map_builder/ApprovedGradeProgression.gd").reset_campaign_map(self)
 	if mode_id == CampaignModeServiceScript.FRONT_MODE_ID:
 		_log("%d회차 모드 확정: 전선 연대기. 기존 전선 선택 흐름을 이어갑니다." % campaign_cycle_index)
 		_set_screen(Constants.SCREEN_FRONT_SELECTION)
@@ -6055,7 +6058,7 @@ func _select_campaign_mode(mode_id: String) -> void:
 		_ensure_update4_council_roster()
 		_onboarding_set_stage("COUNCIL_CYCLE_%d_DAY_01" % campaign_cycle_index)
 		_log("%d회차 모드 확정: 마왕 의회. 실키·포포를 포함한 5인 의회 편성으로 DAY 1을 시작합니다." % campaign_cycle_index)
-		_set_screen(Constants.SCREEN_MANAGEMENT)
+		_enter_campaign_management_day(true)
 	if not _write_campaign_v2_snapshot():
 		campaign_save_notice = "회차 모드는 선택했지만 v5 저장에 실패했습니다."
 		_show_campaign_save_notice_overlay()
@@ -6286,6 +6289,16 @@ func _build_expansion_ui() -> void:
 func _prepare_update4_council_battle() -> void:
 	if not _update4_council_mode_active(): return
 	var assignments := {}
+	if combat_scene.has_method("activate_v130r_duo"):
+		var expansion: Dictionary = update4_active_run.get("expansion",{}).duplicate(true)
+		if bool(expansion.get("unlocked",false)):
+			expansion["rooms"] = {"crown_sanctum":"recovery_nest","seal_vault":"vault"}
+			expansion["temporary"] = true
+			expansion["eligible"] = false
+		for unit in monster_units: assignments[str(unit.get_instance_id())] = "original"
+		expansion["assignments"] = assignments
+		update4_active_run["expansion"] = expansion
+		return
 	var state := _plot_save_state()
 	for monster in monster_units:
 		if not is_instance_valid(monster): continue
@@ -7231,6 +7244,8 @@ func _onboarding_reset_game(preserve_story_read_state: bool = false) -> void:
 	var preserved_story_cues: Array[String] = story_director.seen_cue_ids.duplicate()
 	var preserved_story_auto: bool = bool(story_director.auto_enabled)
 	GameState.reset()
+	if has_meta(preload("res://scripts/map_builder/ApprovedGradeProgression.gd").SESSION):
+		remove_meta(preload("res://scripts/map_builder/ApprovedGradeProgression.gd").SESSION)
 	_reset_run_metrics()
 	campaign_profile = NewCycleServiceScript.default_profile()
 	campaign_cycle_index = 1
@@ -8012,6 +8027,7 @@ func _onboarding_complete_dialogue_action(action: String, return_screen: String)
 func _onboarding_enter_management_day(day: int, show_dialogue: bool) -> void:
 	GameState.day = day
 	_onboarding_set_stage(_onboarding_management_stage_for_day(day))
+	preload("res://scripts/map_builder/ApprovedGradeProgression.gd").sync_campaign_day(self)
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 	if show_dialogue:
 		call_deferred("_onboarding_emit_management_intro", day)
@@ -9450,6 +9466,7 @@ func _settle_update4_region_chapter(slot: int) -> void:
 	_log("지역 헌장 정산 · %s · %s" % [str(DataRegistry.update4_regions.get(region_id, {}).get("display_name", region_id)), "의회 인장 획득" if bool(result.get("charter_completed", false)) else "헌장 미달 · 대체 인장 획득"])
 
 func _enter_campaign_management_day(show_intro: bool = true) -> void:
+	_sync_update4_council_day_state()
 	if _update4_council_mode_active():
 		update4_active_run = OutpostEncounterServiceScript.apply_day_start_recovery(update4_active_run, GameState.day)
 		update4_active_run = CouncilExpansionScript.unlock_if_due(update4_active_run, GameState.day, DataRegistry.update4_expansion_modules, _castle_stage_index())
@@ -9467,6 +9484,7 @@ func _enter_campaign_management_day(show_intro: bool = true) -> void:
 	var management_dialogue: Array = info.get("management_dialogue", [])
 	if show_intro:
 		_apply_campaign_day_entry(GameState.day)
+	preload("res://scripts/map_builder/ApprovedGradeProgression.gd").sync_campaign_day(self)
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 	var dialogue_started := false
 	if _campaign_final_declaration_required():
@@ -9573,7 +9591,7 @@ func _confirm_management_only_day() -> void:
 	if map_editor_active:
 		_log("맵 편집을 저장하거나 취소한 뒤 최종 준비를 확정하세요.")
 		return
-	if bool(info.get("requires_final_upgrade", false)) and not campaign_final_upgrade_ready:
+	if not preload("res://scripts/map_builder/ApprovedGradeProgression.gd").enabled() and bool(info.get("requires_final_upgrade", false)) and not campaign_final_upgrade_ready:
 		_log("최종 준비는 Stage 04 대마왕성 강화를 완료한 뒤 확정할 수 있습니다.")
 		return
 	if not _ensure_required_main_route_for_current_layout("최종 준비 확정"):
@@ -10100,6 +10118,7 @@ func _campaign_next_cycle_from_ending() -> void:
 	_sync_update3_reward_monsters()
 	_onboarding_set_stage("CAMPAIGN_CYCLE_%d_DAY_04" % campaign_cycle_index)
 	_apply_campaign_day_entry(4)
+	preload("res://scripts/map_builder/ApprovedGradeProgression.gd").reset_campaign_map(self)
 	_log("%d회차를 DAY 04부터 시작합니다. %s의 승리 기억 1개를 계승했습니다." % [campaign_cycle_index, str(next_legacy.get("display_name", "몬스터"))])
 	update2_cycle_seed = maxi(1, campaign_cycle_index * 1009 + int(Time.get_unix_time_from_system()) % 1000003)
 	leon_adaptation = LeonAdaptationServiceScript.default_adaptation()
@@ -12116,7 +12135,7 @@ func _undo_last_management_placement() -> bool:
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 	return true
 
-func _management_start_state() -> Dictionary:
+func _management_start_state(approved_map: bool = false) -> Dictionary:
 	var result := {
 		"can_start": false,
 		"blocked_reason": "",
@@ -12133,7 +12152,7 @@ func _management_start_state() -> Dictionary:
 	if bool(campaign_info.get("management_only", false)):
 		result.merge({"blocked_reason": "오늘은 전투 없이 준비를 확정하는 날입니다.", "reason_code": "management_only"}, true)
 		return result
-	if bool(campaign_info.get("requires_final_upgrade", false)) and not campaign_final_upgrade_ready:
+	if not approved_map and bool(campaign_info.get("requires_final_upgrade", false)) and not campaign_final_upgrade_ready:
 		result.merge({"blocked_reason": "Stage 04 대마왕성 강화를 먼저 완료하세요.", "reason_code": "final_upgrade"}, true)
 		return result
 	var preparation_flag := str(campaign_info.get("requires_final_preparation_flag", ""))
@@ -12181,6 +12200,10 @@ func _update4_outpost_battle_day() -> bool:
 func _request_combat_start() -> void:
 	if campaign_postgame_active:
 		_show_campaign_ending()
+		return
+	var approved: Node = ui_layer.get_node_or_null("ApprovedMapManagement")
+	if approved!=null and approved.get("battle")==null and not _update4_outpost_battle_day():
+		approved.start_battle()
 		return
 	if _update4_outpost_battle_day():
 		_start_update4_outpost_battle()
@@ -12353,12 +12376,15 @@ func _create_unit(source_id: String, stats: Dictionary, faction: String, room_id
 	if faction == Constants.FACTION_MONSTER and monster_roster.has(source_id):
 		unit.display_name = _monster_companion_name(source_id)
 		unit.name_label.text = unit.display_name
+	_connect_combat_unit(unit)
+	return unit
+
+func _connect_combat_unit(unit: Node) -> void:
 	unit.downed.connect(_on_unit_downed)
 	unit.hp_changed.connect(_on_unit_crown_hp_changed)
 	unit.damage_redirected.connect(_on_unit_damage_redirected.bind(unit))
 	unit.effective_healed.connect(_on_update3_unit_effective_healed)
 	unit.first_heart_control_applied.connect(_on_update3_first_control_applied)
-	return unit
 
 func _on_unit_crown_hp_changed(unit: Node) -> void:
 	if current_screen == Constants.SCREEN_COMBAT and unit.faction == Constants.FACTION_MONSTER:
@@ -12846,6 +12872,16 @@ func _scaled_monster_stats(monster_id: String, preview_level: int = -1) -> Dicti
 	if selected_contract_ids.has(monster_id):
 		stats["atk"] = maxi(1, int(round(float(stats.get("atk", 1)) * _update2_cycle_effect_value("contract_atk_multiplier", 1.0))))
 	_apply_update4_crown_stats(monster_id, stats)
+	return stats
+
+
+func _monster_combat_stats(monster_id: String) -> Dictionary:
+	# Both spatial adapters use the same ordered growth/cycle/crown layers.
+	var stats := _scaled_monster_stats(monster_id)
+	if monster_id=="curse_doll" and _monster_available_for_defense("spider_tailor") and _monster_deployed_for_defense("spider_tailor"):
+		stats.max_hp = roundi(float(stats.max_hp)*1.1)
+	if GameState.is_hungry(monster_id):
+		stats.atk = maxi(1, roundi(float(stats.atk) * .8))
 	return stats
 
 
@@ -13685,9 +13721,6 @@ func _count_downed_enemies() -> int:
 	return combat_scene.count_downed_enemies()
 
 func _advance_after_result() -> void:
-	if preload("res://scripts/map_builder/ApprovedGradeProgression.gd").enabled():
-		preload("res://scripts/map_builder/ApprovedGradeProgression.gd").continue_after_result(self)
-		return
 	_clear_story_battle_scope()
 	if _is_regular_campaign_final_battle():
 		if bool(result_summary.get("win", false)):

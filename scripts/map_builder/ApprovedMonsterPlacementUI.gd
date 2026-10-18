@@ -280,11 +280,10 @@ func show_info(id: String) -> void:
 	panel.stretch_mode = TextureRect.STRETCH_SCALE
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	view.art_at(detail,portrait(id),Rect2(18,18,66,66))
-	view.label_at(detail,row.display_name+"  Lv"+str(row.level),Vector2(96,24),22,true)
+	view.label_at(detail,row.display_name+"  Lv"+str(view.root.monster_roster.get(row.species_id,{}).get("level",row.level)),Vector2(96,24),22,true)
 	var role: Label = view.label_at(detail,row.stats.role,Vector2(96,56),15)
 	role.size.x = 250; role.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	var actual: Dictionary = row.stats.duplicate(true)
-	Spec.apply_stats(view.root._monster_specialization(row.species_id),actual)
+	var actual: Dictionary = view.root._monster_combat_stats(row.species_id) if view.root.monster_roster.has(row.species_id) else row.stats.duplicate(true)
 	view.label_at(detail,"체력 %d   공격 %d   방어 %d" % [actual.max_hp,actual.atk,actual.def],Vector2(24,99),18,true)
 	var y := 139
 	for skill_id in row.equipped_skill_ids.slice(0,3):

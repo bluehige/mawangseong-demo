@@ -37,7 +37,8 @@ func _test_day_overlays_and_events() -> void:
 	_expect(str(day15.get("wave_modifier", {}).get("id", "")) == "hero_day15_heart_chamber_test" and bool(day15.get("heart_event", false)), "DAY 15 심장방 시험·심장 사건 연결")
 	var manager = WaveManagerScript.new()
 	manager.setup(15, DataRegistry.waves, {"hero": day15.get("wave_modifier", {})})
-	_expect(manager.total_to_spawn == 6 and _count(manager.schedule, "thief") == 0 and _count(manager.schedule, "investigator") == 2, "DAY 15 기존 6명 예산 유지·도둑을 심장 조사관으로 교체")
+	# V130R's authored DAY15 has ten invaders; the front still replaces one thief.
+	_expect(manager.total_to_spawn == 10 and _count(manager.schedule, "thief") == 0 and _count(manager.schedule, "investigator") == 2, "DAY 15 현재 10명 예산 유지·도둑을 심장 조사관으로 교체")
 	var heart_entry := _first_goal_entry(manager.schedule, "investigator", "heart")
 	_expect(str(heart_entry.get("goal_type_override", "")) == "heart", "추가 조사관의 목표를 심장방으로 지정")
 	for day in [20, 25, 30]:
