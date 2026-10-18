@@ -11952,6 +11952,10 @@ func _toggle_quarter_debug_overlay(overlay_id: String) -> void:
 	queue_redraw()
 
 func _open_intrusion_brief(detailed: bool = false) -> void:
+	# A deferred daily forecast must not replace a newly started recruitment or
+	# management dialogue before its completion action grants the companion.
+	if not detailed and (story_director.is_active() or not onboarding_dialogue_queue.is_empty()):
+		return
 	# Automatic entry joins today's forecast to management. The old state remains
 	# available from the enemy chip for the complete read-only schedule.
 	if not detailed or bool(_campaign_day_info().get("management_only", false)) or not _has_defense_wave_for_day(GameState.day):

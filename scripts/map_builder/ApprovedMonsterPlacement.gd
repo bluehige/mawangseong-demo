@@ -67,11 +67,23 @@ static func preferences(species: String) -> Array:
 
 static func auto_place(layout: Dictionary, members: Dictionary, unlocked: Array, limit: int) -> Dictionary:
 	var next := {}; var spent := 0
+	# The first campaign has no guaranteed stone sentinel. Reserve two guards
+	# from the companions actually present, before the two ranged/support slots.
+	var core_guards: Array = []
+	if layout.get("grade","") in ["D","C"]:
+		var guard_order := ["slime","stone_sentinel","bridge_troll","hollow_armor","glue_snail","armored_beetle"]
+		# C also needs its trained entrance tank at the first crossing.
+		if layout.get("grade","")=="C": guard_order = ["bridge_troll","glue_snail","hollow_armor","stone_sentinel","armored_beetle","slime"]
+		for species in guard_order:
+			for id in unlocked:
+				if members.has(id) and members[id].species_id==species:
+					core_guards.append(species); break
+			if core_guards.size()==2: break
 	# Cover tank/ranged/healer/decoy roles before filling remaining roster order.
 	var roster_order: Array = members.keys()
 	var order := roster_order.duplicate()
 	var first := ["slime","imp","spore_healer","mimic_porter"]
-	if layout.get("grade","") in ["D","C"]: first.append_array(["stone_sentinel","bridge_troll","crumpled_map"])
+	if layout.get("grade","") in ["D","C"]: first = core_guards+["imp","crumpled_map","spore_healer","mimic_porter"]
 	order.sort_custom(func(a,b):
 		var pa: int = first.find(members[a].species_id); var pb: int = first.find(members[b].species_id)
 		if pa<0: pa = first.size()
@@ -84,7 +96,7 @@ static func auto_place(layout: Dictionary, members: Dictionary, unlocked: Array,
 		var preferred := preferences(row.species_id)
 		# Guard the larger final apron with two durable defenders, retaining the
 		# imp/map support pair. C divides that quartet between independent doors.
-		if layout.get("grade","") in ["D","C"] and row.species_id in ["stone_sentinel","bridge_troll"]: preferred = ["throne","barracks","ward_core","recovery_nest","vault"]
+		if row.species_id in core_guards: preferred = ["throne","barracks","ward_core","recovery_nest","vault"]
 		for kind in preferred:
 			for b in layout.buildings:
 				if b.kind!=kind: continue

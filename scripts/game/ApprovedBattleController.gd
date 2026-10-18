@@ -160,13 +160,14 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 	var lane_waypoints: Array = wave_entry.get("waypoint_room_ids",[]) if map.layout.get("grade","") in ["D","C"] and wave_entry.get("waypoint_room_ids",[]) is Array else []
 	if not lane_waypoints.is_empty(): waypoint_id = str(lane_waypoints[lane%lane_waypoints.size()])
 	var waypoint := map.resolve_site(waypoint_id)
-	var dc_flank: bool = map.layout.get("grade","") in ["D","C"] and enemy_id not in ["engineer","thief"]
-	if (enemy_id in ["investigator","royal_scout"] or dc_flank) and map.layout.doors.has(waypoint) and waypoint!=objective_room:
+	# Authored waypoints work on every grade; specialist targets remain final.
+	if enemy_id not in ["engineer","thief"] and map.layout.doors.has(waypoint) and waypoint!=objective_room:
 		unit.set_meta("next_objective",objective_room); unit.goal_room = waypoint
 	unit.set_meta("goal_type",str(stats.get("goal_type","throne")))
 	var objective_chance := clampf(float(wave_entry.get("objective_priority",0)),0,1)
 	unit.set_meta("objective_priority",objective_chance>0 and randf()<objective_chance)
-	unit.set_meta("attack_throne",map.layout.get("grade","") in ["D","C"] and bool(wave_entry.get("attack_throne",false)) and int(wave_entry.get("attack_throne_lane",lane))==lane)
+	# Explicit siege priority is authored per wave and lane on every map grade.
+	unit.set_meta("attack_throne",bool(wave_entry.get("attack_throne",false)) and int(wave_entry.get("attack_throne_lane",lane))==lane)
 	unit.set_meta("base_attack_range",unit.attack_range)
 	unit.set_path(route_path(unit,goal_point(unit)))
 	root.enemy_units.append(unit); root.spawned_count += 1

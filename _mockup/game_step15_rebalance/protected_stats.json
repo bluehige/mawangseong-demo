@@ -1,0 +1,14 @@
+{
+  "base": "0a90971c970ac2a65ed6c6661b5c9d66a3e07704",
+  "checks": {
+    "data/waves.json": {
+      "unchanged_hp_atk_coefficients": 312,
+      "sha256": "d113b2c419b53db16f1e5bea2bf930bbd94e48c5d241dbc9976a1e1e5eebf3f4"
+    },
+    "data/v122/dual_front_day01_05_waves.json": {
+      "unchanged_hp_atk_coefficients": 32,
+      "sha256": "7f969ab9bd90aa3450ba0e242309dc5cf3a5145b4e0654e642fe33ab830c5d47"
+    }
+  },
+  "day29_unchanged_empty": true
+}
