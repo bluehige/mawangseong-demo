@@ -1,0 +1,92 @@
+[
+  {
+    "seed": 130401,
+    "recorded_days": 30,
+    "battle_wins": 29,
+    "retries": 0,
+    "day29": {
+      "seed": 130401,
+      "day": 29,
+      "preparation_only": true,
+      "advanced": true
+    },
+    "ending": {
+      "completed": true,
+      "ending": "monster_family_castle",
+      "screen": "ending"
+    },
+    "day30_hp": 845,
+    "day30_max_hp": 2500,
+    "day30_wallet": {
+      "gold": 16397,
+      "mana": 264,
+      "food": 75
+    },
+    "postgame_save_failures": [
+      "postgame save written: 저장 v1에 변환 규칙이 없는 몬스터가 있습니다: rat_union"
+    ],
+    "resume_failure_count": 11,
+    "resumed_day": 4.0,
+    "resumed_postgame": false
+  },
+  {
+    "seed": 130402,
+    "recorded_days": 30,
+    "battle_wins": 29,
+    "retries": 0,
+    "day29": {
+      "seed": 130402,
+      "day": 29,
+      "preparation_only": true,
+      "advanced": true
+    },
+    "ending": {
+      "completed": true,
+      "ending": "monster_family_castle",
+      "screen": "ending"
+    },
+    "day30_hp": 1570,
+    "day30_max_hp": 2500,
+    "day30_wallet": {
+      "gold": 16325,
+      "mana": 264,
+      "food": 75
+    },
+    "postgame_save_failures": [
+      "postgame save written: 저장 v1에 변환 규칙이 없는 몬스터가 있습니다: rat_union"
+    ],
+    "resume_failure_count": 11,
+    "resumed_day": 4.0,
+    "resumed_postgame": false
+  },
+  {
+    "seed": 130403,
+    "recorded_days": 30,
+    "battle_wins": 29,
+    "retries": 0,
+    "day29": {
+      "seed": 130403,
+      "day": 29,
+      "preparation_only": true,
+      "advanced": true
+    },
+    "ending": {
+      "completed": true,
+      "ending": "monster_family_castle",
+      "screen": "ending"
+    },
+    "day30_hp": 931,
+    "day30_max_hp": 2500,
+    "day30_wallet": {
+      "gold": 15889,
+      "mana": 264,
+      "food": 75
+    },
+    "postgame_save_failures": [
+      "postgame save written: 저장 v1에 변환 규칙이 없는 몬스터가 있습니다: rat_union"
+    ],
+    "resume_failure_count": 11,
+    "resumed_day": 4.0,
+    "resumed_postgame": false
+  }
+]

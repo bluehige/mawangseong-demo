@@ -1,0 +1,12 @@
+{
+  "reviewed_product_head": "e40eb91c4902e72237783508105004be7e4d989e",
+  "original_audit_baseline_head": "e40eb91c4902e72237783508105004be7e4d989e",
+  "v0119c_documentation_commit": "2db8a3845336265dace1cdf45c0a3578af8a6964",
+  "basis": "0120 baseline records HEAD; source baseline hashes unchanged through resumption.",
+  "per_run_sha_embedded": false,
+  "tracked_non_import_changes_before_report": [],
+  "main_ref": "ABSENT",
+  "origin_main_cached": "0ac9fdc7f1a5f3d2e8cc23ca2ec771873094c53b",
+  "remote_queried": false,
+  "day29_battles_added": false
+}

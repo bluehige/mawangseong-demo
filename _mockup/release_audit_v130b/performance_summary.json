@@ -1,0 +1,50 @@
+[
+  {
+    "day": 19,
+    "grade": "E",
+    "samples": 1936,
+    "mean_ms": 21.700377066115703,
+    "mean_fps": 46.082148570656,
+    "p95_ms": 51.252,
+    "p99_ms": 94.396,
+    "max_monsters": 12,
+    "max_enemies": 8,
+    "layout_msec": 818,
+    "viewport": "(1920.0, 1080.0)",
+    "actual_size": "(1920, 1080)",
+    "static_memory_bytes": 316006487,
+    "evidence": "perf_19_1920x1080.json"
+  },
+  {
+    "day": 25,
+    "grade": "D",
+    "samples": 1506,
+    "mean_ms": 27.93421049136786,
+    "mean_fps": 35.79839853748567,
+    "p95_ms": 77.396,
+    "p99_ms": 146.131,
+    "max_monsters": 15,
+    "max_enemies": 9,
+    "layout_msec": 1145,
+    "viewport": "(1920.0, 1080.0)",
+    "actual_size": "(1920, 1080)",
+    "static_memory_bytes": 318799378,
+    "evidence": "perf_25_1920x1080.json"
+  },
+  {
+    "day": 30,
+    "grade": "C",
+    "samples": 1622,
+    "mean_ms": 25.927528360049322,
+    "mean_fps": 38.56904468922921,
+    "p95_ms": 59.927,
+    "p99_ms": 81.041,
+    "max_monsters": 17,
+    "max_enemies": 12,
+    "layout_msec": 1412,
+    "viewport": "(1920.0, 1080.0)",
+    "actual_size": "(1920, 1080)",
+    "static_memory_bytes": 348922627,
+    "evidence": "perf_30_1920x1080.json"
+  }
+]
