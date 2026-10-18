@@ -1,0 +1,43 @@
+{
+  "source": "legal_smoke2",
+  "paired": "legal_paired2",
+  "source_checks": {
+    "checks": 32,
+    "elapsed_msec": 22404,
+    "failures": []
+  },
+  "pair_checks": {
+    "checks": 351,
+    "days": "1,2",
+    "elapsed_msec": 47264,
+    "failures": [],
+    "seeds": "130401",
+    "source": "legal_smoke2"
+  },
+  "paired_battles": 8,
+  "recommended_deployments_match_primary": true,
+  "all_deployed_are_owned_and_defense_eligible": true,
+  "input_hashes": {
+    "data/waves.json": "70bd31acd3b42cac9d08079b914309ead7063bddd311e203b43a5a1f7fa56741",
+    "data/v122/dual_front_day01_05_waves.json": "7f969ab9bd90aa3450ba0e242309dc5cf3a5145b4e0654e642fe33ab830c5d47",
+    "scripts/game/GameRoot.gd": "0183c1352e0a5b32b7084f574f1bff96f1db2e7856507ed4fe469258ca8e96ea",
+    "scripts/game/ApprovedBattleController.gd": "6fa287fb4500af3dcdee3b86d768389370d23315c5f73c850b408805bed80f5c",
+    "scripts/map_builder/ApprovedMonsterPlacement.gd": "7f740026d74179789126289796f3d7dd0fcbd439c50181dfcce9ae97202000dd",
+    "scripts/map_builder/ApprovedPlacement.gd": "265bdcf7cacb78701ebcf3ae1f62fcafe26cd10fbf040c72c90cc2a65711cf69",
+    "tools/tests/V130RB04Campaign.gd": "379ff821cfe7b5f64ce6657ebbd61b1ffaa9284ed581d1fd1e4b44dde145db3b",
+    "tools/tests/V130RB04FastController.gd": "690120b93ea5580782dba194755c21b7aa0eca191d8d1e79559ffc8e8ae9a058",
+    "tools/tests/V130RB04FastUnit.gd": "4d38a9399e026819384e188877df3c22f760046080302c360a26eeb2d370770f",
+    "tools/tests/V130RB04Stacking.gd": "5c5458bf09dcc4902f147809844d06c0029bab2f8d7a5fd12251542f3dc64f8e",
+    "tools/tests/V130RB04FastMap.gd": "e346c8c1443692eaaccea7b447c8d206528a1e1a84b4c933e25217a949adcf7d",
+    "scripts/game/CombatSceneController.gd": "cfd4589f511fc5e622376dcb7c5c84c4d189c20090981e3c69e2163db1d81738",
+    "scripts/units/Unit.gd": "a35fa4f71af4036723144d9339ab0693e03a9243d0e471adeb6e9ff1967e62bf",
+    "scripts/units/ApprovedBattleUnit.gd": "b57fd67aef06367664d0bf76d752232c8953533d829af66d53d662ef36dd7ae7",
+    "scripts/map_builder/ApprovedBattleMap.gd": "f73a7ac9950e12e81615a3b8a1ad0892fd29940e82285f246bcb1e2fad95c60f",
+    "scripts/map_builder/ApprovedMonsterPlacementUI.gd": "284573c8dc4b64823356a1a1e92b702559ffecbe16a9ef0a80c5a661137626a1",
+    "scripts/map_builder/ApprovedGradeProgression.gd": "92004b553e73d033a024312a26ccfd85de5ebaba7fe76e963a37402b50ff41a4",
+    "scripts/ui/StartFlow.gd": "bb31e3a452fb8ac868f24d6ae6d3b94b4fa8490cc5f30d703bc0c63379571427",
+    "data/monster_instances.json": "afdf26899714873f23c60fbb21cb354ff89642b4a0ab4adc2e7b0a7c874600c7",
+    "data/regular_version/update4/monster_instances.json": "272f78525e03a8781d210f51cf1ab6477278fd874056c59abedd99b0c6e8c28d",
+    "data/v130r/monster_instances_new.json": "48e9b2750fa9e9684cca1565079b5897f73cc07d7ba32f30f247db29d370f925"
+  }
+}

@@ -86,6 +86,7 @@ func place_defenders(v: Node) -> void:
 	var counts := {}
 	for id in assignments:
 		expect(id in v.monster_ui.unlocked(),"only actually recruited defenders")
+		expect(game._monster_available_for_defense(str(v.monster_ui.members[id].species_id)),"only owned and defense-eligible companions enter combat")
 		var target: Dictionary=assignments[id]
 		counts[target.building]=int(counts.get(target.building,0))+1
 	for building in counts: expect(counts[building]<=Buildings.building(v.placement,building).capacity,"legal building capacity")

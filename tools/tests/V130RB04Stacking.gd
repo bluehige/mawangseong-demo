@@ -26,7 +26,16 @@ func place_defenders(v: Node) -> void:
 				keep.append(c); original.append(i)
 		restricted.defense_points[building]=keep
 		slot_maps[building]=original
-	var assigned := Members.auto_place(restricted,members,unlocked,v.monster_ui.food_income)
+	# Keep the product's guard roles, then prefer trained real companions over
+	# low-level roster order when concentration capacity cannot hold everyone.
+	var ranked: Array=unlocked.duplicate()
+	ranked.sort_custom(func(a,b):
+		var la: int=int(game.monster_roster[members[a].species_id].level)
+		var lb: int=int(game.monster_roster[members[b].species_id].level)
+		return la>lb or (la==lb and members.keys().find(a)<members.keys().find(b)))
+	var ranked_members := {}
+	for id in ranked: ranked_members[id]=members[id]
+	var assigned := Members.auto_place(restricted,ranked_members,unlocked,v.monster_ui.food_income)
 	for id in assigned:
 		var target: Dictionary=assigned[id]
 		target.slot=slot_maps[target.building][int(target.slot)]

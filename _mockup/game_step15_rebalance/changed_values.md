@@ -231,6 +231,8 @@
 
 - `GameRoot._open_intrusion_brief`: 진행 중인 본편/합류 대사를 예약된 관리 복귀가 덮어쓰지 않도록 보호.
 - `ApprovedBattleController.spawn_enemy`: 명시적 옥좌 우선 공격·경유를 F/E에서도 지정 웨이브에 적용. 공병·도둑의 최종 목표 정책은 유지.
-- `ApprovedMonsterPlacement.auto_place`: D는 실제 가용 탱커 2명을 옥좌 호위로 우선 배치. C는 입구 슬라임을 유지하고 가용 다리 트롤·접착 달팽이 등을 양쪽 옥좌 입구에 분산.
+- `ApprovedMonsterPlacement.auto_place`: D는 실제 가용 탱커 2명을 옥좌 호위로 우선 배치. C는 입구 슬라임을 유지하고 가용 다리 트롤·접착 달팽이 등을 양쪽 옥좌 입구에 분산. D/C의 같은 종류 건물은 배치 인원 기준으로 분산해 새 후방 감시탑에도 수비를 둔다.
 
 웨이브 SHA-256: `70bd31acd3b42cac9d08079b914309ead7063bddd311e203b43a5a1f7fa56741`.
+
+- `ApprovedMonsterPlacementUI.unlocked`: 실제 캠페인에서는 기존 본편의 보유·방어 자격 판정을 적용해 미보유 동료와 원정 전용 로로를 추천에서 제외한다. 명시적 전체 해금 시험 모드는 유지한다. 종족 능력치·합류 조건은 변경하지 않는다.

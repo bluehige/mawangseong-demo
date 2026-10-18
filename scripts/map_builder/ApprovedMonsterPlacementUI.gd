@@ -40,6 +40,7 @@ func _ready() -> void:
 func unlocked() -> Array:
 	var ids := []
 	for id in members:
+		if bool(ProjectSettings.get_setting("debug/start_flow14",false)) and not unlock_all and not view.root._monster_available_for_defense(str(members[id].species_id)): continue
 		if bool(ProjectSettings.get_setting("debug/start_flow14",false)) and view.root.start_flow.fresh and int(view.placement.day)==1 and not unlock_all and id not in joined and members[id].species_id not in ["slime","goblin","imp"]: continue
 		if Model.available(members[id],view.placement.day,unlock_all,joined): ids.append(id)
 	return ids

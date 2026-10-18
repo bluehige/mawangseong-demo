@@ -1,0 +1,1131 @@
+{
+  "status": "STOPPED_DIAGNOSTIC_ONLY_INELIGIBLE_DEFENDER",
+  "source_commit": "0ce40933",
+  "reason": "Approved placement deployed an unowned DAY2 kobold and continued after the canonical raid-only defense_enabled=false flag. Excluded from final balance proof.",
+  "affected_battles": 154,
+  "samples": [
+    {
+      "seed": 130401,
+      "day": 2,
+      "not_owned": true,
+      "defense_enabled": null,
+      "level": null
+    },
+    {
+      "seed": 130401,
+      "day": 4,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 5,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 6,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 7,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 8,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 9,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 10,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 11,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 12,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 13,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 14,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 15,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 16,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 17,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 18,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 19,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 20,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 21,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 22,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 23,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 24,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 25,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 26,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 27,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 28,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130401,
+      "day": 30,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 2,
+      "not_owned": true,
+      "defense_enabled": null,
+      "level": null
+    },
+    {
+      "seed": 130402,
+      "day": 4,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 5,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 6,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 7,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 8,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 9,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 10,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 11,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 12,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 13,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 14,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 15,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 16,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 17,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 18,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 19,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 20,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 21,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 22,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 23,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 24,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 25,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 26,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 27,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 28,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130402,
+      "day": 30,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 2,
+      "not_owned": true,
+      "defense_enabled": null,
+      "level": null
+    },
+    {
+      "seed": 130403,
+      "day": 4,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 5,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 6,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 7,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 8,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 9,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 10,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 11,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 12,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 13,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 14,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 15,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 16,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 17,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 18,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 19,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 20,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 21,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 22,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 23,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 24,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 25,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 26,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 27,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 28,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130403,
+      "day": 30,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 2,
+      "not_owned": true,
+      "defense_enabled": null,
+      "level": null
+    },
+    {
+      "seed": 130404,
+      "day": 4,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 5,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 6,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 7,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 8,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 9,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 10,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 11,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 12,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 13,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 14,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 15,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 16,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 17,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 18,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 19,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 20,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 21,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 22,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 23,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 24,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 25,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 26,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 27,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 28,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130404,
+      "day": 30,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 2,
+      "not_owned": true,
+      "defense_enabled": null,
+      "level": null
+    },
+    {
+      "seed": 130405,
+      "day": 4,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 5,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 6,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 7,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 8,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 9,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 10,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 11,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 12,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 13,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 14,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 15,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 16,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 17,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 18,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 19,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 20,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 21,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 22,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 23,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 24,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 25,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 26,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 27,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 28,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130405,
+      "day": 30,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 2,
+      "not_owned": true,
+      "defense_enabled": null,
+      "level": null
+    },
+    {
+      "seed": 130406,
+      "day": 4,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 5,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 6,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 7,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 8,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 9,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 10,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 11,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 12,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 13,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 14,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 15,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 16,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 17,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 18,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 19,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 20,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    },
+    {
+      "seed": 130406,
+      "day": 21,
+      "not_owned": false,
+      "defense_enabled": false,
+      "level": 2
+    }
+  ],
+  "completed_before_stop": 4,
+  "run": {
+    "command": [
+      "D:\\Godot_v4.6.3-stable_win64.exe\\Godot_v4.6.3-stable_win64.exe",
+      "--path",
+      "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-action",
+      "--rendering-method",
+      "gl_compatibility",
+      "--resolution",
+      "1280x720",
+      "--headless",
+      "--scene",
+      "res://tools/tests/V130RB04Campaign.tscn",
+      "--",
+      "label=campaign_v6",
+      "seeds=130401,130402,130403,130404,130405,130406,130407,130408,130409,130410",
+      "last_day=30",
+      "layout=recommended",
+      "retries=0"
+    ],
+    "exit_code": 15,
+    "seconds": 4101.41,
+    "peak_godot": 1,
+    "godot_after": [],
+    "stderr": "",
+    "waves_sha256": "70bd31acd3b42cac9d08079b914309ead7063bddd311e203b43a5a1f7fa56741",
+    "waves_unchanged_during_run": true,
+    "inputs_unchanged": true
+  },
+  "input_hashes": {
+    "data/waves.json": "70bd31acd3b42cac9d08079b914309ead7063bddd311e203b43a5a1f7fa56741",
+    "data/v122/dual_front_day01_05_waves.json": "7f969ab9bd90aa3450ba0e242309dc5cf3a5145b4e0654e642fe33ab830c5d47",
+    "scripts/game/GameRoot.gd": "0183c1352e0a5b32b7084f574f1bff96f1db2e7856507ed4fe469258ca8e96ea",
+    "scripts/game/ApprovedBattleController.gd": "6fa287fb4500af3dcdee3b86d768389370d23315c5f73c850b408805bed80f5c",
+    "scripts/map_builder/ApprovedMonsterPlacement.gd": "7f740026d74179789126289796f3d7dd0fcbd439c50181dfcce9ae97202000dd",
+    "scripts/map_builder/ApprovedPlacement.gd": "265bdcf7cacb78701ebcf3ae1f62fcafe26cd10fbf040c72c90cc2a65711cf69",
+    "tools/tests/V130RB04Campaign.gd": "f7f4654e9a9e73e579325cd71e0dcbc1978d3bb865b9c7d6cec8da5da2ae6b79",
+    "tools/tests/V130RB04FastController.gd": "690120b93ea5580782dba194755c21b7aa0eca191d8d1e79559ffc8e8ae9a058",
+    "tools/tests/V130RB04FastUnit.gd": "4d38a9399e026819384e188877df3c22f760046080302c360a26eeb2d370770f",
+    "tools/tests/V130RB04FastMap.gd": "e346c8c1443692eaaccea7b447c8d206528a1e1a84b4c933e25217a949adcf7d",
+    "scripts/game/CombatSceneController.gd": "cfd4589f511fc5e622376dcb7c5c84c4d189c20090981e3c69e2163db1d81738",
+    "scripts/units/Unit.gd": "a35fa4f71af4036723144d9339ab0693e03a9243d0e471adeb6e9ff1967e62bf",
+    "scripts/units/ApprovedBattleUnit.gd": "b57fd67aef06367664d0bf76d752232c8953533d829af66d53d662ef36dd7ae7",
+    "scripts/map_builder/ApprovedBattleMap.gd": "f73a7ac9950e12e81615a3b8a1ad0892fd29940e82285f246bcb1e2fad95c60f"
+  }
+}

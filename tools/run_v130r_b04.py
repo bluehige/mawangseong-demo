@@ -51,6 +51,7 @@ def main():
         input_paths.append("tools/tests/V130RB04Stacking.gd")
     input_paths.append("tools/tests/V130RB04FastMap.gd")
     input_paths += ["scripts/game/CombatSceneController.gd", "scripts/units/Unit.gd", "scripts/units/ApprovedBattleUnit.gd", "scripts/map_builder/ApprovedBattleMap.gd"]
+    input_paths += ["scripts/map_builder/ApprovedMonsterPlacementUI.gd", "scripts/map_builder/ApprovedGradeProgression.gd", "scripts/ui/StartFlow.gd", "data/monster_instances.json", "data/regular_version/update4/monster_instances.json", "data/v130r/monster_instances_new.json"]
     input_hashes = {p: hashlib.sha256((ROOT / p).read_bytes()).hexdigest() for p in input_paths}
     (folder / "input_hashes.json").write_text(json.dumps(input_hashes, indent=2), encoding="utf-8")
     wrapper = Path(subprocess.check_output(["where.exe", "godot.cmd"], text=True).splitlines()[0])
