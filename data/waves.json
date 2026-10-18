@@ -491,7 +491,7 @@
       "spawn_interval": 4.592,
       "hp_scale": 13.0024,
       "atk_scale": 1.0,
-      "objective_priority": 0.25,
+      "objective_priority": 0.1,
       "route_variation": true,
       "spawn_jitter": 0.35,
       "formation": "objective_push",
@@ -732,7 +732,7 @@
       "route_variation": true,
       "spawn_jitter": 0.35,
       "formation": "objective_push",
-      "waypoint_room_id": "ward_core"
+      "waypoint_room_id": "barracks"
     }
   ],
   "day_16": [
@@ -758,7 +758,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "barracks"
     },
     {
       "enemy_id": "investigator",
@@ -884,7 +885,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "barracks"
     },
     {
       "enemy_id": "thief",
@@ -998,7 +1000,8 @@
       "objective_priority": 0.25,
       "route_variation": true,
       "spawn_jitter": 0.35,
-      "formation": "objective_push"
+      "formation": "objective_push",
+      "waypoint_room_id": "barracks"
     }
   ],
   "day_20": [
@@ -1667,7 +1670,7 @@
       "spawn_interval": 4.0,
       "hp_scale": 12.1788,
       "atk_scale": 4.0813,
-      "objective_priority": 0.5,
+      "objective_priority": 0.2,
       "route_variation": true,
       "spawn_jitter": 0.35,
       "formation": "objective_push",
@@ -1689,7 +1692,7 @@
       "hp_scale": 4.0118,
       "atk_scale": 3.9211,
       "def_scale": 0.72,
-      "objective_priority": 0.5,
+      "objective_priority": 0.2,
       "route_variation": true,
       "spawn_jitter": 0.35,
       "formation": "objective_push"
@@ -1701,7 +1704,7 @@
       "spawn_interval": 0.8,
       "hp_scale": 6.161,
       "atk_scale": 3.9211,
-      "objective_priority": 0.5,
+      "objective_priority": 0.2,
       "route_variation": true,
       "spawn_jitter": 0.35,
       "formation": "objective_push"
@@ -1714,7 +1717,7 @@
       "hp_scale": 4.0118,
       "atk_scale": 3.9211,
       "def_scale": 0.72,
-      "objective_priority": 0.5,
+      "objective_priority": 0.2,
       "route_variation": true,
       "spawn_jitter": 0.35,
       "formation": "objective_push"
@@ -1726,7 +1729,7 @@
       "spawn_interval": 0.8,
       "hp_scale": 6.161,
       "atk_scale": 3.9211,
-      "objective_priority": 0.5,
+      "objective_priority": 0.2,
       "route_variation": true,
       "spawn_jitter": 0.35,
       "formation": "objective_push",
@@ -1739,7 +1742,7 @@
       "spawn_interval": 4.0,
       "hp_scale": 5.5879,
       "atk_scale": 4.0012,
-      "objective_priority": 0.5,
+      "objective_priority": 0.2,
       "route_variation": true,
       "spawn_jitter": 0.35,
       "formation": "objective_push"

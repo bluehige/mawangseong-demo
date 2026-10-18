@@ -560,31 +560,31 @@
 		},
 		{
 			"approved": {
-				"atk": 6,
-				"def": 9,
+				"atk": 8,
+				"def": 8,
 				"healing": 1.0,
 				"heart_def": 1,
 				"heart_healing": 1.0,
 				"heart_recovery": 1.0,
-				"hp": 210,
-				"interval": 1.6,
+				"hp": 180,
+				"interval": 1.4,
 				"range": 50.0,
-				"speed": 55.0
+				"speed": 90.0
 			},
 			"legacy": {
-				"atk": 6,
-				"def": 9,
+				"atk": 8,
+				"def": 8,
 				"healing": 1.0,
 				"heart_def": 1,
 				"heart_healing": 1.0,
 				"heart_recovery": 1.0,
-				"hp": 210,
-				"interval": 1.6,
+				"hp": 180,
+				"interval": 1.4,
 				"range": 50.0,
-				"speed": 55.0
+				"speed": 90.0
 			},
 			"level": 1,
-			"species": "glue_snail"
+			"species": "slime"
 		},
 		{
 			"approved": {
@@ -697,34 +697,6 @@
 			},
 			"level": 1,
 			"species": "mimic_porter"
-		},
-		{
-			"approved": {
-				"atk": 8,
-				"def": 8,
-				"healing": 1.0,
-				"heart_def": 1,
-				"heart_healing": 1.0,
-				"heart_recovery": 1.0,
-				"hp": 180,
-				"interval": 1.4,
-				"range": 50.0,
-				"speed": 90.0
-			},
-			"legacy": {
-				"atk": 8,
-				"def": 8,
-				"healing": 1.0,
-				"heart_def": 1,
-				"heart_healing": 1.0,
-				"heart_recovery": 1.0,
-				"hp": 180,
-				"interval": 1.4,
-				"range": 50.0,
-				"speed": 90.0
-			},
-			"level": 1,
-			"species": "slime"
 		},
 		{
 			"approved": {
@@ -1036,6 +1008,34 @@
 		},
 		{
 			"approved": {
+				"atk": 6,
+				"def": 9,
+				"healing": 1.0,
+				"heart_def": 1,
+				"heart_healing": 1.0,
+				"heart_recovery": 1.0,
+				"hp": 210,
+				"interval": 1.6,
+				"range": 50.0,
+				"speed": 55.0
+			},
+			"legacy": {
+				"atk": 6,
+				"def": 9,
+				"healing": 1.0,
+				"heart_def": 1,
+				"heart_healing": 1.0,
+				"heart_recovery": 1.0,
+				"hp": 210,
+				"interval": 1.6,
+				"range": 50.0,
+				"speed": 55.0
+			},
+			"level": 1,
+			"species": "glue_snail"
+		},
+		{
+			"approved": {
 				"atk": 15,
 				"def": 3,
 				"healing": 1.0,
@@ -1232,31 +1232,31 @@
 		},
 		{
 			"approved": {
-				"atk": 18,
-				"def": 13,
+				"atk": 21,
+				"def": 16,
 				"healing": 1.0,
 				"heart_def": 1,
 				"heart_healing": 1.0,
 				"heart_recovery": 1.0,
-				"hp": 376,
-				"interval": 1.6,
+				"hp": 407,
+				"interval": 1.4,
 				"range": 50.0,
-				"speed": 55.0
+				"speed": 90.0
 			},
 			"legacy": {
-				"atk": 18,
-				"def": 13,
+				"atk": 21,
+				"def": 16,
 				"healing": 1.0,
 				"heart_def": 1,
 				"heart_healing": 1.0,
 				"heart_recovery": 1.0,
-				"hp": 376,
-				"interval": 1.6,
+				"hp": 407,
+				"interval": 1.4,
 				"range": 50.0,
-				"speed": 55.0
+				"speed": 90.0
 			},
 			"level": 5,
-			"species": "glue_snail"
+			"species": "slime"
 		},
 		{
 			"approved": {
@@ -1369,34 +1369,6 @@
 			},
 			"level": 5,
 			"species": "mimic_porter"
-		},
-		{
-			"approved": {
-				"atk": 21,
-				"def": 16,
-				"healing": 1.0,
-				"heart_def": 1,
-				"heart_healing": 1.0,
-				"heart_recovery": 1.0,
-				"hp": 407,
-				"interval": 1.4,
-				"range": 50.0,
-				"speed": 90.0
-			},
-			"legacy": {
-				"atk": 21,
-				"def": 16,
-				"healing": 1.0,
-				"heart_def": 1,
-				"heart_healing": 1.0,
-				"heart_recovery": 1.0,
-				"hp": 407,
-				"interval": 1.4,
-				"range": 50.0,
-				"speed": 90.0
-			},
-			"level": 5,
-			"species": "slime"
 		},
 		{
 			"approved": {
@@ -1708,6 +1680,34 @@
 		},
 		{
 			"approved": {
+				"atk": 18,
+				"def": 13,
+				"healing": 1.0,
+				"heart_def": 1,
+				"heart_healing": 1.0,
+				"heart_recovery": 1.0,
+				"hp": 376,
+				"interval": 1.6,
+				"range": 50.0,
+				"speed": 55.0
+			},
+			"legacy": {
+				"atk": 18,
+				"def": 13,
+				"healing": 1.0,
+				"heart_def": 1,
+				"heart_healing": 1.0,
+				"heart_recovery": 1.0,
+				"hp": 376,
+				"interval": 1.6,
+				"range": 50.0,
+				"speed": 55.0
+			},
+			"level": 5,
+			"species": "glue_snail"
+		},
+		{
+			"approved": {
 				"atk": 27,
 				"def": 7,
 				"healing": 1.0,
@@ -1904,31 +1904,31 @@
 		},
 		{
 			"approved": {
-				"atk": 39,
-				"def": 20,
+				"atk": 42,
+				"def": 24,
 				"healing": 1.0,
 				"heart_def": 1,
 				"heart_healing": 1.0,
 				"heart_recovery": 1.0,
-				"hp": 557,
-				"interval": 1.6,
+				"hp": 612,
+				"interval": 1.4,
 				"range": 50.0,
-				"speed": 55.0
+				"speed": 90.0
 			},
 			"legacy": {
-				"atk": 39,
-				"def": 20,
+				"atk": 42,
+				"def": 24,
 				"healing": 1.0,
 				"heart_def": 1,
 				"heart_healing": 1.0,
 				"heart_recovery": 1.0,
-				"hp": 557,
-				"interval": 1.6,
+				"hp": 612,
+				"interval": 1.4,
 				"range": 50.0,
-				"speed": 55.0
+				"speed": 90.0
 			},
 			"level": 12,
-			"species": "glue_snail"
+			"species": "slime"
 		},
 		{
 			"approved": {
@@ -2041,34 +2041,6 @@
 			},
 			"level": 12,
 			"species": "mimic_porter"
-		},
-		{
-			"approved": {
-				"atk": 42,
-				"def": 24,
-				"healing": 1.0,
-				"heart_def": 1,
-				"heart_healing": 1.0,
-				"heart_recovery": 1.0,
-				"hp": 612,
-				"interval": 1.4,
-				"range": 50.0,
-				"speed": 90.0
-			},
-			"legacy": {
-				"atk": 42,
-				"def": 24,
-				"healing": 1.0,
-				"heart_def": 1,
-				"heart_healing": 1.0,
-				"heart_recovery": 1.0,
-				"hp": 612,
-				"interval": 1.4,
-				"range": 50.0,
-				"speed": 90.0
-			},
-			"level": 12,
-			"species": "slime"
 		},
 		{
 			"approved": {
@@ -2377,6 +2349,34 @@
 			},
 			"level": 12,
 			"species": "river_frog"
+		},
+		{
+			"approved": {
+				"atk": 39,
+				"def": 20,
+				"healing": 1.0,
+				"heart_def": 1,
+				"heart_healing": 1.0,
+				"heart_recovery": 1.0,
+				"hp": 557,
+				"interval": 1.6,
+				"range": 50.0,
+				"speed": 55.0
+			},
+			"legacy": {
+				"atk": 39,
+				"def": 20,
+				"healing": 1.0,
+				"heart_def": 1,
+				"heart_healing": 1.0,
+				"heart_recovery": 1.0,
+				"hp": 557,
+				"interval": 1.6,
+				"range": 50.0,
+				"speed": 55.0
+			},
+			"level": 12,
+			"species": "glue_snail"
 		},
 		{
 			"approved": {

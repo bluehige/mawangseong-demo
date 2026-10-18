@@ -3,10 +3,12 @@
   "checks": {
     "data/waves.json": {
       "unchanged_hp_atk_coefficients": 312,
-      "sha256": "70bd31acd3b42cac9d08079b914309ead7063bddd311e203b43a5a1f7fa56741"
+      "unchanged_all_scale_fields": 334,
+      "sha256": "9bb25eb7d066a57338d2de7dde6d26e7d57c797ac893d6afcf881ff10d804de3"
     },
     "data/v122/dual_front_day01_05_waves.json": {
       "unchanged_hp_atk_coefficients": 32,
+      "unchanged_all_scale_fields": 32,
       "sha256": "7f969ab9bd90aa3450ba0e242309dc5cf3a5145b4e0654e642fe33ab830c5d47"
     }
   },

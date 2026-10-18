@@ -15,6 +15,26 @@ BASE = "0a90971c970ac2a65ed6c6661b5c9d66a3e07704"
 def read(label):
     return json.loads((TMP / label / "days.json").read_text(encoding="utf-8"))
 
+def coefficient_fields(value, path=()):
+    if isinstance(value,dict):
+        for key,item in value.items():
+            if key.endswith('_scale'): yield path+(key,),item
+            else: yield from coefficient_fields(item,path+(key,))
+    elif isinstance(value,list):
+        for index,item in enumerate(value): yield from coefficient_fields(item,path+(index,))
+
+def protected_stats_report():
+    result={'base':BASE,'checks':{}}
+    for path in ['data/waves.json','data/v122/dual_front_day01_05_waves.json']:
+        old=json.loads(subprocess.check_output(['git','show',BASE+':'+path]))
+        raw=(ROOT/path).read_bytes();new=json.loads(raw)
+        a,b=dict(coefficient_fields(old)),dict(coefficient_fields(new))
+        assert a==b, 'Monster coefficients must remain unchanged: '+path
+        result['checks'][path]={'unchanged_hp_atk_coefficients':sum(p[-1] in ['hp_scale','atk_scale'] for p in a),'unchanged_all_scale_fields':len(a),'sha256':hashlib.sha256(raw).hexdigest()}
+        if path=='data/waves.json': assert old['day_29']==new['day_29']==[]
+    result['day29_unchanged_empty']=True
+    (OUT/'protected_stats.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
+
 def actual_members():
     members={}
     for path in ['data/monster_instances.json','data/regular_version/update4/monster_instances.json','data/v130r/monster_instances_new.json']:
@@ -106,11 +126,12 @@ def paired_report(labels, lookup, selected_days, source):
         assert group['recommended']['assignments']==primary['assignments'], f'Restored recommendation must reproduce the real deployment: {key}'
         for row in group.values():
             assert row['hp_start']==primary['hp_start'] and row['max_hp']==primary['max_hp'] and row['wallet_before']==primary['wallet_before'], f'Pair must retain the real entry state: {key}'
+            assert row['roster_before']==primary['roster_before'], f'Pair must retain the complete real growth and eligibility state: {key}'
             assert all(members[id]['species_id'] in row['roster_before'] for id in row['assignments']), f'Pair must deploy actual owned companions: {key}'
             assert all(row['roster_before'][members[id]['species_id']].get('defense_enabled',True) for id in row['assignments']), f'Pair must exclude raid-only companions: {key}'
     text=["# 실제 캠페인 진입 상태의 배치 비교", "", "완주·난이도 곡선은 새 게임 연속 10회만 사용한다. 이 표는 각 실제 DAY 진입 사본에서 레벨·EXP·유대·특화·전직·HP·자원·건물·이전 선택을 동일하게 복원한 비교다. 인위적인 날짜별 성장/예산을 주입하지 않는다. 각 쌍은 seed+DAY×1000의 공통 실험 RNG로 첫 전투만 비교한다.", "", "집중① 병영·결계핵·옥좌, 집중② 최종선, 집중③ 1차선. 실제 합류·고유 수비 칸·건물 정원·당일 식량 한도를 검사한다. 미도달 회차는 해당 날짜 비교에 포함하지 않는다. 집중 영역의 실제 정원 때문에 배치 가능한 인원이 달라질 수 있어 평균 배치 수도 표시한다.", "", "| DAY | 등급 | 짝 표본 | 배치 | 평균배치 | 승률% | 평균HP% (패배0) | 추천≥집중 |", "|---:|---|---:|---|---:|---:|---:|---|"]
     failures,missing=[],[]
-    text[6:6] = ['비교 날짜: '+', '.join(map(str,selected_days))+'. 등급 전환·기존 결함·후반 곡선 날짜를 대상으로 한 표적 비교이며, 다른 날짜의 우위를 추정하지 않는다.', '']
+    text[6:6] = ['비교 날짜: '+', '.join(map(str,selected_days))+'. DAY29를 제외한 모든 실제 도달 날짜의 진입본을 비교한다. 미도달 상태는 가상 전투로 채우지 않는다.', '']
     for day in selected_days:
         if day==29: continue
         expected={(s,day) for s in SEEDS if (s,day) in lookup}
@@ -161,10 +182,11 @@ def changed_report():
     table('`data/waves.json` — 이번 B04 (0118 커밋 대비)',head,json.loads((ROOT/'data/waves.json').read_text(encoding='utf-8')))
     table('`data/v122/dual_front_day01_05_waves.json` — 실제 DAY1~5 선택 파일',json.loads(subprocess.check_output(['git','show',BASE+':data/v122/dual_front_day01_05_waves.json'])),json.loads((ROOT/'data/v122/dual_front_day01_05_waves.json').read_text(encoding='utf-8')))
     table('중지된 0115 미커밋 보정→0118 복원 (원문: superseded_0115_waves.json)',json.loads((OUT/'superseded_0115_waves.json').read_text(encoding='utf-8')),head)
-    text += ['코드 변경:','','- `GameRoot._open_intrusion_brief`: 진행 중인 본편/합류 대사를 예약된 관리 복귀가 덮어쓰지 않도록 보호.','- `ApprovedBattleController.spawn_enemy`: 명시적 옥좌 우선 공격·경유를 F/E에서도 지정 웨이브에 적용. 공병·도둑의 최종 목표 정책은 유지.','- `ApprovedMonsterPlacement.auto_place`: D는 실제 가용 탱커 2명을 옥좌 호위로 우선 배치. C는 입구 슬라임을 유지하고 가용 다리 트롤·접착 달팽이 등을 양쪽 옥좌 입구에 분산. D/C의 같은 종류 건물은 배치 인원 기준으로 분산해 새 후방 감시탑에도 수비를 둔다.','','웨이브 SHA-256: `'+hashlib.sha256((ROOT/'data/waves.json').read_bytes()).hexdigest()+'`.']
+    text += ['코드 변경:','','- `GameRoot._open_intrusion_brief`: 진행 중인 본편/합류 대사를 예약된 관리 복귀가 덮어쓰지 않도록 보호.','- `ApprovedBattleController.spawn_enemy`: 명시적 옥좌 우선 공격·경유를 F/E에서도 지정 웨이브에 적용. 공병·도둑의 최종 목표 정책은 유지.','- `ApprovedMonsterPlacement.auto_place`: E/D부터 실제 가용 탱커 2명과 원거리·지원 동료로 옥좌 정원 4칸을 활용한다. C는 다리 트롤을 서쪽, 성장한 슬라임을 남쪽 옥좌 입구에 배치해 양쪽을 막는다. D/C의 같은 종류 건물은 배치 인원 기준으로 분산해 새 후방 감시탑에도 수비를 둔다.','','웨이브 SHA-256: `'+hashlib.sha256((ROOT/'data/waves.json').read_bytes()).hexdigest()+'`.']
+    text.insert(-2,'- `ApprovedMonsterPlacementUI.unlocked`: 실제 캠페인에서는 기존 본편의 보유·방어 자격 판정을 적용해 미보유 동료와 원정 전용 로로를 추천에서 제외한다. 명시적 전체 해금 시험 모드는 유지한다. 종족 능력치·합류 조건은 변경하지 않는다.')
+    text.insert(-2,'- F등급 DAY5 이후 지도·쥐 조합의 옥좌 정원을 우선 활용한다. E등급 개구리·쥐 조합은 병영을 우선한다. 자동 건설·강화 점수도 같은 등급·날짜별 배치 선호를 사용한다. C등급 개구리의 후방 감시탑·결계핵 우선 후보는 개선되지 않아 채택하지 않았다.')
     (OUT/'changed_values.md').write_text('\n'.join(text)+'\n',encoding='utf-8')
-    with (OUT/'changed_values.md').open('a',encoding='utf-8') as f:
-        f.write('\n- `ApprovedMonsterPlacementUI.unlocked`: 실제 캠페인에서는 기존 본편의 보유·방어 자격 판정을 적용해 미보유 동료와 원정 전용 로로를 추천에서 제외한다. 명시적 전체 해금 시험 모드는 유지한다. 종족 능력치·합류 조건은 변경하지 않는다.\n')
+    protected_stats_report()
 
 def main():
     parser = argparse.ArgumentParser()
@@ -172,7 +194,7 @@ def main():
     parser.add_argument("--paired", nargs="*", default=[])
     parser.add_argument('--curve-denominator',choices=['cohort','reached'],default='cohort')
     parser.add_argument('--completion-policy',choices=['no_retry','one_retry'],default='no_retry')
-    parser.add_argument('--stack-days',default='1,4,5,14,15,19,20,21,22,23,26,27,28,30')
+    parser.add_argument('--stack-days',default=','.join(str(d) for d in range(1,31) if d!=29))
     args = parser.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
     rows = read(args.recommended)
@@ -227,7 +249,7 @@ def main():
     text += ["", f"완주 정책: `{args.completion_policy}`. 재도전 없는 완주 {no_retry_completed}/10, 정상 재도전 포함 실제 엔딩 {completed}/10. 주 완주 목표(≥7/10): {'PASS' if completion_count>=7 else 'FAIL'}. 날짜 곡선 범위 밖: "+", ".join(str(d) for d,r in daily.items() if d!=29 and not r['passed'])+".", "", "건설 자동화 가정: 제품에 별도 건설 추천 서비스가 없어 승인 도면의 빈 부지를 결계핵·병영·회복 둥지·감시탑·미끼 금고 순으로 구매한다. 실제 추천 배치의 배치 인원 또는 선호 시설 점수가 좋아지는 강화만 낮은 레벨 순으로 구매한다. 모든 구매 뒤 마나 60을 남겨 필수 승급 비용을 보존하며, 실제 구매 API의 해금·부지·수량·가격·잔액 검사를 사용한다. 필수 특화·승급·원정은 선택 가능한 첫 정상 선택지를 사용하고, DAY29 선언은 성 수호(castle_oath)로 고정한다.", "", "저장 증빙 범위: 격리 프로필의 새 게임 런타임을 연속 진행한다. 테스트 씬의 기존 저장 비활성 규칙을 유지하므로 정식 저장/이어하기 게이트 G01 통과 근거가 아니다."]
     (OUT / "day_curve.md").write_text("\n".join(text)+"\n", encoding="utf-8")
     selected_days=sorted(set(map(int,args.stack_days.split(','))))
-    assert {1,4,5,14,15,19,20,21,22,23,26,27,28,30}<=set(selected_days)
+    assert set(range(1,31))-{29}==set(selected_days), 'Final comparisons must cover every actual battle day'
     stack_failures, missing = paired_report(args.paired, lookup,selected_days,args.recommended)
     changed_report()
     result=dict(completed=completed,completed_without_retry=no_retry_completed,curve_failures=[d for d,r in daily.items() if d!=29 and not r['passed']],stack_failures=stack_failures,unmeasured_paired_entries=len(missing))

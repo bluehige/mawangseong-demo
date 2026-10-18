@@ -44,7 +44,7 @@
 | day_11 | 3 | spawn_interval | 0.8 | 1.12 |
 | day_11 | 4 | objective_priority | 1 | 0.25 |
 | day_11 | 4 | spawn_interval | 5.6 | 7.84 |
-| day_12 | 2 | objective_priority | 1 | 0.25 |
+| day_12 | 2 | objective_priority | 1 | 0.1 |
 | day_12 | 2 | spawn_interval | 3.28 | 4.592 |
 | day_12 | 2 | waypoint_room_id | null | "barracks" |
 | day_12 | 3 | objective_priority | 1 | 0.25 |
@@ -83,10 +83,11 @@
 | day_15 | 6 | objective_priority | 0.9 | 0.1 |
 | day_15 | 6 | spawn_delay | 48.0 | 78.0 |
 | day_15 | 6 | spawn_interval | 0.8 | 1.2 |
-| day_15 | 6 | waypoint_room_id | null | "ward_core" |
+| day_15 | 6 | waypoint_room_id | null | "barracks" |
 | day_16 | 1 | spawn_interval | 1.4 | 1.68 |
 | day_16 | 2 | objective_priority | 1 | 0.25 |
 | day_16 | 2 | spawn_interval | 3.36 | 4.032 |
+| day_16 | 2 | waypoint_room_id | null | "barracks" |
 | day_16 | 3 | objective_priority | 1 | 0.25 |
 | day_16 | 3 | spawn_interval | 0.8 | 0.96 |
 | day_16 | 4 | objective_priority | 1 | 0.25 |
@@ -106,6 +107,7 @@
 | day_18 | 1 | spawn_interval | 1.4 | 1.68 |
 | day_18 | 2 | objective_priority | 1 | 0.25 |
 | day_18 | 2 | spawn_interval | 4.0 | 4.8 |
+| day_18 | 2 | waypoint_room_id | null | "barracks" |
 | day_18 | 3 | objective_priority | 1 | 0.25 |
 | day_18 | 3 | spawn_interval | 20.8 | 24.96 |
 | day_18 | 4 | objective_priority | 1 | 0.25 |
@@ -124,6 +126,7 @@
 | day_19 | 5 | spawn_interval | 0.8 | 0.96 |
 | day_19 | 6 | objective_priority | 1 | 0.25 |
 | day_19 | 6 | spawn_interval | 0.8 | 0.96 |
+| day_19 | 6 | waypoint_room_id | null | "barracks" |
 | day_20 | 2 | objective_priority | 1 | 0.4 |
 | day_20 | 3 | objective_priority | 1 | 0.4 |
 | day_20 | 4 | objective_priority | 1 | 0.4 |
@@ -165,12 +168,12 @@
 | day_26 | 6 | objective_priority | 1 | 0.4 |
 | day_26 | 7 | objective_priority | 1 | 0.4 |
 | day_27 | 2 | grade_routes.C.waypoint_room_id | null | "watchtower_2" |
-| day_27 | 2 | objective_priority | 1 | 0.5 |
-| day_27 | 3 | objective_priority | 1 | 0.5 |
-| day_27 | 4 | objective_priority | 1 | 0.5 |
-| day_27 | 5 | objective_priority | 1 | 0.5 |
-| day_27 | 6 | objective_priority | 1 | 0.5 |
-| day_27 | 7 | objective_priority | 1 | 0.5 |
+| day_27 | 2 | objective_priority | 1 | 0.2 |
+| day_27 | 3 | objective_priority | 1 | 0.2 |
+| day_27 | 4 | objective_priority | 1 | 0.2 |
+| day_27 | 5 | objective_priority | 1 | 0.2 |
+| day_27 | 6 | objective_priority | 1 | 0.2 |
+| day_27 | 7 | objective_priority | 1 | 0.2 |
 | day_28 | 2 | grade_routes.C.waypoint_room_id | null | "watchtower_2" |
 | day_28 | 2 | objective_priority | 1 | 0.5 |
 | day_28 | 3 | objective_priority | 1 | 0.5 |
@@ -231,8 +234,8 @@
 
 - `GameRoot._open_intrusion_brief`: 진행 중인 본편/합류 대사를 예약된 관리 복귀가 덮어쓰지 않도록 보호.
 - `ApprovedBattleController.spawn_enemy`: 명시적 옥좌 우선 공격·경유를 F/E에서도 지정 웨이브에 적용. 공병·도둑의 최종 목표 정책은 유지.
-- `ApprovedMonsterPlacement.auto_place`: D는 실제 가용 탱커 2명을 옥좌 호위로 우선 배치. C는 입구 슬라임을 유지하고 가용 다리 트롤·접착 달팽이 등을 양쪽 옥좌 입구에 분산. D/C의 같은 종류 건물은 배치 인원 기준으로 분산해 새 후방 감시탑에도 수비를 둔다.
-
-웨이브 SHA-256: `70bd31acd3b42cac9d08079b914309ead7063bddd311e203b43a5a1f7fa56741`.
-
+- `ApprovedMonsterPlacement.auto_place`: E/D부터 실제 가용 탱커 2명과 원거리·지원 동료로 옥좌 정원 4칸을 활용한다. C는 다리 트롤을 서쪽, 성장한 슬라임을 남쪽 옥좌 입구에 배치해 양쪽을 막는다. D/C의 같은 종류 건물은 배치 인원 기준으로 분산해 새 후방 감시탑에도 수비를 둔다.
 - `ApprovedMonsterPlacementUI.unlocked`: 실제 캠페인에서는 기존 본편의 보유·방어 자격 판정을 적용해 미보유 동료와 원정 전용 로로를 추천에서 제외한다. 명시적 전체 해금 시험 모드는 유지한다. 종족 능력치·합류 조건은 변경하지 않는다.
+- F등급 DAY5 이후 지도·쥐 조합의 옥좌 정원을 우선 활용한다. E등급 개구리·쥐 조합은 병영을 우선한다. 자동 건설·강화 점수도 같은 등급·날짜별 배치 선호를 사용한다. C등급 개구리의 후방 감시탑·결계핵 우선 후보는 개선되지 않아 채택하지 않았다.
+
+웨이브 SHA-256: `9bb25eb7d066a57338d2de7dde6d26e7d57c797ac893d6afcf881ff10d804de3`.
