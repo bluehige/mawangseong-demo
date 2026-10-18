@@ -14,8 +14,44 @@ BASE = "0a90971c970ac2a65ed6c6661b5c9d66a3e07704"
 REPRESENTATIVE_DAYS = [1, 5, 10, 15, 20, 24, 27, 30]
 WAVE_INPUTS = {'data/waves.json', 'data/v122/dual_front_day01_05_waves.json'}
 
+def combat_hp_record(row, entry, stages):
+    """Undo only a verified post-victory castle upgrade, never combat damage."""
+    result=dict(row)
+    initial=entry['payload']['game_state']
+    result['entry_hp']=initial['demon_lord_hp']
+    result['entry_max_hp']=initial['demon_lord_max_hp']
+    if row['max_hp']==result['entry_max_hp']:
+        return result
+    stage=stages[entry['payload']['world']['castle_art_stage']]
+    following=[s for s in stages.values() if s['index']==stage['index']+1]
+    assert len(following)==1, 'An HP change must have an actual next castle stage'
+    next_stage=following[0]
+    delta=row['max_hp']-result['entry_max_hp']
+    assert stage['throne_max_hp']==result['entry_max_hp'] and next_stage['throne_max_hp']==row['max_hp'], 'Unexplained maximum HP change'
+    assert row['win'] and delta>0 and row['hp']>delta, 'Only a positive victory upgrade can be removed'
+    assert row['settlement']['metrics']['demon_lord_hp']==row['hp'], 'Upgrade correction must match the recorded settlement'
+    token=f"castle_evolution_stage_{next_stage['index']:02d}"
+    assert any(token in line for line in row['settlement']['lines']), 'Castle upgrade requires the actual result event'
+    result.update(recorded_hp=row['hp'],recorded_max_hp=row['max_hp'],settlement_upgrade_delta=delta,hp=row['hp']-delta,max_hp=result['entry_max_hp'])
+    return result
+
+
 def read(label):
-    return json.loads((TMP / label / "days.json").read_text(encoding="utf-8"))
+    folder=TMP/label
+    rows=json.loads((folder/'days.json').read_text(encoding='utf-8'))
+    checks=json.loads((folder/'checks.json').read_text(encoding='utf-8'))
+    source=checks.get('source',label)
+    stages=json.loads((ROOT/'data/castle_evolution_stages.json').read_text(encoding='utf-8'))
+    normalized=[]
+    for row in rows:
+        if row.get('preparation_only') or 'error' in row:
+            normalized.append(row); continue
+        entry=json.loads((TMP/source/'checkpoints'/f"{row['seed']}_{row['day']}.json").read_text(encoding='utf-8'))
+        result=combat_hp_record(row,entry,stages)
+        if 'retry' in row:
+            result['retry']=combat_hp_record(row['retry'],entry,stages)
+        normalized.append(result)
+    return normalized
 
 def coefficient_fields(value, path=()):
     if isinstance(value,dict):
@@ -152,7 +188,7 @@ def paired_report(labels, lookup, selected_days, source):
             assert all(row['roster_before'][members[id]['species_id']].get('defense_enabled',True) for id in row['assignments']), f'Pair must exclude raid-only companions: {key}'
     text=["# 실제 캠페인 진입 상태의 배치 비교", "", "완주·난이도 곡선은 새 게임 연속 10회만 사용한다. 이 표는 각 실제 DAY 진입 사본에서 레벨·EXP·유대·특화·전직·HP·자원·건물·이전 선택을 동일하게 복원한 비교다. 인위적인 날짜별 성장/예산을 주입하지 않는다. 각 쌍은 seed+DAY×1000의 공통 실험 RNG로 첫 전투만 비교한다.", "", "집중① 병영·결계핵·옥좌, 집중② 최종선, 집중③ 1차선. 실제 합류·고유 수비 칸·건물 정원·당일 식량 한도를 검사한다. 미도달 회차는 해당 날짜 비교에 포함하지 않는다. 집중 영역의 실제 정원 때문에 배치 가능한 인원이 달라질 수 있어 평균 배치 수도 표시한다.", "", "| DAY | 등급 | 짝 표본 | 배치 | 평균배치 | 승률% | 평균HP% (패배0) | 추천≥집중 |", "|---:|---|---:|---|---:|---:|---:|---|"]
     failures,missing=[],[]
-    text[6:6] = [f'진입 원본 캠페인: `{source}`. 최종 완주 측정과 별도로, 앞서 실제 진행한 후보 캠페인의 진입 상태를 고정하고 최종 채택 웨이브로 네 배치를 비교한다. 최종 캠페인의 성장 경로와 같다고 가정하지 않는다.', '비교 날짜: '+', '.join(map(str,selected_days))+'. 사용자 지정 대표 날짜의 실제 도달 진입본만 비교한다. 미도달 상태는 가상 전투로 채우지 않는다.', '']
+    text[6:6] = [f'진입 원본 캠페인: `{source}`. 최종 완주 측정과 별도로, 앞서 실제 진행한 후보 캠페인의 진입 상태를 고정하고 최종 채택 웨이브로 네 배치를 비교한다. 최종 캠페인의 성장 경로와 같다고 가정하지 않는다.', '비교 날짜: '+', '.join(map(str,selected_days))+'. 사용자 지정 대표 날짜의 실제 도달 진입본만 비교한다. 미도달 상태는 가상 전투로 채우지 않는다.', 'HP는 전투 종료 기준이다. 일부 기록에 섞인 정산 후 성 진화 보너스만 실제 진화 이벤트·정산 HP·진입 최대HP로 검증해 분리하며 원본을 보존한다.', '']
     for day in selected_days:
         if day==29: continue
         expected={(s,day) for s in SEEDS if (s,day) in lookup}
@@ -246,14 +282,14 @@ def main():
     (OUT/'progression.json').write_text(json.dumps(progression,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     (OUT/'construction_log.json').write_bytes((TMP/args.recommended/'purchases.json').read_bytes())
     with (OUT / "campaign_10runs.csv").open("w", newline="", encoding="utf-8-sig") as f:
-        fields = ["seed", "day", "status", "win", "throne_hp_entered", "throne_hp", "throne_max_hp", "throne_hp_pct", "grade", "owned", "deployed", "level_before", "max_level", "gold", "mana", "food", "duration_s", "retry_win", "retry_hp", "retry_max_hp"]
+        fields = ["seed", "day", "status", "win", "throne_hp_entered", "throne_hp", "throne_max_hp", "throne_hp_pct", "recorded_hp", "recorded_max_hp", "settlement_upgrade_delta", "grade", "owned", "deployed", "level_before", "max_level", "gold", "mana", "food", "duration_s", "retry_win", "retry_hp", "retry_max_hp"]
         writer = csv.DictWriter(f, fieldnames=fields); writer.writeheader()
         for seed in SEEDS:
             for day in range(1, 31):
                 r = lookup.get((seed, day), {})
                 settled = r.get('retry',r)
                 status = "NOT_REACHED" if not r else "HARNESS_ERROR" if "error" in r else "PREPARATION_ONLY" if r.get("preparation_only") else "WIN" if r.get("win") else "RETRY_WIN" if r.get("retry", {}).get("win") else "LOSS"
-                writer.writerow(dict(seed=seed, day=day, status=status, win=int(r["win"]) if "win" in r else "", throne_hp_entered=r.get('hp_start',''), throne_hp=r.get("hp", ""), throne_max_hp=r.get("max_hp", ""), throne_hp_pct=round(100*r["hp"]/r["max_hp"], 3) if "hp" in r else "", grade=r.get("grade", ""), owned=len(r['roster_before']) if 'roster_before' in r else '', deployed=len(r["assignments"]) if "assignments" in r else "", level_before=max((m.get('level',1) for m in r.get('roster_before',{}).values()),default=''), max_level=max((m.get("level", 1) for m in settled.get("roster_after", {}).values()), default=""), gold=settled.get("wallet_after", {}).get("gold", ""), mana=settled.get("wallet_after", {}).get("mana", ""), food=settled.get('wallet_after',{}).get('food',''), duration_s=round(r["duration"], 3) if "duration" in r else "", retry_win=int(r["retry"]["win"]) if "win" in r.get("retry", {}) else "", retry_hp=r.get("retry", {}).get("hp", ""), retry_max_hp=r.get("retry", {}).get("max_hp", "")))
+                writer.writerow(dict(seed=seed, day=day, status=status, win=int(r["win"]) if "win" in r else "", throne_hp_entered=r.get('entry_hp',''), throne_hp=r.get("hp", ""), throne_max_hp=r.get("max_hp", ""), throne_hp_pct=round(100*r["hp"]/r["max_hp"], 3) if "hp" in r else "", recorded_hp=r.get('recorded_hp',r.get('hp','')),recorded_max_hp=r.get('recorded_max_hp',r.get('max_hp','')),settlement_upgrade_delta=r.get('settlement_upgrade_delta',0) if r else '',grade=r.get("grade", ""), owned=len(r['roster_before']) if 'roster_before' in r else '', deployed=len(r["assignments"]) if "assignments" in r else "", level_before=max((m.get('level',1) for m in r.get('roster_before',{}).values()),default=''), max_level=max((m.get("level", 1) for m in settled.get("roster_after", {}).values()), default=""), gold=settled.get("wallet_after", {}).get("gold", ""), mana=settled.get("wallet_after", {}).get("mana", ""), food=settled.get('wallet_after',{}).get('food',''), duration_s=round(r["duration"], 3) if "duration" in r else "", retry_win=int(r["retry"]["win"]) if "win" in r.get("retry", {}) else "", retry_hp=r.get("retry", {}).get("hp", ""), retry_max_hp=r.get("retry", {}).get("max_hp", "")))
     completed = sum(bool(lookup.get((seed, 30), {}).get("win") or lookup.get((seed, 30), {}).get("retry", {}).get("win")) for seed in SEEDS)
     endings=[]
     for seed in SEEDS:
@@ -278,6 +314,8 @@ def main():
         text.append(f"| {day} | {r['reached']} | {r['wins']} | {r['total_rate']:.2f}/{r['cohort_hp']:.2f} | {rate}/{hp} | {lo}~{hi}/{hlo}~{hhi} | {'PASS' if r['passed'] else 'FAIL'} |")
     text += ["", f"완주 정책: `{args.completion_policy}`. 재도전 없는 완주 {no_retry_completed}/10, 정상 재도전 포함 실제 엔딩 {completed}/10. 주 완주 목표(≥7/10): {'PASS' if completion_count>=7 else 'FAIL'}. 날짜 곡선 범위 밖: "+", ".join(str(d) for d,r in daily.items() if d!=29 and not r['passed'])+".", "", "건설 자동화 가정: 제품에 별도 건설 추천 서비스가 없어 승인 도면의 빈 부지를 결계핵·병영·회복 둥지·감시탑·미끼 금고 순으로 구매한다. 실제 추천 배치의 배치 인원 또는 선호 시설 점수가 좋아지는 강화만 낮은 레벨 순으로 구매한다. 모든 구매 뒤 마나 60을 남겨 필수 승급 비용을 보존하며, 실제 구매 API의 해금·부지·수량·가격·잔액 검사를 사용한다. 필수 특화·승급·원정은 선택 가능한 첫 정상 선택지를 사용하고, DAY29 선언은 성 수호(castle_oath)로 고정한다.", "", "저장 증빙 범위: 격리 프로필의 새 게임 런타임을 연속 진행한다. 테스트 씬의 기존 저장 비활성 규칙을 유지하므로 정식 저장/이어하기 게이트 G01 통과 근거가 아니다."]
     (OUT / "day_curve.md").write_text("\n".join(text)+"\n", encoding="utf-8")
+    with (OUT/'day_curve.md').open('a',encoding='utf-8') as f:
+        f.write('\nHP는 전투 종료 기준이다. 정산 후 성 진화가 기록 시점에 먼저 반영된 경우, 실제 진화 이벤트·정산 HP·진입 최대HP를 모두 검증해 보너스만 분리한다. 원본 HP/최대HP와 분리값은 CSV 및 원본 로그에 보존한다.\n')
     selected_days=sorted(set(map(int,args.stack_days.split(','))))
     assert set(REPRESENTATIVE_DAYS)==set(selected_days), 'Comparisons must cover the eight user-selected dates'
     paired_source=args.paired_source or args.recommended
@@ -306,6 +344,8 @@ def main():
     evidence['paired_raw_sha256']={label:{name:hashlib.sha256((TMP/label/name).read_bytes()).hexdigest() for name in ['days.json','checks.json','run.json','input_hashes.json']} for label in args.paired}
     evidence['entry_raw_sha256']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((TMP/paired_source/'checkpoints').glob('*.json'))}
     evidence['ending_raw_sha256']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((TMP/args.recommended).glob('ending_*.json'))}
+    evidence['hp_normalizations']={label:[{k:r[k] for k in ['seed','day','layout','recorded_hp','recorded_max_hp','settlement_upgrade_delta','hp','max_hp']} for r in read(label) if 'settlement_upgrade_delta' in r] for label in [args.recommended]+args.paired}
+    evidence['report_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     (OUT/'evidence_manifest.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     (OUT/'verification.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
     print(json.dumps(result))
