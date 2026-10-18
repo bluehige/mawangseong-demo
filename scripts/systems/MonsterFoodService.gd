@@ -58,15 +58,15 @@ static func settle(food: int, day: int, deployed: Array, state_value: Dictionary
 static func lines(ledger: Dictionary) -> Array[String]:
 	var result: Array[String] = []
 	if ledger.is_empty(): return result
-	result.append("식량 정산: %d + 수입 %d − 유지비 %d = %d / 창고 %d" % [ledger.before,ledger.income,ledger.paid,ledger.after,ledger.capacity])
+	result.append(LanguageSettings.text("map.food_d_income_d_upkeep_d_d_storage_d") % [ledger.before,ledger.income,ledger.paid,ledger.after,ledger.capacity])
 	var names: Array[String] = []
 	for row in ledger.rows:
 		var definition: Dictionary = DataRegistry.monster(row.species)
 		var name := str(definition.get("display_name",definition.get("name",row.species)))
 		for member in DataRegistry.monster_instances.values():
 			if member.get("species_id","")==row.species: name = str(member.get("display_name",name)); break
-		names.append("%s %d/%d%s" % [name,row.paid,row.due," 굶주림" if row.hungry else ""])
-	if not names.is_empty(): result.append("유지비 지급: "+" · ".join(names))
-	if int(ledger.shortfall)>0: result.append("미지급 %d · 굶주림: 다음 전투 공격 −20%% / 회복 둥지 회복 불가" % ledger.shortfall)
-	if int(ledger.overflow)>0: result.append("창고 초과 식량 %d 소실" % ledger.overflow)
+		names.append("%s %d/%d%s" % [LanguageSettings.ui_text(name),row.paid,row.due,LanguageSettings.text("map.hungry_suffix") if row.hungry else ""])
+	if not names.is_empty(): result.append(LanguageSettings.text("map.upkeep_paid")+" · ".join(names))
+	if int(ledger.shortfall)>0: result.append(LanguageSettings.text("map.unpaid_d_hungry_next_battle_atk_20_no_recovery_nest_healing") % ledger.shortfall)
+	if int(ledger.overflow)>0: result.append(LanguageSettings.text("map.d_food_lost_beyond_storage_capacity") % ledger.overflow)
 	return result

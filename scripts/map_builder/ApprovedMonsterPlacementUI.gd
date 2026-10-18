@@ -68,29 +68,29 @@ func build_controls(hud: Control, tab_parent: Control, bar: Control) -> void:
 	warning = view.art_at(view.chrome,view.KIT+"warning_64.png",Rect2(27,89,28,28))
 	warning.name = "FoodWarning"
 	if view.food_enabled(): food_detail = view.label_at(view.chrome,"",Vector2(200,91),16)
-	var warning_text: Label = view.label_at(warning,"굶주림 위험",Vector2(32,3),17,true)
+	var warning_text: Label = view.label_at(warning,LanguageSettings.text("map.hunger_risk"),Vector2(32,3),17,true)
 	warning_text.modulate = Color(1,.55,.4)
 	roster_panel = view.panel_image(view.chrome,Rect2(24,866,1560,204)); roster_panel.name = "MonsterRoster"
 	count_label = view.label_at(roster_panel,"",Vector2(22,12),17,true)
-	view.label_at(roster_panel,"카드 → 빛나는 수비 칸  ·  겹치면 교체  ·  밖으로 끌면 해제",Vector2(290,14),16)
+	view.label_at(roster_panel,LanguageSettings.text("map.drag_cards_to_glowing_posts_drop_to_swap_drag_out_to_remove"),Vector2(290,14),16)
 	var index := 0
 	for id in members:
 		var row: Dictionary = members[id]
 		var card: Control = view.panel_image(roster_panel,Rect2(18+(index%12)*115,44+(index/12)*73,111,69)); card.name = id
 		view.art_at(card,portrait(id),Rect2(4,4,45,59))
-		view.art_at(card,view.KIT+role_icon(row)+"_64.png",Rect2(50,3,17,17))
-		view.label_at(card,row.display_name,Vector2(68,3),14,true)
+		view.art_at(card,view.KIT+role_icon(row)+"_64.png",Rect2(50,46,17,17))
+		view.fit_label(view.label_at(card,row.display_name,Vector2(50,3),14,true),57,9)
 		view.art_at(card,view.KIT+"food_64.png",Rect2(50,25,18,18))
 		view.label_at(card,str(row.upkeep),Vector2(70,25),15)
-		view.label_at(card,"Lv"+str(row.level),Vector2(52,46),13)
+		view.label_at(card,"Lv"+str(int(row.level)),Vector2(70,46),11)
 		card.gui_input.connect(func(event):
 			if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and event.pressed:
 				begin_drag(id,event.global_position); card.accept_event())
 		cards[id] = card; index += 1
-	view.image_button(roster_panel,"place_auto",Vector2(1422,43),64,auto_place,"자동 배치 · 역할 추천 / 식량 수입 이내")
-	view.label_at(roster_panel,"자동",Vector2(1438,109),15)
-	view.image_button(roster_panel,"place_clear_all",Vector2(1490,43),56,clear_all,"전부 해제")
-	view.label_at(roster_panel,"전부 해제",Vector2(1488,109),14)
+	view.image_button(roster_panel,"place_auto",Vector2(1422,43),64,auto_place,LanguageSettings.text("map.auto_deploy_suggested_roles_within_food_income"))
+	view.label_at(roster_panel,LanguageSettings.text("map.auto"),Vector2(1438,109),15)
+	view.image_button(roster_panel,"place_clear_all",Vector2(1490,43),56,clear_all,LanguageSettings.text("map.clear_all"))
+	view.label_at(roster_panel,LanguageSettings.text("map.clear_all"),Vector2(1488,109),14)
 	detail = Control.new(); detail.name = "MonsterAdjacentInfo"; detail.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	view.chrome.add_child(detail)
 	ghost = view.art_at(view.chrome,portrait(members.keys()[0]),Rect2(0,0,80,88)); ghost.name = "MonsterDragGhost"; ghost.modulate.a = .8; ghost.hide()
@@ -115,8 +115,8 @@ func refresh_cards() -> void:
 			lock = view.art_at(card,view.KIT+"lock_64.png",Rect2(9,17,32,32)); lock.name = "RecruitLock"
 		elif not locked and lock!=null: lock.free()
 		if view.food_enabled() and GameState.is_hungry(str(members[id].species_id)): card.modulate = Color(1,.55,.35)
-		card.tooltip_text = ("미합류 · " if locked else "배치 중 · " if assignments.has(id) else "대기 · ")+members[id].stats.role
-	if is_instance_valid(count_label): count_label.text = "배치 %d / %d  ·  합류 %d" % [assignments.size(),total_slots(),active.size()]
+		card.tooltip_text = (LanguageSettings.text("map.not_recruited") if locked else LanguageSettings.text("map.deployed") if assignments.has(id) else LanguageSettings.text("map.reserve"))+LanguageSettings.ui_text(members[id].stats.role)
+	if is_instance_valid(count_label): count_label.text = LanguageSettings.text("map.deployed_d_d_recruited_d") % [assignments.size(),total_slots(),active.size()]
 	update_food()
 
 func total_slots() -> int:
@@ -127,12 +127,12 @@ func total_slots() -> int:
 func update_food() -> void:
 	if not is_instance_valid(food_label): return
 	var cost := Model.upkeep(assignments,members)
-	food_label.text = "식량 %d (−%d/일)" % [view.placement.resources.food,cost]
-	if view.food_enabled(): food_label.text = "%d/%d (−%d/일)" % [view.placement.resources.food,GameState.Food.capacity(int(view.placement.day)),cost]
+	food_label.text = LanguageSettings.text("map.food_d_d_day") % [view.placement.resources.food,cost]
+	if view.food_enabled(): food_label.text = LanguageSettings.text("map.d_d_d_day") % [view.placement.resources.food,GameState.Food.capacity(int(view.placement.day)),cost]
 	food_label.modulate = Color(1,.5,.35) if cost>food_income else Color.WHITE
-	food_label.tooltip_text = "식량 수입 %d/일 · 대기 유지비 0 · 정산: 수입 → 유지비 → 창고" % food_income
+	food_label.tooltip_text = LanguageSettings.text("map.food_income_d_day_reserves_cost_0_income_upkeep_storage") % food_income
 	warning.visible = cost>food_income
-	if is_instance_valid(food_detail): food_detail.text = "수입 +%d/일 · 대기 0 · 창고 %d" % [food_income,GameState.Food.capacity(int(view.placement.day))]
+	if is_instance_valid(food_detail): food_detail.text = LanguageSettings.text("map.income_d_day_reserves_0_storage_d") % [food_income,GameState.Food.capacity(int(view.placement.day))]
 
 func render_units() -> void:
 	assignments = Model.sanitize(view.placement,assignments,members)
@@ -252,7 +252,7 @@ func persist() -> Error:
 		preload("res://scripts/map_builder/ApprovedGradeProgression.gd").stash(view.root,view.placement,assignments)
 	var error := Model.save_copy(view.placement,assignments,view.save_path())
 	view.last_save_error = error
-	if error!=OK and is_instance_valid(count_label): count_label.text = "테스트 저장 실패 · "+str(error)
+	if error!=OK and is_instance_valid(count_label): count_label.text = LanguageSettings.text("map.test_save_failed")+str(error)
 	return error
 
 func auto_place() -> void:
@@ -280,18 +280,18 @@ func show_info(id: String) -> void:
 	panel.stretch_mode = TextureRect.STRETCH_SCALE
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	view.art_at(detail,portrait(id),Rect2(18,18,66,66))
-	view.label_at(detail,row.display_name+"  Lv"+str(view.root.monster_roster.get(row.species_id,{}).get("level",row.level)),Vector2(96,24),22,true)
+	view.label_at(detail,LanguageSettings.ui_text(row.display_name)+"  Lv"+str(int(view.root.monster_roster.get(row.species_id,{}).get("level",row.level))),Vector2(96,24),22,true)
 	var role: Label = view.label_at(detail,row.stats.role,Vector2(96,56),15)
 	role.size.x = 250; role.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	var actual: Dictionary = view.root._monster_combat_stats(row.species_id) if view.root.monster_roster.has(row.species_id) else row.stats.duplicate(true)
-	view.label_at(detail,"체력 %d   공격 %d   방어 %d" % [actual.max_hp,actual.atk,actual.def],Vector2(24,99),18,true)
+	view.label_at(detail,LanguageSettings.text("map.hp_d_atk_d_def_d") % [actual.max_hp,actual.atk,actual.def],Vector2(24,99),18,true)
 	var y := 139
 	for skill_id in row.equipped_skill_ids.slice(0,3):
 		var skill: Dictionary = skills.get(skill_id,{})
 		if skill.is_empty(): continue
 		view.art_at(detail,skill.icon,Rect2(23,y,38,38))
 		view.label_at(detail,skill.display_name,Vector2(70,y-1),17,true)
-		var description: String = skill.description.replace("현재 방","건물 영향범위").replace("방 안","건물 영향범위 안")
+		var description: String = LanguageSettings.ui_text(skill.description)
 		var text: Label = view.label_at(detail,description,Vector2(70,y+22),14)
 		text.size.x = 302; text.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		text.tooltip_text = description; text.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -300,7 +300,7 @@ func show_info(id: String) -> void:
 	var memory_button := Button.new(); detail.add_child(memory_button)
 	memory_button.name = "V130RBondMemoryButton"
 	memory_button.position = Vector2(24,footer-56); memory_button.size = Vector2(164,40)
-	memory_button.text = view.root.continuity.localized("유대 기억","Bond memories","羁绊记忆")
+	memory_button.text = LanguageSettings.text("map.bond_memories")
 	memory_button.pressed.connect(func():
 		persist(); view.root.selected_monster_id = row.species_id
 		view.root.management_scene.monster_ui.inspected_id = row.species_id
@@ -315,10 +315,10 @@ func show_info(id: String) -> void:
 		view.root.deployed_instance_ids.assign(assignments.keys())
 		view.root._set_screen(Constants.SCREEN_DUO_LINK_LOADOUT))
 	view.art_at(detail,view.KIT+"food_64.png",Rect2(24,footer,28,28))
-	view.label_at(detail,"유지비 %d/일" % row.upkeep,Vector2(57,footer+4),17)
-	view.image_button(detail,"place_clear_all",Vector2(314,footer-12),42,func(): close_info(); apply_drop(id,{}),"이 몬스터 해제")
-	view.label_at(detail,"해제",Vector2(358,footer+2),15)
-	var close: TextureButton = view.image_button(detail,"place_clear_all",Vector2(352,22),25,close_info,"닫기"); close.name = "CloseMonsterInfo"
+	view.label_at(detail,LanguageSettings.text("map.upkeep_d_day") % row.upkeep,Vector2(57,footer+4),17)
+	view.image_button(detail,"place_clear_all",Vector2(314,footer-12),42,func(): close_info(); apply_drop(id,{}),LanguageSettings.text("map.remove_this_defender"))
+	view.label_at(detail,LanguageSettings.text("map.remove"),Vector2(358,footer+2),15)
+	var close: TextureButton = view.image_button(detail,"place_clear_all",Vector2(352,22),25,close_info,LanguageSettings.text("map.close")); close.name = "CloseMonsterInfo"
 	position_info()
 
 func position_info() -> void:
@@ -337,7 +337,7 @@ func build_specialization(id: String, y: float) -> void:
 	var species: String = members[id].species_id
 	if not view.root.monster_roster.has(species): view.root.monster_roster[species] = {"level":members[id].level,"exp":0}
 	var active: Dictionary = view.root._monster_specialization(species)
-	var title: Label = view.label_at(detail,"전문화 · DAY 2 해금 · 선택 후 변경 불가",Vector2(24,y),15,true)
+	var title: Label = view.label_at(detail,LanguageSettings.text("map.specialization_unlocks_day_2_permanent_choice"),Vector2(24,y),15,true)
 	title.name = "SpecializationHeading"
 	if not active.is_empty():
 		view.art_at(detail,str(active.badge),Rect2(24,y+30,58,58))

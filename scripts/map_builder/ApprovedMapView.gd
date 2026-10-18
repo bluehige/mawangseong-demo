@@ -53,7 +53,7 @@ func build_chrome() -> void:
 	add_child(chrome)
 	var title := Label.new()
 	title.position = Vector2(24,16)
-	title.text = "성 관리  ·  E등급 32×18  ·  맵 반영 1단계"
+	title.text = LanguageSettings.text("map.castle_management_grade_e_32_18_map_preview_1")
 	title.add_theme_font_override("font", FONT)
 	title.add_theme_font_size_override("font_size", 20)
 	title.add_theme_color_override("font_shadow_color", Color.BLACK)
@@ -62,7 +62,7 @@ func build_chrome() -> void:
 	for i in range(2):
 		var button := Button.new()
 		button.name = "FullMapButton" if i==0 else "DefaultZoomButton"
-		button.text = "전체 보기" if i==0 else "기본 2배"
+		button.text = LanguageSettings.text("map.full_map") if i==0 else LanguageSettings.text("map.default_2")
 		button.position = Vector2(1520+i*152,16)
 		button.size = Vector2(140,44)
 		button.add_theme_font_override("font",FONT)
@@ -88,7 +88,7 @@ func set_camera(center: Vector2, factor: float) -> void:
 		camera_center[axis] = clampf(camera_center[axis],low,high) if low<=high else CAMERA_BOUNDS.get_center()[axis]
 	world.scale = Vector2.ONE*camera_scale
 	world.position = size/2.0-camera_center*camera_scale
-	scale_label.text = "드래그: 화면 이동   ·   휠: 확대/축소   ·   Shift+휠: 좌우 이동   ·   Ctrl+휠: 상하 이동   ·   F: 전체   ·   2: 기본   |   칸 %d×%d" % [roundi(128*camera_scale),roundi(64*camera_scale)]
+	scale_label.text = LanguageSettings.text("map.drag_pan_wheel_zoom_shift_wheel_horizontal_ctrl_wheel_vertical_f_full_") % [roundi(128*camera_scale),roundi(64*camera_scale)]
 
 func show_full() -> void:
 	set_camera(Vector2(state.full_camera.center[0],state.full_camera.center[1]),Layout.FULL_SCALE)

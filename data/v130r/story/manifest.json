@@ -17,7 +17,7 @@
     "data/story/source/V122_MAIN_SCENARIO_DIALOGUE_BOOK_APPROVED_2026-07-31.md": "f6feeb62306d40d0a2ecd4aa6a4a3a98af6e513a7f0d8e5df394a2753191053d"
   },
   "protected_sha256": {
-    "data/story/v122_main/day_01.json": "7f2221c02dc9fa2bb0695c7af75a8f726a2f10536c779080a3ca6ca0e62114dc",
+    "data/story/v122_main/day_01.json": "33055334ed4b484e4deb88034b48c2fdaecaaac892e57182a071f674694bec0f",
     "data/story/v122_main/day_02.json": "c4e29f062299ad22de8b669de8f021366e00674157d1737df4513a0febd3a87e",
     "data/story/v122_main/day_03.json": "a7ee6a67d13dd3702830e1fc3a91bd2663fb4de1309d4a1f4f5f296a2f654a7a",
     "data/story/v122_main/day_04.json": "a3fa46db2c2b07233b5dd054243678cce9a922b8c409639d1ebf45a1bbd2899c",
@@ -47,7 +47,7 @@
     "data/story/v122_main/day_28.json": "98e3dc1e896b161ca9c7721751cb2246cf993c0b5b96897da77dea8303007c72",
     "data/story/v122_main/day_29.json": "5e9a681fe9089117c498c5b2b49c4c54915a0de3da1e141b7f6bfc231e094861",
     "data/story/v122_main/day_30.json": "a073472be86a1ff3c746e27f7123f91f040d05b27b84a37b9781db62732e0fad",
-    "data/waves.json": "a624938c3727c67c2ec697385054c02bbac5de22e74d654fd3a4fae90a9ae596"
+    "data/waves.json": "a90c34a4767f2002305f1261a52c5926a121cb9c814fd7ffc6ffa51b17281945"
   },
   "runtime_side_effects": [],
   "join_policy": "existing_condition_first; fallback join_day only where explicitly provided",
@@ -81,6 +81,22 @@
     "data/waves.json": {
       "staged_source": "baf3673c0e556946ea8a9950b5a0c860b76c44fb28bac5a361d6f7cc689aef4d",
       "integration_baseline": "a624938c3727c67c2ec697385054c02bbac5de22e74d654fd3a4fae90a9ae596"
+    }
+  },
+  "protection_baseline_updates_2026_10_18": {
+    "data/story/v122_main/day_01.json": {
+      "previous_sha256": "7f2221c02dc9fa2bb0695c7af75a8f726a2f10536c779080a3ca6ca0e62114dc",
+      "sha256": "33055334ed4b484e4deb88034b48c2fdaecaaac892e57182a071f674694bec0f",
+      "intent_commit": "7c77ac4cc2b1a3e1315e9fa2e917b7ff56d988cb",
+      "reason": "Step14: revise two prologue-duplicate opening cues and the existing-vault victory cue; preserve cue/scene IDs and matching English/Chinese translations.",
+      "byte_convention": "UTF-8, CRLF; same convention as existing protected files"
+    },
+    "data/waves.json": {
+      "previous_sha256": "a624938c3727c67c2ec697385054c02bbac5de22e74d654fd3a4fae90a9ae596",
+      "sha256": "a90c34a4767f2002305f1261a52c5926a121cb9c814fd7ffc6ffa51b17281945",
+      "intent_commit": "e99004132bc6753e79d9aed429d5d57d66e0e8a1",
+      "reason": "Step10B: DAY21 and DAY26 add watchtower_2 to the second advance-soldier row for Grade D only; preserve numeric stats, counts and intervals. Baseline is committed 0117, excluding the pre-existing uncommitted Step10C balance work.",
+      "byte_convention": "UTF-8, CRLF; same convention as existing protected files"
     }
   }
 }

@@ -59,6 +59,7 @@ func set_locale(value: String, persist: bool = true) -> void:
 	locale_changed.emit(locale)
 
 func ui_text(source: String) -> String:
+	if catalog.get(LOCALE_KOREAN, {}).has(source): return text(source)
 	if locale == LOCALE_ENGLISH:
 		return english_translation.translate_text(source)
 	if locale == LOCALE_CHINESE:
@@ -139,7 +140,7 @@ func display_name(value: String) -> String:
 	match normalize_locale(value):
 		LOCALE_ENGLISH: return "English"
 		LOCALE_CHINESE: return "简体中文"
-		_: return "한국어"
+		_: return {"en":"Korean","zh_CN":"韩语"}.get(locale,"한국어")
 
 func text(key: String, replacements: Dictionary = {}) -> String:
 	if catalog.is_empty():
@@ -267,6 +268,9 @@ func _load_catalog() -> void:
 		var locale_catalog = parsed_locales.get(locale_id, {})
 		if locale_catalog is Dictionary:
 			catalog[locale_id] = locale_catalog.duplicate(true)
+	var map_catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/localization/v130r_map_ui.json"))
+	for locale_id in SUPPORTED_LOCALES:
+		catalog[locale_id].merge(map_catalog.locales[locale_id],true)
 
 func _load_settings() -> void:
 	var config := ConfigFile.new()

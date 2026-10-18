@@ -448,6 +448,9 @@
     "정산 때 배치된 몬스터만 유지비. 대기 0. 부족하면 못 받은 몬스터 \"굶주림\"(다음 전투 공격 -20%, 회복 둥지 회복 불가). 사라지지 않음.": "Only deployed monsters pay upkeep at settlement. Reserves cost 0. Monsters that miss their food become Hungry (attack -20% next battle; cannot heal at recovery nests). They do not disappear.",
     "건물 비용에서 식량 제거(병영 식2 삭제).": "Remove food from building costs (remove the barracks' 2 food cost).",
     "수입 ≈ 명단 전체의 70~75% → 다 세우려면 원정·칙령 식량이 필요.": "Income is about 70–75% of full-roster upkeep; deploying everyone requires food from expeditions or decrees.",
-    "40 (+전선 3마리 48)": "40 (48 with the 3 front recruits)"
+    "40 (+전선 3마리 48)": "40 (48 with the 3 front recruits)",
+    "집중 목표 또는 왕명 표적과 인접 보조 적을 기본 간격으로 한 번씩 공격한 뒤 출발점으로 걸어 복귀합니다. 첫 명중 때 사용1회, 종료 후4초 방어15% 감소. 매복 계승은 표적 함정1회 강화, 금고 계승은 미완료 실제 약탈 진행을 중단합니다.": "Strikes the focus target or Royal Order target and a nearby secondary foe once each at the normal attack interval, then walks back to the starting point. Consumes one use on the first hit. Defense falls by 15% for 4s after completion. Ambush inheritance empowers one trap trigger on the target; Vault inheritance interrupts an actual plunder still in progress.",
+    "단일 강화 화염구·강화 광역 화염·피해 없는 방어 약화/둔화 저주를 선택합니다. 기본 마나24/28/16에 반복20%·세종순환30% 할인·핀의 마나 효율을 적용하며 전투2회 사용합니다.": "Choose an empowered single-target fireball, empowered area flames, or a curse that weakens defense and slows without dealing damage. Base mana costs are 24/28/16, with a 20% repeat discount, a 30% three-form cycle discount, and Pynn's mana efficiency applied. Two uses per battle.",
+    "다른 위험방의 아군에게 안전한 실제 경로를 따라 0.20초 동안 긴급 이동합니다. 도착 후 아군 한 명에게6초 이동+20%·공격간격-15%·적대상태시간-20%를 지원합니다. 전투2회.": "Dashes for 0.20s along a safe, traversable route to an ally in another threatened room. On arrival, grants one ally +20% movement speed, −15% attack interval, and −20% harmful status duration for 6s. Two uses per battle."
   }
 }

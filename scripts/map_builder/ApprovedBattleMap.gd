@@ -50,12 +50,12 @@ func setup(source: Dictionary) -> void:
 			"trap":trap_cells.get(c,""),"defense_line":line_for(c),"aura":auras}
 	for b in layout.buildings:
 		var p := center(b.id)
-		rooms[b.id] = {"id":b.id,"display_name":Buildings.NAMES.get(b.kind,b.id),"center":[p.x,p.y],
+		rooms[b.id] = {"id":b.id,"display_name":LanguageSettings.text(Buildings.NAMES.get(b.kind,b.id)),"center":[p.x,p.y],
 			"facility_role":Buildings.ROLES.get(b.kind,b.kind),"type":"core" if b.kind=="throne" else "facility",
 			"level":b.level,"facility_level":b.level,"hp":500,"max_hp":500,"floor":1,"exits":[]}
 	for line in ["1","2","final"]:
 		var key: String = "line_"+line
-		rooms[key] = {"id":key,"display_name":line+" 방어선","facility_role":"","floor":1,"type":"corridor","exits":[]}
+		rooms[key] = {"id":key,"display_name":line+LanguageSettings.text("map.defense_line"),"facility_role":"","floor":1,"type":"corridor","exits":[]}
 	# Legacy skills use neighbouring room IDs. Adjacency means overlapping building
 	# influence or the defense line containing its door, never the whole map.
 	for id in rooms:

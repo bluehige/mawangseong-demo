@@ -127,7 +127,7 @@ func spawn_monsters() -> void:
 		unit.set_meta("food_hungry",GameState.is_hungry(species))
 		if root._growth_preparation_active(species):
 			unit.activate_growth_preparation(root._growth_preparation_combat_name(species),root._result_growth_preparation_preview(species))
-		unit.display_name = row.display_name; unit.name_label.text = row.display_name+(" · 굶주림" if GameState.is_hungry(species) else "")
+		unit.display_name = row.display_name; unit.name_label.text = LanguageSettings.ui_text(row.display_name)+(LanguageSettings.text("map.hungry") if GameState.is_hungry(species) else "")
 		unit.set_meta("instance_id",id); unit.set_meta("base_attack_range",unit.attack_range)
 		unit.position = defense_home(assignments[id])
 		homes[unit.get_instance_id()] = unit.position
@@ -278,7 +278,7 @@ func update_monster_path(unit: Node) -> void:
 func return_home(unit: Node) -> void:
 	if unit.position.distance_to(home(unit))>2:
 		move_unit_to_point(unit,home(unit),true)
-		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM,"수비 칸 복귀")
+		unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_ROOM,LanguageSettings.text("map.return_to_defense_post"))
 	else:
 		unit.stop_navigation()
 		unit.face_direction(map.center("entrance")-unit.position)
@@ -325,11 +325,11 @@ func move_unit_to_point(unit: Node, point: Vector2, _preserve_goal: bool = false
 func _move_to_attack_target(unit: Node, target: Node, _preserve_goal: bool = false) -> void:
 	if unit.faction==Constants.FACTION_MONSTER and command=="focus_attack" and is_instance_valid(command_target) and command_target.is_alive() and command_target.position.distance_to(home(unit))<=leash_radius(unit): target = command_target
 	move_unit_to_point(unit,target.position,true)
-	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET,"교전",target.display_name)
+	unit.set_tactical_state(Constants.UNIT_STATE_MOVE_TO_TARGET,LanguageSettings.text("map.engaging"),target.display_name)
 
 func _hold_attack_position(unit: Node, target: Node) -> bool:
 	if not is_instance_valid(target) or not target.is_alive() or unit.position.distance_to(target.position)>unit.attack_range*.96: return false
-	unit.stop_navigation(); unit.set_tactical_state(Constants.UNIT_STATE_ATTACK,"교전",target.display_name)
+	unit.stop_navigation(); unit.set_tactical_state(Constants.UNIT_STATE_ATTACK,LanguageSettings.text("map.engaging"),target.display_name)
 	if contacts.size()<60: contacts.append({"time":root.combat_time,"line":map.tags_for(unit).defense_line,"unit":unit.unit_id})
 	return true
 

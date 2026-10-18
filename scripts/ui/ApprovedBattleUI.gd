@@ -3,7 +3,7 @@ extends Node
 const ART := "res://assets/maps/v130r_step4/"
 const Presentation = preload("res://scripts/map_builder/ApprovedActorPresentation.gd")
 const TACTICS := ["rally","focus_attack","emergency_retreat","hold_ground","lure_retreat"]
-const TITLES := ["집결 · 길 칸 선택","집중 공격 · 적 선택","비상 후퇴 · 회복 둥지","사수 · 수비 칸 복귀","후퇴 유도 · 길 칸 선택"]
+const TITLES := ["map.rally_choose_a_road_tile","map.focus_fire_choose_an_enemy","map.emergency_retreat_recovery_nest","map.hold_ground_return_to_post","map.lure_retreat_choose_a_road_tile"]
 var view: Control
 var battle
 var bar: Control
@@ -23,10 +23,10 @@ func setup(owner_view: Control, controller) -> void:
 	bar = view.panel_image(view.chrome,Rect2(590,956,740,100)); bar.name = "BattleCommandBar"
 	for i in range(TACTICS.size()):
 		var id: String = TACTICS[i]
-		command_buttons[id] = button(bar,ART+"tactic_"+id+".png",Vector2(18+i*84,10),76,func(): choose_command(id),TITLES[i])
+		command_buttons[id] = button(bar,ART+"tactic_"+id+".png",Vector2(18+i*84,10),76,func(): choose_command(id),LanguageSettings.text(TITLES[i]))
 	for i in range(4):
 		var id: String = ["pause","1","2","3"][i]
-		speed_buttons[id] = button(bar,ART+"speed_"+id+".png",Vector2(460+i*66,19),58,func(): choose_speed(id),"일시정지" if i==0 else "속도 ×"+id)
+		speed_buttons[id] = button(bar,ART+"speed_"+id+".png",Vector2(460+i*66,19),58,func(): choose_speed(id),LanguageSettings.text("map.paused") if i==0 else LanguageSettings.text("map.speed")+id)
 	battle_status = view.label_at(view.chrome,"",Vector2(24,130 if view.food_enabled() else 105),20,true)
 	health_status = view.label_at(view.chrome,"",Vector2(24,165 if view.food_enabled() else 140),18)
 	skills = Control.new(); skills.name = "SelectedMonsterSkills"; skills.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -40,7 +40,7 @@ func setup(owner_view: Control, controller) -> void:
 func button(parent: Control, path: String, point: Vector2, width: float, action: Callable, hint: String) -> TextureButton:
 	var control := TextureButton.new(); control.texture_normal = view.texture(path)
 	control.ignore_texture_size = true; control.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
-	control.position = point; control.size = Vector2.ONE*width; control.tooltip_text = hint
+	control.position = point; control.size = Vector2.ONE*width; control.tooltip_text = LanguageSettings.ui_text(hint)
 	control.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	control.pressed.connect(action); parent.add_child(control); return control
 
@@ -64,9 +64,9 @@ func select_unit(unit: Node) -> void:
 	unit.set_selected(true); skills.show()
 	var slots: Array = battle.skill_slots_for(unit)
 	var panel: Control = view.panel_image(skills,Rect2(0,0,252,148 if bool(unit.get_meta("food_hungry",false)) else 98)); panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	view.label_at(panel,unit.display_name+" · HP %d/%d" % [unit.hp,unit.max_hp],Vector2(12,5),15,true).name = "SelectedVitals"
+	view.label_at(panel,LanguageSettings.ui_text(unit.display_name)+" · HP %d/%d" % [unit.hp,unit.max_hp],Vector2(12,5),15,true).name = "SelectedVitals"
 	if bool(unit.get_meta("food_hungry",false)):
-		var hungry_text: Label = view.label_at(panel,"굶주림 · 공격 −20%\n회복 둥지 회복 불가",Vector2(12,99),16)
+		var hungry_text: Label = view.label_at(panel,LanguageSettings.text("map.hungry_atk_20_ncannot_heal_at_recovery_nests"),Vector2(12,99),16)
 		hungry_text.name = "HungryStatus"; hungry_text.modulate = Color(1,.65,.4)
 	var count := 0
 	for slot in range(slots.size()):
@@ -79,7 +79,7 @@ func select_unit(unit: Node) -> void:
 	direct_button = button(panel,ART+"skill_direct_control_v2.png",Vector2(10+count*60,30),56,func():
 		battle.direct_unit = null if battle.direct_unit==unit else unit
 		unit.stop_navigation(),
-		"직접 조종 · 우클릭으로 길 이동, 다시 누르면 자동 수비")
+		LanguageSettings.text("map.direct_control_right_click_a_road_to_move_click_again_for_auto_defense"))
 	position_skills()
 
 func position_skills() -> void:
@@ -94,7 +94,7 @@ func position_skills() -> void:
 	var y: float = clampf(point.y-116*factor,190,maxf(190,screen.y-220-148*factor))
 	skills.position = Vector2(x,y)
 	var label: Label = skills.find_child("SelectedVitals",true,false)
-	if label!=null: label.text = selected.display_name+" · HP %d/%d" % [selected.hp,selected.max_hp]
+	if label!=null: label.text = LanguageSettings.ui_text(selected.display_name)+" · HP %d/%d" % [selected.hp,selected.max_hp]
 	for b in skill_buttons:
 		var available: bool = selected.skill_ready(b.get_meta("skill_id")) and not battle.root.combat_paused
 		b.modulate = Color.WHITE if available else Color(.4,.4,.5)
@@ -128,10 +128,10 @@ func refresh() -> void:
 	var alive := 0
 	for enemy in battle.root.enemy_units:
 		if enemy.is_alive(): alive += 1
-	battle_status.text = "DAY %d · 웨이브 %d/%d · 남은 적 %d" % [GameState.day,battle.root.spawned_count,battle.root.wave_manager.total_to_spawn,alive]
-	health_status.text = "옥좌 %d/%d  ·  금고 손실 %d  ·  %s" % [GameState.demon_lord_hp,GameState.demon_lord_max_hp,battle.root.treasure_gold_stolen_this_battle,
-		"일시정지" if battle.root.combat_paused else "×%d  %.1f초" % [battle.root.combat_speed,battle.root.combat_time]]
-	if pending_command!="": battle_status.text += " · "+TITLES[TACTICS.find(pending_command)]
+	battle_status.text = LanguageSettings.text("map.day_d_wave_d_d_enemies_d") % [GameState.day,battle.root.spawned_count,battle.root.wave_manager.total_to_spawn,alive]
+	health_status.text = LanguageSettings.text("map.throne_d_d_gold_stolen_d_s") % [GameState.demon_lord_hp,GameState.demon_lord_max_hp,battle.root.treasure_gold_stolen_this_battle,
+		LanguageSettings.text("map.paused") if battle.root.combat_paused else LanguageSettings.text("map.d_1fs") % [battle.root.combat_speed,battle.root.combat_time]]
+	if pending_command!="": battle_status.text += " · "+LanguageSettings.text(TITLES[TACTICS.find(pending_command)])
 	for id in command_buttons: command_buttons[id].modulate = Color(1.25,1.15,.7) if id==battle.command or id==pending_command else Color.WHITE
 	for id in speed_buttons:
 		var active: bool = battle.root.combat_paused if id=="pause" else not battle.root.combat_paused and int(id)==int(battle.root.combat_speed)
@@ -201,8 +201,8 @@ static func prepare_result_controls(node: Node) -> void:
 		if "selected_marker" in node: node.selected_marker = false
 		if "jewel" in node: node.jewel = false
 		if node.icon==null: node.icon = preload("res://assets/maps/v130r_step2/ui/menu_info.png")
-		if "다음" in node.tooltip_text or "계속" in node.tooltip_text or node.name=="LegacyNextButton": node.icon = preload("res://assets/maps/v130r_step4/speed_1.png")
-		elif "타이틀" in node.tooltip_text: node.icon = preload("res://assets/ui/kit/icons/icon_close_128.png")
+		if LanguageSettings.text("map.next") in node.tooltip_text or LanguageSettings.text("map.continue") in node.tooltip_text or node.name=="LegacyNextButton": node.icon = preload("res://assets/maps/v130r_step4/speed_1.png")
+		elif LanguageSettings.text("map.title") in node.tooltip_text: node.icon = preload("res://assets/ui/kit/icons/icon_close_128.png")
 		node.expand_icon = true
 	for child in node.get_children(): prepare_result_controls(child)
 
@@ -214,7 +214,7 @@ static func food_result_panel(root: Node) -> void:
 	panel.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	panel.position = Vector2(1120,190); panel.size = Vector2(730,340)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP; root.ui_layer.add_child(panel)
-	var title := Label.new(); title.text = "식량 · 하루 정산"; title.position = Vector2(28,22)
+	var title := Label.new(); title.text = LanguageSettings.text("map.food_daily_settlement"); title.position = Vector2(28,22)
 	title.add_theme_font_override("font",preload("res://assets/fonts/NEXON_Maplestory_Bold.otf")); title.add_theme_font_size_override("font_size",28); panel.add_child(title)
 	var body := RichTextLabel.new(); body.name = "FoodSettlementDetails"
 	body.position = Vector2(28,72); body.size = Vector2(670,245); body.bbcode_enabled = false

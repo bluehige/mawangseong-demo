@@ -4,12 +4,12 @@ const Grade = preload("res://scripts/map_builder/ApprovedGradeProgression.gd")
 const Members = preload("res://scripts/map_builder/ApprovedMonsterPlacement.gd")
 const FALLBACK := {"spore_healer":7,"stone_sentinel":9,"war_drummer":12,"moon_tracker":16,"mimic_porter":17}
 const CORE := ["slime","goblin","imp","kobold_scout"]
-const LINES := {"spore_healer":"다친 동료가 있나요? 밥 한 그릇이면 포자도 힘을 낼 수 있어요.","stone_sentinel":"입구를 맡겨 줘. 식사 시간에도 자리는 지킬게.","war_drummer":"밥 먹고 북 치자! 빈속엔 박자도 자꾸 늦어진다구.","moon_tracker":"달빛이 닿는 곳에서 지켜볼게. 식량 장부에도 내 이름을 적어 줘.","mimic_porter":"진짜 밥은 내 안에 넣지 마! 가짜 보물만 맡겨 줘."}
+const LINES := {"spore_healer":"map.anyone_hurt_a_bowl_of_food_will_put_some_spring_in_these_spores","stone_sentinel":"map.leave_the_entrance_to_me_i_ll_hold_my_post_even_at_mealtime","war_drummer":"map.food_first_drums_second_an_empty_stomach_throws_off_my_beat","moon_tracker":"map.i_ll_watch_where_the_moonlight_falls_put_my_name_in_the_food_ledger_to","mimic_porter":"map.don_t_put_real_food_inside_me_just_leave_the_fake_treasure_to_me"}
 
 static func condition(species: String) -> String:
-	if DataRegistry.update2_contracts.has(species): return "회차 계약에서 2명 선택"
-	if DataRegistry.update3_monster_extensions.has(species): return "기존 전선 클리어 또는 해당 엔딩/보상"
-	if species in ["spider_tailor","bat_courier"]: return "마왕 의회 회차"
+	if DataRegistry.update2_contracts.has(species): return LanguageSettings.text("map.choose_two_companions_through_cycle_contracts")
+	if DataRegistry.update3_monster_extensions.has(species): return LanguageSettings.text("map.clear_the_required_front_or_earn_its_ending_reward")
+	if species in ["spider_tailor","bat_courier"]: return LanguageSettings.text("map.demon_council_cycle")
 	return "DAY %d" % int(FALLBACK.get(species,1))
 
 static func eligible(game: Node, members: Dictionary, day: int) -> Array:
@@ -57,9 +57,9 @@ static func begin(game: Node, ids: Array) -> void:
 				var close := text.find("]:")
 				var heading := text.substr(1,close-1).split("|")
 				var emotion: String = {"기쁨":"happy","단호":"determined","결의":"determined"}.get(heading[1],"base")
-				entries.append({"speaker":scene.speaker_character_ids[index],"speaker_name":heading[0],"emotion":emotion,"text":text.substr(close+2).strip_edges(),"dialogue_header":"동료 합류 · "+row.display_name})
+				entries.append({"speaker":scene.speaker_character_ids[index],"speaker_name":heading[0],"emotion":emotion,"text":text.substr(close+2).strip_edges(),"dialogue_header":LanguageSettings.text("map.companion_joins")+row.display_name})
 		else:
-			entries.append({"speaker":row.character_id,"speaker_name":row.display_name,"emotion":"base","text":LINES.get(row.species_id,"보급과 수비, 함께 맡을게요. 오늘부터 잘 부탁해요!"),"dialogue_header":"동료 합류 · "+row.display_name})
+			entries.append({"speaker":row.character_id,"speaker_name":row.display_name,"emotion":"base","text":LanguageSettings.text(LINES.get(row.species_id,"map.supplies_and_defense_i_ll_help_with_both_glad_to_be_here")),"dialogue_header":LanguageSettings.text("map.companion_joins")+row.display_name})
 	if pending.is_empty(): game._set_screen(Constants.SCREEN_MANAGEMENT); return
 	game.set_meta("approved_join_pending",pending)
 	game._onboarding_begin_dialogue(entries,Constants.SCREEN_MANAGEMENT,"v130r_join")

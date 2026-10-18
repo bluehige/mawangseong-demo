@@ -27,7 +27,7 @@ static func grade_for_stage(stage: int, rules: Dictionary) -> String:
 	return "F"
 
 static func advance(game: Node, source: Dictionary, defenders: Dictionary, day: int) -> Dictionary:
-	if day<int(source.day): return {"ok":false,"errors":["날짜 역행 금지"]}
+	if day<int(source.day): return {"ok":false,"errors":[LanguageSettings.text("map.cannot_move_to_an_earlier_day")]}
 	var stage := stage_for_day(day,source.stage_rules)
 	var grade := grade_for_stage(stage,source.stage_rules)
 	var next := source.duplicate(true)
@@ -39,7 +39,7 @@ static func advance(game: Node, source: Dictionary, defenders: Dictionary, day: 
 		# Preserve fixed facility identity, upgrades and capacity at the new sockets.
 		for b in next.buildings.filter(func(row): return row.fixed):
 			var old := Buildings.building(source,b.id)
-			if old.is_empty(): return {"ok":false,"errors":["등급 이전 고정 시설 누락"]}
+			if old.is_empty(): return {"ok":false,"errors":[LanguageSettings.text("map.required_fixed_facility_missing_during_expansion")]}
 			for key in old:
 				if key not in ["rect","socket_front","preferred"]: b[key] = old[key]
 			changes.append({"id":b.id,"rule":"fixed_plan_socket","from":str(old.rect),"to":str(b.rect)})
@@ -83,7 +83,7 @@ static func advance(game: Node, source: Dictionary, defenders: Dictionary, day: 
 				next = candidate; placed = true
 				changes.append({"id":old.id,"rule":"same_kind_default" if i==0 else "vacant_y_then_x","from":str(old.rect),"to":str(row.rect)})
 				break
-			if not placed: return {"ok":false,"errors":["등급 이전 공간 부족: "+old.id]}
+			if not placed: return {"ok":false,"errors":[LanguageSettings.text("map.not_enough_room_after_expansion")+old.id]}
 		next = Buildings.rebuild(next)
 		if not next.ok: return next
 		# Traps follow the nearest dry road, preserving each original kind/count.
@@ -118,7 +118,7 @@ static func advance(game: Node, source: Dictionary, defenders: Dictionary, day: 
 				used[c] = true
 				var moved: Dictionary = trap.duplicate(true); moved.cell = [c.x,c.y]
 				next.traps.append(moved); placed = true; break
-			if not placed: return {"ok":false,"errors":["등급 이전 함정 공간 부족"]}
+			if not placed: return {"ok":false,"errors":[LanguageSettings.text("map.not_enough_room_for_traps_after_expansion")]}
 	if source.has("food_state"): next.food_state = source.food_state.duplicate(true)
 	next.stage = stage; next.day = day
 	next = Buildings.rebuild(next)

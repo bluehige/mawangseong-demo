@@ -149,7 +149,7 @@ func cell_highlight(parent: Node, cell: Vector2i, tint: Color) -> Sprite2D:
 	return sprite
 
 func label_at(parent: Node, text: String, point: Vector2, font_size: int = 18, heading: bool = false) -> Label:
-	var label := Label.new(); label.text = text; label.position = point
+	var label := Label.new(); label.text = LanguageSettings.ui_text(text); label.position = point
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.add_theme_font_override("font",TITLE_FONT if heading else BODY_FONT); label.add_theme_font_size_override("font_size",font_size)
 	label.add_theme_color_override("font_color",Color("eee9d9"))
@@ -157,11 +157,22 @@ func label_at(parent: Node, text: String, point: Vector2, font_size: int = 18, h
 	label.add_theme_constant_override("shadow_offset_x",1); label.add_theme_constant_override("shadow_offset_y",2)
 	parent.add_child(label); return label
 
+func fit_label(label: Label, width: float, minimum_px: int = 10) -> void:
+	# Fit the complete localized name to its slot, retaining text for tooltips.
+	label.set_meta("localized_slot_width",width)
+	label.set_meta("hud_text_fit",true)
+	var font: Font=label.get_theme_font("font")
+	var px: int=label.get_theme_font_size("font_size")
+	while font.get_string_size(label.text,HORIZONTAL_ALIGNMENT_LEFT,-1,px).x>width and px>minimum_px:
+		px-=1
+	label.add_theme_font_size_override("font_size",px)
+	label.size.x=width
+
 func image_button(parent: Node, icon: String, point: Vector2, width: float, callback: Callable, tooltip: String) -> TextureButton:
 	var button := TextureButton.new(); button.name = icon
 	button.texture_normal = texture(UI_ART+icon+".png")
 	button.ignore_texture_size = true; button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
-	button.position = point; button.size = Vector2.ONE*width; button.tooltip_text = tooltip
+	button.position = point; button.size = Vector2.ONE*width; button.tooltip_text = LanguageSettings.ui_text(tooltip)
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.pressed.connect(func(): callback.call_deferred())
 	button.mouse_entered.connect(func():
@@ -223,7 +234,7 @@ func build_chrome() -> void:
 	tooltip_theme.set_font("font","TooltipLabel",BODY_FONT); tooltip_theme.set_font_size("font_size","TooltipLabel",16)
 	chrome.theme = tooltip_theme
 	var hud := panel_image(chrome,local_ui("hud"))
-	var day_label := label_at(hud,"DAY %d  ·  %s등급" % [placement.day,placement.get("grade","E")],Vector2(18,21),18)
+	var day_label := label_at(hud,LanguageSettings.text("map.day_d_grade_s") % [placement.day,placement.get("grade","E")],Vector2(18,21),18)
 	day_label.name = "GradeDayLabel"
 	wallet = resource_line(hud,placement.resources,Vector2(175,21),98,false)
 	var tabs := Control.new(); tabs.position = local_ui("tabs").position; chrome.add_child(tabs)
@@ -235,12 +246,12 @@ func build_chrome() -> void:
 		var preparation := preparation_only()
 		var icon: String = ["build","monster","check" if preparation else "battle_start"][i]
 		var tab_icon := art_at(tabs,KIT+icon+"_64.png",Rect2(i*190+17,17,36,36))
-		var title := label_at(tabs,["건설","몬스터 배치","준비 확정" if preparation else "전투"][i],Vector2(i*190+57,24),18,true)
+		var title := label_at(tabs,[LanguageSettings.text("map.build"),LanguageSettings.text("map.deploy"),LanguageSettings.text("map.ready") if preparation else LanguageSettings.text("map.battle")][i],Vector2(i*190+57,24),18,true)
 		if i==2:
 			tab.name = "ApprovedDayAction"
 			tab_icon.modulate = Color(.45,.45,.5); title.modulate = Color(.5,.5,.56)
 			tab_icon.modulate = Color.WHITE; title.modulate = Color.WHITE
-			tab.tooltip_text = "전투 없이 다음 날로 넘어갑니다" if preparation else "현재 배치로 DAY %d 전투 시작" % int(placement.day)
+			tab.tooltip_text = LanguageSettings.text("map.advance_to_the_next_day_without_a_battle") if preparation else LanguageSettings.text("map.start_day_d_with_the_current_deployment") % int(placement.day)
 			tab.mouse_filter = Control.MOUSE_FILTER_STOP
 			tab.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 			tab.gui_input.connect(func(event):
@@ -257,12 +268,12 @@ func build_chrome() -> void:
 						if battle==null: monster_ui.set_mode(mode)
 						tab.accept_event())
 	var tools := panel_image(chrome,local_ui("tools"))
-	image_button(tools,"place_auto",Vector2(8,5),56,show_full,"전체 보기 · F")
-	image_button(tools,"frame_selected",Vector2(72,5),56,show_default,"시작 화면 · 2")
+	image_button(tools,"place_auto",Vector2(8,5),56,show_full,LanguageSettings.text("map.full_map_f"))
+	image_button(tools,"frame_selected",Vector2(72,5),56,show_default,LanguageSettings.text("map.starting_view_2"))
 	if bool(ProjectSettings.get_setting("debug/start_flow14",false)):
-		var menu_button := image_button(tools,"place_clear_all",Vector2(140,11),44,Callable(root,"_open_pause_menu"),root.continuity.localized("게임 메뉴","Game menu","游戏菜单"))
+		var menu_button := image_button(tools,"place_clear_all",Vector2(140,11),44,Callable(root,"_open_pause_menu"),LanguageSettings.text("map.game_menu"))
 		menu_button.texture_normal = preload("res://scripts/ui/kit/UIKitIcons.gd").get_icon("menu",64)
-	else: image_button(tools,"place_clear_all",Vector2(140,11),44,func(): get_tree().quit(),"테스트 창 닫기")
+	else: image_button(tools,"place_clear_all",Vector2(140,11),44,func(): get_tree().quit(),LanguageSettings.text("map.close_test_window"))
 	if bool(ProjectSettings.get_setting("debug/start_flow14",false)):
 		var actions := [["records",root.continuity.localized("기록실","Records","记录室")]]
 		if root._raid_unlocked(): actions.append(["raid",root.continuity.localized("원정","Expedition","远征")])
@@ -278,14 +289,15 @@ func build_chrome() -> void:
 	var index := 0
 	for kind in ICONS:
 		var x: float = 20+index*120
-		var button := image_button(bar,ICONS[kind],Vector2(x+11,60),82,func(): pass,Placement.NAMES[kind])
+		var button := image_button(bar,ICONS[kind],Vector2(x+11,60),82,func(): pass,LanguageSettings.text(Placement.NAMES[kind]))
 		button.gui_input.connect(func(event):
 			if event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and event.pressed:
 				begin_build(kind)
 				pointer_down = true; press_position = button.get_global_rect().get_center(); click_armed = false
 				button.accept_event())
 		palette_buttons[kind] = button
-		var title := label_at(bar,Placement.NAMES[kind],Vector2(x-2,139),15,true)
+		var title := label_at(bar,LanguageSettings.text(Placement.NAMES[kind]),Vector2(x-2,139),15,true)
+		fit_label(title,112)
 		title.size.x = 112; title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		var price: Dictionary = placement.catalog[kind].cost
 		costs[kind] = resource_line(bar,price,Vector2(x+(110-price.size()*56)/2,37),56)
@@ -324,12 +336,12 @@ func update_wallet() -> void:
 func cost_text(cost: Dictionary) -> String:
 	var parts: PackedStringArray = []
 	for key in cost:
-		parts.append(str({"gold":"금","mana":"마","food":"식"}.get(key,key))+str(cost[key]))
+		parts.append(str({"gold":LanguageSettings.text("map.g"),"mana":LanguageSettings.text("map.m"),"food":LanguageSettings.text("map.f")}.get(key,key))+str(cost[key]))
 	return " · ".join(parts) if not parts.is_empty() else "0"
 
 func build_minimap() -> void:
 	var panel := panel_image(chrome,local_ui("minimap")); panel.name = "Minimap"
-	label_at(panel,"미니맵",Vector2(18,10),16,true)
+	label_at(panel,LanguageSettings.text("map.minimap"),Vector2(18,10),16,true)
 	mini_clip = Control.new(); mini_clip.position = Vector2(16,40); mini_clip.size = Vector2(248,164)
 	mini_clip.clip_contents = true; panel.add_child(mini_clip)
 	mini_viewport = SubViewport.new(); mini_viewport.name = "AssembledMapOverview"
@@ -425,7 +437,7 @@ func set_camera(center: Vector2, factor: float) -> void:
 		for axis in range(2):
 			bg_center[axis] = clampf(bg_center[axis],camera_center[axis]+half[axis]-extent[axis]/2,camera_center[axis]-half[axis]+extent[axis]/2)
 		cave.position = bg_center-extent/2
-	if scale_label!=null: scale_label.text = "휠 확대 · 드래그 이동 · F 전체 · 2 시작 · Esc 취소"
+	if scale_label!=null: scale_label.text = LanguageSettings.text("map.wheel_zoom_drag_pan_f_full_2_start_esc_cancel")
 	if is_instance_valid(radial): update_context_position()
 	update_minimap_outline()
 
@@ -445,7 +457,7 @@ func begin_build(kind: String, moving: String = "") -> void:
 	grab_offset = Vector2i.ZERO
 	sites_generation += 1
 	var generation := sites_generation
-	status_text.text = Placement.NAMES[kind]+" · 놓을 위치 선택"
+	status_text.text = LanguageSettings.text(Placement.NAMES[kind])+LanguageSettings.text("map.choose_a_location")
 	show_sites(kind,moving,generation)
 
 func show_sites(kind: String, moving: String, generation: int) -> void:
@@ -486,20 +498,20 @@ func update_preview(point: Vector2) -> void:
 				var sprite := Assembly.piece(self,r.asset,r.anchor,preview_layer); sprite.modulate.a = .48
 			for c in preview.doors[id].front: cell_highlight(preview_layer,c,Color(1,.8,.25,.9))
 	else:
-		status_text.text = Placement.NAMES[build_kind]+" · "+str(preview.get("errors",["배치 불가"])[0])
+		status_text.text = LanguageSettings.text(Placement.NAMES[build_kind])+" · "+str(preview.get("errors",[LanguageSettings.text("map.cannot_place_here")])[0])
 	# Keep the ghost visible even over an invalid surface.
 	var asset := "traps/"+build_kind+".png" if build_kind in ["spikes","sticky"] else "interiors/"+build_kind+".png"
 	if not valid or build_kind in ["spikes","sticky"]:
 		var anchor := project(Vector2(cell)+Vector2(.5,.5)) if side==Vector2i.ONE else project(Vector2(cell.x,cell.y+side.y))
 		var ghost := Assembly.piece(self,asset,anchor,preview_layer); ghost.modulate = Color(1,1,1,.42) if valid else Color(1,.5,.5,.42)
-	if valid: status_text.text = Placement.NAMES[build_kind]+" · 배치 가능"
+	if valid: status_text.text = LanguageSettings.text(Placement.NAMES[build_kind])+LanguageSettings.text("map.ready_to_place")
 
 func commit_preview() -> void:
 	if not preview.get("ok",false): return
 	preload("res://scripts/achievements/AchievementGameplay.gd").construction(placement,preview,build_kind,moving_id)
 	placement = preview; cancel_build(); render_map(); update_wallet()
 	last_save_error = monster_ui.persist()
-	status_text.text = "저장됨" if last_save_error==OK else "테스트 저장 실패: "+str(last_save_error)
+	status_text.text = LanguageSettings.text("map.saved") if last_save_error==OK else LanguageSettings.text("map.test_save_failed_90")+str(last_save_error)
 
 func cancel_build() -> void:
 	sites_generation += 1; sites_pending = false
@@ -530,8 +542,8 @@ func select_building(id: String) -> void:
 	for i in range(names.size()):
 		var icon: String = names[i]
 		var callback := context_action.bind(icon)
-		var button := image_button(radial,icon,Vector2.ZERO,64,callback,["정보","강화","이동","해체·환불","수비 지점"][i])
-		var title := label_at(button,["정보","강화","이동","해체","수비"][i],Vector2(-8,63),14,true)
+		var button := image_button(radial,icon,Vector2.ZERO,64,callback,[LanguageSettings.text("map.info"),LanguageSettings.text("map.upgrade"),LanguageSettings.text("map.move"),LanguageSettings.text("map.dismantle_refund"),LanguageSettings.text("map.defense_posts")][i])
+		var title := label_at(button,[LanguageSettings.text("map.info"),LanguageSettings.text("map.upgrade"),LanguageSettings.text("map.move"),LanguageSettings.text("map.dismantle"),LanguageSettings.text("map.defend")][i],Vector2(-8,63),14,true)
 		title.size.x = 80; title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		button.set_meta("action_index",i)
 		if b.fixed and i in [1,2,3]: button.disabled = true; button.modulate = Color(.4,.4,.4)
@@ -564,45 +576,45 @@ func show_info(mode: String) -> void:
 	var next := Placement.upgrade(placement,b.id) if mode=="menu_upgrade" else {}
 	var after := Placement.building(next,b.id) if next.get("ok",false) else {}
 	var level := "Lv%d → Lv%d" % [b.level,after.level] if not after.is_empty() else "Lv%d" % b.level
-	var title := label_at(info,Placement.NAMES[b.kind]+"  "+level,Vector2(22,18),20,true)
+	var title := label_at(info,LanguageSettings.text(Placement.NAMES[b.kind])+"  "+level,Vector2(22,18),20,true)
 	while title.get_minimum_size().x>270 and title.get_theme_font_size("font_size")>12:
 		title.add_theme_font_size_override("font_size",title.get_theme_font_size("font_size")-1)
-	var capacity := "%d → %d명" % [b.capacity,after.capacity] if not after.is_empty() and after.capacity!=b.capacity else "%d명" % b.capacity
-	label_at(info,"수비 정원  "+capacity,Vector2(22,58),18)
+	var capacity := LanguageSettings.text("map.d_d_defenders") % [b.capacity,after.capacity] if not after.is_empty() and after.capacity!=b.capacity else LanguageSettings.text("map.d_defenders") % b.capacity
+	label_at(info,LanguageSettings.text("map.defender_capacity")+capacity,Vector2(22,58),18)
 	var effect := effect_lines(b)
-	label_at(info,effect[0],Vector2(22,91),16)
-	label_at(info,effect[1],Vector2(22,119),16)
+	fit_label(label_at(info,effect[0],Vector2(22,91),16),316)
+	fit_label(label_at(info,effect[1],Vector2(22,119),16),316)
 	if mode=="menu_dismantle_refund":
-		label_at(info,"해체 환불",Vector2(22,159),16)
+		label_at(info,LanguageSettings.text("map.dismantle_refund_99"),Vector2(22,159),16)
 		resource_line(info,Placement.refund(b,placement),Vector2(22,190),88,false)
-		image_button(info,"menu_dismantle_refund",Vector2(280,183),58,confirm_dismantle,"해체 확인")
+		image_button(info,"menu_dismantle_refund",Vector2(280,183),58,confirm_dismantle,LanguageSettings.text("map.confirm_dismantle"))
 	elif mode=="menu_upgrade":
-		label_at(info,"강화 비용" if not after.is_empty() else " · ".join(next.get("errors",["강화 제한"])),Vector2(22,159),16)
+		label_at(info,LanguageSettings.text("map.upgrade_cost") if not after.is_empty() else " · ".join(next.get("errors",[LanguageSettings.text("map.upgrade_limit_reached")])),Vector2(22,159),16)
 		resource_line(info,Placement.upgrade_cost(placement,b),Vector2(22,190),88)
-		var confirm := image_button(info,"menu_upgrade",Vector2(280,183),58,confirm_upgrade,"강화 확인")
+		var confirm := image_button(info,"menu_upgrade",Vector2(280,183),58,confirm_upgrade,LanguageSettings.text("map.confirm_upgrade"))
 		confirm.disabled = after.is_empty()
 		if confirm.disabled: confirm.modulate = Color(.4,.4,.4)
 	else:
 		for c in placement.influence.get(b.id,[]): cell_highlight(preview_layer,c,Color(.6,.45,1,.12))
 	var close := image_button(info,"place_clear_all",Vector2(304,18),30,func():
 		for child in info.get_children(): child.free()
-		panel_mode = ""; fit_context(), "닫기")
+		panel_mode = ""; fit_context(), LanguageSettings.text("map.close"))
 	close.name = "CloseInfo"
-	label_at(info,"닫기",Vector2(304,51),12)
+	label_at(info,LanguageSettings.text("map.close"),Vector2(304,51),12)
 	if mode in ["menu_upgrade","menu_dismantle_refund"]:
-		label_at(info,"강화 확인" if mode=="menu_upgrade" else "해체 확인",Vector2(276,242),12)
+		label_at(info,LanguageSettings.text("map.confirm_upgrade") if mode=="menu_upgrade" else LanguageSettings.text("map.confirm_dismantle"),Vector2(276,242),12)
 	update_wallet()
 	fit_context()
 
 func effect_lines(b: Dictionary) -> Array[String]:
 	# Explain the existing facility role, while keeping visual influence distinct
 	# from the later combat connection. This preview does not apply combat buffs.
-	var scope := "영향 범위  반경 %s칸" % str(b.aura) if b.aura>0 else "영향 범위  시설 내부"
-	var effect: String = {"barracks":"주둔 아군 공격·방어 지원","recovery_nest":"주둔·인접 아군 체력 회복",
-		"ward_core":"모든 아군 받는 피해 감소","watchtower":"범위 내 적 둔화·아군 피해 증가",
-		"bait_treasure":"도둑을 유인하는 방어 거점","throne":"마왕을 지키는 최종 방어선",
-		"entrance":"침입자가 들어오는 성문","vault":"금화를 지키는 방어 거점"}.get(b.kind,"")
-	if b.kind=="ward_core": scope = "영향 범위  성 전체"
+	var scope := LanguageSettings.text("map.area_of_effect_s_tile_radius") % str(b.aura) if b.aura>0 else LanguageSettings.text("map.area_of_effect_inside_facility")
+	var effect: String = {"barracks":LanguageSettings.text("map.boosts_stationed_allies_attack_and_defense"),"recovery_nest":LanguageSettings.text("map.heals_stationed_and_nearby_allies"),
+		"ward_core":LanguageSettings.text("map.reduces_damage_taken_by_all_allies"),"watchtower":LanguageSettings.text("map.slows_enemies_and_boosts_allied_damage_in_range"),
+		"bait_treasure":LanguageSettings.text("map.a_strongpoint_that_lures_thieves"),"throne":LanguageSettings.text("map.the_last_line_of_defense_for_the_demon_lord"),
+		"entrance":LanguageSettings.text("map.the_castle_gate_where_invaders_enter"),"vault":LanguageSettings.text("map.a_strongpoint_that_protects_your_gold")}.get(b.kind,"")
+	if b.kind=="ward_core": scope = LanguageSettings.text("map.area_of_effect_entire_castle")
 	return [scope,effect]
 
 func building_screen_rect(b: Dictionary) -> Rect2:
@@ -712,7 +724,7 @@ func apply_action(next: Dictionary) -> bool:
 	preload("res://scripts/achievements/AchievementGameplay.gd").construction(placement,next,"","")
 	placement = next; clear_context(); cancel_build(); render_map(); update_wallet()
 	last_save_error = monster_ui.persist()
-	status_text.text = "저장됨" if last_save_error==OK else "테스트 저장 실패"
+	status_text.text = LanguageSettings.text("map.saved") if last_save_error==OK else LanguageSettings.text("map.test_save_failed_114")
 	return true
 
 func _input(event: InputEvent) -> void:
@@ -818,9 +830,9 @@ func start_battle() -> bool:
 	if root.campaign_postgame_active:
 		root._show_campaign_ending(); return false
 	if not root._has_defense_wave_for_day(int(placement.day)):
-		status_text.text = "오늘은 전투 없는 준비일입니다. 준비를 확정해 다음 날로 넘어가세요"; return false
+		status_text.text = LanguageSettings.text("map.a_quiet_day_confirm_your_preparations_to_advance"); return false
 	if monster_ui.assignments.is_empty():
-		status_text.text = "몬스터 배치 탭에서 수비대를 배치하세요"; return false
+		status_text.text = LanguageSettings.text("map.deploy_defenders_from_the_deployment_tab"); return false
 	sync_campaign_wallet()
 	if root._update4_outpost_battle_day():
 		root._request_combat_start(); return false
@@ -886,7 +898,7 @@ func set_preview_day(day: int) -> Dictionary:
 	GameState.day = day
 	render_map(); update_wallet(); monster_ui.update_food(); show_default()
 	var title := chrome.find_child("GradeDayLabel",true,false) as Label
-	if title!=null: title.text = "DAY %d  ·  %s등급" % [placement.day,placement.grade]
+	if title!=null: title.text = LanguageSettings.text("map.day_d_grade_s") % [placement.day,placement.grade]
 	if Grade.enabled(): Grade.stash(root,placement,monster_ui.assignments)
 	return result
 
@@ -906,7 +918,7 @@ func request_join(id: String) -> void:
 		root._set_screen(Constants.SCREEN_CONTRACT_BOARD)
 		preload("res://scripts/ui/ApprovedBattleUI.gd").prepare_result_controls(root.ui_layer)
 	else:
-		status_text.text = "기존 합류 조건: "+recruits.condition(species)
+		status_text.text = LanguageSettings.text("map.recruitment_requirement")+recruits.condition(species)
 
 func check_recruits() -> void:
 	if root.current_screen!="management" or root.story_director.is_active() or not root.onboarding_dialogue_queue.is_empty(): return
