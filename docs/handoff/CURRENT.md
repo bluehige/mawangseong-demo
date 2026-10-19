@@ -1,3 +1,11 @@
+## 2026-10-19 V130R 사용자 실플레이 UI·이미지·전체화면 / PARTIAL · 사용자 확인 대기
+
+[수정·검증·재개 인계](V130R_FIX_PLAYTEST_UI_2026-10-19.md), [배경 후보29개 CSV](V130R_PLAYTEST_ALPHA_2026-10-19.csv). 기준 `39f1da31`, 제품·표적검증 `195d12e4d417d2f7fcdafdd6a71041f9e9312038`. 24종+골딘 초상을 바티의 실제 높이/하단 기준선에 맞추고 자동 체크·켜짐/꺼짐 설명·대화 툴팁을 수정했다. 골딘2개를 GPT 네이티브 투명 출력으로 재생성·연결했고 원본/프롬프트를 보존했다. GUI·최종123검사, 0121b 335,416배치/넘침0·116,568검사, 입력41·레이아웃108검사 통과.
+
+**Computer Use가 사용자 Escape로 중단되어 실제 EXE 전체화면 재현·수정/5왕복 검증은 미완료다.** 기준 export/Vulkan 부팅만 확인했으며 실제 UI 캡처는 무효다. 전체화면 제품 코드/렌더러/창 크기/stretch는 미수정. 다른 불투명 초상21개·합본5개 미교체, 생성 후보6개는 tmp 보존/미채택이다. 개인 저장 변경0, DAY29 무전투 유지, 직접 이미지9장/960px 이하, 최종 Godot0. 로컬 영어 커밋만·push/fetch/태그/main/Steam0. 기존 혼합 변경 보존, 로컬 main 부재·원격 최신성 미확정. **다음: 사용자 확인 대기.**
+
+---
+
 ## 2026-10-19 V130R Steam 1.3.0 출시 패키지 준비 / TARGETED_PASS · 사용자 확인 대기
 
 [준비 결과·검증·사용자 작업](V130R_STEAM_READY_2026-10-19.md). `codex/v130r-defense-layout`, 시작 `73227dcb`, 구현/표적검증 `6ea21a7ad3d0e596e588574999e119031f53d697`. 출력 `C:/Users/blueh/Desktop/진행중인프로젝트/Steam-1.3.0-Ready/`. 공식 Windows Steam export, PE1.3.0.0, Content10파일·공식DLL·licenses·manifest·HTTP ZIP·업로드cmd·3언어 패치노트. 업적100/스탯20/아이콘100/추가세트7 자동대조와 ID7개 입력→CSV3종 생성/잘못된 입력 거부 PASS. 행정CSV keep 확인 및 export 제외. Steam 차단변수 없이 격리 EXE 타이틀→새 게임→DAY1→정상 종료0, 캡처3장·stderr0. 최종 패키지 SHA/해시는 외부 manifest/Evidence에 기록한다.
