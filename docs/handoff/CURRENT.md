@@ -1,3 +1,17 @@
+## 2026-10-20 V130R DAY 2 전투 버튼 긴급 수정 / TARGETED_PASS · 사용자 확인 대기
+
+[재현·구현·회귀·EXE·패키지 인계](V130R_HOTFIX_BATTLE_BUTTON_2026-10-20.md). 지정 브랜치 `codex/v130r-defense-layout`, 시작 `abea779292b0967d1702a780c89a5381ad94369e`, 제품·검증 `6d3f0a133209b8111a687266f3a7b567e64824cf`. 이후 변경은 인계/CURRENT뿐이다. DAY 2 특화0명 조건이 전투를 막으면서 몬스터 **훈련 화면**으로 조용히 이동하는 현상을 실제 EXE로 재현했다. 사용자 `Lv.1→1`, `27/50`은 훈련 미리보기와 일치한다. 특화1명 후 기존 EXE에서도 실제 전투가 시작되므로 지속 차단 루프는 재현되지 않았다.
+
+전투 차단 시 중앙 이유+특화 이동/닫기 팝업, 툴팁·상태, 3언어 안내를 구현했다. 확인 후에만 스킬·특화 탭을 열고 DAY 2~3 요구를 상단에 표시한다. 첫 승급·원정·의회 차단도 명시적 결정 방식이며 DAY 2~3 필수1명·DAY 29 무전투는 유지한다. 기존 GPT UI 자산 조립·NEXON MapleStory 유지, 새 그림/필터·밸런스·저장 형식 변경0.
+
+신규84·B01 172+48·저장1,912+42·명령236검사 PASS. 새 문구 포함0121b 335,896배치/116,760검사·넘침0. 수정판 배포 Content EXE를 새 프로필로 **새 게임→DAY 1 승리→DAY 2 팝업→특화 선택1/1→실제 DAY 2 전투 시작**까지 Computer Use로 확인하고 정상 종료0. 캡처3장, 오류0·기존 guardian 아이콘 경고1(수정 전에도 재현). 직접 이미지13/15장 중 첫 자동 전달1장이1282px인 크기 제한 이탈을 기록했고 이후12장은960px 이하 사본만 열람했다.
+
+동일 Desktop `Steam-1.3.0-Ready`의 Content·manifest·새 SHA ZIP·app_build Desc·3언어 핫픽스 패치노트·Evidence를 재생성한다. 정확한 최종 문서 HEAD/ZIP/SHA256·실제 조작한 런타임9파일 바이트 일치는 외부 `Evidence/final-head-checks.json`에 기록한다. 이전 ZIP/Evidence는 `_old`에 보존하고 업적122파일·START_HERE·기존 import1,307개를 유지한다. 사용자 세이브 원본 접근/수정0·테스트 프로필만, Godot직렬1/종료0. 영어 로컬 커밋만, push/fetch/PR/태그/main/Steam 로그인·업로드·Steamworks 조작0. 로컬 main 부재·원격 최신성 미확정. 기존 출시 게이트와 전체 검수 NOT_REQUESTED는 유지한다.
+
+**다음: 사용자 확인 대기.**
+
+---
+
 ## 2026-10-20 V130R Steam Ready 재생성 / TARGETED_PASS · 사용자 확인 대기
 
 [0125·0125b 반영 패키지 인계 11절](V130R_STEAM_READY_2026-10-19.md#11-01250125b-반영-재생성-2026-10-20). `codex/v130r-defense-layout`, 시작 `8884d973`, 패치노트 검증 `1fce849b1265168bfa47ae2ccc5debc2373f18af`. 동일 Desktop `Steam-1.3.0-Ready`에 최종 문서 HEAD의 Windows Steam Content10파일·PE1.3.0.0·새 manifest/Desc/ZIP·Evidence를 갱신한다. 정확한 최종 HEAD·ZIP/SHA256은 외부 `Evidence/final-head-checks.json`과 manifest가 기록한다. 이전 ZIP/Evidence는 `_old` 보존, 업적122파일·START_HERE 바이트 유지, 게임 API100/스탯20만 재대조한다. 3언어 패치노트에 초상/툴팁·일반 적 교전 수정을 추가했다.
