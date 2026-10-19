@@ -1384,8 +1384,8 @@
     "CHR_GOLDIN": {
       "label": "골딘",
       "portrait_slots": {
-        "base": "res://assets/sprites/portraits/onboarding/portrait_goldin.png",
-        "accounting": "res://assets/sprites/portraits/onboarding/CHR_GOLDIN_portrait_accounting.png"
+        "base": "res://assets/sprites/portraits/onboarding/portrait_goldin_alpha_v130r.png",
+        "accounting": "res://assets/sprites/portraits/onboarding/CHR_GOLDIN_portrait_accounting_alpha_v130r.png"
       },
       "emotion_map": {
         "담담": "base",
@@ -1436,8 +1436,8 @@
     "CHR_EXPLORER_MILO": {
       "label": "밀로",
       "portrait_slots": {
-        "base": "res://assets/sprites/portraits/onboarding/portrait_explorer_milo.png",
-        "panic": "res://assets/sprites/portraits/onboarding/CHR_EXPLORER_MILO_portrait_panic.png"
+        "base": "res://assets/sprites/portraits/onboarding/portrait_explorer_milo_alpha_v131.png",
+        "panic": "res://assets/sprites/portraits/onboarding/CHR_EXPLORER_MILO_portrait_panic_alpha_v131.png"
       },
       "emotion_map": {
         "담담": "base",
@@ -1488,8 +1488,8 @@
     "CHR_THIEF_NIA": {
       "label": "니아",
       "portrait_slots": {
-        "base": "res://assets/sprites/portraits/onboarding/portrait_thief_nia.png",
-        "teasing": "res://assets/sprites/portraits/onboarding/CHR_THIEF_NIA_portrait_teasing.png"
+        "base": "res://assets/sprites/portraits/onboarding/portrait_thief_nia_alpha_v131.png",
+        "teasing": "res://assets/sprites/portraits/onboarding/CHR_THIEF_NIA_portrait_teasing_alpha_v131.png"
       },
       "emotion_map": {
         "담담": "base",
@@ -1540,8 +1540,8 @@
     "CHR_SELEN": {
       "label": "셀렌",
       "portrait_slots": {
-        "base": "res://assets/sprites/portraits/onboarding/CHR_SELEN_portrait_checklist.png",
-        "checklist": "res://assets/sprites/portraits/onboarding/CHR_SELEN_portrait_checklist.png"
+        "base": "res://assets/sprites/portraits/onboarding/CHR_SELEN_portrait_checklist_alpha_v131.png",
+        "checklist": "res://assets/sprites/portraits/onboarding/CHR_SELEN_portrait_checklist_alpha_v131.png"
       },
       "emotion_map": {
         "담담": "base",

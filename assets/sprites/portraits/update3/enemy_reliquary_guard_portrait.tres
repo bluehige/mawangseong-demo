@@ -1,7 +1,7 @@
 [gd_resource type="AtlasTexture" load_steps=2 format=3]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/enemies/update3_atlas/enemy_reliquary_guard_sheet.png" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/portraits/update3/enemy_reliquary_guard_alpha_v131.png" id="1"]
 
 [resource]
 atlas = ExtResource("1")
-region = Rect2(0, 0, 313.5, 313.5)
+region = Rect2(0, 0, 1193, 1319)
