@@ -5,6 +5,8 @@
 - Added 10 companion monsters, bringing the total to 24.
 - Expanded monster specializations, individual abilities, combat dialogue, and story presentation.
 - Improved HP bars and combat information displays.
+- Improved dialogue portrait sizing, Goldin's transparent background, the auto-advance button, and tooltips.
+- Fixed ordinary enemies bypassing nearby monsters; objective-first movement is now limited to thief and sapper roles.
 - Prepared 100 achievements with Korean, English, and Simplified Chinese text.
 - Revised the new-game flow and prologue guidance.
 - Adjusted combat and progression balance and improved save/load reliability.
