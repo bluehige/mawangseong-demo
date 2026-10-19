@@ -2940,9 +2940,9 @@
                   "speaker_label": "Bebe",
                   "emotion_direction": "Tender",
                   "portrait_emotion": "base",
-                  "text": "Recovery nest floor is clean. Nobody will slip on the way to treatment.",
+                  "text": "Recovery Nest floor is clean. Nobody will slip on the way to treatment.",
                   "id": "V130R_D03_MANAGEMENT_S3_001",
-                  "line": "[Bebe|Tender]: Recovery nest floor is clean. Nobody will slip on the way to treatment."
+                  "line": "[Bebe|Tender]: Recovery Nest floor is clean. Nobody will slip on the way to treatment."
                 },
                 {
                   "speaker_id": "CHR_DARKLORD_PLAYER",

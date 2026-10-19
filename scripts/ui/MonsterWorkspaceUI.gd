@@ -295,8 +295,8 @@ func _training(parent: Control, id: String, roster: Dictionary, current: Diction
 	kit_line(parent,loc("훈련은 EXP를 키웁니다 · 집중성장 무료 +8","Training adds EXP · Focus growth gives free +8","训练提升EXP · 集中成长免费+8"),"",MUTED)
 	if last_training.has(id) and int(last_training[id].day) == GameState.day:
 		var result: Dictionary = last_training[id]
-		kit_line(parent,loc("이번 훈련 완료 · EXP +%d · Lv.%d → %d","Last training · EXP +%d · Lv.%d → %d","本次训练完成 · EXP +%d · Lv.%d → %d") % [result.gain,result.before.level,result.after.level],"TrainingReceipt",GOLD)
-	kit_line(action_footer,loc("현재 장 훈련 상한 Lv.%d","Chapter training cap Lv.%d","当前章节训练上限 Lv.%d") % root._training_level_cap(),"TrainingCap",MUTED)
+		kit_line(parent,loc("이번 훈련 완료 · EXP +%d · Lv.%d → %d","Last training · EXP +%d · Lv.%d → %d","本次训练完成 · EXP +%d · %d级 → %d级") % [result.gain,result.before.level,result.after.level],"TrainingReceipt",GOLD)
+	kit_line(action_footer,loc("현재 장 훈련 상한 Lv.%d","Chapter training cap Lv.%d","当前章节训练上限 %d级") % root._training_level_cap(),"TrainingCap",MUTED)
 	var b := kit_button(action_footer,"",Rect2(),_train.bind(id),"MonsterTrainingButton","primary")
 	b.custom_minimum_size.y = 112
 	b.tooltip_text = loc("훈련하기","Train","训练")+(" · "+LanguageSettings.ui_text(reason) if reason != "" else "")
@@ -335,7 +335,7 @@ func _skills(parent: Control, id: String) -> void:
 				var rule: Dictionary = DataRegistry.skill(royal)
 				kit_line(royal_card,loc("왕관 기술 · 별도 왕관 이벤트","Royal skill · Separate crown event","王冠技能 · 独立王冠事件")+" · "+LanguageSettings.ui_text(str(rule.get("display_name",royal))),"CrownSkillPreview",GOLD)
 				kit_line(royal_card,LanguageSettings.ui_text(str(rule.get("description",""))),"",MUTED)
-				kit_line(royal_card,loc("Lv.%d · 유대 %d · 성장 단계 %d · 특화 · 1차 진화 · 의회 인장 또는 대체 자원","Lv.%d · Bond %d · Growth stage %d · Specialization · First evolution · Council seals or alternative resource","Lv.%d · 羁绊 %d · 成长阶段 %d · 专精 · 首次进化 · 议会印记或替代资源") % [int(crown.get("required_level",0)),int(crown.get("required_bond",0)),int(crown.get("required_growth_stage",0))],"CrownSkillCondition",MUTED)
+				kit_line(royal_card,loc("Lv.%d · 유대 %d · 성장 단계 %d · 특화 · 1차 진화 · 의회 인장 또는 대체 자원","Lv.%d · Bond %d · Growth stage %d · Specialization · First evolution · Council seals or alternative resource","%d级 · 羁绊 %d · 成长阶段 %d · 专精 · 首次进化 · 议会印记或替代资源") % [int(crown.get("required_level",0)),int(crown.get("required_bond",0)),int(crown.get("required_growth_stage",0))],"CrownSkillCondition",MUTED)
 			continue
 		var skill := DataRegistry.skill(str(value))
 		var row := kit_flow(card(parent,"SkillCard_"+str(value)))
@@ -348,7 +348,7 @@ func _skills(parent: Control, id: String) -> void:
 
 func _specialization(parent: Control, id: String) -> void:
 	kit_line(parent,loc("전술 특화 · 팀 선택 %d/%d · 선택 후 변경 불가","Specialization · Team %d/%d · Permanent choice","战术专精 · 全队 %d/%d · 选择后不可更改") % [root._early_specialization_count(),root._early_specialization_limit()],"SpecializationCapacity",GOLD)
-	if GameState.day < 4: kit_line(parent,loc("DAY2 해금 · 추가 선택 DAY4","Unlocks DAY2 · More choices DAY4","DAY2解锁 · DAY4可追加选择"),"",MUTED)
+	if GameState.day < 4: kit_line(parent,loc("DAY2 해금 · 추가 선택 DAY4","Unlocks DAY2 · More choices DAY4","第2天解锁 · 第4天可追加选择"),"",MUTED)
 	var active: Dictionary = root._monster_specialization(id)
 	if not active.is_empty():
 		parent.add_child(ManagementKit.image(str(active.get("badge","")),52))
@@ -380,7 +380,7 @@ func promotion_capacity() -> String:
 			var info: Dictionary = root._campaign_day_info(day)
 			var future := int(info.get("promotion_limit",1 if bool(info.get("first_promotion_limit",false)) or day < root.SECOND_PROMOTION_UNLOCK_DAY else 0))
 			if future == 0 or future > limit:
-				text += loc(" · 다음 확대 DAY%d (%s)"," · Next expansion DAY%d (%s)"," · 下次扩充 DAY%d (%s)") % [day,str(future) if future > 0 else loc("제한 없음","Unlimited","无限制")]
+				text += loc(" · 다음 확대 DAY%d (%s)"," · Next expansion DAY%d (%s)"," · 下次扩充 第%d天 (%s)") % [day,str(future) if future > 0 else loc("제한 없음","Unlimited","无限制")]
 				break
 	return text
 

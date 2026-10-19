@@ -5379,6 +5379,7 @@
     "이전 회차 기록": "Historical run record"
   },
   "supplemental_messages": {
+    "발견": "Discovered",
     "체력 %d / 몬스터 %d명 배치": "HP %d / %d monster slots",
     "몬스터 %d명 배치": "%d monster slots",
     "%s 진입 복도": "%s Entry Corridor",

@@ -37,7 +37,7 @@ func next_choice()->String:
 	var alternative:String="slime_rescue_alchemy_gel" if branch=="slime_gate_bulwark" else "slime_gate_bulwark"
 	var name:String=LanguageSettings.ui_text(str(DataRegistry.evolution_rule(alternative).get("display_name",alternative)))
 	var behavior:String=game.continuity.localized("부상 아군 보호","protect wounded allies","保护受伤同伴") if alternative=="slime_rescue_alchemy_gel" else game.continuity.localized("입구 방어선 유지","hold the entry line","守住入口防线")
-	var text:String=game.continuity.localized("다음 회차의 다른 선택: %s · %s. DAY12/LV3%s 조건과 기존 비용을 유지합니다.","Another choice next cycle: %s · %s. Existing DAY12/LV3%s conditions and costs apply.","下周目另一选择：%s · %s。保留DAY12/LV3%s条件与原费用。")%[name,behavior,game.continuity.localized("/유대25","/Bond25","/羁绊25") if alternative=="slime_rescue_alchemy_gel" else ""]
+	var text:String=game.continuity.localized("다음 회차의 다른 선택: %s · %s. DAY12/LV3%s 조건과 기존 비용을 유지합니다.","Another choice next cycle: %s · %s. Existing DAY12/LV3%s conditions and costs apply.","下周目另一选择：%s · %s。保留第12天/3级%s条件与原费用。")%[name,behavior,game.continuity.localized("/유대25","/Bond25","/羁绊25") if alternative=="slime_rescue_alchemy_gel" else ""]
 	var owned:bool=game.monster_roster.has("spore_healer") or game.campaign_profile.get("unlocked_contract_ids",[]).has("spore_healer")
 	if not owned:return text+" "+game.continuity.localized("모리는 기존 계약으로 합류할 수 있습니다. 다른 엔딩 조건은 별도로 판정됩니다.","Mori joins through the existing contract. Other ending conditions are evaluated separately.","莫里可通过原有契约加入。其他结局条件另行判定。")+seen_ending_hint()
 	var link:String="link_spore_jelly_shelter"
