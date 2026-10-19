@@ -1,5 +1,7 @@
 # V130R Steam 1.3.0 출시 패키지 준비 — 사용자 확인 대기
 
+최신 갱신: **2026-10-20, 0125·0125b 이후 HEAD 재생성**. 아래 1~10절은 0124 최초 준비 기록이며, 현재 전달 패키지와 검증은 **11절**을 따른다. 최종 패키지 SHA·ZIP·해시는 외부 `Content/steam-build-manifest.json`, `Scripts/package_identity.json`, `Evidence/final-head-checks.json`에 기록한다.
+
 ## 1. 메타데이터
 
 - 작성일: 2026-10-19 KST / 목표 버전: 1.3.0 (PE 1.3.0.0)
@@ -97,3 +99,58 @@
 - 코드 커밋 뒤 docs/handoff만 변경. CURRENT 갱신. 로컬 영어 커밋만.
 - Steam 로그인/업로드/편집/게시/default0, 사용자 세이브 접근·수정0, push/fetch/태그/main0.
 - Godot/게임 동시 최대1개, 실제 EXE 정상 종료 뒤0개. 최종 HEAD 패키지 검증 상세는 외부 Evidence에 남긴다.
+
+## 11. 0125·0125b 반영 재생성 (2026-10-20)
+
+### 메타데이터와 범위
+
+- WORKSTREAM_ID: V130R-STEAM-READY-REFRESH-20261020
+- 목표: 1.3.0 / PE 파일·제품 버전 1.3.0.0. 브랜치 `codex/v130r-defense-layout`.
+- 시작 HEAD: `8884d973edc4a1505398b7466170fc03d69d5715`. 기존 패키지 `39f1da3130080f2ae40e2fa132c645f6bd203d86`을 대체한다.
+- 패치노트 로컬 커밋/Reviewed SHA: `1fce849b` (전체 SHA는 아래 정책 필드). 마지막 제품 코드 커밋 `5745f4ebd171af38b0192c34130ebb0f4a504e50`의 교전 수정과 0125의 초상/툴팁 수정을 포함한다. 이후 변경은 이 인계와 CURRENT뿐이다.
+- 최종 문서 커밋을 포함한 전체 HEAD를 manifest·VDF Desc·ZIP 이름에 사용한다. 자체 SHA 순환 참조를 피하기 위해 이 문서의 마지막 커밋은 `git log -1 -- docs/handoff/V130R_STEAM_READY_2026-10-19.md`와 외부 `Evidence/final-head-checks.json`으로 확인한다.
+- 로컬 main 부재. 캐시 origin/main `0ac9fdc7f1a5f3d2e8cc23ca2ec771873094c53b`와 읽기 전용 `git ls-remote origin refs/heads/main` 결과 일치. origin/main 정책·CURRENT를 읽었고 최신 사용자 지정 브랜치/범위를 적용했다. fetch·push·PR·태그·main 변경 없음.
+
+### 완료 내용과 파일
+
+출력은 동일한 `C:/Users/blueh/Desktop/진행중인프로젝트/Steam-1.3.0-Ready/`다. 커밋 archive로 분리한 소스에서 공식 Godot 4.6.3 `Windows Steam` release export를 수행했다. 임시 QA autoload나 제품 코드 수정 없이 실제 배포 Content EXE를 실행했다. 최종 문서 HEAD에서도 다시 export하고 실제 조작한 실행 파일·PCK·DLL·고지·라이선스 9파일과 바이트 일치를 검사한다.
+
+| 변경 경로 | 내용 |
+|---|---|
+| `tools/release/steam_ready/PATCH_NOTES_{KO,EN,ZH_CN}.txt` | 초상 크기·골딘 투명 배경·자동 버튼/툴팁, 일반 적 근접 교전·도둑/공병 목표 우선 제한을 추가 |
+| `docs/handoff/V130R_STEAM_READY_2026-10-19.md`, `CURRENT.md` | 이번 갱신과 제한, 사용자 확인 대기 기록 |
+| 외부 `Content/`, `Scripts/package_identity.json`, `Scripts/app_build_5267750.vdf` | PE1.3.0.0, manifest 전체 HEAD/파일 해시, 새 Desc. SetLive 빈 값 유지 |
+| 외부 루트 새 SHA ZIP, `HTTP_UPLOAD_1.3.0_KO.md`, `PATCH_NOTES_*.txt`, `Evidence/` | 새 패키지와 검증·실제 EXE 증거. 이전 ZIP/Evidence는 `_old/`에 보존 |
+
+`Achievements/`는 API100/스탯20·런타임 카탈로그/규칙 정합성만 다시 대조하고 기존 122파일(아이콘 ZIP 포함)을 바이트 그대로 유지했다. 새 세트ID·CSV 생성이나 Steam 서버 API 조회는 하지 않았다. `START_HERE_KO.md`는 참조 경로·업적 우선 게시·현재 업로드 도구/SetLive 동작과 대조하여 여전히 유효하며 원본 바이트를 유지한다.
+
+그림/UI·음원·폰트·스토리·저장 형식·밸런스 추가 변경은 없다. 새 이미지 생성/필터 처리 없음. 기존 GPT 자산과 NEXON MapleStory 글꼴을 그대로 포함한다. DAY29의 빈 웨이브·준비일 분기 유지. 사용자 세이브는 접근·수정하지 않았고 새 테스트 프로필만 생성했다.
+
+### 검증과 실제 EXE
+
+| 검증 | 결과/근거 |
+|---|---|
+| 격리 소스 import → Windows Steam export | exit0·stderr0, `Evidence/import*`, `export*` |
+| Content·PE·공식 DLL·PCK·ZIP 검증 | Content10파일, PE1.3.0.0, 파일 목록/크기/SHA256/SHA1 및 ZIP 전체 엔트리 대조; 최종 결과 `package-checks.json`, `final-head-checks.json` |
+| 업적 게임 API 대조 | 100업적/20스탯/숨김8/추가세트7, `achievement-api-checks.json`; 업적 자료 변경0 |
+| Computer Use 실제 배포 EXE | 타이틀→새 게임→프롤로그 건너뛰기→기본 이름→DAY1 안내→자동 배치3명→DAY1 전투/적·몬스터 교전→승리 대사→Alt+Enter 전체화면→저장→종료0 |
+| 교전·승리·전체화면·저장 증거 | `17-day1-enemy-monster-engagement-960.png`(입구 앞 양 진영 접촉/HP바·공격 효과), `18-day1-victory-960.png`, `19-fullscreen-960.png`, `20-save-menu-960.png`; `computer-use-checks.json`에 캡션 기록 |
+| 격리 저장·실행 환경 | `Evidence/profiles/refresh-20261020/`에 v1~v6 저장 생성/갱신. Steam 차단변수 UNSET·Steam 클라이언트 미실행, 실제 DLL2개 로드. Vulkan/Forward+·정상 종료0·stderr0, `refresh-20261020-execution.json` |
+| 직접 이미지 열람 | 15장, 모두960px 이하 사본. 원본 캡처는 저장만 했으며 추가 열람 없음. `direct-viewed-images.json` |
+| 기존 변경·원본 보존 | 추적 import1307개 바이트, 기존 미추적 파일 존재, 업적122파일/START_HERE 바이트 대조. 최종 `final-preservation-checks.json` |
+| 전체 회귀·전체 플레이·별도 전체 검수 | NOT_REQUESTED / 미실행 |
+| Steam 로그인·SteamCMD 실행·업로드·Steamworks 조작 | NOT_RUN. 서버 BuildID·manifest/default·업적 해제는 이번 검증 대상 아님 |
+
+- Review task ID: NOT_REQUESTED
+- Reviewed SHA: 1fce849b1265168bfa47ae2ccc5debc2373f18af
+- Review range: 8884d973edc4a1505398b7466170fc03d69d5715..1fce849b1265168bfa47ae2ccc5debc2373f18af
+- Remaining P1/P2: N/A
+- Final review result: TARGETED_PASS
+
+### 남은 제한·다음 작업·종료 상태
+
+이번 TARGETED_PASS는 **로컬 준비 패키지와 요청한 실제 EXE 경로**에 한정한다. [교전 수정 인계](V130R_FIX_ENEMY_ENGAGE_2026-10-19.md)의 기존 난도 곡선27일 미달·DAY30 추천 배치 비교 미달과 과거 진단 사본 전환 충돌/초상 중복 기록, [UI 인계](V130R_FIX_PLAYTEST_UI_2026-10-19.md)의 범위 밖 불투명 초상/미채택 후보, G01/G02 잔여 게이트는 그대로 유지한다. 이번 재생성으로 출시 전체 PASS나 해당 결함 해결을 주장하지 않는다.
+
+외부 산출물은 소스 브랜치에 추가하지 않는다. 작업 중 Godot/게임 직렬 최대1개, 실제 게임 정상 종료 뒤0개이며 최종 export 뒤에도0개를 확인한다. 기존 혼합 작업트리를 보존하고 패치노트3개와 인계2개만 영어 로컬 커밋했다. 원격 push·태그·main·Steam 작업0.
+
+다음은 **사용자 확인 대기**다. Steam 로그인/업적 등록·게시/업로드/default/공지는 사용자의 별도 실행 범위이며 이 세션에서는 어떠한 Steam 조작도 하지 않는다.

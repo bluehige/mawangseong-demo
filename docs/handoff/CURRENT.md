@@ -1,3 +1,13 @@
+## 2026-10-20 V130R Steam Ready 재생성 / TARGETED_PASS · 사용자 확인 대기
+
+[0125·0125b 반영 패키지 인계 11절](V130R_STEAM_READY_2026-10-19.md#11-01250125b-반영-재생성-2026-10-20). `codex/v130r-defense-layout`, 시작 `8884d973`, 패치노트 검증 `1fce849b1265168bfa47ae2ccc5debc2373f18af`. 동일 Desktop `Steam-1.3.0-Ready`에 최종 문서 HEAD의 Windows Steam Content10파일·PE1.3.0.0·새 manifest/Desc/ZIP·Evidence를 갱신한다. 정확한 최종 HEAD·ZIP/SHA256은 외부 `Evidence/final-head-checks.json`과 manifest가 기록한다. 이전 ZIP/Evidence는 `_old` 보존, 업적122파일·START_HERE 바이트 유지, 게임 API100/스탯20만 재대조한다. 3언어 패치노트에 초상/툴팁·일반 적 교전 수정을 추가했다.
+
+배포 Content EXE를 Computer Use로 실제 실행: 새 게임→DAY1 자동 배치3명→적·몬스터 교전/승리 대사→Alt+Enter 전체화면→격리 저장→정상 종료0, stderr0. 직접 열람15장·960px 이하 사본, 사용자 세이브 접근/수정0, DAY29 빈 웨이브·NEXON MapleStory 유지. 최종 export 후 실제 조작한 실행9파일과 바이트 일치를 확인한다. Godot직렬1/최종0, 영어 로컬 커밋만, push/fetch/PR/태그/main/Steam 로그인·업로드·Steamworks 조작0. 로컬 main은 없고 origin/main `0ac9fdc7`은 이번 읽기 전용 원격 main 조회와 일치했다.
+
+이 판정은 패키지와 요청된 EXE 경로에만 적용한다. 아래 적 교전 작업의 난도 곡선·DAY30 배치 비교 미달, 과거 충돌/초상 기록과 기존 G01/G02 제한은 유지한다. 전체 회귀·전체 플레이·별도 전체 검수 NOT_REQUESTED. **다음: 사용자 확인 대기.**
+
+---
+
 ## 2026-10-20 V130R 적 교전 수정 / PARTIAL · 사용자 확인 대기
 
 [구현·전후 교전·10시드 곡선/완주·배치·회귀·EXE 인계](V130R_FIX_ENEMY_ENGAGE_2026-10-19.md). 지정 브랜치 `codex/v130r-defense-layout`, 시작 `83e8e535`, 구현/검증 `5745f4ebd171af38b0192c34130ebb0f4a504e50`. 일반 적의 목표 우선 우회를 제거하고 근접 교전·공격 대기/돌진 관통 차단을 적용했다. 데이터93필드를0으로 정리하고 도둑20·공병12행만 목표 우선을 유지한다. 전후18전투의 무교전 통과 접촉은82→26쌍, DAY1·5·15는0쌍이다. 남은26쌍은 모두 퐁당 접촉이며 고유 적 통과 수/근접 차단률로 해석하지 않는다.
