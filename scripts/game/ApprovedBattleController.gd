@@ -663,6 +663,9 @@ func call_deferred_result(win: bool, reason: String) -> void:
 	view.show_battle_result.bind(win,reason).call_deferred()
 
 func settle_result(win: bool, reason: String) -> void:
+	# The map view forwards keys only while in combat. Result dialogue and
+	# menus must hand keyboard ownership back to the campaign root.
+	root.set_process_input(true)
 	super.finish_combat(win,reason)
 	AchievementService.record("battle_finished",{"win":win,"slots_full":bool(achievement_state.get("full_house",false)),"food_shortage":int(GameState.food_state.get("last",{}).get("shortfall",0))})
 	Ach.settlement(root)

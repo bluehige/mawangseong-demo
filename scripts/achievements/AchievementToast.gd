@@ -27,7 +27,7 @@ func show_next() -> void:
 	if row.is_empty(): return
 	current = Control.new(); current.name = "AchievementToast"; add_child(current)
 	current.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	current.position = Vector2(get_viewport().get_visible_rect().size.x-660,22); current.size = Vector2(630,140)
+	current.position = Vector2(get_viewport().get_visible_rect().size.x-660,176); current.size = Vector2(630,140)
 	var frame := TextureRect.new(); current.add_child(frame); frame.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	frame.texture = load("res://assets/achievements/v130/toast_frame.png"); frame.position = Vector2.ZERO; frame.size = current.size
 	var icon := TextureRect.new(); current.add_child(icon); icon.position = Vector2(42,40); icon.size = Vector2(64,64)

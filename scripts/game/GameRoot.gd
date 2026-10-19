@@ -828,8 +828,10 @@ func _flush_campaign_autosave() -> bool:
 	if not _write_campaign_v2_snapshot():
 		var restored: bool = bundle_guard.restore(before)
 		campaign_save_status = previous_save_status if restored else CampaignSaveStoreScript.STATUS_CORRUPT
+		if not restored: campaign_save_error += " · 이전 저장 묶음 복구 실패"
 		campaign_save_notice = ("저장에 실패해 이전 체크포인트 묶음을 복구했습니다.\n%s" if restored else "저장 실패 · 이전 체크포인트 묶음도 복구하지 못했습니다.\n%s") % campaign_save_error
-		push_warning("Campaign v5 autosave failed: %s" % campaign_save_error)
+		_log("자동 저장 실패: %s" % campaign_save_error)
+		push_warning("Campaign snapshot autosave failed: %s" % campaign_save_error)
 		_show_campaign_save_notice_overlay()
 		return false
 	campaign_save_status = CampaignSaveStoreScript.STATUS_VALID
@@ -1016,7 +1018,9 @@ func _campaign_save_payload(checkpoint: String) -> Dictionary:
 			"selected_contract_ids": selected_contract_ids.duplicate(),
 			"deployed_instance_ids": deployed_instance_ids.duplicate(),
 			"reserve_instance_ids": reserve_instance_ids.duplicate(),
-			"stage_deployment_limit": _current_stage_deployment_limit(),
+			# The free-layout map uses food/slots, not the legacy stage roster cap.
+			# Describe the existing deployment for old save validators only.
+			"stage_deployment_limit": maxi(_current_stage_deployment_limit(),deployed_instance_ids.size()) if preload("res://scripts/map_builder/ApprovedGradeProgression.gd").enabled() else _current_stage_deployment_limit(),
 			"event_deck_order": event_deck_order.duplicate(),
 			"wave_variant_ids": wave_variant_ids.duplicate(),
 			"triggered_event_ids": update2_triggered_event_ids.duplicate(),

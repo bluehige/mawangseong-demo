@@ -48,7 +48,8 @@ func unlocked() -> Array:
 func portrait(id: String) -> String:
 	var species: String = members[id].species_id
 	var path := "res://assets/sprites/v130r/%s/portrait_%s_card.png" % [species,species]
-	if FileAccess.file_exists(path): return path
+	# Imported PNGs are remapped inside the exported PCK; raw file checks fail.
+	if ResourceLoader.exists(path): return path
 	return "res://assets/sprites/portraits/"+PORTRAITS[members[id].species_id]+".png"
 
 func role_icon(row: Dictionary) -> String:

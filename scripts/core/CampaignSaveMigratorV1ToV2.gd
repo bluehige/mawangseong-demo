@@ -18,7 +18,17 @@ const SPECIES_TO_INSTANCE := {
 	"graveyard_hound": "monster_koko",
 	"armored_beetle": "monster_toktok",
 	"spider_tailor": "MON_SILKY",
-	"bat_courier": "MON_POPO"
+	"bat_courier": "MON_POPO",
+	"river_frog": "mon_v130r_pongdang",
+	"glue_snail": "mon_v130r_neurit",
+	"bridge_troll": "mon_v130r_beongbeong",
+	"under_bed_shadow": "mon_v130r_shh",
+	"crumpled_map": "mon_v130r_kkogit",
+	"hollow_armor": "mon_v130r_teongteong",
+	"candle_wisp": "mon_v130r_noknok",
+	"mole_digger": "mon_v130r_papa",
+	"rat_union": "mon_v130r_jjikjjik",
+	"curse_doll": "mon_v130r_nubi"
 }
 const CORE_INSTANCE_IDS := ["mon_core_pudding", "mon_core_gob", "mon_core_pynn"]
 

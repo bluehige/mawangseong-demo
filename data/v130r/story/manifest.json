@@ -47,7 +47,7 @@
     "data/story/v122_main/day_28.json": "98e3dc1e896b161ca9c7721751cb2246cf993c0b5b96897da77dea8303007c72",
     "data/story/v122_main/day_29.json": "5e9a681fe9089117c498c5b2b49c4c54915a0de3da1e141b7f6bfc231e094861",
     "data/story/v122_main/day_30.json": "a073472be86a1ff3c746e27f7123f91f040d05b27b84a37b9781db62732e0fad",
-    "data/waves.json": "9bb25eb7d066a57338d2de7dde6d26e7d57c797ac893d6afcf881ff10d804de3"
+    "data/waves.json": "2d5b3519c6bf6a630a099844d07a2db92a5646fe5425db7d3ff392168205b539"
   },
   "runtime_side_effects": [],
   "join_policy": "existing_condition_first; fallback join_day only where explicitly provided",
@@ -105,5 +105,13 @@
     "intent_baseline": "0a90971c970ac2a65ed6c6661b5c9d66a3e07704",
     "reason": "B04: replace stopped pre-B02 0115 using actual uninterrupted campaigns; wave count, timing, waypoints and objective priority only. Preserve HP/ATK coefficients and DAY29 no combat.",
     "byte_convention": "UTF-8, CRLF; same convention as existing protected files"
+  },
+  "protection_baseline_update_0119c_2026_10_19": {
+    "path": "data/waves.json",
+    "previous_sha256": "9bb25eb7d066a57338d2de7dde6d26e7d57c797ac893d6afcf881ff10d804de3",
+    "sha256": "2d5b3519c6bf6a630a099844d07a2db92a5646fe5425db7d3ff392168205b539",
+    "intent_commit": "0dec2aacda020cd0c76a3c5358a3ecb760ed5294",
+    "reason": "User-authorized blocker fixes: protect final 0119c waves already validated by uninterrupted B04 campaigns. No wave or stat edits in this workstream. DAY29 remains preparation only.",
+    "byte_convention": "UTF-8, CRLF; matches 0119c Git blob after newline normalization"
   }
 }

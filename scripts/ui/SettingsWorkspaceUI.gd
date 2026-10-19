@@ -31,6 +31,8 @@ func build_settings() -> void:
 		"accessibility": root._build_settings_accessibility_category(content)
 		_: root._build_settings_general_category(content)
 	_style_fields(content)
+	_fit_field_cards(content)
+	_fit_field_cards.call_deferred(content)
 	var preview := kit_panel(Rect2(1126,254,622,650),"SettingsPreviewPanel")
 	_glass(preview,0.72)
 	root._build_settings_preview(preview)
@@ -58,6 +60,7 @@ func category(parent: Control, title: String, id: String, index: int, icon: Stri
 func field_card(parent: Control, y: float, height: float, icon_id: String = "") -> void:
 	var pane := Panel.new()
 	pane.position = Vector2(22,y-18); pane.size = Vector2(886,height)
+	pane.set_meta("settings_field_card",true)
 	pane.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.075,0.045,0.115,0.80)
@@ -78,6 +81,31 @@ func field_card(parent: Control, y: float, height: float, icon_id: String = "") 
 			elif child is CheckBox and absf(child.position.y-y)<10:
 				child.position.x = 84
 				child.size.x -= 44
+
+func _fit_field_cards(parent: Control) -> void:
+	if not is_instance_valid(parent): return
+	# Labels can grow after translation. Include their full allocated height
+	# and controls in the card, keeping padding above the next row.
+	var cards: Array = []
+	for child in parent.get_children():
+		if child is Panel and child.has_meta("settings_field_card"): cards.append(child)
+	cards.sort_custom(func(a,b): return a.position.y<b.position.y)
+	for pane in cards:
+		var next_top := INF
+		for other in parent.get_children():
+			if other is Panel and other.has_meta("settings_field_card") and other.position.y>pane.position.y:
+				next_top = minf(next_top,other.position.y)
+		var bottom: float = pane.position.y+pane.size.y
+		for child in parent.get_children():
+			if child is Control and not child is Panel and child.position.y>=pane.position.y and child.position.y<next_top:
+				bottom = maxf(bottom,child.position.y+maxf(child.size.y,child.get_combined_minimum_size().y)+12)
+		pane.size.y = bottom-pane.position.y
+		if next_top<INF and bottom+14>next_top:
+			var shift := bottom+14-next_top
+			for child in parent.get_children():
+				if child is Control and child!=pane and child.position.y>=next_top:
+					child.position.y += shift
+		parent.custom_minimum_size.y = maxf(parent.custom_minimum_size.y,bottom+18)
 
 func _style_fields(node: Node) -> void:
 	if node is BaseButton or node is Range:
