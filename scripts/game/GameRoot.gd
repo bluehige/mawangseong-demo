@@ -7456,7 +7456,7 @@ func _onboarding_advance_dialogue(manual: bool = true) -> void:
 	if onboarding_dialogue_index + 1 < onboarding_dialogue_queue.size():
 		onboarding_dialogue_index += 1
 		story_presenter.reset_legacy_timer()
-		_set_screen(Constants.SCREEN_DIALOGUE)
+		_story_refresh_dialogue_ui()
 		return
 	var return_screen = onboarding_dialogue_return_screen
 	var complete_action = onboarding_dialogue_complete_action
@@ -7644,6 +7644,7 @@ func _story_reset_auto_timer() -> void:
 
 
 func _story_refresh_dialogue_ui() -> void:
+	if story_presenter.refresh_current(): return
 	if story_combat_overlay_open and current_screen == Constants.SCREEN_COMBAT:
 		story_presenter.build_combat_overlay()
 	elif current_screen == Constants.SCREEN_DIALOGUE:

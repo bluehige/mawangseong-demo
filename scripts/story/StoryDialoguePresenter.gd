@@ -26,6 +26,105 @@ var text_pages: Array[String] = []
 var page_body: RichTextLabel
 var page_counter: Label
 var standing_bounds_cache: Dictionary = {}
+var frame_parent: Control
+var frame_legacy := false
+var frame_combat := false
+var frame_style: Array = []
+var speaker_label: Label
+var next_button: Button
+var source_text := ""
+var source_key := ""
+var pagination_pending := false
+var pagination_cache: Dictionary = {}
+var portrait_paths: Dictionary = {}
+var standing_textures: Dictionary = {}
+var background_textures: Dictionary = {}
+
+func _style_key() -> Array:
+	return [LanguageSettings.locale, UISettings.text_scale, UISettings.is_touch_ui()]
+
+func _portrait_path(id: String, emotion: String) -> String:
+	var key := id + ":" + emotion
+	if not portrait_paths.has(key):
+		portrait_paths[key] = root._onboarding_speaker_portrait_path(id, emotion)
+	return portrait_paths[key]
+
+func _standing_texture(id: String, emotion: String) -> Texture2D:
+	var path := _portrait_path(id, emotion)
+	if not standing_textures.has(path):
+		var texture: Texture2D = root._onboarding_portrait_texture(path) if path != "" else null
+		if texture != null and is_monster_speaker(id):
+			var bounds := standing_visible_bounds(texture)
+			if bounds.has_area():
+				var cropped := AtlasTexture.new()
+				cropped.atlas = texture
+				cropped.region = Rect2(bounds)
+				texture = cropped
+		standing_textures[path] = texture
+	return standing_textures[path]
+
+func _prepare_resources(legacy: bool) -> void:
+	# Hold the most recent dialogue's textures. ResourceLoader's weak
+	# cache otherwise drops backgrounds when the old screen is destroyed.
+	portrait_paths.clear(); standing_textures.clear(); background_textures.clear()
+	pagination_cache.clear()
+	var cues: Array = root.onboarding_dialogue_queue if legacy else root.story_director.current_scene().get("cues", [])
+	for cue in cues:
+		var resolved: Dictionary = cue if legacy else root._story_resolve_cue_speaker(cue)
+		_standing_texture(str(resolved.get("speaker" if legacy else "speaker_id", "")), str(resolved.get("emotion" if legacy else "portrait_emotion", "")))
+		if legacy: _background_texture(cue)
+	_standing_texture("CHR_DARKLORD_PLAYER", "")
+	var reference := _standing_texture("CHR_BATI", "dry")
+	# Monster placement uses Bati's visible baseline even when Bati is absent.
+	# Read these pixels at entry, not on the first monster speaker's line.
+	if reference != null: standing_visible_bounds(reference)
+	if not legacy: _background_texture(root.story_director.current_scene())
+
+func _background_texture(scene: Dictionary) -> Texture2D:
+	var path := background_path(scene)
+	if not background_textures.has(path): background_textures[path] = root._load_png(path)
+	return background_textures[path]
+
+func refresh_current() -> bool:
+	if not is_instance_valid(frame_parent) or not frame_parent.is_inside_tree() or frame_parent.is_queued_for_deletion(): return false
+	if frame_style != _style_key(): return false
+	if frame_combat:
+		if not root.story_combat_overlay_open or root.current_screen != "combat": return false
+	elif root.current_screen != "dialogue": return false
+	var legacy: bool = not root.onboarding_dialogue_queue.is_empty()
+	if legacy != frame_legacy: return false
+	if legacy:
+		var line: Dictionary = root.onboarding_dialogue_queue[root.onboarding_dialogue_index]
+		if line.get("v130r_text",false):
+			var localized: Dictionary = root.v130r_story.localized_entry(str(line.get("id","")))
+			if not localized.is_empty(): line = localized
+		_background(frame_parent, line)
+		var id := str(line.get("speaker", "NARRATOR"))
+		var speaker := str(line.get("speaker_name", root._onboarding_speaker_name(id)))
+		speaker = LanguageSettings.player_display_name(root._onboarding_player_name()) if id == "CHR_DARKLORD_PLAYER" else LanguageSettings.ui_text(speaker)
+		var text: String = root._onboarding_line_text(line)
+		root.continuity.record("legacy:%s:%d" % [str(root.onboarding_dialogue_queue.hash()), root.onboarding_dialogue_index], speaker, text)
+		_refresh_frame(id, speaker, str(line.get("emotion", "")), text)
+	else:
+		if not root.story_director.is_active(): return false
+		if not frame_combat: _background(frame_parent, root.story_director.current_scene())
+		root.continuity.record_story()
+		var cue: Dictionary = root.story_director.current_cue()
+		var resolved: Dictionary = root._story_resolve_cue_speaker(cue)
+		var id := str(resolved.get("speaker_id", "NARRATOR"))
+		resolved["speaker_label"] = root._onboarding_player_name() if id == "CHR_DARKLORD_PLAYER" else str(resolved.get("speaker_label", root._onboarding_speaker_name(id)))
+		_refresh_frame(id, LanguageSettings.story_speaker(resolved, root._onboarding_player_name()), str(resolved.get("portrait_emotion", "")), LanguageSettings.story_text(cue, root._onboarding_player_name()))
+	return true
+
+func _refresh_frame(id: String, speaker: String, emotion: String, text: String) -> void:
+	_update_participants(id, emotion, frame_legacy)
+	for slot in range(participants.size()): _standing(frame_parent, participants[slot], slot, participants[slot] == id, frame_combat)
+	speaker_label.text = speaker
+	var key := "%s:%s:%s:%s" % [frame_legacy,root.onboarding_dialogue_index if frame_legacy else root.story_director.current_cue_id,LanguageSettings.locale,text]
+	source_text = text; source_key = key
+	_paginate(page_body, page_counter, text, key)
+	_refresh_toolbar(frame_parent, frame_legacy)
+	next_button.tooltip_text = root.continuity.localized("자동 재생 완료 · 마지막 대사를 읽고 계속합니다.", "Auto finished · read the final line and continue.", "自动播放完成 · 阅读最后一句后继续。") if auto_at_end else root.continuity.localized("다음 대사 · 수동 입력은 자동 재생을 끕니다.", "Next line · manual input turns auto off.", "下一句 · 手动操作会关闭自动播放。")
 
 func standing_visible_bounds(texture: Texture2D) -> Rect2i:
 	var key := texture.get_instance_id()
@@ -65,6 +164,7 @@ func setup(root_node, hud_controller) -> void:
 	hud = hud_controller
 
 func build_fullscreen() -> void:
+	_prepare_resources(false)
 	var cue: Dictionary = root.story_director.current_cue()
 	var scene: Dictionary = root.story_director.current_scene()
 	var screen = root._onboarding_screen_panel(Kit.Tokens.BACKGROUND)
@@ -74,6 +174,7 @@ func build_fullscreen() -> void:
 	_build_frame(screen, cue, scene, false)
 
 func build_legacy() -> void:
+	_prepare_resources(true)
 	var screen = root._onboarding_screen_panel(Kit.Tokens.BACKGROUND)
 	screen.name = "LegacyDialogueScreen"
 	screen.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
@@ -92,6 +193,7 @@ func build_legacy() -> void:
 
 func build_combat_overlay() -> void:
 	if root.ui_layer == null or not root.story_director.is_active() or root.current_screen != "combat": return
+	_prepare_resources(false)
 	clear_combat_overlay()
 	var controls: Array = []
 	for child in root.ui_layer.get_children():
@@ -114,7 +216,10 @@ func clear_combat_overlay() -> void:
 		existing.queue_free()
 
 func _background(parent: Control, scene: Dictionary) -> void:
-	var image: TextureRect = hud.texture(parent, background_path(scene), Rect2(0, 0, 1920, 1080))
+	var image: TextureRect = parent.get_node_or_null("DialogueBackground")
+	if image == null:
+		image = hud.texture(parent, "", Rect2(0, 0, 1920, 1080))
+	image.texture = _background_texture(scene)
 	image.name = "DialogueBackground"
 	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -134,6 +239,8 @@ func _build_frame(parent: Control, cue: Dictionary, _scene: Dictionary, combat_o
 	_build_shared_frame(parent, speaker_id, speaker_name, str(resolved.get("portrait_emotion", "")), LanguageSettings.story_text(cue, root._onboarding_player_name()), combat_overlay, false)
 
 func _build_shared_frame(parent: Control, speaker_id: String, speaker_name: String, emotion: String, text: String, combat: bool, legacy: bool) -> void:
+	frame_parent = parent; frame_legacy = legacy; frame_combat = combat
+	frame_style = _style_key()
 	_update_participants(speaker_id, emotion, legacy)
 	for slot in range(participants.size()): _standing(parent, participants[slot], slot, participants[slot] == speaker_id, combat)
 	var strip := KitPanelScript.new()
@@ -153,6 +260,7 @@ func _build_shared_frame(parent: Control, speaker_id: String, speaker_name: Stri
 	var heading := HBoxContainer.new()
 	strip.content.add_child(heading)
 	var speaker := Kit.label(speaker_name, "body", true)
+	speaker_label = speaker
 	speaker.name = "DialogueSpeakerLabel" if legacy else "StorySpeakerLabel"
 	speaker.add_theme_color_override("font_color", Kit.Tokens.HIGHLIGHT)
 	speaker.add_theme_font_size_override("font_size", maxi(26, Kit.Tokens.font_size(28, UISettings.text_scale, UISettings.is_touch_ui())))
@@ -183,6 +291,7 @@ func _build_shared_frame(parent: Control, speaker_id: String, speaker_name: Stri
 	body.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	row.add_child(body)
 	var next = icon_button_script.new().configure_icon("play", root.continuity.localized("다음 대사 · 수동 입력은 자동 재생을 끕니다.", "Next line · manual input turns auto off.", "下一句 · 手动操作会关闭自动播放。"))
+	next_button = next
 	next.set_meta("uiux_external_button", true)
 	next.name = "LegacyNextButton" if legacy else "StoryNextButton"
 	if auto_at_end:
@@ -215,8 +324,9 @@ func _build_shared_frame(parent: Control, speaker_id: String, speaker_name: Stri
 		strip.add_theme_stylebox_override("panel",frame)
 	var key := "%s:%s:%s:%s" % [legacy,root.onboarding_dialogue_index if legacy else root.story_director.current_cue_id,LanguageSettings.locale,text]
 	speaker.custom_minimum_size.y = ceilf(speaker.get_theme_font("font").get_height(speaker.get_theme_font_size("font_size")))+4
-	body.resized.connect(_paginate.bind(body,counter,text,key))
-	_paginate.call_deferred(body,counter,text,key)
+	page_body = body; page_counter = counter; source_text = text; source_key = key
+	body.resized.connect(_queue_paginate)
+	_queue_paginate()
 	if combat:
 		var paused: Label = hud.label(parent, LanguageSettings.story_ui("combat_paused"), Vector2(32, 32), Vector2(750, 48), 24, Kit.Tokens.HIGHLIGHT, HORIZONTAL_ALIGNMENT_LEFT, "StoryCombatPausedLabel", UIFontScript.ROLE_EMPHASIS)
 		paused.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -225,10 +335,25 @@ func _paginate(body: RichTextLabel, counter: Label, text: String, key: String) -
 	if not is_instance_valid(body) or not body.is_inside_tree() or body.is_queued_for_deletion() or body.size.x<16 or body.size.y<16: return
 	if page_key != key:
 		page_key = key; page_index = 0
-	text_pages = TextLayout.pages(text,body.get_theme_font("normal_font"),body.get_theme_font_size("normal_font_size"),body.size,6)
+	var font := body.get_theme_font("normal_font")
+	var pixels := body.get_theme_font_size("normal_font_size")
+	var layout_key: Array = [text, font.get_instance_id(), pixels, body.size, LanguageSettings.locale]
+	if not pagination_cache.has(layout_key):
+		if pagination_cache.size() >= 512: pagination_cache.clear()
+		pagination_cache[layout_key] = TextLayout.pages(text,font,pixels,body.size,6)
+	text_pages = pagination_cache[layout_key]
 	page_index = clampi(page_index,0,text_pages.size()-1)
 	page_body = body; page_counter = counter
 	_show_page()
+
+func _queue_paginate() -> void:
+	if pagination_pending: return
+	pagination_pending = true
+	_flush_paginate.call_deferred()
+
+func _flush_paginate() -> void:
+	pagination_pending = false
+	_paginate(page_body,page_counter,source_text,source_key)
 
 func _show_page() -> void:
 	if not is_instance_valid(page_body) or text_pages.is_empty(): return
@@ -275,18 +400,25 @@ func _update_participants(speaker: String, emotion: String, legacy: bool) -> voi
 	participant_emotions[speaker] = emotion
 
 func _standing(parent: Control, id: String, slot: int, active: bool, combat: bool) -> void:
-	var path: String = root._onboarding_speaker_portrait_path(id, str(participant_emotions.get(id, "")))
+	var path := _portrait_path(id, str(participant_emotions.get(id, "")))
+	var image: TextureRect = parent.get_node_or_null("DialogueStandingLeft" if slot == 0 else "DialogueStandingRight")
+	if image == null:
+		image = TextureRect.new()
+		image.name = "DialogueStandingLeft" if slot == 0 else "DialogueStandingRight"
+		parent.add_child(image)
+		# A participant replacing another stays behind the dialogue strip.
+		parent.move_child(image, mini(slot+1,parent.get_child_count()-1))
+	image.visible = path != ""
 	if path == "": return
-	var image := TextureRect.new()
-	image.name = "DialogueStandingLeft" if slot == 0 else "DialogueStandingRight"
-	image.texture = root._onboarding_portrait_texture(path)
+	image.texture = _standing_texture(id, str(participant_emotions.get(id, "")))
 	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	image.modulate = Color.WHITE if active else Color(0.5, 0.5, 0.5, 1)
 	image.set_meta("speaker_id", id)
 	image.set_meta("portrait_path", path)
-	parent.add_child(image)
+	var layout := _layout_monster_standing.bind(image, slot, combat)
+	if parent.resized.is_connected(layout): parent.resized.disconnect(layout)
 	image.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	image.anchor_left = 0.005 if slot == 0 else 0.50
 	image.anchor_right = 0.495 if slot == 0 else 1.0
@@ -304,15 +436,8 @@ func _standing(parent: Control, id: String, slot: int, active: bool, combat: boo
 	elif is_monster_speaker(id):
 		# Fit the actual alpha silhouette to Bati's visible height and baseline.
 		# Atlas cropping only selects source pixels; it never edits their alpha.
-		if image.texture != null:
-			var bounds := standing_visible_bounds(image.texture)
-			if bounds.has_area():
-				var cropped := AtlasTexture.new()
-				cropped.atlas = image.texture
-				cropped.region = Rect2(bounds)
-				image.texture = cropped
 		image.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
-		parent.resized.connect(_layout_monster_standing.bind(image, slot, combat))
+		parent.resized.connect(layout)
 		_layout_monster_standing(image, slot, combat)
 
 func is_monster_speaker(id: String) -> bool:
@@ -326,7 +451,7 @@ func is_monster_speaker(id: String) -> bool:
 
 func _layout_monster_standing(image: TextureRect, slot: int, combat: bool) -> void:
 	if not is_instance_valid(image) or image.texture == null: return
-	var reference: Texture2D = root._onboarding_portrait_texture(root._onboarding_speaker_portrait_path("CHR_BATI", "dry"))
+	var reference: Texture2D = root._onboarding_portrait_texture(_portrait_path("CHR_BATI", "dry"))
 	if reference == null: return
 	var bounds := standing_visible_bounds(reference)
 	var extent: Vector2 = image.get_parent().size
@@ -348,34 +473,40 @@ func _toolbar(parent: Control, legacy: bool) -> void:
 	row.add_theme_constant_override("separation", 12)
 	margin.add_child(row)
 	_icon(row, "log", root.continuity.localized("대화 로그 · 읽기 전용, 자동 재생 일시정지", "Dialogue log · read only, pauses auto", "对白记录 · 只读，暂停自动播放"), Callable(root.continuity, "open_backlog"), "DialogueBacklogButton", root.continuity.localized("로그", "Log", "记录"))
-	var automatic := legacy_auto_enabled if legacy else bool(root.story_director.auto_enabled)
-	var status: String = root.continuity.localized("켜짐", "On", "开启") if automatic else root.continuity.localized("꺼짐", "Off", "关闭")
-	var auto = _icon(row, "auto", root.continuity.localized("자동 재생 · 현재 %s\n클릭하여 켜기/끄기 · 마지막 대사에서 멈춤", "Auto · currently %s\nClick to toggle · stops at the final line", "自动播放 · 当前%s\n点击切换 · 在最后一句停止") % status, Callable(self, "toggle_legacy_auto") if legacy else Callable(root, "_story_toggle_auto"), "LegacyStoryAutoButton" if legacy else "StoryAutoButton", root.continuity.localized("자동 · %s", "Auto · %s", "自动 · %s") % status)
+	var auto = _icon(row, "auto", "Auto", Callable(self, "toggle_legacy_auto") if legacy else Callable(root, "_story_toggle_auto"), "LegacyStoryAutoButton" if legacy else "StoryAutoButton", "")
 	auto.toggle_mode = true
-	auto.set_pressed_no_signal(automatic)
-	if automatic: auto.set_variant(icon_button_script.VariantStyle.PRIMARY)
 	var active_marker := Kit.image("check", 32)
 	active_marker.name = "DialogueAutoActiveMarker"
 	active_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	auto.add_child(active_marker)
 	active_marker.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	active_marker.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	active_marker.visible = automatic
-	auto.disabled = not auto_allowed(legacy)
-	if auto.disabled: auto.tooltip_text = root.continuity.localized("자동 재생 · 현재 꺼짐 · 사용 불가\n오프닝/관리 진입/전투 직전/승리 후 긴 묶음에서 사용", "Auto · currently Off · unavailable\nAvailable for long opening/management/precombat/victory groups", "自动播放 · 当前关闭 · 不可用\n用于开场、管理开始、战斗前及胜利后的长对白")
-	var allowed: bool = root.campaign_cycle_index >= 2 and root.onboarding_dialogue_queue.size() > 1 if legacy else root.story_director.skip_allowed()
 	var skip = _icon(row, "skip", root.continuity.localized("넘기기 · 읽은 대화만 허용", "Skip · available for previously read dialogue", "跳过 · 仅限已读对白"), Callable(root, "_onboarding_skip_dialogue") if legacy else Callable(root, "_story_skip_dialogue"), "LegacyStorySkipButton" if legacy else "StorySkipButton", root.continuity.localized("넘기기", "Skip", "跳过"))
-	skip.disabled = not allowed
-	if not allowed:
-		skip.tooltip_text = root.continuity.localized("넘기기 · 현재 사용 불가\n읽은 대화부터 넘길 수 있습니다.", "Skip · currently unavailable\nAvailable after reading this dialogue.", "跳过 · 当前不可用\n读过此对白后方可跳过。")
 	var lock := Kit.image("lock", 28)
 	lock.name = "DialogueSkipLock"
 	skip.add_child(lock)
 	lock.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	lock.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	lock.visible = not allowed
 	_icon(row, "menu", root.continuity.localized("게임 메뉴 · 대화 자동 재생 일시정지", "Game menu · pauses dialogue auto", "游戏菜单 · 暂停对白自动播放"), Callable(root, "_open_pause_menu"), "DialogueMenuButton", root.continuity.localized("메뉴", "Menu", "菜单"))
 	Kit.apply_scale(margin, UISettings.text_scale, UISettings.is_touch_ui())
+	_refresh_toolbar(parent, legacy)
+
+func _refresh_toolbar(parent: Control, legacy: bool) -> void:
+	var automatic := legacy_auto_enabled if legacy else bool(root.story_director.auto_enabled)
+	var status: String = root.continuity.localized("켜짐", "On", "开启") if automatic else root.continuity.localized("꺼짐", "Off", "关闭")
+	var auto: Button = parent.find_child("LegacyStoryAutoButton" if legacy else "StoryAutoButton", true, false)
+	auto.tooltip_text = root.continuity.localized("자동 재생 · 현재 %s\n클릭하여 켜기/끄기 · 마지막 대사에서 멈춤", "Auto · currently %s\nClick to toggle · stops at the final line", "自动播放 · 当前%s\n点击切换 · 在最后一句停止") % status
+	auto.set_pressed_no_signal(automatic)
+	auto.set_variant(icon_button_script.VariantStyle.PRIMARY if automatic else icon_button_script.VariantStyle.BASIC)
+	auto.get_meta("caption_label").text = root.continuity.localized("자동 · %s", "Auto · %s", "自动 · %s") % status
+	auto.get_node("DialogueAutoActiveMarker").visible = automatic
+	auto.disabled = not auto_allowed(legacy)
+	if auto.disabled: auto.tooltip_text = root.continuity.localized("자동 재생 · 현재 꺼짐 · 사용 불가\n오프닝/관리 진입/전투 직전/승리 후 긴 묶음에서 사용", "Auto · currently Off · unavailable\nAvailable for long opening/management/precombat/victory groups", "自动播放 · 当前关闭 · 不可用\n用于开场、管理开始、战斗前及胜利后的长对白")
+	var allowed: bool = root.campaign_cycle_index >= 2 and root.onboarding_dialogue_queue.size() > 1 if legacy else root.story_director.skip_allowed()
+	var skip: Button = parent.find_child("LegacyStorySkipButton" if legacy else "StorySkipButton", true, false)
+	skip.disabled = not allowed
+	skip.tooltip_text = root.continuity.localized("넘기기 · 읽은 대화만 허용", "Skip · available for previously read dialogue", "跳过 · 仅限已读对白") if allowed else root.continuity.localized("넘기기 · 현재 사용 불가\n읽은 대화부터 넘길 수 있습니다.", "Skip · currently unavailable\nAvailable after reading this dialogue.", "跳过 · 当前不可用\n读过此对白后方可跳过。")
+	skip.get_node("DialogueSkipLock").visible = not allowed
 
 func _icon(parent: Control, icon: String, help: String, callback: Callable, id: String, caption: String) -> Button:
 	var group := VBoxContainer.new()
@@ -391,6 +522,7 @@ func _icon(parent: Control, icon: String, help: String, callback: Callable, id: 
 	label.name = id + "Caption"
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	group.add_child(label)
+	button.set_meta("caption_label", label)
 	button.pressed.connect(callback)
 	return button
 
