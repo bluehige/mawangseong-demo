@@ -120,7 +120,7 @@
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
 
-정책 검사는 문서 커밋 후 `tools/ci/ValidateRepositoryPolicy.ps1 -BaseRef 0141647b11e02f892364c9da0ec93d62b3f2e62d -HeadRef codex/v130r-defense-layout`로 기록한다. 검증 SHA 이후 제품/테스트 코드는 변경하지 않는다.
+정책 검사도 PASS: `tools/ci/ValidateRepositoryPolicy.ps1 -BaseRef 0141647b11e02f892364c9da0ec93d62b3f2e62d -HeadRef codex/v130r-defense-layout`, 문서 커밋 `8d3060ae`에서 17파일·2커밋 확인. [최종 정책 로그](../../tmp/dialogue_overflow/policy.log). 이후에는 이 증거 문구만 추가했다. 검증 SHA 이후 제품/테스트 코드 변경 없음.
 
 ## 7. 제한·시행착오
 
