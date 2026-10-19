@@ -41,7 +41,7 @@ func _process(delta: float) -> void:
 	delay += delta
 	if delay<0.5: return
 	delay=0
-	var key := str(get_window().size)+str(get_window().mode)+UISettings.window_mode+str(game.current_screen)+str(game.onboarding_dialogue_index)+str(game.story_presenter.legacy_auto_enabled)
+	var key := str(get_window().size)+str(get_window().mode)+UISettings.window_mode+str(game.current_screen)+str(game.onboarding_dialogue_index)+str(game.story_presenter.legacy_auto_enabled)+str(game.story_presenter.participants)
 	if key!=previous:
 		previous=key; record()
 

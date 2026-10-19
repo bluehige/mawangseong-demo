@@ -87,6 +87,7 @@ func run() -> void:
 				expect(button.button_pressed==automatic,"toggle state")
 				expect(button.get_node("DialogueAutoActiveMarker").visible==automatic,"GPT check state")
 				expect(tooltip.size.x<=480 and tooltip.size.y<260,"tooltip compact bounds")
+				expect(tooltip.get_child(0).position.x >= 40 and tooltip.get_child(0).position.y >= 40,"tooltip text clears frame ornaments")
 				expect(("켜짐" if automatic else "꺼짐") in button.tooltip_text,"tooltip current state")
 				var skip: Button = screen.find_child("LegacyStorySkipButton",true,false)
 				expect(not skip.tooltip_text.is_empty(),"locked skip explains state")
