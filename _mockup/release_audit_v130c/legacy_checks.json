@@ -1,0 +1,42 @@
+{
+	"checks": 42,
+	"failures": [],
+	"sources": [
+		{
+			"day": 2,
+			"sha256": "6d8c619e784b24a92f770ee2da1abde64ee8960e06689001784c1abc558936b7",
+			"source": "res://tmp/v130_m6/original_copies/campaign_save_v1.json",
+			"version": 1
+		},
+		{
+			"day": 2,
+			"sha256": "443ff2c6df70c1b2e7014cae0a7b2a2b02ad5b8a9043fa8421f6da99e824a863",
+			"source": "res://tmp/v130_m6/original_copies/campaign_save_v2.json",
+			"version": 2
+		},
+		{
+			"day": 2,
+			"sha256": "52054c16d6d32607b5c5e84b5e2499b9953eeda990be5494ef2d0cb86e124a08",
+			"source": "res://tmp/v130_m6/original_copies/campaign_save_v3.json",
+			"version": 3
+		},
+		{
+			"day": 2,
+			"sha256": "16e09be311c8b406810fdf8412e642b1fa8ef2d329778d3bf61f211937fde98a",
+			"source": "res://tmp/v130_m6/original_copies/campaign_save_v4.json",
+			"version": 4
+		},
+		{
+			"day": 2,
+			"sha256": "d5ff5a680e8f7a2adc85586fc13528d5c9cda23b09c7a28cad83e4577201fc9c",
+			"source": "res://tmp/v130_m6/original_copies/campaign_save_v5.json",
+			"version": 5
+		},
+		{
+			"day": 2,
+			"sha256": "c13bb9fd6ad6dc5970af860bf57074bb31a3b1ac9531303534a45dee383ea2c9",
+			"source": "res://tmp/release_audit_v130b/export_computer_use/appdata/Godot/app_userdata/마왕님, 마왕성 지켜주세요! Demo/campaign_save_v6.json",
+			"version": 6
+		}
+	]
+}

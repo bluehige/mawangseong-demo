@@ -1,0 +1,15 @@
+{
+  "id": "data_story",
+  "exit_code": 0,
+  "seconds": 0.22,
+  "command": [
+    "C:\\Users\\blueh\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-X",
+    "utf8",
+    "tools/content/validate_v130r_story.py",
+    "--json"
+  ],
+  "result": "PASS",
+  "checks": 73027,
+  "errors": []
+}

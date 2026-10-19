@@ -1,0 +1,14 @@
+{
+  "id": "data_map_localization",
+  "exit_code": 0,
+  "seconds": 0.08,
+  "command": [
+    "C:\\Users\\blueh\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-X",
+    "utf8",
+    "tools/content/validate_v130r_map_localization.py",
+    "--json"
+  ],
+  "result": "PASS",
+  "errors": []
+}

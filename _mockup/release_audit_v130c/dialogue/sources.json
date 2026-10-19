@@ -1,0 +1,657 @@
+[
+  {
+    "path": "data/campaign_days.json",
+    "sha256": "a6a8eac78f984a67195473ed9b2c22d01d6939fdb3327ea468f453247a9e12f5",
+    "fields": 313
+  },
+  {
+    "path": "data/castle_evolution_stages.json",
+    "sha256": "c72e6467eb08ea3e47b45e998f6de112eee570b003fedb8e33365851ea96d1cc",
+    "fields": 4
+  },
+  {
+    "path": "data/castle_stage_expansions.json",
+    "sha256": "fabfcffad6d9cc77ec44b09e89f39a2562a60ea06abb48f6b08b58fe80af0eb1",
+    "fields": 6
+  },
+  {
+    "path": "data/challenge_seals.json",
+    "sha256": "8f58324b2a928081ec1a681ac01ad7baee358072e90765d158138916e3c7e23c",
+    "fields": 12
+  },
+  {
+    "path": "data/characters.json",
+    "sha256": "eabcee8023adc5d7429aefaefc8eafb4855836124b27517f28745d66172cf9ac",
+    "fields": 30
+  },
+  {
+    "path": "data/cycle_decrees.json",
+    "sha256": "9edccd000a42a6ef0900e7d2378b3dae6c9204a5f15108c24a95de6a2347fde1",
+    "fields": 12
+  },
+  {
+    "path": "data/cycle_doctrines.json",
+    "sha256": "73d6f2675d532465ee220c6daab1ed63c807be46dc6ed33549d510eb9955e756",
+    "fields": 6
+  },
+  {
+    "path": "data/ending_rules.json",
+    "sha256": "c2f1900ad7a7ce893d5d23b93f05caf32f79aab06ec55b85965b913b5475a082",
+    "fields": 45
+  },
+  {
+    "path": "data/enemies.json",
+    "sha256": "8e5a5c0c82777dcda4d181cbf478db35220d0ce7d7199c8a35c7e936ee589dff",
+    "fields": 16
+  },
+  {
+    "path": "data/evolution_rules.json",
+    "sha256": "6f9cbff742fb7aed96b3cfd63622db5a150c42db040c883b98c519fba49848c4",
+    "fields": 12
+  },
+  {
+    "path": "data/leon_adaptive_stances.json",
+    "sha256": "e8bc98bbba969e0ac34ffaa6937412d6df4b68a46529a665322b7295464f5af4",
+    "fields": 4
+  },
+  {
+    "path": "data/memory_entries.json",
+    "sha256": "8f61c2e35a3ae339f6d302e1d8b524e824dcb17c8fac3e7359b402fa4080ad8e",
+    "fields": 87
+  },
+  {
+    "path": "data/monster_instances.json",
+    "sha256": "afdf26899714873f23c60fbb21cb354ff89642b4a0ab4adc2e7b0a7c874600c7",
+    "fields": 12
+  },
+  {
+    "path": "data/monsters.json",
+    "sha256": "4919d51e03c971c9a41532ea2953cbb8cbfe97702e0ad1a7b39ee1c33999b86f",
+    "fields": 9
+  },
+  {
+    "path": "data/onboarding_flow_dialogue_v0.4.json",
+    "sha256": "9e9ce3f0f81c2fa7883b9808abee0a06668d93c342aea8e08d7341c5aff8d0e9",
+    "fields": 610
+  },
+  {
+    "path": "data/raid_missions.json",
+    "sha256": "05c9b52599741ee59dfb926fa8552eb46581af4dcfdaca03151fca53acc0416d",
+    "fields": 66
+  },
+  {
+    "path": "data/regular_version/update3/castle_hearts.json",
+    "sha256": "8ad3c074b51165f1eb71ec860b49d2f13a8ff68b968705684f69a2374f737a5d",
+    "fields": 3
+  },
+  {
+    "path": "data/regular_version/update3/chronicle_goals.json",
+    "sha256": "c122621dfca50a6960f535f51338341d6a0eefcda9c9874920eafd86cbc16e31",
+    "fields": 12
+  },
+  {
+    "path": "data/regular_version/update3/duo_links.json",
+    "sha256": "c910a55af248245438ae4a7e5cc9030067a2fe85cb6b998167677769a6d2f4c0",
+    "fields": 18
+  },
+  {
+    "path": "data/regular_version/update3/endings.json",
+    "sha256": "0a76cee853802e48c441437579e01e15ba2a6520e502662b6e996deda7243673",
+    "fields": 24
+  },
+  {
+    "path": "data/regular_version/update3/enemies.json",
+    "sha256": "0bce51c5c04d071b0788c2ed2ca9e04c540afd2b70859e73050744727547088a",
+    "fields": 8
+  },
+  {
+    "path": "data/regular_version/update3/events.json",
+    "sha256": "d70eb0157f168467735eb5cdf7fa45ae52f3ba9dc7b03d811e56e74220a52c96",
+    "fields": 177
+  },
+  {
+    "path": "data/regular_version/update3/front_day_overlays.json",
+    "sha256": "26e45e5e195e2898046c1b7b649267e8a040c6219e85a3fb7c2680834ddd9fce",
+    "fields": 50
+  },
+  {
+    "path": "data/regular_version/update3/front_operations.json",
+    "sha256": "66bbea4682c6ee3b788a524a84ea6d82b4d880d0b61d61596d35cc0ce5d2e03f",
+    "fields": 20
+  },
+  {
+    "path": "data/regular_version/update3/fronts.json",
+    "sha256": "c0ca2ef7c1d277522df5d5da501ab4a60f17e2e45aee8697e8c9fe3acc4fb0ac",
+    "fields": 12
+  },
+  {
+    "path": "data/regular_version/update3/heart_auto_profiles.json",
+    "sha256": "5a78001bcdcdc189e0cf2296d0c259e52a8da51361598f8a5eee3beb1c493f8d",
+    "fields": 7
+  },
+  {
+    "path": "data/regular_version/update3/heart_chamber_modules.json",
+    "sha256": "5facd9d3d73b6cb2a5c8e0cb159e9e383d6e251149e2f4414ce968c04c1680ba",
+    "fields": 1
+  },
+  {
+    "path": "data/regular_version/update3/monsters.json",
+    "sha256": "d67afcc4b628827aeffa081e4f66e0d6141f3e058ac1acdd55f7cacdc96f5c4e",
+    "fields": 3
+  },
+  {
+    "path": "data/regular_version/update3/rival_finales.json",
+    "sha256": "7c566f16152cebdfd36c91b81b94714bf1a215da2f9abdfb738fb98f15943ca2",
+    "fields": 3
+  },
+  {
+    "path": "data/regular_version/update4/bond_events.json",
+    "sha256": "4aeea3689156b3972846405aa510110de9b8ab618a48df15d9e306c32383f9e7",
+    "fields": 12
+  },
+  {
+    "path": "data/regular_version/update4/campaign_modes.json",
+    "sha256": "a32b9be53d029401f39cfd18a0c621a1dd2c924c5ae8a03819bd2e180e8045b8",
+    "fields": 4
+  },
+  {
+    "path": "data/regular_version/update4/characters.json",
+    "sha256": "b1be2a695ea46ea86673d8dd9af9d884fc0fa6b766d5561a9578db1c0314cc36",
+    "fields": 5
+  },
+  {
+    "path": "data/regular_version/update4/council_agendas.json",
+    "sha256": "0e6dfd0c66502fae67d1d4498f372c3a384a64cb909e285959efcc6611ef8d69",
+    "fields": 12
+  },
+  {
+    "path": "data/regular_version/update4/council_campaign_days.json",
+    "sha256": "62cf8ac663b3acb6667119d66c6cf1ef5370e200622838387a4be12623bbcff7",
+    "fields": 138
+  },
+  {
+    "path": "data/regular_version/update4/council_endings.json",
+    "sha256": "9b08028bdaf1bd29ade04b6424e0621785950b957630889ceb41bb4fc9c96eac",
+    "fields": 24
+  },
+  {
+    "path": "data/regular_version/update4/crown_events.json",
+    "sha256": "a3b94f1a9773362b2c50619ed7d088bf19aa541d0289060721d59a4446e59a35",
+    "fields": 24
+  },
+  {
+    "path": "data/regular_version/update4/crown_evolutions.json",
+    "sha256": "6f0676c09096ab85d67cc75f97a86a51638d4d254ca48ad7e625101a0916e495",
+    "fields": 6
+  },
+  {
+    "path": "data/regular_version/update4/enemies.json",
+    "sha256": "e9c5d67aea781516448d2654e5143579b402c90e0dc63f768b2ea582bdbe1ce5",
+    "fields": 6
+  },
+  {
+    "path": "data/regular_version/update4/expansion_modules.json",
+    "sha256": "c6629823a32e213ad64629f0e405f5acbb2c7846ecae684f6473ea9ba5f9fd83",
+    "fields": 3
+  },
+  {
+    "path": "data/regular_version/update4/monster_codex.json",
+    "sha256": "eb8985e4cf92db673cd7fe30b9f1c8091ae461e0d170e3d39bbfbaff5245d52c",
+    "fields": 2
+  },
+  {
+    "path": "data/regular_version/update4/monster_instances.json",
+    "sha256": "272f78525e03a8781d210f51cf1ab6477278fd874056c59abedd99b0c6e8c28d",
+    "fields": 2
+  },
+  {
+    "path": "data/regular_version/update4/monsters.json",
+    "sha256": "d326da9a4434f534af10c7755363d92e80e633962ef02905bfd2f5381288dbbe",
+    "fields": 2
+  },
+  {
+    "path": "data/regular_version/update4/outpost_encounters.json",
+    "sha256": "054b00676924c74fd5f3085dd6fcda0a45725a443dc24a2080c2e30aac08f366",
+    "fields": 1
+  },
+  {
+    "path": "data/regular_version/update4/outpost_types.json",
+    "sha256": "8f01072d80afb4dc8174b4cb531fdd0b5127c17389811eade430b0ddc50f8b91",
+    "fields": 3
+  },
+  {
+    "path": "data/regular_version/update4/region_events.json",
+    "sha256": "1eeaeef6c5c47de2c0bd8d0474a66d0808a69f7ad5a1d659885992018d7113eb",
+    "fields": 45
+  },
+  {
+    "path": "data/regular_version/update4/regions.json",
+    "sha256": "9225d7fbe0d5f729fe657af854c7895052a4a0d3391fdf2c3736a4fb664821d2",
+    "fields": 5
+  },
+  {
+    "path": "data/regular_version/update4/rival_bosses.json",
+    "sha256": "1cbdacf3c4e68ea025839f32b4f62711ca5c3e378d84b7cc763911cb18d91f09",
+    "fields": 3
+  },
+  {
+    "path": "data/regular_version/update4/rival_lords.json",
+    "sha256": "bfd00cc7a1a3d87043a80e217a92fe14363173da85f0a3ad0c8714124a49d684",
+    "fields": 3
+  },
+  {
+    "path": "data/regular_version/update4/skills.json",
+    "sha256": "dfed29ce2dd803d7cb4ffc1daa82db05854beb7c299aefdd4f62d1d67f67d443",
+    "fields": 66
+  },
+  {
+    "path": "data/regular_version/update4/specializations.json",
+    "sha256": "93d3dfeb170b73ee78069ad06de5803f43165e10e2d568befe1a62c4e5bacae9",
+    "fields": 4
+  },
+  {
+    "path": "data/rooms.json",
+    "sha256": "3e450140cc1cd658a9c8964126e5af26efd8e2c5b7b0682e35a9261bd7dab6d6",
+    "fields": 8
+  },
+  {
+    "path": "data/skills.json",
+    "sha256": "1e5de16a3f518da43a101a0bb007d58911a7aa36a74f915e83f41690bc4f63a7",
+    "fields": 88
+  },
+  {
+    "path": "data/specializations.json",
+    "sha256": "7de0ef8bd2c2de4ccf7de2cfc7bc8a9fbbd34578b0f1193c9c1464d696f6d47b",
+    "fields": 24
+  },
+  {
+    "path": "data/story/source/UIUX_POLISH_20260913.json",
+    "sha256": "cbe69d8ee9582d5c52eea44deddfdea1d74ca6391eb3cc68bc2152d17a52b703",
+    "fields": 12
+  },
+  {
+    "path": "data/story/v122_main/day_01.json",
+    "sha256": "33055334ed4b484e4deb88034b48c2fdaecaaac892e57182a071f674694bec0f",
+    "fields": 76
+  },
+  {
+    "path": "data/story/v122_main/day_02.json",
+    "sha256": "c4e29f062299ad22de8b669de8f021366e00674157d1737df4513a0febd3a87e",
+    "fields": 68
+  },
+  {
+    "path": "data/story/v122_main/day_03.json",
+    "sha256": "a7ee6a67d13dd3702830e1fc3a91bd2663fb4de1309d4a1f4f5f296a2f654a7a",
+    "fields": 68
+  },
+  {
+    "path": "data/story/v122_main/day_04.json",
+    "sha256": "a3fa46db2c2b07233b5dd054243678cce9a922b8c409639d1ebf45a1bbd2899c",
+    "fields": 84
+  },
+  {
+    "path": "data/story/v122_main/day_05.json",
+    "sha256": "f919a0f5ce6e26870a85c9c8b8b3abf1ea4840e3ba8953840706c9ffa6016c32",
+    "fields": 70
+  },
+  {
+    "path": "data/story/v122_main/day_06.json",
+    "sha256": "c3593f8accbff8a10a4bb09cdd42fcce2842c4bdb0d8f003f4045f7b7d9ecc89",
+    "fields": 88
+  },
+  {
+    "path": "data/story/v122_main/day_07.json",
+    "sha256": "50c587df0a932104b7b30be06d3d0a68268277133fba11d796e29ca02e236961",
+    "fields": 86
+  },
+  {
+    "path": "data/story/v122_main/day_08.json",
+    "sha256": "865d75890345d7e9bc068bdffe2293a0f45b8b5235e0bcb46d22335cdb69a862",
+    "fields": 74
+  },
+  {
+    "path": "data/story/v122_main/day_09.json",
+    "sha256": "76e8d221b2bfb856fa88e59e34830f7ac4b21436df71f1016be1fc385cafa935",
+    "fields": 78
+  },
+  {
+    "path": "data/story/v122_main/day_10.json",
+    "sha256": "c31131f2dce1f640450b491b5e3c17989409ee01de594c6b23dd927094620381",
+    "fields": 74
+  },
+  {
+    "path": "data/story/v122_main/day_11.json",
+    "sha256": "1917ad679c8e0d7a76ba6b7c679c17752b687af2d805858e13e153021ba69f74",
+    "fields": 108
+  },
+  {
+    "path": "data/story/v122_main/day_12.json",
+    "sha256": "be1584a50ed0c084a40dd912a0e21914c3f7decf346002306371cd3fc753b429",
+    "fields": 124
+  },
+  {
+    "path": "data/story/v122_main/day_13.json",
+    "sha256": "dba751a2145d2feb968df51ec16fade6edca48d8c3ce1e26dcbc8e3f9dd5a6fb",
+    "fields": 108
+  },
+  {
+    "path": "data/story/v122_main/day_14.json",
+    "sha256": "a7e897ce3ec2d34fc5a3941f7730306debd45f1565f5b0dcd06c495d65e51028",
+    "fields": 122
+  },
+  {
+    "path": "data/story/v122_main/day_15.json",
+    "sha256": "3aa3b550f7109ed22d2cf58b2d08a361e57b36f88b2fcfb6caee4ee96510c174",
+    "fields": 120
+  },
+  {
+    "path": "data/story/v122_main/day_16.json",
+    "sha256": "b3f99487ad1e16656d2becd9e950542aa4fc6432dc5095bd3ffe11834bdb320f",
+    "fields": 114
+  },
+  {
+    "path": "data/story/v122_main/day_17.json",
+    "sha256": "4e4d4646c43bba12dcece1758d9ad013701d05512266c087274717b7571594f8",
+    "fields": 112
+  },
+  {
+    "path": "data/story/v122_main/day_18.json",
+    "sha256": "02fa74a1454b94135d1ee0ede91f86dbe1ff99b5aa6b4efcb7ed6219e9eb1977",
+    "fields": 108
+  },
+  {
+    "path": "data/story/v122_main/day_19.json",
+    "sha256": "b298a8cfd5030aadc7f6d38f373ead039d3ba43ec024079cf2c8e8d9be802bde",
+    "fields": 108
+  },
+  {
+    "path": "data/story/v122_main/day_20.json",
+    "sha256": "26da478229496978709920a1b51c98f69e99b45f2de7c40e781c0fb585df3df5",
+    "fields": 112
+  },
+  {
+    "path": "data/story/v122_main/day_21.json",
+    "sha256": "a2056a0cceeeaa0f9e261c1290dc4d502dfd51cfdd3d0ace1fd2081392ef21bb",
+    "fields": 146
+  },
+  {
+    "path": "data/story/v122_main/day_22.json",
+    "sha256": "be1c892511011e365f56f198e5fb4d48778af6af0ccbd2724b6fb28f3b809200",
+    "fields": 156
+  },
+  {
+    "path": "data/story/v122_main/day_23.json",
+    "sha256": "fc34f840e2fc31c6f0a224ca23a7a10e2532b9541317b8643215bc94aa312ea5",
+    "fields": 148
+  },
+  {
+    "path": "data/story/v122_main/day_24.json",
+    "sha256": "b264db65903009ccdc7111d27d6e187005c1f2946ce1f89ed6266cd8bca0ddca",
+    "fields": 132
+  },
+  {
+    "path": "data/story/v122_main/day_25.json",
+    "sha256": "a80c0a8111300b50f9261f18ce9cc840c1e33a2e3ebb694209f887a211ab81c7",
+    "fields": 156
+  },
+  {
+    "path": "data/story/v122_main/day_26.json",
+    "sha256": "2fb6b8dd193508bf112afa37a53dabec99549261e8efd9a6d5b469cebb23457c",
+    "fields": 144
+  },
+  {
+    "path": "data/story/v122_main/day_27.json",
+    "sha256": "3792c1f5d962cdad01136bba5a4a7ba1244cc40b99fcf6cc60d32247f45235ea",
+    "fields": 144
+  },
+  {
+    "path": "data/story/v122_main/day_28.json",
+    "sha256": "98e3dc1e896b161ca9c7721751cb2246cf993c0b5b96897da77dea8303007c72",
+    "fields": 170
+  },
+  {
+    "path": "data/story/v122_main/day_29.json",
+    "sha256": "5e9a681fe9089117c498c5b2b49c4c54915a0de3da1e141b7f6bfc231e094861",
+    "fields": 316
+  },
+  {
+    "path": "data/story/v122_main/day_30.json",
+    "sha256": "a073472be86a1ff3c746e27f7123f91f040d05b27b84a37b9781db62732e0fad",
+    "fields": 428
+  },
+  {
+    "path": "data/update2_contracts.json",
+    "sha256": "cf82e53ed9a89735a0616fc21d94f39dd86b75caf95a8d09c15d97cd5cca4834",
+    "fields": 10
+  },
+  {
+    "path": "data/update2_counterforce.json",
+    "sha256": "d937bbe4d99f9e720937eb0517bad76c6069dc1b0e99337c1e0f479b4e106070",
+    "fields": 7
+  },
+  {
+    "path": "data/update2_seeded_campaign.json",
+    "sha256": "43550a08ee7d804acbce738d4bbd9a09d9c2cfc1b11f4c5c47bc9c9056940970",
+    "fields": 30
+  },
+  {
+    "path": "data/v122/balance_day06_30.json",
+    "sha256": "dae0f7c17e973898e1c75823040d9ff95c003b27d044340109e3edd90415e1d2",
+    "fields": 100
+  },
+  {
+    "path": "data/v122/command_rules.json",
+    "sha256": "d9cbaebad1ccf15ea469b14495526d8c35f1c0bffb7c52d5f5380a1cbfff5353",
+    "fields": 8
+  },
+  {
+    "path": "data/v122/facility_zone_effects.json",
+    "sha256": "07d150eda753f060d430ac185d843e3d455615a812b1f1a490faed67978d8b60",
+    "fields": 14
+  },
+  {
+    "path": "data/v130r/achievements/achievements.json",
+    "sha256": "3546d04b8249d450c626bef714e45237d4726c1496a5f88d5b9ef114d95e6082",
+    "fields": 624
+  },
+  {
+    "path": "data/v130r/characters_new.json",
+    "sha256": "32bff25932b8ca26b68d3ca9a0feb2cf11e3f09f217d3e02bd98f6be04fecba5",
+    "fields": 10
+  },
+  {
+    "path": "data/v130r/duo_events_new.json",
+    "sha256": "78de0558345abffb5ab455608c8b6aec822fb587b0a258a6806fb720083ce4cb",
+    "fields": 30
+  },
+  {
+    "path": "data/v130r/duo_links_new.json",
+    "sha256": "be66974a30d7f67e5a12a56a92907e0b4cc1bd083f0cd035fd2f634e0031e60d",
+    "fields": 30
+  },
+  {
+    "path": "data/v130r/join_scenes.json",
+    "sha256": "f45ce7f1f2409f43270c75a44483f0a19b47f171e4d18dbc6633c83f947da949",
+    "fields": 40
+  },
+  {
+    "path": "data/v130r/memory_entries_new.json",
+    "sha256": "b9e42012c6bd8c62905d45d9ed472680cb904502c1adf928acf8ce8cf59eb3e3",
+    "fields": 135
+  },
+  {
+    "path": "data/v130r/monster_instances_new.json",
+    "sha256": "48e9b2750fa9e9684cca1565079b5897f73cc07d7ba32f30f247db29d370f925",
+    "fields": 10
+  },
+  {
+    "path": "data/v130r/monsters_new.json",
+    "sha256": "9de528a4a935ddbf5e9f71bf31f9bc5ba8d83d344f370d74de67652b71d587f0",
+    "fields": 10
+  },
+  {
+    "path": "data/v130r/skills_new.json",
+    "sha256": "f86187eca9c9cd4274f607f16ea408b12a790c4c423f30ae2f18f9542778db4f",
+    "fields": 60
+  },
+  {
+    "path": "data/v130r/specializations_new.json",
+    "sha256": "f8615c6a24474620bac0eeda156ccf04f184e00743c18d0b5bda65a7f92cdd96",
+    "fields": 64
+  },
+  {
+    "path": "data/v130r/start_flow.json",
+    "sha256": "3642cdc51e83a38d57fa908fbd75c293dc423fd8e5e8e131dd69d12385ecc52a",
+    "fields": 159
+  },
+  {
+    "path": "data/v130r/story/barks.json",
+    "sha256": "2e15e4b29826fca3c5e608266997d6a03fa9178d842ea2f6576f74cca6f30793",
+    "fields": 336
+  },
+  {
+    "path": "data/v130r/story/bond_scenes.json",
+    "sha256": "6ecbf9f06795c9a53e017489f0031c745daf1d0ab9bdb1d482ab03ed3ed9a688",
+    "fields": 648
+  },
+  {
+    "path": "data/v130r/story/day_overlays.json",
+    "sha256": "42f6fdf15caf67121b7647c2ea83e0e696faa9e1089c114890f4304556d18bfe",
+    "fields": 386
+  },
+  {
+    "path": "data/v130r/story/duo_scenes.json",
+    "sha256": "5a15fbbe2ffffa559f1ca6861614229344b98eb5d73a9210d09ec87cab001a79",
+    "fields": 208
+  },
+  {
+    "path": "data/v130r/story/join_scenes.json",
+    "sha256": "a2810180827a9b98a62409513d8a9b06d3c99852e1ad8fb20701b0bf6f17809d",
+    "fields": 440
+  },
+  {
+    "path": "data/v130r/story/localization_story_en.json",
+    "sha256": "44036c73c91fedfab85e15f6ffe44050241da0b54d063289b1b2123d3f989087",
+    "fields": 2018
+  },
+  {
+    "path": "data/v130r/story/localization_story_zh_cn.json",
+    "sha256": "db5085174de8e92be1c6fcb5f8b856108b5f53b7c108821fae153753d232c85e",
+    "fields": 2018
+  },
+  {
+    "path": "data/v130r/story/speaker_registry.json",
+    "sha256": "fd1ee3003249ac9d80bf798a46aca9cec961bca6650471565b9f226b71107db1",
+    "fields": 31
+  },
+  {
+    "path": "data/v130r/upkeep.json",
+    "sha256": "7c0be3ec1c6d1c2f4a498604d7f34608a14ef2ae2ce33a9151b6cb58d8586700",
+    "fields": 28
+  },
+  {
+    "path": "scripts/story/StoryDialoguePresenter.gd",
+    "sha256": "d2471090253e33c9348a593f58975b4a4ee2754171855f689a0796f2f93a723a",
+    "fields": 36
+  },
+  {
+    "path": "scripts/ui/CampaignWorkspaceUI.gd",
+    "sha256": "b4e71fde224fe12063040de03ab84d33dcd63476095533aa02c9582714dd4770",
+    "fields": 27
+  },
+  {
+    "path": "scripts/ui/CombatMinimap.gd",
+    "sha256": "9290b6b3812a79aaa3d0f7ec53bf8a180b5f07cbd42cb050304ba4add9129523",
+    "fields": 3
+  },
+  {
+    "path": "scripts/ui/CrownCandidatePanel.gd",
+    "sha256": "357d45afafd18bd09f8d098a8cd1ddd76f2a0b041e5a9fac23c70ee944cd014f",
+    "fields": 3
+  },
+  {
+    "path": "scripts/ui/HUDController.gd",
+    "sha256": "55e18ee097c99a7e1884de5b029cbfab9bb0925f9fe594ff77fb240cf8ab0fc3",
+    "fields": 96
+  },
+  {
+    "path": "scripts/ui/ManagementWorkspaceUI.gd",
+    "sha256": "b71e4738b84980fb819e4ebfc384c3ee323242f85665b3a0ffdcb636e7e4830d",
+    "fields": 90
+  },
+  {
+    "path": "scripts/ui/MemoryArchiveUI.gd",
+    "sha256": "8e8548ffe8c98de5bf31522957a11ac28285f26ab351ebcf31c4334de42b05ce",
+    "fields": 30
+  },
+  {
+    "path": "scripts/ui/MonsterWorkspaceUI.gd",
+    "sha256": "dccd6965352711fb9e2b8de0d35cb6082cecc738c5f76c27e2019b614498b1ae",
+    "fields": 195
+  },
+  {
+    "path": "scripts/ui/PlayerContinuityUI.gd",
+    "sha256": "b573f7a61d54ca7a65468545bc2a166c0397ebde4bbc69d09e4547076337e0a0",
+    "fields": 102
+  },
+  {
+    "path": "scripts/ui/ResultWorkspaceUI.gd",
+    "sha256": "201bcdc37361b4d52b09e2308e9ad07183b211b73ec5224bd4dabbef2e683b2c",
+    "fields": 111
+  },
+  {
+    "path": "scripts/ui/SettingsWorkspaceUI.gd",
+    "sha256": "5ea6f15a7e741903bd7187bae33a926880b1a480d4b81d8dc3148cf0f20270e4",
+    "fields": 6
+  },
+  {
+    "path": "scripts/ui/SkillActionPresentation.gd",
+    "sha256": "b2f539f3665144df158c810b02058baa134e20db8444477b6e1921b9fa1bd62d",
+    "fields": 42
+  },
+  {
+    "path": "scripts/ui/TitleWorkspaceUI.gd",
+    "sha256": "523482ea7751f5b86e46e82b21878873200ba9610c85f6319e2ca3b7aa573554",
+    "fields": 3
+  },
+  {
+    "path": "scripts/ui/UIStandard.gd",
+    "sha256": "6d9a096b244b55251c7db701848c5d74ee25217e9b2f3b5c78fec6ebb594222c",
+    "fields": 48
+  },
+  {
+    "path": "scripts/game/CombatSceneController.gd",
+    "sha256": "cfd4589f511fc5e622376dcb7c5c84c4d189c20090981e3c69e2163db1d81738",
+    "fields": 3
+  },
+  {
+    "path": "scripts/game/GameRoot.gd",
+    "sha256": "8600c66bc167bcff0b06c2746d6c5e7e8667b7b74599ace146aa9fa71ce7b934",
+    "fields": 141
+  },
+  {
+    "path": "scripts/game/ManagementSceneController.gd",
+    "sha256": "46f974db265e6dbb6c74373bc79505709564f02a4f36241bbb90066eaab5c9d8",
+    "fields": 6
+  },
+  {
+    "path": "scripts/map_builder/ApprovedMonsterPlacementUI.gd",
+    "sha256": "f9ee230b9654f7ed4ad02aa13e7a2181471ccd18176d8c45c5133a33276cff43",
+    "fields": 3
+  },
+  {
+    "path": "scripts/map_builder/ApprovedPlacementView.gd",
+    "sha256": "350a2ad1af166c908394de2b19462b4611aad958d77fc20e82fba910bae95541",
+    "fields": 12
+  },
+  {
+    "path": "scripts/map_builder/PlotDecorationSession.gd",
+    "sha256": "556ced8332159f4f06b0f13781a977f2ae2f699a782009cbc52f28b8bbbc2515",
+    "fields": 21
+  },
+  {
+    "path": "scripts/map_builder/PlotPlacementSession.gd",
+    "sha256": "c5620a4fd29714d9b0dd4a466c02fb605289783808c4263bf458177311a29a4a",
+    "fields": 12
+  }
+]

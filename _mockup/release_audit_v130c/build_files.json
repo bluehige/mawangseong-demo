@@ -1,0 +1,22 @@
+[
+  {
+    "path": "tmp\\release_audit_v130c_v130r_release_blockers\\export\\libgodotsteam.windows.template_release.x86_64.dll",
+    "bytes": 3982336,
+    "sha256": "799e1917061854661ab53c8ef6d297366193ed495088b34f5e32a280fa4ef744"
+  },
+  {
+    "path": "tmp\\release_audit_v130c_v130r_release_blockers\\export\\MawangCastle.exe",
+    "bytes": 104699392,
+    "sha256": "b69539e846fdac8b167c852b578a49d9a11d0ba18663a1a7f66a35de5ae72046"
+  },
+  {
+    "path": "tmp\\release_audit_v130c_v130r_release_blockers\\export\\MawangCastle.pck",
+    "bytes": 778055200,
+    "sha256": "ea7eb6152d9882fc6d522c3d0cad0965e036be66ea9f8df48bdea0726b7e8084"
+  },
+  {
+    "path": "tmp\\release_audit_v130c_v130r_release_blockers\\export\\steam_api64.dll",
+    "bytes": 319128,
+    "sha256": "8de54d32508e216c9135b8bf025749243d44e404c1c22a8e5fe35acecabe7a9c"
+  }
+]

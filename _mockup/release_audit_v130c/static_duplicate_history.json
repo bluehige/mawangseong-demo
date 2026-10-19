@@ -1,0 +1,23 @@
+[
+  {
+    "id": "data_story",
+    "exit_code": 0,
+    "seconds": 0.2,
+    "errors": [],
+    "source": "first static invocation observed in tool result; raw logs subsequently replaced by duplicate identical static invocation"
+  },
+  {
+    "id": "data_monsters",
+    "exit_code": 0,
+    "seconds": 0.25,
+    "errors": [],
+    "source": "first static invocation observed in tool result; raw logs subsequently replaced by duplicate identical static invocation"
+  },
+  {
+    "id": "validator_tests",
+    "exit_code": 0,
+    "seconds": 2.58,
+    "errors": [],
+    "source": "first static invocation observed in tool result; raw logs subsequently replaced by duplicate identical static invocation"
+  }
+]

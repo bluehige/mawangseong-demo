@@ -1,0 +1,279 @@
+{
+  "files": [
+    {
+      "path": "_mockup/release_audit_v130c/logs/campaign_130401.stderr.log",
+      "category": "continuous_campaign_and_restart",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/campaign_130401.stdout.log",
+      "category": "continuous_campaign_and_restart",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/campaign_130402.stderr.log",
+      "category": "continuous_campaign_and_restart",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/campaign_130402.stdout.log",
+      "category": "continuous_campaign_and_restart",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/campaign_130403.stderr.log",
+      "category": "continuous_campaign_and_restart",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/campaign_130403.stdout.log",
+      "category": "continuous_campaign_and_restart",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/data_map_localization.stderr.log",
+      "category": "data_integrity",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/data_map_localization.stdout.log",
+      "category": "data_integrity",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/data_monsters.stderr.log",
+      "category": "data_integrity",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/data_monsters.stdout.log",
+      "category": "data_integrity",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/data_story.stderr.log",
+      "category": "data_integrity",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/data_story.stdout.log",
+      "category": "data_integrity",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/dialogue_after.stderr.log",
+      "category": "dialogue_0121b",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/dialogue_after.stdout.log",
+      "category": "dialogue_0121b",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/dialogue_behavior.stderr.log",
+      "category": "dialogue_0121b",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/dialogue_behavior.stdout.log",
+      "category": "dialogue_0121b",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/exe_new_game.stderr.log",
+      "category": "native_exe_computer_use",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/exe_new_game.stdout.log",
+      "category": "native_exe_computer_use",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/exe_restart_1.stderr.log",
+      "category": "native_exe_computer_use",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/exe_restart_1.stdout.log",
+      "category": "native_exe_computer_use",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/layout.stderr.log",
+      "category": "en_zh_layout",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/layout.stdout.log",
+      "category": "en_zh_layout",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/legacy.stderr.log",
+      "category": "historical_copies",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/legacy.stdout.log",
+      "category": "historical_copies",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/restart_130401.stderr.log",
+      "category": "continuous_campaign_and_restart",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/restart_130401.stdout.log",
+      "category": "continuous_campaign_and_restart",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/restart_130402.stderr.log",
+      "category": "continuous_campaign_and_restart",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/restart_130402.stdout.log",
+      "category": "continuous_campaign_and_restart",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/restart_130403.stderr.log",
+      "category": "continuous_campaign_and_restart",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/restart_130403.stdout.log",
+      "category": "continuous_campaign_and_restart",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/validator_tests.stderr.log",
+      "category": "data_integrity",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/validator_tests.stdout.log",
+      "category": "data_integrity",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/windows_export.stderr.log",
+      "category": "windows_export",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    },
+    {
+      "path": "_mockup/release_audit_v130c/logs/windows_export.stdout.log",
+      "category": "windows_export",
+      "error_count": 0,
+      "warning_count": 0,
+      "error_types": [],
+      "warning_types": []
+    }
+  ],
+  "total_errors": 0,
+  "total_warnings": 0,
+  "historical_v130b_not_recounted": true
+}

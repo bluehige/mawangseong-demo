@@ -1,0 +1,305 @@
+{
+  "result": "PASS",
+  "checks": 2408,
+  "errors": [],
+  "counts": {
+    "monsters_new": 10,
+    "monster_instances_new": 10,
+    "characters_new": 10,
+    "skills_new": 30,
+    "specializations_new": 32,
+    "memory_entries_new": 45,
+    "join_scenes": 10
+  },
+  "roster_coverage": [
+    {
+      "monster_id": "armored_beetle",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "bat_courier",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "bridge_troll",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "candle_wisp",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "crumpled_map",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "curse_doll",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "ghost_housemaid",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "glue_snail",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "goblin",
+      "memories": 5,
+      "specializations": 2,
+      "skills": 2
+    },
+    {
+      "monster_id": "graveyard_hound",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "hollow_armor",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "imp",
+      "memories": 5,
+      "specializations": 2,
+      "skills": 2
+    },
+    {
+      "monster_id": "kobold_scout",
+      "memories": 5,
+      "specializations": 2,
+      "skills": 2
+    },
+    {
+      "monster_id": "mimic_porter",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 2
+    },
+    {
+      "monster_id": "mole_digger",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "moon_tracker",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 2
+    },
+    {
+      "monster_id": "rat_union",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "river_frog",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "slime",
+      "memories": 5,
+      "specializations": 2,
+      "skills": 2
+    },
+    {
+      "monster_id": "spider_tailor",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "spore_healer",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 2
+    },
+    {
+      "monster_id": "stone_sentinel",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 2
+    },
+    {
+      "monster_id": "under_bed_shadow",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 3
+    },
+    {
+      "monster_id": "war_drummer",
+      "memories": 3,
+      "specializations": 2,
+      "skills": 2
+    }
+  ],
+  "localization_counts": {
+    "en": 447,
+    "zh_cn": 447
+  },
+  "duo_memory_availability": [
+    {
+      "id": "link_spore_jelly_shelter",
+      "display_name": "포자 젤리 피난처",
+      "required_each": 1,
+      "members": [
+        {
+          "instance_id": "mon_core_pudding",
+          "monster_id": "slime",
+          "baseline_memories": 5,
+          "staged_memories": 5,
+          "memory_requirement_possible": true
+        },
+        {
+          "instance_id": "mon_contract_mori",
+          "monster_id": "spore_healer",
+          "baseline_memories": 0,
+          "staged_memories": 3,
+          "memory_requirement_possible": true
+        }
+      ],
+      "scope": "catalog_availability_only; bond/days/role/event/runtime not evaluated"
+    },
+    {
+      "id": "link_ghostly_evacuate",
+      "display_name": "유령 이사 대작전",
+      "required_each": 1,
+      "members": [
+        {
+          "instance_id": "mon_core_pudding",
+          "monster_id": "slime",
+          "baseline_memories": 5,
+          "staged_memories": 5,
+          "memory_requirement_possible": true
+        },
+        {
+          "instance_id": "monster_bebe",
+          "monster_id": "ghost_housemaid",
+          "baseline_memories": 3,
+          "staged_memories": 3,
+          "memory_requirement_possible": true
+        }
+      ],
+      "scope": "catalog_availability_only; bond/days/role/event/runtime not evaluated"
+    },
+    {
+      "id": "link_moon_scent_hunt",
+      "display_name": "달빛 냄새 추격",
+      "required_each": 1,
+      "members": [
+        {
+          "instance_id": "mon_core_gob",
+          "monster_id": "goblin",
+          "baseline_memories": 5,
+          "staged_memories": 5,
+          "memory_requirement_possible": true
+        },
+        {
+          "instance_id": "monster_koko",
+          "monster_id": "graveyard_hound",
+          "baseline_memories": 3,
+          "staged_memories": 3,
+          "memory_requirement_possible": true
+        }
+      ],
+      "scope": "catalog_availability_only; bond/days/role/event/runtime not evaluated"
+    },
+    {
+      "id": "link_molten_carapace",
+      "display_name": "용융 갑각포",
+      "required_each": 1,
+      "members": [
+        {
+          "instance_id": "mon_core_pynn",
+          "monster_id": "imp",
+          "baseline_memories": 5,
+          "staged_memories": 5,
+          "memory_requirement_possible": true
+        },
+        {
+          "instance_id": "monster_toktok",
+          "monster_id": "armored_beetle",
+          "baseline_memories": 3,
+          "staged_memories": 3,
+          "memory_requirement_possible": true
+        }
+      ],
+      "scope": "catalog_availability_only; bond/days/role/event/runtime not evaluated"
+    },
+    {
+      "id": "link_stone_march",
+      "display_name": "석상 행진곡",
+      "required_each": 1,
+      "members": [
+        {
+          "instance_id": "mon_contract_dolkong",
+          "monster_id": "stone_sentinel",
+          "baseline_memories": 0,
+          "staged_memories": 3,
+          "memory_requirement_possible": true
+        },
+        {
+          "instance_id": "mon_contract_dudum",
+          "monster_id": "war_drummer",
+          "baseline_memories": 0,
+          "staged_memories": 3,
+          "memory_requirement_possible": true
+        }
+      ],
+      "scope": "catalog_availability_only; bond/days/role/event/runtime not evaluated"
+    },
+    {
+      "id": "link_false_beacon_vault",
+      "display_name": "가짜 등대 금고",
+      "required_each": 1,
+      "members": [
+        {
+          "instance_id": "mon_contract_lumi",
+          "monster_id": "moon_tracker",
+          "baseline_memories": 0,
+          "staged_memories": 3,
+          "memory_requirement_possible": true
+        },
+        {
+          "instance_id": "mon_contract_mimi",
+          "monster_id": "mimic_porter",
+          "baseline_memories": 0,
+          "staged_memories": 3,
+          "memory_requirement_possible": true
+        }
+      ],
+      "scope": "catalog_availability_only; bond/days/role/event/runtime not evaluated"
+    }
+  ],
+  "source_sha256": {},
+  "notes": [
+    "Baseline empty-memory blockers: link_spore_jelly_shelter, link_stone_march, link_false_beacon_vault",
+    "Historical baseline stored rank-derived IDs without catalog checks; Step7 now checks existence. Runtime behavior is verified separately in Godot.",
+    "This Python report covers source data only. Run tools/run_v130r_step7.ps1 -Mode direct/capture for runtime skills, assets, recruitment and duo unlocks.",
+    "Verbatim external design comparison not requested; use --design-dir to verify source text and stats."
+  ]
+}

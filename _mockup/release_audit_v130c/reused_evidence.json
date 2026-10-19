@@ -1,0 +1,70 @@
+{
+  "current_head": "a1a753549084d1cd68f11c16ccb144134fef9f2b",
+  "prior_audit_product_sha": "e40eb91c4902e72237783508105004be7e4d989e",
+  "balance_10runs_product_sha": "0dec2aacda020cd0c76a3c5358a3ecb760ed5294",
+  "waves_identical_to_balance_baseline_after_lf_normalization": true,
+  "files": [
+    {
+      "path": "_mockup/release_audit_v130b/RELEASE_AUDIT.md",
+      "exists": true,
+      "sha256": "868f2001ced2702039ac90c3df39abd27737522d6ac596b11349a765c1adcc6a"
+    },
+    {
+      "path": "_mockup/release_audit_v130b/residual_review.md",
+      "exists": true,
+      "sha256": "b4917647e7c5f568bd901875f04e03db88e9e45b9f8ba0110280489f95eca827"
+    },
+    {
+      "path": "_mockup/release_audit_v130b/log_summary.json",
+      "exists": true,
+      "sha256": "5f953fc3df034053509e7f59fcb68947c048ef4cb92bc324d032a1a03fd8e5d4"
+    },
+    {
+      "path": "_mockup/release_audit_v130b/performance_summary.json",
+      "exists": true,
+      "sha256": "28fdbc0d0693f8267f6954d9e97106e265d2d823a2b3e0ce089c83d3ecea7bcf"
+    },
+    {
+      "path": "_mockup/release_audit_v130b/provenance.json",
+      "exists": true,
+      "sha256": "35191640fed017cba89847a28c39060cd50cdafb368d751caba485a299899307"
+    },
+    {
+      "path": "docs/handoff/V130R_FIX_RELEASE_BLOCKERS_2026-10-19.md",
+      "exists": true,
+      "sha256": "468c56fdcda0229e177a4cad10394578e0597898210456282db4ee6940ee4017"
+    },
+    {
+      "path": "docs/handoff/V130R_FIX_DIALOGUE_OVERFLOW_2026-10-19.md",
+      "exists": true,
+      "sha256": "6987b887fe88275fb5364c93a27beb5d358858a4c36633c4d145e9b65490cbce"
+    },
+    {
+      "path": "docs/handoff/V130R_REBALANCE_2026-10-18.md",
+      "exists": true,
+      "sha256": "807e8b81d6018244f2f498d125dc3a16d8c9896e961e4096a7a268033c3de8e8"
+    },
+    {
+      "path": "docs/handoff/V130R_FIX_COMMANDS_2026-10-18.md",
+      "exists": true,
+      "sha256": "2f9fd2b8324918579893033c17cda1b01471bdbaf8a469ebac3785b13ef5033b"
+    },
+    {
+      "path": "tmp/v130r_b04/v13_report/day_curve.md",
+      "exists": true,
+      "sha256": "805777c55f2801a6d0a6b1c73c8ab35bfcb938bb8448ce80da9780b7d48e4a3a"
+    },
+    {
+      "path": "tmp/v130r_b04/v13_report/stacking_compare.md",
+      "exists": true,
+      "sha256": "f2222247deddc49d608a7d4b7f6515f290083f6ef7489dad97d2210afb7de37e"
+    },
+    {
+      "path": "tmp/v130r_b04/v13_report/final_integrity.json",
+      "exists": true,
+      "sha256": "ed2333096abcb6b7e83a130253aa17b757c3e83a4e5bdb398d5d6c19e2401a9d"
+    }
+  ],
+  "read_only_sidecar_agent": "01a151ef-5b87-7e61-981b-633103aea766",
+  "not_a_full_review_agent": true
+}

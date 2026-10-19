@@ -1,0 +1,478 @@
+{
+  "result": "PASS",
+  "checks": 73027,
+  "errors": [],
+  "scene_counts": {
+    "join_scenes.json": 40,
+    "day_overlays.json": 30,
+    "barks.json": 168,
+    "bond_scenes.json": 72,
+    "duo_scenes.json": 16
+  },
+  "turns_by_file": {
+    "join_scenes.json": 200,
+    "day_overlays.json": 178,
+    "barks.json": 168,
+    "bond_scenes.json": 288,
+    "duo_scenes.json": 96
+  },
+  "total_turns": 930,
+  "localized_turns": {
+    "en": 930,
+    "zh_cn": 930
+  },
+  "monster_coverage": [
+    {
+      "monster_id": "slime",
+      "name": "푸딩",
+      "overlay_days": [],
+      "overlay_day_count": 0,
+      "spoken_turns": 18,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 1,
+        "day_overlays.json": 0,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 4
+      }
+    },
+    {
+      "monster_id": "goblin",
+      "name": "곱",
+      "overlay_days": [],
+      "overlay_day_count": 0,
+      "spoken_turns": 21,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 3,
+        "day_overlays.json": 0,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 5
+      }
+    },
+    {
+      "monster_id": "imp",
+      "name": "핀",
+      "overlay_days": [],
+      "overlay_day_count": 0,
+      "spoken_turns": 21,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 2,
+        "day_overlays.json": 0,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 6
+      }
+    },
+    {
+      "monster_id": "kobold_scout",
+      "name": "로로",
+      "overlay_days": [],
+      "overlay_day_count": 0,
+      "spoken_turns": 16,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 1,
+        "day_overlays.json": 0,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 2
+      }
+    },
+    {
+      "monster_id": "spore_healer",
+      "name": "모리",
+      "overlay_days": [
+        7,
+        8,
+        12,
+        23
+      ],
+      "overlay_day_count": 4,
+      "spoken_turns": 23,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 4,
+        "day_overlays.json": 4,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 2
+      }
+    },
+    {
+      "monster_id": "stone_sentinel",
+      "name": "돌콩",
+      "overlay_days": [
+        9,
+        10,
+        13,
+        20,
+        27
+      ],
+      "overlay_day_count": 5,
+      "spoken_turns": 26,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 4,
+        "day_overlays.json": 5,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 4
+      }
+    },
+    {
+      "monster_id": "war_drummer",
+      "name": "두둠",
+      "overlay_days": [
+        12,
+        13,
+        14,
+        22,
+        27
+      ],
+      "overlay_day_count": 5,
+      "spoken_turns": 26,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 5,
+        "day_overlays.json": 5,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 3
+      }
+    },
+    {
+      "monster_id": "moon_tracker",
+      "name": "루미",
+      "overlay_days": [
+        16,
+        17,
+        21,
+        24
+      ],
+      "overlay_day_count": 4,
+      "spoken_turns": 26,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 5,
+        "day_overlays.json": 4,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 4
+      }
+    },
+    {
+      "monster_id": "mimic_porter",
+      "name": "미미",
+      "overlay_days": [
+        17,
+        18,
+        19,
+        24
+      ],
+      "overlay_day_count": 4,
+      "spoken_turns": 25,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 4,
+        "day_overlays.json": 4,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 4
+      }
+    },
+    {
+      "monster_id": "ghost_housemaid",
+      "name": "베베",
+      "overlay_days": [
+        2,
+        3,
+        7,
+        15,
+        30
+      ],
+      "overlay_day_count": 5,
+      "spoken_turns": 24,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 4,
+        "day_overlays.json": 5,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 2
+      }
+    },
+    {
+      "monster_id": "graveyard_hound",
+      "name": "코코",
+      "overlay_days": [
+        2,
+        4,
+        8,
+        24,
+        30
+      ],
+      "overlay_day_count": 5,
+      "spoken_turns": 24,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 4,
+        "day_overlays.json": 5,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 2
+      }
+    },
+    {
+      "monster_id": "armored_beetle",
+      "name": "톡톡",
+      "overlay_days": [
+        2,
+        4,
+        9,
+        21,
+        25
+      ],
+      "overlay_day_count": 5,
+      "spoken_turns": 27,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 4,
+        "day_overlays.json": 5,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 5
+      }
+    },
+    {
+      "monster_id": "spider_tailor",
+      "name": "실키",
+      "overlay_days": [
+        1,
+        3,
+        5,
+        18,
+        29
+      ],
+      "overlay_day_count": 5,
+      "spoken_turns": 28,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 7,
+        "day_overlays.json": 5,
+        "barks.json": 7,
+        "bond_scenes.json": 5,
+        "duo_scenes.json": 4
+      }
+    },
+    {
+      "monster_id": "bat_courier",
+      "name": "포포",
+      "overlay_days": [
+        1,
+        3,
+        6,
+        19,
+        28
+      ],
+      "overlay_day_count": 5,
+      "spoken_turns": 22,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 5,
+        "day_overlays.json": 5,
+        "barks.json": 7,
+        "bond_scenes.json": 5,
+        "duo_scenes.json": 0
+      }
+    },
+    {
+      "monster_id": "river_frog",
+      "name": "퐁당",
+      "overlay_days": [
+        6,
+        7,
+        11,
+        16,
+        28
+      ],
+      "overlay_day_count": 5,
+      "spoken_turns": 26,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 5,
+        "day_overlays.json": 5,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 3
+      }
+    },
+    {
+      "monster_id": "glue_snail",
+      "name": "느릿",
+      "overlay_days": [
+        8,
+        9,
+        12,
+        23
+      ],
+      "overlay_day_count": 4,
+      "spoken_turns": 24,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 4,
+        "day_overlays.json": 4,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 3
+      }
+    },
+    {
+      "monster_id": "bridge_troll",
+      "name": "벙벙",
+      "overlay_days": [
+        13,
+        14,
+        15,
+        25
+      ],
+      "overlay_day_count": 4,
+      "spoken_turns": 25,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 5,
+        "day_overlays.json": 4,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 3
+      }
+    },
+    {
+      "monster_id": "under_bed_shadow",
+      "name": "쉿",
+      "overlay_days": [
+        10,
+        11,
+        14,
+        29
+      ],
+      "overlay_day_count": 4,
+      "spoken_turns": 25,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 5,
+        "day_overlays.json": 4,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 3
+      }
+    },
+    {
+      "monster_id": "hollow_armor",
+      "name": "텅텅",
+      "overlay_days": [
+        25,
+        26,
+        27,
+        30
+      ],
+      "overlay_day_count": 4,
+      "spoken_turns": 25,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 5,
+        "day_overlays.json": 4,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 3
+      }
+    },
+    {
+      "monster_id": "candle_wisp",
+      "name": "녹녹",
+      "overlay_days": [
+        15,
+        16,
+        20,
+        26
+      ],
+      "overlay_day_count": 4,
+      "spoken_turns": 25,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 5,
+        "day_overlays.json": 4,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 3
+      }
+    },
+    {
+      "monster_id": "mole_digger",
+      "name": "파파",
+      "overlay_days": [
+        20,
+        21,
+        23,
+        26
+      ],
+      "overlay_day_count": 4,
+      "spoken_turns": 25,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 5,
+        "day_overlays.json": 4,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 3
+      }
+    },
+    {
+      "monster_id": "crumpled_map",
+      "name": "꼬깃",
+      "overlay_days": [
+        5,
+        6,
+        10,
+        22,
+        28
+      ],
+      "overlay_day_count": 5,
+      "spoken_turns": 25,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 4,
+        "day_overlays.json": 5,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 3
+      }
+    },
+    {
+      "monster_id": "rat_union",
+      "name": "찍찍단",
+      "overlay_days": [
+        4,
+        5,
+        11,
+        17
+      ],
+      "overlay_day_count": 4,
+      "spoken_turns": 25,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 5,
+        "day_overlays.json": 4,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 3
+      }
+    },
+    {
+      "monster_id": "curse_doll",
+      "name": "누비",
+      "overlay_days": [
+        18,
+        19,
+        22,
+        29
+      ],
+      "overlay_day_count": 4,
+      "spoken_turns": 24,
+      "spoken_turns_by_file": {
+        "join_scenes.json": 4,
+        "day_overlays.json": 4,
+        "barks.json": 7,
+        "bond_scenes.json": 6,
+        "duo_scenes.json": 3
+      }
+    }
+  ],
+  "protected_file_count": 31,
+  "scope": "static story/duo data contracts; runtime checked separately by V130RStep11StoryTest",
+  "notes": [
+    "Overlay counts are authored opportunities under ownership gates, not guaranteed single-run appearances.",
+    "Memory narration counts as one turn; every bond scene also has three spoken turns.",
+    "New duos use the user-confirmed 45/1/3/5 unlock requirements."
+  ]
+}
