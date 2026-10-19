@@ -30,3 +30,14 @@ distributed as licenses/NotoSansCJK_LICENSE.txt.
 This product embeds the NEXON MapleStory typeface. Its Korean copyright and
 redistribution notice is distributed as licenses/NEXON_Maplestory_LICENSE.txt.
 The typeface itself is not sold separately.
+
+The Windows Steam build includes GodotSteam 4.23.1 (MIT license).
+Its copyright and license are distributed as licenses/GodotSteam_LICENSE.txt.
+Upstream: https://codeberg.org/godotsteam/godotsteam
+
+GodotSteam uses the Valve Steamworks SDK 1.65 and steam_api64.dll.
+Steam and the Steam logo are trademarks of Valve Corporation.
+Steamworks: https://partner.steamgames.com/
+
+Godot Engine third-party component copyright and license notices are
+distributed as licenses/Godot-COPYRIGHT.txt.

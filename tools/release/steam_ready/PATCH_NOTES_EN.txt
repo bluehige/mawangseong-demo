@@ -1,0 +1,12 @@
+1.3.0 — Castle Maps and Defense Update
+
+- Reworked the quarter-view maps and defense layout system, including building and defender placement.
+- Updated the D- and C-rank maps and their defense flow.
+- Added 10 companion monsters, bringing the total to 24.
+- Expanded monster specializations, individual abilities, combat dialogue, and story presentation.
+- Improved HP bars and combat information displays.
+- Prepared 100 achievements with Korean, English, and Simplified Chinese text.
+- Revised the new-game flow and prologue guidance.
+- Adjusted combat and progression balance and improved save/load reliability.
+
+Front Chronicles and Demon Council remain part of the base game.
