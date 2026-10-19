@@ -174,6 +174,7 @@ func battle_day() -> Dictionary:
 	result["directive"]=game.global_directive
 	result["captured"]=captured
 	result["speed"]=game.combat_speed
+	if b.has_method("engagement_report"): result["engagement"]=b.engagement_report()
 	expect(not result.get("win",false) or result.spawned==game.wave_manager.total_to_spawn,"a victory spawns the complete active campaign schedule")
 	await frames(5); await drain(); await frames(2)
 	result["settlement"]=game.result_summary.duplicate(true)
@@ -350,7 +351,7 @@ func run() -> void:
 		if arg=="capture_next=true": capture_next=true
 		if arg=="skip_missing=true": skip_missing=true
 		if arg=="raster=full": fast=false
-	expect(OS.get_user_data_dir().replace("\\","/").contains("v130r_b04"),"isolated test profile")
+	expect(OS.get_user_data_dir().replace("\\","/").contains("v130r_b04") or OS.get_user_data_dir().replace("\\","/").contains("v130r_engage"),"isolated test profile")
 	expect(not record_rng or checkpoint_source=="" or replay_rng,"RNG recording after restore requires exact replay")
 	if not failures.is_empty(): get_tree().quit(1); return
 	# Replace only the test process's unit resource with its cosmetic-only subclass.

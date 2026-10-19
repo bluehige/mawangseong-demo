@@ -106,7 +106,7 @@ func run() -> void:
 		if arg.begins_with("stack_days="): stack_days=arg.get_slice("=",1)
 		if arg.begins_with("seeds="): stack_seeds=arg.get_slice("=",1)
 		if arg=="raster=full": fast=false
-	expect(OS.get_user_data_dir().replace("\\","/").contains("v130r_b04"),"isolated paired test profile")
+	expect(OS.get_user_data_dir().replace("\\","/").contains("v130r_b04") or OS.get_user_data_dir().replace("\\","/").contains("v130r_engage"),"isolated paired test profile")
 	if not failures.is_empty(): get_tree().quit(1); return
 	if fast and DisplayServer.get_name()=="headless":
 		cosmetic_controller=load("res://tools/tests/V130RB04FastController.gd")

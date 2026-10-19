@@ -16,6 +16,9 @@ var assignments := {}
 var members := {}
 var homes := {}
 const COMMAND_SECONDS := 6.0
+const OBJECTIVE_ROLES := ["thief","engineer"]
+const BODY_BLOCK_RADIUS := 32.0
+const INTERCEPT_RADIUS := 48.0
 var command := ""
 var command_point := Vector2.ZERO
 var command_target: Node
@@ -167,7 +170,7 @@ func spawn_enemy(enemy_id: String, wave_entry: Dictionary = {}) -> void:
 		unit.set_meta("next_objective",objective_room); unit.goal_room = waypoint
 	unit.set_meta("goal_type",str(stats.get("goal_type","throne")))
 	var objective_chance := clampf(float(wave_entry.get("objective_priority",0)),0,1)
-	unit.set_meta("objective_priority",objective_chance>0 and randf()<objective_chance)
+	unit.set_meta("objective_priority",enemy_id in OBJECTIVE_ROLES and objective_chance>0 and randf()<objective_chance)
 	# Explicit siege priority is authored per wave and lane on every map grade.
 	unit.set_meta("attack_throne",bool(wave_entry.get("attack_throne",false)) and int(wave_entry.get("attack_throne_lane",lane))==lane)
 	unit.set_meta("base_attack_range",unit.attack_range)
@@ -293,18 +296,70 @@ func return_home(unit: Node) -> void:
 		unit.stop_navigation()
 		unit.face_direction(map.center("entrance")-unit.position)
 
+func enemy_engagement_target(enemy: Node) -> Node:
+	# Physical interception wins over objectives, waypoints and distant taunts.
+	var blocker := TargetingService.nearest(enemy,root.monster_units,INTERCEPT_RADIUS)
+	if blocker!=null: return blocker
+	var forced: Node=enemy.forced_attack_target(root.monster_units,260)
+	if forced!=null and forced.is_targetable_by(enemy): return forced
+	if bool(enemy.get_meta("objective_priority",false)) and enemy.unit_id in OBJECTIVE_ROLES: return null
+	return TargetingService.nearest(enemy,root.monster_units,maxf(80,enemy.attack_range))
+
+func hold_enemy_contact(enemy: Node) -> void:
+	if not running or root.combat_paused or not enemy.is_alive(): return
+	var defender := enemy_engagement_target(enemy)
+	if defender!=null: _hold_attack_position(enemy,defender)
+
+func block_enemy_step(enemy: Node, previous: Vector2) -> void:
+	# Swept contact catches a fast frame/dash between AI updates, including while
+	# the attack is cooling down. Dead or untargetable bodies never form a wall.
+	var motion: Vector2=enemy.position-previous
+	if not running or root.combat_paused or motion.length_squared()<.001: return
+	var first := 1.0
+	var blocker: Node
+	for defender in root.monster_units:
+		if not defender.is_alive() or not defender.is_targetable_by(enemy): continue
+		var offset: Vector2=previous-defender.position
+		var c := offset.length_squared()-BODY_BLOCK_RADIUS*BODY_BLOCK_RADIUS
+		var t := 0.0
+		if c>0:
+			var b := offset.dot(motion)
+			var discriminant := b*b-motion.length_squared()*c
+			if discriminant<0: continue
+			t=(-b-sqrt(discriminant))/motion.length_squared()
+			if t<0 or t>=first: continue
+		if t<first: first=t; blocker=defender
+	if blocker==null: return
+	enemy.position=previous+motion*maxf(0,first-.001)
+	enemy.stop_navigation()
+	enemy.set_tactical_state(Constants.UNIT_STATE_ATTACK,LanguageSettings.text("map.engaging"),blocker.display_name)
+
+func _update_hero_dashes(delta: float) -> void:
+	# The inherited dash moves outside Unit._physics_process. Clip its endpoint
+	# before interpolation/impact so it also meets the first blocking defender.
+	for state in hero_dash_states.values():
+		var enemy: Node=state.get("unit")
+		if not is_instance_valid(enemy) or not enemy.is_alive(): continue
+		var previous: Vector2=enemy.position
+		enemy.position=state.end
+		block_enemy_step(enemy,previous)
+		state.end=enemy.position
+		enemy.position=previous
+	super._update_hero_dashes(delta)
+
 func update_enemy_path(unit: Node) -> void:
-	if monster_skills.update_false_goal(unit): return
-	if str(unit.get_meta("next_objective",""))!="" and unit.position.distance_to(goal_point(unit))<18:
+	# Resolve illusion expiry even during melee, but never consume a real
+	# waypoint when the actor has only reached its temporary false destination.
+	var following_false_goal: bool=monster_skills.update_false_goal(unit)
+	if not following_false_goal and str(unit.get_meta("next_objective",""))!="" and unit.position.distance_to(goal_point(unit))<18:
 		unit.goal_room = str(unit.get_meta("next_objective")); unit.remove_meta("next_objective")
 	if unit.unit_id=="thief" and float(root.thief_steal_timers.get(unit,0))<-100:
 		unit.goal_room = "entrance"
-	var target: Node = unit.forced_attack_target(root.monster_units,260)
-	if target==null and not bool(unit.get_meta("objective_priority",false)):
-		target = TargetingService.nearest(unit,root.monster_units,maxf(80,unit.attack_range))
+	var target: Node = enemy_engagement_target(unit)
 	if target!=null:
 		if _hold_attack_position(unit,target): return
 		_move_to_attack_target(unit,target,true); return
+	if following_false_goal: return
 	if _run_enemy_behavior(unit): return
 	if _hero_skills_enabled() and _is_hero_unit(unit) and _run_hero_skill(unit): return
 	if unit.position.distance_to(goal_point(unit))<18:
@@ -344,20 +399,18 @@ func _hold_attack_position(unit: Node, target: Node) -> bool:
 	return true
 
 func try_attack(attacker: Node, opponents: Array) -> void:
-	# Objective squads advance under fire; taunts still force an interception.
-	if attacker.faction==Constants.FACTION_ENEMY and bool(attacker.get_meta("objective_priority",false)):
-		if attacker.position.distance_to(goal_point(attacker))>=18 and attacker.forced_attack_target(root.monster_units,260)==null: return
-		# Explicit siege squads retain the throne objective after reaching its door.
-		# Forced taunts still intercept them, including after a facility waypoint.
-		if prioritizes_throne(attacker): return
+	if attacker.faction==Constants.FACTION_ENEMY and enemy_engagement_target(attacker)==null: return
 	if attacker==direct_unit and not attacker.path_points.is_empty(): return
 	if attacker.faction==Constants.FACTION_MONSTER and root.combat_time<command_until and command in ["rally","emergency_retreat","lure_retreat"] and not attacker.path_points.is_empty(): return
 	super.try_attack(attacker,opponents)
 
 func prioritizes_throne(enemy: Node) -> bool:
-	return enemy.faction==Constants.FACTION_ENEMY and enemy.goal_room=="throne" and bool(enemy.get_meta("attack_throne",false)) and bool(enemy.get_meta("objective_priority",false)) and enemy.forced_attack_target(root.monster_units,260)==null
+	return enemy.faction==Constants.FACTION_ENEMY and enemy.goal_room=="throne" and bool(enemy.get_meta("attack_throne",false)) and bool(enemy.get_meta("objective_priority",false)) and enemy_engagement_target(enemy)==null
 
 func _combat_action_target(attacker: Node, opponents: Array, max_distance: float) -> Node:
+	if attacker.faction==Constants.FACTION_ENEMY:
+		var defender := enemy_engagement_target(attacker)
+		return defender if defender!=null and attacker.position.distance_to(defender.position)<=max_distance else null
 	if attacker.faction==Constants.FACTION_MONSTER and command_remaining()>0 and command=="focus_attack" and is_instance_valid(command_target) and command_target in opponents and command_target.is_alive() and command_target.is_targetable_by(attacker):
 		if attacker.position.distance_to(command_target.position)<=max_distance: return command_target
 	return super._combat_action_target(attacker,opponents,max_distance)
@@ -398,7 +451,9 @@ func update_room_effects(delta: float) -> void:
 		apply_cell_traps(enemy)
 		var reached: bool = enemy.position.distance_to(goal_point(enemy))<18
 		if not reached: continue
-		var throne_open: bool = prioritizes_throne(enemy) if bool(enemy.get_meta("attack_throne",false)) and bool(enemy.get_meta("objective_priority",false)) else TargetingService.nearest(enemy,root.monster_units,enemy.attack_range)==null
+		# Blocking defenders also interrupt throne, theft and facility actions.
+		if enemy_engagement_target(enemy)!=null: continue
+		var throne_open := true
 		if enemy.goal_room=="throne" and enemy.attack_cooldown<=0 and throne_open:
 			var damage: int = maxi(8,enemy.effective_atk())
 			if not root.monster_units.any(func(u): return u.is_alive()): damage *= 3

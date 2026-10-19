@@ -29,6 +29,8 @@ def main():
     parser.add_argument("--label", default="baseline")
     parser.add_argument("--seeds", default="130401")
     parser.add_argument("--rendered", action="store_true")
+    parser.add_argument("--engagement", action="store_true")
+    parser.add_argument("--behavior-only", action="store_true")
     parser.add_argument("--last-day", type=int, default=30)
     parser.add_argument("--layout", default="recommended")
     parser.add_argument("--full-raster", action="store_true")
@@ -63,12 +65,14 @@ def main():
     exe = re.search(r'"([^"\r\n]+\.exe)"', wrapper.read_text()).group(1).replace("_console.exe", ".exe")
     env = os.environ.copy()
     env.update(APPDATA=str(folder / "appdata"), LOCALAPPDATA=str(folder / "localappdata"), MAWANG_DISABLE_STEAM="1")
+    env["MAWANG_TEST_ENGAGEMENT"] = "1" if args.engagement else "0"
     for key in ("APPDATA", "LOCALAPPDATA"):
         Path(env[key]).mkdir(exist_ok=True)
     command = [exe, "--path", str(ROOT), "--rendering-method", "gl_compatibility", "--resolution", "1280x720"]
     if not args.rendered:
         command.append("--headless")
     scene="V130RB04Stacking" if args.stack_source else "V130RB04Campaign"
+    if args.behavior_only: scene="V130REngagementSample"
     command += ["--scene", "res://tools/tests/"+scene+".tscn", "--", "label=" + args.label, "seeds=" + args.seeds, "last_day=" + str(args.last_day), "layout=" + args.layout]
     if args.stack_source:
         command += ["stack_source="+args.stack_source, "stack_days="+args.stack_days]

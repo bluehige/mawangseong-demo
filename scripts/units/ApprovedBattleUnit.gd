@@ -250,7 +250,12 @@ func refresh_depth_slot() -> void:
 
 func _physics_process(delta: float) -> void:
 	root_timer = maxf(0,root_timer-delta*simulation_speed)
+	var previous := position
+	if faction==Constants.FACTION_ENEMY and battle_runtime!=null: battle_runtime.hold_enemy_contact(self)
 	super._physics_process(delta)
+	if faction==Constants.FACTION_ENEMY and battle_runtime!=null and is_alive():
+		battle_runtime.block_enemy_step(self,previous)
+		refresh_depth_slot()
 	if health!=null:
 		health.sync(0.0 if battle_runtime!=null and battle_runtime.root.combat_paused else delta*simulation_speed)
 		selection_art.visible = selected and is_alive()

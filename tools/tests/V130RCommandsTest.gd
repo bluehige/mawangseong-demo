@@ -5,6 +5,7 @@ var unit_only := false
 var capture_mode := false
 var command_events: Array = []
 var captures: Array = []
+var command_coverage: Array = []
 
 func write_json(id: String, data) -> void:
 	var f := FileAccess.open("res://tmp/v130r_commands/"+label+"/"+id+".json",FileAccess.WRITE)
@@ -55,7 +56,9 @@ func read_entry(day: int) -> Dictionary:
 	return JSON.parse_string(FileAccess.get_file_as_string(entry_path(day)))
 
 func finish_commands() -> void:
-	write_json("checks",{"checks":checks,"failures":failures,"elapsed_msec":Time.get_ticks_msec()-started,"captures":captures})
+	if not unit_only:
+		expect(command_coverage.any(func(row): return row.status=="BOTH_ACCEPTED"),"suite actually exercises both accepted crisis orders")
+	write_json("checks",{"checks":checks,"failures":failures,"elapsed_msec":Time.get_ticks_msec()-started,"captures":captures,"command_coverage":command_coverage})
 	game._shutdown_audio_for_exit(); game.campaign_autosave_pending=false
 	game.queue_free(); await frames(5)
 	get_tree().quit(0 if failures.is_empty() else 1)
@@ -102,16 +105,18 @@ func battle_day() -> Dictionary:
 			if focus_time<0:
 				var target := crisis_target(b)
 				if target!=null:
-					expect(b.issue_command("focus_attack",target.position,target),"crisis focus accepted")
+					var accepted: bool=b.issue_command("focus_attack",target.position,target)
+					expect(accepted,"crisis focus accepted")
 					focus_time=game.combat_time
 					focus_target=target
-					command_events.append({"id":"focus_attack","time":game.combat_time,"target":target.unit_id,"position":[target.position.x,target.position.y]})
+					command_events.append({"id":"focus_attack","accepted":accepted,"time":game.combat_time,"target":target.unit_id,"position":[target.position.x,target.position.y]})
 					if capture_mode: await capture_battle("focus_active",b)
 			elif not held and (game.combat_time>=focus_time+b.COMMAND_SECONDS or not is_instance_valid(focus_target) or not focus_target.is_alive()):
 				if game.combat_time>=focus_time+b.COMMAND_SECONDS: expect(game.global_directive==Constants.DIRECTIVE_DEFENSE and b.command=="","focus expires before hold")
-				expect(b.issue_command("hold_ground"),"crisis hold accepted")
+				var accepted: bool=b.issue_command("hold_ground")
+				expect(accepted,"crisis hold accepted")
 				held=true
-				command_events.append({"id":"hold_ground","time":game.combat_time})
+				command_events.append({"id":"hold_ground","accepted":accepted,"time":game.combat_time})
 				if capture_mode: await capture_battle("hold_active",b)
 			elif held and not capture_post and b.command=="":
 				capture_post=true
@@ -127,7 +132,15 @@ func battle_day() -> Dictionary:
 	result.merge({"hp":GameState.demon_lord_hp,"hp_start":hp_start,"max_hp_start":max_hp_start,"defenders":assignments,"steps":steps,"commands":command_events.duplicate(true),"directive":game.global_directive,"survivors":game.monster_units.filter(func(u):return u.is_alive()).size()})
 	expect(not b.running,"battle completes before timeout")
 	expect(game.global_directive==Constants.DIRECTIVE_DEFENSE and b.command=="","battle finish clears the command stance")
-	if command_mode=="crisis": expect(command_events.size()==2,"both crisis orders were actually used")
+	if command_mode=="crisis":
+		# A defended throne may never meet the unchanged 180px crisis trigger.
+		# Preserve that missing coverage instead of manufacturing an order/target.
+		var status := "NO_CRISIS"
+		if focus_time>=0: status="BOTH_ACCEPTED" if held else "ENDED_AFTER_FOCUS"
+		if command_events.any(func(row): return not row.accepted): status="REJECTED"
+		var coverage := {"seed":run_seed,"day":GameState.day,"status":status,"orders":command_events.size()}
+		command_coverage.append(coverage); result.command_coverage=coverage
+		if held: expect(command_events.size()==2,"triggered crisis records both issued orders")
 	await frames(5); await drain(); await frames(2)
 	return result
 

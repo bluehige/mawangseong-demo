@@ -213,9 +213,25 @@ func unit_cases() -> void:
 	v=view(); v.set_preview_day(29); v.monster_ui.unlock_all=true; v.monster_ui.auto_place()
 	expect(v.preparation_only() and not game._has_defense_wave_for_day(29),"DAY29 preparation only")
 	expect(not v.start_battle() and v.battle==null,"DAY29 combat blocked")
+	game._set_campaign_final_declaration("castle_oath"); await drain(); await frames(2)
+	v=view()
 	expect(v.confirm_preparation_day(),"DAY29 preparation confirms")
 	await drain(); await frames(4)
+	expect(game.current_screen=="result" and GameState.day==29,"preparation settles before continuing")
+	game._continue_from_result(); await drain(); await frames(4)
 	expect(GameState.day==30,"DAY29 advances without battle")
+
+func required_specialization() -> Dictionary:
+	if not game._early_specialization_required_for_current_day(): return {}
+	var ui=view().monster_ui
+	for id in ui.unlocked():
+		var species: String=ui.members[id].species_id
+		for option in game._specializations_for_monster(species):
+			if ui.choose_specialization(id,str(option.id)):
+				await frames(2)
+				return {"species":species,"id":str(option.id)}
+	expect(false,"required specialization chosen through actual placement UI")
+	return {}
 
 func campaign() -> void:
 	if case_name=="unit": await unit_cases(); return
@@ -230,8 +246,14 @@ func campaign() -> void:
 		var entered: bool=game.current_screen=="management" and GameState.day==day and view()!=null and int(view().placement.day)==day
 		expect(entered,"continuous enters DAY%d with matching layout" % day)
 		if not entered: return
-		if case_name=="replay" and day==2: await save_reload(day)
+		var selected := await required_specialization()
+		if case_name=="replay" and day==2:
+			await save_reload(day)
+			if not selected.is_empty(): expect(str(game.monster_roster[selected.species].get("specialization_id",""))==selected.id,"save reload retains chosen specialization")
+			expect(not game._early_specialization_required_for_current_day(),"reloaded preparation satisfies specialization gate")
 		var result := await battle_day(); rows.append(result)
+		write_json("days",rows)
+		if result.has("error"): write_json("start_diagnostic",{"result":result,"day":GameState.day,"screen":game.current_screen,"gate":game._management_start_state(false)})
 		expect(not result.has("error"),"DAY%d battle finishes" % day)
 		if result.has("error"): return
 		if not result.get("win",false):
