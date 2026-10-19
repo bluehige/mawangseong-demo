@@ -23,7 +23,7 @@ func capture(name: String) -> void:
 func silhouette(control: TextureRect) -> Rect2:
 	var pixels := control.texture.get_image()
 	if pixels.is_compressed(): pixels.decompress()
-	var bounds: Rect2i = game.story_presenter.standing_visible_bounds(control.texture)
+	var bounds: Rect2i = pixels.get_used_rect() if phase == "before" else game.story_presenter.standing_visible_bounds(control.texture)
 	var factor := minf(control.size.x / pixels.get_width(), control.size.y / pixels.get_height())
 	return Rect2(control.position + (control.size - Vector2(pixels.get_size()) * factor) * 0.5 + Vector2(bounds.position) * factor, Vector2(bounds.size) * factor)
 func dialogue(id: String) -> Control:
