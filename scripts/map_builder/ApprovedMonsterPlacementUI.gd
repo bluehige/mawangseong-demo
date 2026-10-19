@@ -240,6 +240,7 @@ func apply_drop(id: String, target: Dictionary) -> bool:
 func refresh() -> void:
 	if is_instance_valid(unit_layer): unit_layer.free()
 	render_units(); refresh_cards(); persist(); view.rebuild_minimap()
+	view.update_battle_readiness()
 
 func persist() -> Error:
 	var chosen := {}
@@ -370,5 +371,5 @@ func build_specialization(id: String, y: float) -> void:
 func choose_specialization(id: String, spec_id: String) -> bool:
 	var species: String = members[id].species_id
 	if not view.root._choose_early_specialization(species,spec_id,false): return false
-	persist(); show_info(id)
+	persist(); show_info(id); view.update_battle_readiness()
 	return true

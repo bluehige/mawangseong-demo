@@ -56,6 +56,7 @@ var monster_ui: Node
 var battle
 var battle_ui: Node
 var finish_pending := false
+var battle_start_notice: Control
 
 func setup(game: Node) -> void:
 	root = game; name = "ApprovedMapManagement"
@@ -311,6 +312,7 @@ func build_chrome() -> void:
 	build_minimap()
 	monster_ui.build_controls(hud,tabs,bar)
 	update_wallet()
+	update_battle_readiness()
 
 func local_ui(key: String) -> Rect2:
 	var r: Rect2 = ui_rects[key]
@@ -728,6 +730,10 @@ func apply_action(next: Dictionary) -> bool:
 	return true
 
 func _input(event: InputEvent) -> void:
+	if is_instance_valid(battle_start_notice):
+		if event is InputEventKey and event.pressed and event.keycode==KEY_ESCAPE:
+			close_battle_start_notice(); get_viewport().set_input_as_handled()
+		return
 	if battle!=null:
 		if root.current_screen!=Constants.SCREEN_COMBAT: return
 		# GameRoot normally disables its own map input during Approved combat;
@@ -783,6 +789,9 @@ func _gui_input(event: InputEvent) -> void:
 	else: super._gui_input(event)
 
 func handle_key(event: InputEvent) -> bool:
+	if is_instance_valid(battle_start_notice):
+		if event is InputEventKey and event.pressed and event.keycode==KEY_ESCAPE: close_battle_start_notice()
+		return event is InputEventKey and event.keycode not in [KEY_TAB,KEY_ENTER,KEY_SPACE]
 	if battle!=null and (root.current_screen!=Constants.SCREEN_COMBAT or root.story_combat_overlay_open or root.continuity.backlog_open or root.pause_menu_open): return false
 	if battle!=null and root.start_flow.guide_key=="command" and event is InputEventKey and event.pressed and event.keycode==KEY_SPACE:
 		root.start_flow.ack_commands(); return true
@@ -822,26 +831,89 @@ func open_campaign_action(action: String) -> void:
 		if setup!="": root._set_screen(setup)
 		else: root._build_update4_required_choice_overlay()
 	elif action=="declaration": root._show_day29_finale_eve_dialogue()
-	else: root._open_monster_screen()
+	else:
+		if action=="specialization":
+			root.management_scene.monster_ui.active_tab = "skills"
+			root.management_scene.monster_ui.list_mode = "owned"
+		root._open_monster_screen()
+
+func battle_block_reason(ready: Dictionary) -> String:
+	if ready.get("reason_code","")=="specialization":
+		return root.continuity.localized("DAY 2~3: 몬스터 1명 특화를 고르면 전투 가능", "DAY 2–3: Choose a specialization for one monster to start battle.", "第2~3天：为1名怪物选择专精后即可战斗。")
+	return LanguageSettings.ui_text(str(ready.get("blocked_reason","")))
+
+func update_battle_readiness() -> void:
+	if not is_instance_valid(chrome) or preparation_only() or battle!=null: return
+	var ready: Dictionary = root._management_start_state(true)
+	var reason := battle_block_reason(ready) if not ready.can_start else ""
+	var action := chrome.find_child("ApprovedDayAction",true,false)
+	if action!=null:
+		action.tooltip_text = reason if reason!="" else LanguageSettings.text("map.start_day_d_with_the_current_deployment") % int(placement.day)
+	if is_instance_valid(status_text): status_text.text = reason
+
+func close_battle_start_notice() -> void:
+	if is_instance_valid(battle_start_notice):
+		battle_start_notice.queue_free()
+		battle_start_notice = null
+
+func show_battle_start_notice(ready: Dictionary) -> void:
+	if is_instance_valid(battle_start_notice): return
+	var reason := battle_block_reason(ready)
+	status_text.text = reason
+	var overlay := Control.new(); overlay.name = "BattleStartNotice"
+	overlay.size = size/ui_unit; overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	chrome.add_child(overlay); battle_start_notice = overlay
+	# Assemble the approved GPT raster panel and buttons, without drawing new art.
+	var panel := art_at(overlay,"res://assets/ui/uiux/obsidian_panel.png",Rect2((overlay.size-Vector2(880,300))/2,Vector2(880,300)))
+	panel.stretch_mode = TextureRect.STRETCH_SCALE; panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	label_at(panel,root.continuity.localized("전투 준비 확인", "Before battle", "战斗准备确认"),Vector2(36,28),28,true)
+	var words := label_at(panel,reason,Vector2(36,82),24)
+	words.name = "BattleStartBlockedReason"; words.size = Vector2(808,90)
+	words.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var action: String = str(ready.get("required_action_id",""))
+	var caption := ""
+	match action:
+		"specialization": caption = root.continuity.localized("특화 선택하러 가기", "Choose specialization", "前往选择专精")
+		"monsters": caption = root.continuity.localized("몬스터 성장하러 가기", "Open monster growth", "前往怪物成长")
+		"raid_choice": caption = root.continuity.localized("원정 선택하러 가기", "Choose expedition", "前往选择远征")
+		"council_choice": caption = root.continuity.localized("의회 결정하러 가기", "Open council decision", "前往议会决策")
+	var close := battle_notice_button(panel,root.continuity.localized("닫기", "Close", "关闭"),Vector2(36,208),close_battle_start_notice)
+	close.name = "BattleStartNoticeClose"
+	if caption!="":
+		var go := battle_notice_button(panel,caption,Vector2(452,208),func():
+			close_battle_start_notice()
+			open_campaign_action({"raid_choice":"raid","council_choice":"council"}.get(action,action)))
+		go.name = "BattleStartNoticeGo"
+		close.focus_next = close.get_path_to(go); close.focus_previous = close.get_path_to(go)
+		go.focus_next = go.get_path_to(close); go.focus_previous = go.get_path_to(close)
+	close.grab_focus()
+
+func battle_notice_button(parent: Control, caption: String, point: Vector2, callback: Callable) -> Button:
+	var button := Button.new(); parent.add_child(button)
+	button.position = point; button.size = Vector2(392,56); button.text = caption
+	button.add_theme_font_override("font",TITLE_FONT); button.add_theme_font_size_override("font_size",24)
+	var surface := StyleBoxTexture.new(); surface.texture = texture("res://assets/ui/uiux/obsidian_button.png")
+	for side in [SIDE_LEFT,SIDE_TOP,SIDE_RIGHT,SIDE_BOTTOM]: surface.set_texture_margin(side,18)
+	for state_name in ["normal","hover","pressed","focus"]: button.add_theme_stylebox_override(state_name,surface)
+	button.pressed.connect(callback)
+	return button
 
 
 func start_battle() -> bool:
+	if is_instance_valid(battle_start_notice): return false
 	if battle!=null: return false
 	if root.campaign_postgame_active:
 		root._show_campaign_ending(); return false
 	if not root._has_defense_wave_for_day(int(placement.day)):
 		status_text.text = LanguageSettings.text("map.a_quiet_day_confirm_your_preparations_to_advance"); return false
 	if monster_ui.assignments.is_empty():
-		status_text.text = LanguageSettings.text("map.deploy_defenders_from_the_deployment_tab"); return false
+		show_battle_start_notice({"blocked_reason":LanguageSettings.text("map.deploy_defenders_from_the_deployment_tab")}); return false
 	sync_campaign_wallet()
 	if root._update4_outpost_battle_day():
 		root._request_combat_start(); return false
 	var ready: Dictionary = root._management_start_state(true)
 	if not ready.can_start:
-		status_text.text = str(ready.blocked_reason)
-		if ready.required_action_id=="raid_choice": open_campaign_action("raid")
-		elif ready.required_action_id=="council_choice": open_campaign_action("council")
-		elif ready.required_action_id in ["monsters","specialization"]: open_campaign_action("monsters")
+		show_battle_start_notice(ready)
 		return false
 	var species: Array = []
 	for id in monster_ui.assignments: species.append(monster_ui.members[id].species_id)

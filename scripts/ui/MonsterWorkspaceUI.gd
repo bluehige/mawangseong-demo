@@ -88,6 +88,8 @@ func build_monster() -> void:
 	var data := DataRegistry.monster(id)
 	_glass(pane,0.48)
 	var main := kit_content(pane,24)
+	if GameState.day in [2,3]:
+		kit_line(main,loc("DAY 2~3: 몬스터 1명 특화를 고르면 전투 가능", "DAY 2–3: Choose a specialization for one monster to start battle.", "第2~3天：为1名怪物选择专精后即可战斗。"),"RequiredSpecializationNotice",GOLD)
 	var columns := kit_flow(main)
 	columns.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	columns.add_theme_constant_override("separation",24)
