@@ -7,6 +7,7 @@ const KitPanelScript = preload("res://scripts/story/DialogueStrip.gd")
 # Keep the button factory out of GameRoot's compile-time preload graph.
 var icon_button_script: Script = load("res://scripts/ui/kit/KitIconButton.gd")
 const Layers = preload("res://scripts/ui/kit/UIKitLayers.gd")
+const TextLayout = preload("res://scripts/ui/DialogueLayout.gd")
 const THRONE_BACKGROUND := "res://assets/ui/v1213/dialogue_throne.png"
 const LONG_STORY_TRIGGERS := ["opening", "new_game", "management_entered", "precombat_confirmed", "result_win"]
 
@@ -19,6 +20,11 @@ var legacy_auto_enabled := false
 var legacy_auto_remaining := 0.0
 var auto_at_end := false
 var combat_layers := Layers.new()
+var page_key := ""
+var page_index := 0
+var text_pages: Array[String] = []
+var page_body: RichTextLabel
+var page_counter: Label
 
 func setup(root_node, hud_controller) -> void:
 	root = root_node
@@ -103,18 +109,27 @@ func _build_shared_frame(parent: Control, speaker_id: String, speaker_name: Stri
 	strip.raster_only = raster_only
 	parent.add_child(strip)
 	strip.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	strip.anchor_top = 0.76 if not combat else 0.78
+	strip.anchor_top = 0.68 if not combat else 0.70
 	strip.offset_left = 24
 	strip.offset_right = -24
 	strip.offset_bottom = -24
 	strip.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	strip.mouse_filter = Control.MOUSE_FILTER_STOP
 	strip.content.add_theme_constant_override("separation", 8)
-	var speaker := Kit.label(speaker_name, "body")
+	var heading := HBoxContainer.new()
+	strip.content.add_child(heading)
+	var speaker := Kit.label(speaker_name, "body", true)
 	speaker.name = "DialogueSpeakerLabel" if legacy else "StorySpeakerLabel"
 	speaker.add_theme_color_override("font_color", Kit.Tokens.HIGHLIGHT)
 	speaker.add_theme_font_size_override("font_size", maxi(26, Kit.Tokens.font_size(28, UISettings.text_scale, UISettings.is_touch_ui())))
-	strip.content.add_child(speaker)
+	# Wrapped names must not impose their unwrapped minimum width on the frame.
+	speaker.clip_text = true
+	heading.add_child(speaker)
+	var counter := Kit.label("", "support")
+	counter.name = "DialoguePageCounter"
+	counter.size_flags_horizontal = Control.SIZE_SHRINK_END
+	counter.add_theme_font_size_override("font_size",20)
+	heading.add_child(counter)
 	var row := HBoxContainer.new()
 	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	strip.content.add_child(row)
@@ -122,7 +137,8 @@ func _build_shared_frame(parent: Control, speaker_id: String, speaker_name: Stri
 	body.name = "DialogueText" if legacy else "StoryDialogueText"
 	body.text = text
 	body.bbcode_enabled = false
-	body.scroll_active = true
+	body.scroll_active = false
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.custom_minimum_size.y = 116
@@ -155,16 +171,51 @@ func _build_shared_frame(parent: Control, speaker_id: String, speaker_name: Stri
 	_toolbar(parent, legacy)
 	if raster_only:
 		strip.surface.hide()
-		var painting := TextureRect.new()
-		painting.texture = preload("res://assets/ui/uiux/obsidian_panel.png")
-		painting.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		painting.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		painting.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		strip.add_child(painting); strip.move_child(painting,0)
 		preload("res://scripts/ui/ApprovedBattleUI.gd").prepare_result_controls(parent)
+		# Preserve the GPT artwork's corners instead of stretching its bevel
+		# underneath the copy. Only this dialogue instance receives these margins.
+		var frame := preload("res://scripts/ui/ObsidianStyleBox.gd").new()
+		frame.texture = preload("res://assets/ui/uiux/obsidian_panel.png")
+		for side in [SIDE_LEFT,SIDE_RIGHT]: frame.set_content_margin(side,48)
+		for side in [SIDE_TOP,SIDE_BOTTOM]: frame.set_content_margin(side,28)
+		strip.add_theme_stylebox_override("panel",frame)
+	var key := "%s:%s:%s:%s" % [legacy,root.onboarding_dialogue_index if legacy else root.story_director.current_cue_id,LanguageSettings.locale,text]
+	speaker.custom_minimum_size.y = ceilf(speaker.get_theme_font("font").get_height(speaker.get_theme_font_size("font_size")))+4
+	body.resized.connect(_paginate.bind(body,counter,text,key))
+	_paginate.call_deferred(body,counter,text,key)
 	if combat:
 		var paused: Label = hud.label(parent, LanguageSettings.story_ui("combat_paused"), Vector2(32, 32), Vector2(750, 48), 24, Kit.Tokens.HIGHLIGHT, HORIZONTAL_ALIGNMENT_LEFT, "StoryCombatPausedLabel", UIFontScript.ROLE_EMPHASIS)
 		paused.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+func _paginate(body: RichTextLabel, counter: Label, text: String, key: String) -> void:
+	if not is_instance_valid(body) or not body.is_inside_tree() or body.is_queued_for_deletion() or body.size.x<16 or body.size.y<16: return
+	if page_key != key:
+		page_key = key; page_index = 0
+	text_pages = TextLayout.pages(text,body.get_theme_font("normal_font"),body.get_theme_font_size("normal_font_size"),body.size,6)
+	page_index = clampi(page_index,0,text_pages.size()-1)
+	page_body = body; page_counter = counter
+	_show_page()
+
+func _show_page() -> void:
+	if not is_instance_valid(page_body) or text_pages.is_empty(): return
+	# Page boundaries preserve every source character. Only boundary whitespace
+	# is hidden while drawing, avoiding a spurious blank row at the page edge.
+	page_body.text = text_pages[page_index].strip_edges()
+	page_body.set_meta("dialogue_page_count",text_pages.size())
+	page_body.set_meta("dialogue_full_text","".join(text_pages))
+	if is_instance_valid(page_counter):
+		page_counter.text = "%d / %d" % [page_index+1,text_pages.size()] if text_pages.size()>1 else ""
+
+func advance_page(manual: bool) -> bool:
+	if not is_instance_valid(page_body) or page_index+1>=text_pages.size(): return false
+	page_index += 1
+	if manual:
+		legacy_auto_enabled = false
+		root.story_director.set_auto(false)
+	_show_page()
+	root._story_reset_auto_timer()
+	if manual: root._story_refresh_dialogue_ui()
+	return true
 
 func _update_participants(speaker: String, emotion: String, legacy: bool) -> void:
 	var key: String = "legacy:%s" % root.onboarding_dialogue_queue.hash() if legacy else "story:" + root.story_director.current_scene_id
@@ -278,6 +329,7 @@ func auto_allowed(legacy: bool) -> bool:
 
 func reset_legacy_auto() -> void:
 	legacy_auto_enabled = false
+	page_key = ""; page_index = 0; text_pages.clear()
 	auto_at_end = false
 	reset_legacy_timer()
 
@@ -297,6 +349,9 @@ func tick_legacy_auto(delta: float) -> void:
 	if not legacy_auto_enabled or root.onboarding_dialogue_queue.is_empty(): return
 	legacy_auto_remaining -= delta
 	if legacy_auto_remaining > 0.0: return
+	if page_index+1<text_pages.size():
+		root._onboarding_advance_dialogue(false)
+		return
 	if root.onboarding_dialogue_index + 1 >= root.onboarding_dialogue_queue.size():
 		legacy_auto_enabled = false
 		auto_at_end = true

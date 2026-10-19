@@ -7449,6 +7449,7 @@ func _onboarding_begin_dialogue(entries: Array, return_screen: String, complete_
 func _onboarding_advance_dialogue(manual: bool = true) -> void:
 	if continuity.backlog_open or pause_menu_open or current_screen == Constants.SCREEN_SETTINGS: return
 	if onboarding_dialogue_queue.is_empty(): return
+	if story_presenter.advance_page(manual): return
 	var ach_line: Dictionary = onboarding_dialogue_queue[onboarding_dialogue_index]
 	preload("res://scripts/achievements/AchievementGameplay.gd").read_line(str(ach_line.get("id","")),str(ach_line.get("speaker","")))
 	if manual: story_presenter.legacy_auto_enabled = false
@@ -7588,6 +7589,7 @@ func _story_advance_dialogue(manual: bool = true) -> void:
 	if continuity.backlog_open or pause_menu_open or current_screen == Constants.SCREEN_SETTINGS: return
 	if not story_director.is_active():
 		return
+	if story_presenter.advance_page(manual): return
 	if not manual and story_director.cursor + 1 >= story_director.cue_count():
 		story_director.set_auto(false)
 		story_presenter.auto_at_end = true

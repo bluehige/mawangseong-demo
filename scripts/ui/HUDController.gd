@@ -1459,6 +1459,7 @@ func rich_label(
 func _fit_label_to_bounds(result, min_font_size: int, attempt: int) -> void:
 	if not is_instance_valid(result) or not result is Label:
 		return
+	if result.get_meta("dialogue_layout_managed",false): return
 	var current_size = result.get_theme_font_size("font_size")
 	var font = result.get_theme_font("font")
 	if not result.get_parent() is Container:

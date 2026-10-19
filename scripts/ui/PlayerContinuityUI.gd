@@ -96,6 +96,7 @@ func open_backlog() -> void:
 	var panel := modal("DialogueBacklogOverlay", localized("대화 로그 · 읽기 전용", "Dialogue log · read only", "对话记录 · 只读"))
 	var scroll := ScrollContainer.new()
 	scroll.name = "DialogueBacklogScroll"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.position = Vector2(44, 110)
 	scroll.size = Vector2(1112, 540)
 	panel.add_child(scroll)
@@ -107,9 +108,9 @@ func open_backlog() -> void:
 		var label := Label.new()
 		label.text = "DAY %02d · %s\n%s" % [entry.day, entry.speaker, entry.text]
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		label.custom_minimum_size = Vector2(1060, 0)
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		label.add_theme_font_override("font", root.hud.UI_FONT)
-		label.add_theme_font_size_override("font_size", 25)
+		label.add_theme_font_size_override("font_size", UISettings.scaled_font_size(25))
 		rows.add_child(label)
 	root.hud.button(panel, localized("닫고 대화로 돌아가기", "Close and resume dialogue", "关闭并返回对话"), Rect2(340, 680, 520, 60), Callable(self, "close_backlog"), 22, "BacklogCloseButton")
 	scroll.set_deferred("scroll_vertical", 1000000)

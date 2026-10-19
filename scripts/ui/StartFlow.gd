@@ -323,11 +323,12 @@ func label(parent: Control, content: String, rect: Rect2, font_size: int, id: St
 	result.name = id; result.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	result.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; result.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	result.add_theme_font_override("font",UIFont.font_for_role(UIFont.ROLE_BODY))
-	result.add_theme_font_size_override("font_size",font_size)
+	result.add_theme_font_size_override("font_size",UISettings.scaled_font_size(font_size))
 	result.add_theme_color_override("font_color",Color("#f4eadc"))
 	result.set_meta("hud_text_fit",true)
 	result.text = content; result.position = rect.position; result.size = rect.size
 	parent.add_child(result)
+	preload("res://scripts/ui/DialogueLayout.gd").fit_label(result,rect,20)
 	return result
 
 func raster_panel(parent: Control, rect: Rect2, id: String) -> Panel:

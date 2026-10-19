@@ -1,6 +1,7 @@
 extends RefCounted
 ## Supplemental scripts use the existing dialogue presenter and saved read IDs.
 const FOLDER := "res://data/v130r/story/"
+const TextLayout = preload("res://scripts/ui/DialogueLayout.gd")
 var documents: Dictionary = {}
 var translations: Dictionary = {}
 var bark_clock := 0.0
@@ -177,9 +178,12 @@ func tick_barks(game: Node, delta: float) -> void:
 		var cue: Dictionary = next.cue
 		var path: String = game._onboarding_speaker_portrait_path(cue.speaker_id,cue.portrait_emotion,true)
 		if path!="": game.hud.texture(bark_panel,path,Rect2(16,20,100,112))
-		game.hud.label(bark_panel,cue.speaker_label,Vector2(132,12),Vector2(912,32),22,Color("#e8bd76"))
+		var heading: Label = game.hud.label(bark_panel,cue.speaker_label,Vector2(132,12),Vector2(912,32),22,Color("#e8bd76"))
 		var label: Label = game.hud.label(bark_panel,cue.text,Vector2(132,48),Vector2(912,96),23,Color("#f4eadc"))
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		TextLayout.grow_feed(bark_panel,heading,label)
+		if is_instance_valid(game.combat_story_feed.panel):
+			bark_panel.position.y = minf(1080-bark_panel.size.y-24,maxf(bark_panel.position.y,game.combat_story_feed.panel.get_rect().end.y+12))
 		ignore_input(bark_panel); bark_remaining = 3.5; bark_gap = 4.5
 		return
 
@@ -191,8 +195,10 @@ func show_victory(game: Node) -> void:
 	if victory_cue.is_empty(): return
 	var cue: Dictionary = victory_cue
 	var panel: Control = game.hud.panel(Rect2(32,112,1080,112),Color("#0b0e18ec"),Color("#655578"),"V130RVictoryBark","flat")
+	panel.name = "V130RVictoryBark"
 	panel.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED; panel.z_index = 116
-	game.hud.label(panel,cue.speaker_label,Vector2(20,10),Vector2(1040,30),22,Color("#e8bd76"))
+	var heading: Label = game.hud.label(panel,cue.speaker_label,Vector2(24,24),Vector2(1032,30),22,Color("#e8bd76"))
 	var text: Label = game.hud.label(panel,cue.text,Vector2(20,44),Vector2(1040,62),23,Color("#f4eadc"))
+	TextLayout.grow_feed(panel,heading,text)
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART; ignore_input(panel)
 	game.get_tree().create_timer(3.5).timeout.connect(Callable(panel,"queue_free"))

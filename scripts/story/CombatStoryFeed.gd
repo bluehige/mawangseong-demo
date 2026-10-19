@@ -1,6 +1,7 @@
 extends RefCounted
 # Ordinary battle reactions never own keyboard focus or pause the simulation.
 const Reader = preload("res://scripts/story/StoryDirector.gd")
+const TextLayout = preload("res://scripts/ui/DialogueLayout.gd")
 var pending: Array[Dictionary] = []
 var presented: Dictionary = {}
 var reader = null
@@ -103,9 +104,10 @@ func _show(root: Node, new_cue: bool = true) -> void:
 	panel.z_index = 115
 	var portrait_path: String = root._onboarding_speaker_portrait_path(str(speaker.get("speaker_id","")),str(speaker.get("portrait_emotion","")), true)
 	if portrait_path != "": root.hud.texture(panel,portrait_path,Rect2(16,20,100,112))
-	root.hud.label(panel,name,Vector2(132,12),Vector2(912,32),22,Color("#e8bd76"),HORIZONTAL_ALIGNMENT_LEFT,"StoryCombatFeedSpeaker")
+	var heading: Label = root.hud.label(panel,name,Vector2(132,12),Vector2(912,32),22,Color("#e8bd76"),HORIZONTAL_ALIGNMENT_LEFT,"StoryCombatFeedSpeaker")
 	var body: Label = root.hud.label(panel,text,Vector2(132,48),Vector2(912,96),23,Color("#f4eadc"),HORIZONTAL_ALIGNMENT_LEFT,"StoryCombatFeedText")
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	TextLayout.grow_feed(panel,heading,body)
 	_ignore_input(panel)
 	if new_cue:
 		root._log("%s: %s" % [name,text])

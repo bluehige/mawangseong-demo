@@ -231,3 +231,5 @@ static func food_result_panel(root: Node) -> void:
 	body.position = Vector2(28,72); body.size = Vector2(670,245); body.bbcode_enabled = false
 	body.add_theme_font_override("normal_font",preload("res://assets/fonts/NEXON_Maplestory_Light.otf")); body.add_theme_font_size_override("normal_font_size",23)
 	body.text = "\n\n".join(preload("res://scripts/systems/MonsterFoodService.gd").lines(ledger)); panel.add_child(body)
+	preload("res://scripts/ui/DialogueLayout.gd").scrolling_text(body)
+	body.add_theme_font_size_override("normal_font_size",UISettings.scaled_font_size(23))
