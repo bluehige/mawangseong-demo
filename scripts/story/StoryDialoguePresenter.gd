@@ -25,6 +25,40 @@ var page_index := 0
 var text_pages: Array[String] = []
 var page_body: RichTextLabel
 var page_counter: Label
+var standing_bounds_cache: Dictionary = {}
+
+func standing_visible_bounds(texture: Texture2D) -> Rect2i:
+	var key := texture.get_instance_id()
+	if standing_bounds_cache.has(key): return standing_bounds_cache[key]
+	var pixels := texture.get_image()
+	if pixels == null: return Rect2i()
+	if pixels.is_compressed(): pixels.decompress()
+	pixels.convert(Image.FORMAT_RGBA8)
+	var data := pixels.get_data()
+	var width := pixels.get_width()
+	var bounds := pixels.get_used_rect()
+	# Alpha 1..8 speckles are imperceptible, but can make a small body fit a
+	# whole canvas. Measure visible edges only; never edit the source pixels.
+	for edge in range(4):
+		while bounds.has_area():
+			var visible := false
+			var horizontal := edge < 2
+			var fixed := bounds.position.y if edge == 0 else bounds.end.y - 1
+			if not horizontal: fixed = bounds.position.x if edge == 2 else bounds.end.x - 1
+			for moving in range(bounds.position.x if horizontal else bounds.position.y, bounds.end.x if horizontal else bounds.end.y):
+				var offset := (fixed * width + moving) * 4 + 3 if horizontal else (moving * width + fixed) * 4 + 3
+				if data[offset] > 8:
+					visible = true
+					break
+			if visible: break
+			if horizontal:
+				if edge == 0: bounds.position.y += 1
+				bounds.size.y -= 1
+			else:
+				if edge == 2: bounds.position.x += 1
+				bounds.size.x -= 1
+	standing_bounds_cache[key] = bounds
+	return bounds
 
 func setup(root_node, hud_controller) -> void:
 	root = root_node
@@ -270,10 +304,8 @@ func _standing(parent: Control, id: String, slot: int, active: bool, combat: boo
 	elif is_monster_speaker(id):
 		# Fit the actual alpha silhouette to Bati's visible height and baseline.
 		# Atlas cropping only selects source pixels; it never edits their alpha.
-		var pixels := image.texture.get_image()
-		if pixels != null:
-			if pixels.is_compressed(): pixels.decompress()
-			var bounds := pixels.get_used_rect()
+		if image.texture != null:
+			var bounds := standing_visible_bounds(image.texture)
 			if bounds.has_area():
 				var cropped := AtlasTexture.new()
 				cropped.atlas = image.texture
@@ -296,9 +328,7 @@ func _layout_monster_standing(image: TextureRect, slot: int, combat: bool) -> vo
 	if not is_instance_valid(image) or image.texture == null: return
 	var reference: Texture2D = root._onboarding_portrait_texture(root._onboarding_speaker_portrait_path("CHR_BATI", "dry"))
 	if reference == null: return
-	var pixels := reference.get_image()
-	if pixels.is_compressed(): pixels.decompress()
-	var bounds := pixels.get_used_rect()
+	var bounds := standing_visible_bounds(reference)
 	var extent: Vector2 = image.get_parent().size
 	var area := Rect2(Vector2(extent.x * (0.10 if slot == 0 else 0.58), extent.y * (0.44 if combat else 0.26)), Vector2(extent.x * (0.32 if slot == 0 else 0.36), extent.y * (0.33 if combat else 0.51)))
 	var fit := minf(area.size.x / reference.get_width(), area.size.y / reference.get_height())

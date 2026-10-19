@@ -23,7 +23,7 @@ func capture(name: String) -> void:
 func silhouette(control: TextureRect) -> Rect2:
 	var pixels := control.texture.get_image()
 	if pixels.is_compressed(): pixels.decompress()
-	var bounds := pixels.get_used_rect()
+	var bounds: Rect2i = game.story_presenter.standing_visible_bounds(control.texture)
 	var factor := minf(control.size.x / pixels.get_width(), control.size.y / pixels.get_height())
 	return Rect2(control.position + (control.size - Vector2(pixels.get_size()) * factor) * 0.5 + Vector2(bounds.position) * factor, Vector2(bounds.size) * factor)
 func dialogue(id: String) -> Control:
@@ -54,6 +54,10 @@ func run() -> void:
 	for id in DataRegistry.characters:
 		if "monster" in str(DataRegistry.character(id).get("category","")) and not monsters.has(id): monsters.append(id)
 	monsters.append("CHR_GOLDIN")
+	if phase != "before":
+		var pudding: Texture2D = game._onboarding_portrait_texture("res://assets/sprites/portraits/uiux3d/pudding_base.png")
+		var bounds: Rect2i = game.story_presenter.standing_visible_bounds(pudding)
+		expect(bounds == Rect2i(50,240,1163,783), "ignore nearly transparent pudding canvas speckles")
 	for resolution in [Vector2i(1280,720), Vector2i(1920,1080)]:
 		get_window().size = resolution; await frames(8)
 		for id in monsters:
