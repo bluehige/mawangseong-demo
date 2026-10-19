@@ -5,7 +5,7 @@ const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const Kit = preload("res://scripts/ui/kit/UIKit.gd")
 const KitPanelScript = preload("res://scripts/story/DialogueStrip.gd")
 # Keep the button factory out of GameRoot's compile-time preload graph.
-var icon_button_script: Script = load("res://scripts/ui/kit/KitIconButton.gd")
+var icon_button_script: Script = load("res://scripts/story/DialogueToolbarButton.gd")
 const Layers = preload("res://scripts/ui/kit/UIKitLayers.gd")
 const TextLayout = preload("res://scripts/ui/DialogueLayout.gd")
 const THRONE_BACKGROUND := "res://assets/ui/v1213/dialogue_throne.png"
@@ -267,6 +267,45 @@ func _standing(parent: Control, id: String, slot: int, active: bool, combat: boo
 		image.anchor_right = 0.42 if slot == 0 else 0.94
 		image.anchor_top = 0.26 if not combat else 0.44
 		image.anchor_bottom = 0.77
+	elif is_monster_speaker(id):
+		# Fit the actual alpha silhouette to Bati's visible height and baseline.
+		# Atlas cropping only selects source pixels; it never edits their alpha.
+		var pixels := image.texture.get_image()
+		if pixels != null:
+			if pixels.is_compressed(): pixels.decompress()
+			var bounds := pixels.get_used_rect()
+			if bounds.has_area():
+				var cropped := AtlasTexture.new()
+				cropped.atlas = image.texture
+				cropped.region = Rect2(bounds)
+				image.texture = cropped
+		image.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+		parent.resized.connect(_layout_monster_standing.bind(image, slot, combat))
+		_layout_monster_standing(image, slot, combat)
+
+func is_monster_speaker(id: String) -> bool:
+	if id in ["CHR_DARKLORD_PLAYER", "CHR_BATI", "NARRATOR"]: return false
+	var category := str(DataRegistry.character(id).get("category", ""))
+	if "monster" in category: return true
+	for instance in DataRegistry.monster_instances.values():
+		if str(instance.get("character_id", "")) == id: return true
+	# Goldin is a skeleton member of castle staff, rather than a deployed unit.
+	return id == "CHR_GOLDIN"
+
+func _layout_monster_standing(image: TextureRect, slot: int, combat: bool) -> void:
+	if not is_instance_valid(image) or image.texture == null: return
+	var reference: Texture2D = root._onboarding_portrait_texture(root._onboarding_speaker_portrait_path("CHR_BATI", "dry"))
+	if reference == null: return
+	var pixels := reference.get_image()
+	if pixels.is_compressed(): pixels.decompress()
+	var bounds := pixels.get_used_rect()
+	var extent: Vector2 = image.get_parent().size
+	var area := Rect2(Vector2(extent.x * (0.10 if slot == 0 else 0.58), extent.y * (0.44 if combat else 0.26)), Vector2(extent.x * (0.32 if slot == 0 else 0.36), extent.y * (0.33 if combat else 0.51)))
+	var fit := minf(area.size.x / reference.get_width(), area.size.y / reference.get_height())
+	var origin := area.position + (area.size - reference.get_size() * fit) * 0.5
+	var height := bounds.size.y * fit
+	image.size = Vector2(height * image.texture.get_width() / image.texture.get_height(), height)
+	image.position = Vector2(area.get_center().x - image.size.x * 0.5, origin.y + bounds.end.y * fit - height)
 
 func _toolbar(parent: Control, legacy: bool) -> void:
 	var margin := MarginContainer.new()
@@ -280,18 +319,25 @@ func _toolbar(parent: Control, legacy: bool) -> void:
 	margin.add_child(row)
 	_icon(row, "log", root.continuity.localized("대화 로그 · 읽기 전용, 자동 재생 일시정지", "Dialogue log · read only, pauses auto", "对白记录 · 只读，暂停自动播放"), Callable(root.continuity, "open_backlog"), "DialogueBacklogButton", root.continuity.localized("로그", "Log", "记录"))
 	var automatic := legacy_auto_enabled if legacy else bool(root.story_director.auto_enabled)
-	var auto = _icon(row, "auto", root.continuity.localized("자동 재생 · 켜기/끄기, 마지막 대사에서 멈춤", "Auto · on/off, stops at the final line", "自动播放 · 开/关，在最后一句停止"), Callable(self, "toggle_legacy_auto") if legacy else Callable(root, "_story_toggle_auto"), "LegacyStoryAutoButton" if legacy else "StoryAutoButton", root.continuity.localized("자동", "Auto", "自动"))
+	var status: String = root.continuity.localized("켜짐", "On", "开启") if automatic else root.continuity.localized("꺼짐", "Off", "关闭")
+	var auto = _icon(row, "auto", root.continuity.localized("자동 재생 · 현재 %s\n클릭하여 켜기/끄기 · 마지막 대사에서 멈춤", "Auto · currently %s\nClick to toggle · stops at the final line", "自动播放 · 当前%s\n点击切换 · 在最后一句停止") % status, Callable(self, "toggle_legacy_auto") if legacy else Callable(root, "_story_toggle_auto"), "LegacyStoryAutoButton" if legacy else "StoryAutoButton", root.continuity.localized("자동 · %s", "Auto · %s", "自动 · %s") % status)
 	auto.toggle_mode = true
 	auto.set_pressed_no_signal(automatic)
 	if automatic: auto.set_variant(icon_button_script.VariantStyle.PRIMARY)
+	var active_marker := Kit.image("check", 32)
+	active_marker.name = "DialogueAutoActiveMarker"
+	active_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	auto.add_child(active_marker)
+	active_marker.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	active_marker.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	active_marker.visible = automatic
 	auto.disabled = not auto_allowed(legacy)
-	if auto.disabled: auto.tooltip_text = root.continuity.localized("자동 재생 · 오프닝/관리 진입/전투 직전/승리 후 긴 묶음에 사용", "Auto · available for long opening/management/precombat/victory groups", "自动播放 · 用于开场、管理开始、战斗前及胜利后的长对白")
+	if auto.disabled: auto.tooltip_text = root.continuity.localized("자동 재생 · 현재 꺼짐 · 사용 불가\n오프닝/관리 진입/전투 직전/승리 후 긴 묶음에서 사용", "Auto · currently Off · unavailable\nAvailable for long opening/management/precombat/victory groups", "自动播放 · 当前关闭 · 不可用\n用于开场、管理开始、战斗前及胜利后的长对白")
 	var allowed: bool = root.campaign_cycle_index >= 2 and root.onboarding_dialogue_queue.size() > 1 if legacy else root.story_director.skip_allowed()
 	var skip = _icon(row, "skip", root.continuity.localized("넘기기 · 읽은 대화만 허용", "Skip · available for previously read dialogue", "跳过 · 仅限已读对白"), Callable(root, "_onboarding_skip_dialogue") if legacy else Callable(root, "_story_skip_dialogue"), "LegacyStorySkipButton" if legacy else "StorySkipButton", root.continuity.localized("넘기기", "Skip", "跳过"))
 	skip.disabled = not allowed
 	if not allowed:
-		skip.tooltip_text = ""
-		skip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		skip.tooltip_text = root.continuity.localized("넘기기 · 현재 사용 불가\n읽은 대화부터 넘길 수 있습니다.", "Skip · currently unavailable\nAvailable after reading this dialogue.", "跳过 · 当前不可用\n读过此对白后方可跳过。")
 	var lock := Kit.image("lock", 28)
 	lock.name = "DialogueSkipLock"
 	skip.add_child(lock)

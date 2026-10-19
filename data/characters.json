@@ -148,7 +148,7 @@
     ],
     "unit_ref": null,
     "portrait": {
-      "base": "res://assets/sprites/portraits/onboarding/portrait_goldin.png",
+      "base": "res://assets/sprites/portraits/onboarding/portrait_goldin_alpha_v130r.png",
       "accent": "#c8a760",
       "fallback": "base",
       "observed_emotions": [
@@ -163,7 +163,7 @@
       ],
       "emotion_aliases": {},
       "variants": {
-        "accounting": "res://assets/sprites/portraits/onboarding/CHR_GOLDIN_portrait_accounting.png"
+        "accounting": "res://assets/sprites/portraits/onboarding/CHR_GOLDIN_portrait_accounting_alpha_v130r.png"
       }
     },
     "generation_profile": {
