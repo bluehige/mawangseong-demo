@@ -276,10 +276,7 @@ func close_info() -> void:
 func show_info(id: String) -> void:
 	close_info(); selected = id
 	var row: Dictionary = members[id]
-	var height := (386 if row.equipped_skill_ids.size()>2 else 324)+250
-	info_height = height
-	var footer := height-46
-	var panel: TextureRect = view.art_at(detail,"res://assets/maps/v130r_step3/monster_info_panel.png",Rect2(0,0,400,height))
+	var panel: TextureRect = view.art_at(detail,"res://assets/maps/v130r_step3/monster_info_panel.png",Rect2(0,0,400,1))
 	panel.stretch_mode = TextureRect.STRETCH_SCALE
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	view.art_at(detail,portrait(id),Rect2(18,18,66,66))
@@ -300,6 +297,13 @@ func show_info(id: String) -> void:
 		text.tooltip_text = description; text.mouse_filter = Control.MOUSE_FILTER_PASS
 		y += 62
 	build_specialization(id,y)
+	var bottom := float(y)
+	for child in detail.get_children():
+		if child == panel or not child is Control: continue
+		bottom = maxf(bottom,child.position.y+maxf(child.size.y,child.get_combined_minimum_size().y))
+	var footer := bottom+82
+	info_height = clampf(footer+46,324,740)
+	panel.size.y = info_height
 	var memory_button := Button.new(); detail.add_child(memory_button)
 	memory_button.name = "V130RBondMemoryButton"
 	memory_button.position = Vector2(24,footer-56); memory_button.size = Vector2(164,40)
@@ -331,7 +335,8 @@ func position_info() -> void:
 	var height := info_height
 	var x := r.end.x+12
 	if x+400>bounds.x-12 or (x<1584 and r.position.y+324>866): x = r.position.x-412
-	detail.position = Vector2(clampf(x,12,bounds.x-412),clampf(r.position.y-60,106,866-height-12))
+	var safe_bottom := bounds.y-226 if mode=="place" else bounds.y-12
+	detail.position = Vector2(clampf(x,12,bounds.x-412),clampf(r.position.y-60,126,maxf(126,safe_bottom-height)))
 
 func _process(_delta: float) -> void:
 	position_info()
@@ -355,7 +360,7 @@ func build_specialization(id: String, y: float) -> void:
 	for index in range(options.size()):
 		var option: Dictionary = options[index]
 		var x := 24+index*186
-		var button := TextureButton.new(); button.name = "SpecChoose_"+str(option.id)
+		var button := preload("res://scripts/ui/ReadableTooltipTextureButton.gd").new(); button.name = "SpecChoose_"+str(option.id)
 		button.texture_normal = view.texture(str(option.badge)); button.ignore_texture_size = true
 		button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 		button.position = Vector2(x,y+28); button.size = Vector2(58,58)

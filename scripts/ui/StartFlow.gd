@@ -5,6 +5,7 @@ const Buildings = preload("res://scripts/map_builder/ApprovedPlacement.gd")
 const Members = preload("res://scripts/map_builder/ApprovedMonsterPlacement.gd")
 const UIFont = preload("res://scripts/ui/UIFont.gd")
 const Obsidian = preload("res://scripts/ui/ObsidianStyleBox.gd")
+const ButtonGlow = preload("res://scripts/ui/TutorialButtonGlow.gd")
 const TEXT_PATH := "res://data/v130r/start_flow.json"
 var root: Node
 var catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(TEXT_PATH))
@@ -227,6 +228,7 @@ func show_guide(view: Node, key: String, content: String, rect: Rect2, callback:
 	if callback.is_valid(): button(box,text("understood"),Rect2(rect.size.x-248,rect.size.y-68,220,52),callback,"StartGuideNext")
 	else: label(box,text("guide_do"),Rect2(28,rect.size.y-62,rect.size.x-56,44),20,"StartGuideAction")
 	if key!="command": update_highlights(view)
+	else: ButtonGlow.attach(box.find_child("StartGuideNext",true,false))
 
 func update_highlights(view: Node) -> void:
 	if not is_instance_valid(guide): return
@@ -241,11 +243,17 @@ func update_highlights(view: Node) -> void:
 			label(mark,text(id),Rect2(8,5,164,50),24,"MapLabel_"+id).horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	elif guide_step==2:
 		label(targets,"▼ "+text("build"),Rect2(630,832,670,50),30,"BuildHighlight")
+		ButtonGlow.attach(view.chrome.find_child("BuildTab",true,false))
+		for control in view.palette_buttons.values(): ButtonGlow.attach(control)
 	elif guide_step==3:
-		label(targets,"▼ "+text("place"),Rect2(878,94,440,50),28,"PlaceHighlight")
+		label(targets,"▼ "+text("place"),Rect2(878,122,440,50),28,"PlaceHighlight")
+		ButtonGlow.attach(view.chrome.find_child("PlaceTab",true,false))
+		ButtonGlow.attach(view.monster_ui.roster_panel.find_child("place_auto",true,false))
 		# The live placement mode owns its glowing legal defense cells.
 	elif guide_step==4:
-		label(targets,"▼ "+text("battle"),Rect2(1070,94,440,50),28,"BattleHighlight")
+		label(targets,"▼ "+text("battle"),Rect2(1120,122,440,50),28,"BattleHighlight")
+		ButtonGlow.attach(view.chrome.find_child("ApprovedDayAction",true,false))
+	if guide_step==1: ButtonGlow.attach(guide.find_child("StartGuideNext",true,false))
 
 func advance_guide() -> void:
 	guide_step += 1; guide_key = ""; clear_guide()
@@ -259,6 +267,9 @@ func ack_commands() -> void:
 
 func clear_guide() -> void:
 	if is_instance_valid(guide): guide.queue_free()
+	if is_instance_valid(guide) and root != null and root.ui_layer != null:
+		for glow in root.ui_layer.find_children("TutorialButtonGlow","",true,false):
+			glow.hide(); glow.queue_free()
 	guide = null; guide_key = ""
 
 func before_battle(view: Node) -> bool:

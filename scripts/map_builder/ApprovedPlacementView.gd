@@ -150,7 +150,7 @@ func cell_highlight(parent: Node, cell: Vector2i, tint: Color) -> Sprite2D:
 	return sprite
 
 func label_at(parent: Node, text: String, point: Vector2, font_size: int = 18, heading: bool = false) -> Label:
-	var label := Label.new(); label.text = LanguageSettings.ui_text(text); label.position = point
+	var label := preload("res://scripts/ui/ReadableTooltipLabel.gd").new(); label.text = LanguageSettings.ui_text(text); label.position = point
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.add_theme_font_override("font",TITLE_FONT if heading else BODY_FONT); label.add_theme_font_size_override("font_size",font_size)
 	label.add_theme_color_override("font_color",Color("eee9d9"))
@@ -170,7 +170,7 @@ func fit_label(label: Label, width: float, minimum_px: int = 10) -> void:
 	label.size.x=width
 
 func image_button(parent: Node, icon: String, point: Vector2, width: float, callback: Callable, tooltip: String) -> TextureButton:
-	var button := TextureButton.new(); button.name = icon
+	var button := preload("res://scripts/ui/ReadableTooltipTextureButton.gd").new(); button.name = icon
 	button.texture_normal = texture(UI_ART+icon+".png")
 	button.ignore_texture_size = true; button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 	button.position = point; button.size = Vector2.ONE*width; button.tooltip_text = LanguageSettings.ui_text(tooltip)
@@ -183,7 +183,7 @@ func image_button(parent: Node, icon: String, point: Vector2, width: float, call
 	parent.add_child(button); return button
 
 func panel_image(parent: Node, rect: Rect2) -> TextureRect:
-	var panel := TextureRect.new()
+	var panel := preload("res://scripts/ui/ReadableTooltipTextureRect.gd").new()
 	panel.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	panel.texture = texture("res://assets/ui/uiux/obsidian_panel.png")
 	panel.position = rect.position; panel.size = rect.size
@@ -191,7 +191,7 @@ func panel_image(parent: Node, rect: Rect2) -> TextureRect:
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP; parent.add_child(panel); return panel
 
 func art_at(parent: Node, path: String, rect: Rect2) -> TextureRect:
-	var image := TextureRect.new(); image.texture = texture(path)
+	var image := preload("res://scripts/ui/ReadableTooltipTextureRect.gd").new(); image.texture = texture(path)
 	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	image.position = rect.position; image.size = rect.size
@@ -240,14 +240,15 @@ func build_chrome() -> void:
 	wallet = resource_line(hud,placement.resources,Vector2(175,21),98,false)
 	var tabs := Control.new(); tabs.position = local_ui("tabs").position; chrome.add_child(tabs)
 	for i in range(3):
-		var tab := art_at(tabs,"res://assets/ui/uiux/obsidian_button.png",Rect2(i*190,0,184,74))
+		var tab := art_at(tabs,"res://assets/ui/uiux/obsidian_button.png",Rect2(i*248,0,240,96))
 		tab.stretch_mode = TextureRect.STRETCH_SCALE
 		tab.name = ["BuildTab","PlaceTab","CombatTab"][i]
 		tab.modulate = Color(1.25,1.12,.75) if i==0 else Color(.5,.5,.58)
 		var preparation := preparation_only()
 		var icon: String = ["build","monster","check" if preparation else "battle_start"][i]
-		var tab_icon := art_at(tabs,KIT+icon+"_64.png",Rect2(i*190+17,17,36,36))
-		var title := label_at(tabs,[LanguageSettings.text("map.build"),LanguageSettings.text("map.deploy"),LanguageSettings.text("map.ready") if preparation else LanguageSettings.text("map.battle")][i],Vector2(i*190+57,24),18,true)
+		var tab_icon := art_at(tabs,KIT+icon+"_64.png",Rect2(i*248+22,22,48,48))
+		var title := label_at(tabs,[LanguageSettings.text("map.build"),LanguageSettings.text("map.deploy"),LanguageSettings.text("map.ready") if preparation else LanguageSettings.text("map.battle")][i],Vector2(i*248+74,32),24,true)
+		fit_label(title,154,20)
 		if i==2:
 			tab.name = "ApprovedDayAction"
 			tab_icon.modulate = Color(.45,.45,.5); title.modulate = Color(.5,.5,.56)
@@ -574,7 +575,9 @@ func show_info(mode: String) -> void:
 	panel_mode = mode
 	for child in info.get_children(): child.free()
 	var b := Placement.building(placement,selected_id)
-	panel_image(info,Rect2(0,0,360,268))
+	var height := 268.0 if mode in ["menu_upgrade","menu_dismantle_refund"] else 162.0
+	info.set_meta("content_height",height)
+	panel_image(info,Rect2(0,0,360,height))
 	var next := Placement.upgrade(placement,b.id) if mode=="menu_upgrade" else {}
 	var after := Placement.building(next,b.id) if next.get("ok",false) else {}
 	var level := "Lv%d → Lv%d" % [b.level,after.level] if not after.is_empty() else "Lv%d" % b.level
@@ -661,7 +664,7 @@ func solve_context(center: Vector2, radius: float) -> Dictionary:
 	var building := building_screen_rect(Placement.building(placement,selected_id))
 	building.position += center-context_center()
 	if not ScreenLayout.free_rect(building,Rect2(Vector2(12,12),size/ui_unit-Vector2(24,24)),blocked): return {}
-	return ScreenLayout.radial_group(center,radius,size/ui_unit,blocked,info.get_child_count()>0)
+	return ScreenLayout.radial_group(center,radius,size/ui_unit,blocked,info.get_child_count()>0,float(info.get_meta("content_height",268)))
 
 func fit_context() -> void:
 	if selected_id=="": return
@@ -884,6 +887,7 @@ func show_battle_start_notice(ready: Dictionary) -> void:
 			close_battle_start_notice()
 			open_campaign_action({"raid_choice":"raid","council_choice":"council"}.get(action,action)))
 		go.name = "BattleStartNoticeGo"
+		if int(placement.day) in [2,3]: preload("res://scripts/ui/TutorialButtonGlow.gd").attach(go)
 		close.focus_next = close.get_path_to(go); close.focus_previous = close.get_path_to(go)
 		go.focus_next = go.get_path_to(close); go.focus_previous = go.get_path_to(close)
 	close.grab_focus()

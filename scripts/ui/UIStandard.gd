@@ -18,18 +18,11 @@ const TOOLTIP_WIDTH := Tokens.TOOLTIP_WIDTH
 const ICON_ATLAS := KitIcons.COMMON_ATLAS
 const ICONS := KitIcons.COMMON_IDS
 
-static func tooltip_label(for_text: String) -> Label:
-	var label := Label.new()
-	label.text = LanguageSettings.ui_text(for_text)
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+static func tooltip_label(for_text: String) -> RichTextLabel:
+	var label := preload("res://scripts/ui/CompactTooltipText.gd").new()
 	var font := UIFont.font_for_role(UIFont.ROLE_BODY)
 	var font_size := text_size(TOOLTIP_SIZE)
-	var height := font.get_multiline_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, TOOLTIP_WIDTH, font_size).y + 8
-	label.custom_minimum_size = Vector2(TOOLTIP_WIDTH, height)
-	label.size = label.custom_minimum_size
-	label.add_theme_font_override("font", font)
-	label.add_theme_font_size_override("font_size", font_size)
-	label.add_theme_color_override("font_color", Color("#fff6e8"))
+	label.configure(LanguageSettings.ui_text(for_text),font,font_size,TOOLTIP_WIDTH)
 	return label
 
 static func text_size(requested: int) -> int:

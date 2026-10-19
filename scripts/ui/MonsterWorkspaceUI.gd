@@ -182,6 +182,7 @@ func card(parent: Control, id: String, padding: int = 18) -> VBoxContainer:
 	pane.name = id
 	pane.theme = kit_theme()
 	pane.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	pane.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.075,0.045,0.115,0.80)
 	style.border_color = Color(0.47,0.35,0.55,0.8)
@@ -258,7 +259,8 @@ func _bar(parent: Control, caption: String, exp: int, level: int, name: String) 
 
 func _training(parent: Control, id: String, roster: Dictionary, current: Dictionary) -> void:
 	if root._early_specialization_required_for_current_day():
-		kit_button(parent,LanguageSettings.text("feedback.specialization_heading"),Rect2(),_tab.bind("skills"),"RequiredGrowthHeading")
+		var required := kit_button(parent,LanguageSettings.text("feedback.specialization_heading"),Rect2(),_tab.bind("skills"),"RequiredGrowthHeading")
+		preload("res://scripts/ui/TutorialButtonGlow.gd").attach(required)
 	var after := training_preview(id)
 	var count := int(roster.get("training_count_today",0)) if int(roster.get("training_day",0)) == GameState.day else 0
 	var reason: String = root._training_block_reason(id)
@@ -366,6 +368,8 @@ func _specialization(parent: Control, id: String) -> void:
 		var reason: String = root._specialization_block_reason(id,str(option.id))
 		var b := kit_button(content,loc("특화 선택 · 변경 불가","Choose specialization · Permanent","选择专精 · 不可更改"),Rect2(),Callable(root,"_choose_early_specialization").bind(id,str(option.id)),"MonsterSpecialization_"+str(option.id))
 		b.disabled = not root._can_choose_early_specialization(id,str(option.id))
+		if GameState.day in [2,3] and root._early_specialization_required_for_current_day() and not b.disabled:
+			preload("res://scripts/ui/TutorialButtonGlow.gd").attach(b)
 		if reason != "": kit_line(content,LanguageSettings.ui_text(reason),"",MUTED)
 
 func promotion_capacity() -> String:

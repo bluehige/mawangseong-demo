@@ -44,7 +44,7 @@ func setup(owner_view: Control, controller) -> void:
 	battle.root._build_update3_duo_link_combat_hud()
 
 func button(parent: Control, path: String, point: Vector2, width: float, action: Callable, hint: String) -> TextureButton:
-	var control := TextureButton.new(); control.texture_normal = view.texture(path)
+	var control := preload("res://scripts/ui/ReadableTooltipTextureButton.gd").new(); control.texture_normal = view.texture(path)
 	control.ignore_texture_size = true; control.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 	control.position = point; control.size = Vector2.ONE*width; control.tooltip_text = LanguageSettings.ui_text(hint)
 	control.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
