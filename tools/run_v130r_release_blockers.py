@@ -23,7 +23,7 @@ def engine():
 def run(mode):
     assert not engines(), engines()
     OUT.mkdir(parents=True, exist_ok=True)
-    profile = OUT/'profiles'/('campaign_final' if mode in ['campaign','resume'] else 'exe' if mode in ['exe','exe_resume'] else mode)
+    profile = OUT/'profiles'/('campaign_verified' if mode in ['campaign','resume'] else 'exe' if mode in ['exe','exe_resume'] else mode)
     for folder in ['appdata','localappdata']: (profile/folder).mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
     env.update(APPDATA=str(profile/'appdata'), LOCALAPPDATA=str(profile/'localappdata'), MAWANG_DISABLE_STEAM='1')

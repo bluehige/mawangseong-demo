@@ -3,6 +3,16 @@ extends "res://tools/tests/V130RB04Campaign.gd"
 const AUDIT_OUT := "res://tmp/v130r_release_blockers/"
 var observations: Array = []
 var resume_only := false
+func create_game() -> void:
+	await super.create_game()
+	# tools/tests scenes disable production writes by default. Explicit paths
+	# opt this integration test into real writes in its disposable profile.
+	var folder := "user://release_campaign/"
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder))
+	game._set_campaign_save_path_for_tests(folder+"campaign_save_v1.json",folder+"campaign_save_v2.json",folder+"campaign_save_v3.json",folder+"campaign_save_v4.json",folder+"campaign_save_v5.json",folder+"campaign_save_v6.json")
+	expect(game.campaign_save_enabled and game.campaign_auxiliary_save_enabled and game.campaign_save_v6_enabled,"real campaign disk writes enabled")
+	game._set_screen("title",false)
+	await frames(4)
 func write_json(id: String, data) -> void:
 	var f := FileAccess.open(AUDIT_OUT+"campaign_"+str(run_seed)+"_"+id+".json",FileAccess.WRITE)
 	f.store_string(JSON.stringify(data,"\t",false)); f.close()
@@ -20,6 +30,10 @@ func save_postgame() -> void:
 	expect(game.campaign_postgame_active and game.current_screen=="management","postgame opened by real ending button")
 	game._schedule_campaign_autosave("management")
 	expect(game._flush_campaign_autosave(),"postgame save written: "+game.campaign_save_error)
+	expect(FileAccess.file_exists(game.campaign_save_v6_path),"postgame v6 file exists on disk")
+	if FileAccess.file_exists(game.campaign_save_v6_path):
+		var saved: Dictionary=JSON.parse_string(FileAccess.get_file_as_string(game.campaign_save_v6_path))
+		expect(int(saved.summary.day)==30 and saved.summary.campaign_completed and saved.summary.campaign_postgame_active,"disk file really records completed DAY30 postgame")
 	write_json("postgame_before",save_state())
 	event("postgame_saved",{"save_status":game.campaign_save_status,"v6_path":game.campaign_save_v6_path})
 func resume_postgame() -> void:
