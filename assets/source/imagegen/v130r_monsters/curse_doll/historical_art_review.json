@@ -1,0 +1,916 @@
+{
+  "species_id": "curse_doll",
+  "status": "USER_REVIEW_PENDING_NOT_INTEGRATED",
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "hurt_animation": "Absent in existing Unit.gd sheet contract",
+  "portrait_size": [
+    512,
+    512
+  ],
+  "portrait_margin": 18,
+  "card_size": [
+    82,
+    82
+  ],
+  "uniform_frame_scale": 0.6925675675675675,
+  "frames": [
+    {
+      "index": 0,
+      "source_bbox": [
+        13,
+        9,
+        298,
+        305
+      ],
+      "source_cell_size": [
+        313,
+        313
+      ],
+      "source_slice_rect": [
+        0,
+        0,
+        313,
+        313
+      ],
+      "rect": [
+        58,
+        85,
+        197,
+        205
+      ],
+      "cell": [
+        0,
+        0,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 153.384
+    },
+    {
+      "index": 1,
+      "source_bbox": [
+        14,
+        9,
+        297,
+        305
+      ],
+      "source_cell_size": [
+        314,
+        313
+      ],
+      "source_slice_rect": [
+        313,
+        0,
+        627,
+        313
+      ],
+      "rect": [
+        372,
+        85,
+        196,
+        205
+      ],
+      "cell": [
+        313,
+        0,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 152.786
+    },
+    {
+      "index": 2,
+      "source_bbox": [
+        16,
+        49,
+        296,
+        305
+      ],
+      "source_cell_size": [
+        307,
+        313
+      ],
+      "source_slice_rect": [
+        627,
+        0,
+        934,
+        313
+      ],
+      "rect": [
+        686,
+        113,
+        194,
+        177
+      ],
+      "cell": [
+        627,
+        0,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 152.442
+    },
+    {
+      "index": 3,
+      "source_bbox": [
+        1,
+        116,
+        303,
+        305
+      ],
+      "source_cell_size": [
+        320,
+        313
+      ],
+      "source_slice_rect": [
+        934,
+        0,
+        1254,
+        313
+      ],
+      "rect": [
+        992,
+        159,
+        209,
+        131
+      ],
+      "cell": [
+        940,
+        0,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 124.514
+    },
+    {
+      "index": 4,
+      "source_bbox": [
+        10,
+        8,
+        303,
+        305
+      ],
+      "source_cell_size": [
+        313,
+        314
+      ],
+      "source_slice_rect": [
+        0,
+        313,
+        313,
+        627
+      ],
+      "rect": [
+        55,
+        397,
+        203,
+        206
+      ],
+      "cell": [
+        0,
+        313,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 134.208
+    },
+    {
+      "index": 5,
+      "source_bbox": [
+        8,
+        8,
+        306,
+        306
+      ],
+      "source_cell_size": [
+        314,
+        314
+      ],
+      "source_slice_rect": [
+        313,
+        313,
+        627,
+        627
+      ],
+      "rect": [
+        367,
+        397,
+        206,
+        206
+      ],
+      "cell": [
+        313,
+        313,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 146.414
+    },
+    {
+      "index": 6,
+      "source_bbox": [
+        6,
+        10,
+        305,
+        306
+      ],
+      "source_cell_size": [
+        313,
+        314
+      ],
+      "source_slice_rect": [
+        627,
+        313,
+        940,
+        627
+      ],
+      "rect": [
+        680,
+        398,
+        207,
+        205
+      ],
+      "cell": [
+        627,
+        313,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 164.746
+    },
+    {
+      "index": 7,
+      "source_bbox": [
+        8,
+        6,
+        303,
+        305
+      ],
+      "source_cell_size": [
+        314,
+        314
+      ],
+      "source_slice_rect": [
+        940,
+        313,
+        1254,
+        627
+      ],
+      "rect": [
+        995,
+        396,
+        204,
+        207
+      ],
+      "cell": [
+        940,
+        313,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 145.024
+    },
+    {
+      "index": 8,
+      "source_bbox": [
+        19,
+        9,
+        312,
+        304
+      ],
+      "source_cell_size": [
+        313,
+        313
+      ],
+      "source_slice_rect": [
+        0,
+        627,
+        313,
+        940
+      ],
+      "rect": [
+        55,
+        713,
+        203,
+        204
+      ],
+      "cell": [
+        0,
+        627,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 129.079
+    },
+    {
+      "index": 9,
+      "source_bbox": [
+        5,
+        10,
+        314,
+        305
+      ],
+      "source_cell_size": [
+        314,
+        313
+      ],
+      "source_slice_rect": [
+        313,
+        627,
+        627,
+        940
+      ],
+      "rect": [
+        363,
+        713,
+        214,
+        204
+      ],
+      "cell": [
+        313,
+        627,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 125.654
+    },
+    {
+      "index": 10,
+      "source_bbox": [
+        7,
+        8,
+        308,
+        305
+      ],
+      "source_cell_size": [
+        313,
+        313
+      ],
+      "source_slice_rect": [
+        627,
+        627,
+        940,
+        940
+      ],
+      "rect": [
+        679,
+        711,
+        208,
+        206
+      ],
+      "cell": [
+        627,
+        627,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 137.529
+    },
+    {
+      "index": 11,
+      "source_bbox": [
+        7,
+        6,
+        302,
+        305
+      ],
+      "source_cell_size": [
+        314,
+        313
+      ],
+      "source_slice_rect": [
+        940,
+        627,
+        1254,
+        940
+      ],
+      "rect": [
+        995,
+        710,
+        204,
+        207
+      ],
+      "cell": [
+        940,
+        627,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 150.98
+    },
+    {
+      "index": 12,
+      "source_bbox": [
+        10,
+        4,
+        311,
+        300
+      ],
+      "source_cell_size": [
+        313,
+        314
+      ],
+      "source_slice_rect": [
+        0,
+        940,
+        313,
+        1254
+      ],
+      "rect": [
+        52,
+        1025,
+        208,
+        205
+      ],
+      "cell": [
+        0,
+        940,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 151.166
+    },
+    {
+      "index": 13,
+      "source_bbox": [
+        9,
+        5,
+        291,
+        300
+      ],
+      "source_cell_size": [
+        314,
+        314
+      ],
+      "source_slice_rect": [
+        313,
+        940,
+        627,
+        1254
+      ],
+      "rect": [
+        372,
+        1026,
+        195,
+        204
+      ],
+      "cell": [
+        313,
+        940,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 163.062
+    },
+    {
+      "index": 14,
+      "source_bbox": [
+        2,
+        5,
+        306,
+        301
+      ],
+      "source_cell_size": [
+        313,
+        314
+      ],
+      "source_slice_rect": [
+        627,
+        940,
+        940,
+        1254
+      ],
+      "rect": [
+        678,
+        1025,
+        211,
+        205
+      ],
+      "cell": [
+        627,
+        940,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 132.085
+    },
+    {
+      "index": 15,
+      "source_bbox": [
+        7,
+        4,
+        305,
+        302
+      ],
+      "source_cell_size": [
+        314,
+        314
+      ],
+      "source_slice_rect": [
+        940,
+        940,
+        1254,
+        1254
+      ],
+      "rect": [
+        994,
+        1024,
+        206,
+        206
+      ],
+      "cell": [
+        940,
+        940,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 153.033
+    }
+  ],
+  "support_baseline_range_px": 0,
+  "bbox_center_range_px": 1.0,
+  "support_band_centroid_range_px": 40.232,
+  "source_support_baseline_range_px": 6,
+  "preview_body_height_on_128x64_tile": 59.3,
+  "catalog_candidate_not_registered": {
+    "path": "res://assets/sprites/v130r/curse_doll/curse_doll_sheet.png",
+    "frame_size": [
+      384,
+      384
+    ],
+    "regions": [
+      [
+        58,
+        85,
+        197,
+        205
+      ],
+      [
+        372,
+        85,
+        196,
+        205
+      ],
+      [
+        686,
+        113,
+        194,
+        177
+      ],
+      [
+        992,
+        159,
+        209,
+        131
+      ],
+      [
+        55,
+        397,
+        203,
+        206
+      ],
+      [
+        367,
+        397,
+        206,
+        206
+      ],
+      [
+        680,
+        398,
+        207,
+        205
+      ],
+      [
+        995,
+        396,
+        204,
+        207
+      ],
+      [
+        55,
+        713,
+        203,
+        204
+      ],
+      [
+        363,
+        713,
+        214,
+        204
+      ],
+      [
+        679,
+        711,
+        208,
+        206
+      ],
+      [
+        995,
+        710,
+        204,
+        207
+      ],
+      [
+        52,
+        1025,
+        208,
+        205
+      ],
+      [
+        372,
+        1026,
+        195,
+        204
+      ],
+      [
+        678,
+        1025,
+        211,
+        205
+      ],
+      [
+        994,
+        1024,
+        206,
+        206
+      ]
+    ],
+    "margins": [
+      [
+        93.5,
+        141,
+        187,
+        179
+      ],
+      [
+        94.0,
+        141,
+        188,
+        179
+      ],
+      [
+        95.0,
+        169,
+        190,
+        207
+      ],
+      [
+        87.5,
+        215,
+        175,
+        253
+      ],
+      [
+        90.5,
+        140,
+        181,
+        178
+      ],
+      [
+        89.0,
+        140,
+        178,
+        178
+      ],
+      [
+        88.5,
+        141,
+        177,
+        179
+      ],
+      [
+        90.0,
+        139,
+        180,
+        177
+      ],
+      [
+        90.5,
+        142,
+        181,
+        180
+      ],
+      [
+        85.0,
+        142,
+        170,
+        180
+      ],
+      [
+        88.0,
+        140,
+        176,
+        178
+      ],
+      [
+        90.0,
+        139,
+        180,
+        177
+      ],
+      [
+        88.0,
+        141,
+        176,
+        179
+      ],
+      [
+        94.5,
+        142,
+        189,
+        180
+      ],
+      [
+        86.5,
+        141,
+        173,
+        179
+      ],
+      [
+        89.0,
+        140,
+        178,
+        178
+      ]
+    ],
+    "visible_bounds": [
+      [
+        93.5,
+        141,
+        197,
+        205
+      ],
+      [
+        94.0,
+        141,
+        196,
+        205
+      ],
+      [
+        95.0,
+        169,
+        194,
+        177
+      ],
+      [
+        87.5,
+        215,
+        209,
+        131
+      ],
+      [
+        90.5,
+        140,
+        203,
+        206
+      ],
+      [
+        89.0,
+        140,
+        206,
+        206
+      ],
+      [
+        88.5,
+        141,
+        207,
+        205
+      ],
+      [
+        90.0,
+        139,
+        204,
+        207
+      ],
+      [
+        90.5,
+        142,
+        203,
+        204
+      ],
+      [
+        85.0,
+        142,
+        214,
+        204
+      ],
+      [
+        88.0,
+        140,
+        208,
+        206
+      ],
+      [
+        90.0,
+        139,
+        204,
+        207
+      ],
+      [
+        88.0,
+        141,
+        208,
+        205
+      ],
+      [
+        94.5,
+        142,
+        195,
+        204
+      ],
+      [
+        86.5,
+        141,
+        211,
+        205
+      ],
+      [
+        89.0,
+        140,
+        206,
+        206
+      ]
+    ]
+  },
+  "measurement_note": "Alpha>=8 outermost support baseline after translation; not anatomical foot tracking. Lower8px alpha-weighted contact centroid also recorded; wax, thread and rat tails may contribute. All16 frames use ONE uniform scale. Preview height is a review assumption, not game registration.",
+  "source_border_alpha_max": 2
+}

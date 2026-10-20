@@ -1,0 +1,916 @@
+{
+  "species_id": "rat_union",
+  "status": "USER_REVIEW_PENDING_NOT_INTEGRATED",
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "hurt_animation": "Absent in existing Unit.gd sheet contract",
+  "portrait_size": [
+    512,
+    512
+  ],
+  "portrait_margin": 18,
+  "card_size": [
+    82,
+    82
+  ],
+  "uniform_frame_scale": 0.6185567010309279,
+  "frames": [
+    {
+      "index": 0,
+      "source_bbox": [
+        12,
+        15,
+        301,
+        307
+      ],
+      "source_cell_size": [
+        313,
+        313
+      ],
+      "source_slice_rect": [
+        0,
+        0,
+        313,
+        313
+      ],
+      "rect": [
+        67,
+        109,
+        179,
+        181
+      ],
+      "cell": [
+        0,
+        0,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 157.439
+    },
+    {
+      "index": 1,
+      "source_bbox": [
+        21,
+        15,
+        307,
+        305
+      ],
+      "source_cell_size": [
+        314,
+        313
+      ],
+      "source_slice_rect": [
+        313,
+        0,
+        627,
+        313
+      ],
+      "rect": [
+        381,
+        111,
+        177,
+        179
+      ],
+      "cell": [
+        313,
+        0,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 151.827
+    },
+    {
+      "index": 2,
+      "source_bbox": [
+        9,
+        42,
+        308,
+        302
+      ],
+      "source_cell_size": [
+        313,
+        313
+      ],
+      "source_slice_rect": [
+        627,
+        0,
+        940,
+        313
+      ],
+      "rect": [
+        691,
+        129,
+        185,
+        161
+      ],
+      "cell": [
+        627,
+        0,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 162.592
+    },
+    {
+      "index": 3,
+      "source_bbox": [
+        8,
+        112,
+        313,
+        307
+      ],
+      "source_cell_size": [
+        314,
+        313
+      ],
+      "source_slice_rect": [
+        940,
+        0,
+        1254,
+        313
+      ],
+      "rect": [
+        1002,
+        169,
+        189,
+        121
+      ],
+      "cell": [
+        940,
+        0,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 200.346
+    },
+    {
+      "index": 4,
+      "source_bbox": [
+        10,
+        14,
+        303,
+        300
+      ],
+      "source_cell_size": [
+        313,
+        314
+      ],
+      "source_slice_rect": [
+        0,
+        313,
+        313,
+        627
+      ],
+      "rect": [
+        66,
+        426,
+        181,
+        177
+      ],
+      "cell": [
+        0,
+        313,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 142.711
+    },
+    {
+      "index": 5,
+      "source_bbox": [
+        17,
+        15,
+        308,
+        297
+      ],
+      "source_cell_size": [
+        314,
+        314
+      ],
+      "source_slice_rect": [
+        313,
+        313,
+        627,
+        627
+      ],
+      "rect": [
+        380,
+        429,
+        180,
+        174
+      ],
+      "cell": [
+        313,
+        313,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 159.358
+    },
+    {
+      "index": 6,
+      "source_bbox": [
+        13,
+        16,
+        305,
+        300
+      ],
+      "source_cell_size": [
+        313,
+        314
+      ],
+      "source_slice_rect": [
+        627,
+        313,
+        940,
+        627
+      ],
+      "rect": [
+        693,
+        427,
+        181,
+        176
+      ],
+      "cell": [
+        627,
+        313,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 160.302
+    },
+    {
+      "index": 7,
+      "source_bbox": [
+        10,
+        12,
+        306,
+        300
+      ],
+      "source_cell_size": [
+        314,
+        314
+      ],
+      "source_slice_rect": [
+        940,
+        313,
+        1254,
+        627
+      ],
+      "rect": [
+        1005,
+        425,
+        183,
+        178
+      ],
+      "cell": [
+        940,
+        313,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 153.213
+    },
+    {
+      "index": 8,
+      "source_bbox": [
+        10,
+        67,
+        307,
+        266
+      ],
+      "source_cell_size": [
+        310,
+        301
+      ],
+      "source_slice_rect": [
+        0,
+        627,
+        310,
+        928
+      ],
+      "rect": [
+        64,
+        794,
+        184,
+        123
+      ],
+      "cell": [
+        0,
+        627,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 156.233
+    },
+    {
+      "index": 9,
+      "source_bbox": [
+        1,
+        20,
+        315,
+        275
+      ],
+      "source_cell_size": [
+        315,
+        301
+      ],
+      "source_slice_rect": [
+        310,
+        627,
+        625,
+        928
+      ],
+      "rect": [
+        373,
+        759,
+        194,
+        158
+      ],
+      "cell": [
+        313,
+        627,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 173.662
+    },
+    {
+      "index": 10,
+      "source_bbox": [
+        1,
+        41,
+        318,
+        275
+      ],
+      "source_cell_size": [
+        318,
+        301
+      ],
+      "source_slice_rect": [
+        625,
+        627,
+        943,
+        928
+      ],
+      "rect": [
+        685,
+        772,
+        196,
+        145
+      ],
+      "cell": [
+        627,
+        627,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 155.0,
+      "support_band_centroid_x": 143.454
+    },
+    {
+      "index": 11,
+      "source_bbox": [
+        2,
+        8,
+        311,
+        284
+      ],
+      "source_cell_size": [
+        311,
+        301
+      ],
+      "source_slice_rect": [
+        943,
+        627,
+        1254,
+        928
+      ],
+      "rect": [
+        1001,
+        746,
+        191,
+        171
+      ],
+      "cell": [
+        940,
+        627,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 138.293
+    },
+    {
+      "index": 12,
+      "source_bbox": [
+        24,
+        57,
+        295,
+        285
+      ],
+      "source_cell_size": [
+        313,
+        326
+      ],
+      "source_slice_rect": [
+        0,
+        928,
+        313,
+        1254
+      ],
+      "rect": [
+        72,
+        1090,
+        168,
+        141
+      ],
+      "cell": [
+        0,
+        940,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 157.08
+    },
+    {
+      "index": 13,
+      "source_bbox": [
+        11,
+        1,
+        303,
+        294
+      ],
+      "source_cell_size": [
+        314,
+        326
+      ],
+      "source_slice_rect": [
+        313,
+        928,
+        627,
+        1254
+      ],
+      "rect": [
+        379,
+        1049,
+        181,
+        181
+      ],
+      "cell": [
+        313,
+        940,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 159.396
+    },
+    {
+      "index": 14,
+      "source_bbox": [
+        10,
+        6,
+        308,
+        294
+      ],
+      "source_cell_size": [
+        313,
+        326
+      ],
+      "source_slice_rect": [
+        627,
+        928,
+        940,
+        1254
+      ],
+      "rect": [
+        691,
+        1052,
+        184,
+        178
+      ],
+      "cell": [
+        627,
+        940,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 152.824
+    },
+    {
+      "index": 15,
+      "source_bbox": [
+        14,
+        2,
+        304,
+        295
+      ],
+      "source_cell_size": [
+        314,
+        326
+      ],
+      "source_slice_rect": [
+        940,
+        928,
+        1254,
+        1254
+      ],
+      "rect": [
+        1007,
+        1049,
+        179,
+        181
+      ],
+      "cell": [
+        940,
+        940,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 157.421
+    }
+  ],
+  "support_baseline_range_px": 0,
+  "bbox_center_range_px": 1.5,
+  "support_band_centroid_range_px": 62.053,
+  "source_support_baseline_range_px": 41,
+  "preview_body_height_on_128x64_tile": 59.3,
+  "catalog_candidate_not_registered": {
+    "path": "res://assets/sprites/v130r/rat_union/rat_union_sheet.png",
+    "frame_size": [
+      384,
+      384
+    ],
+    "regions": [
+      [
+        67,
+        109,
+        179,
+        181
+      ],
+      [
+        381,
+        111,
+        177,
+        179
+      ],
+      [
+        691,
+        129,
+        185,
+        161
+      ],
+      [
+        1002,
+        169,
+        189,
+        121
+      ],
+      [
+        66,
+        426,
+        181,
+        177
+      ],
+      [
+        380,
+        429,
+        180,
+        174
+      ],
+      [
+        693,
+        427,
+        181,
+        176
+      ],
+      [
+        1005,
+        425,
+        183,
+        178
+      ],
+      [
+        64,
+        794,
+        184,
+        123
+      ],
+      [
+        373,
+        759,
+        194,
+        158
+      ],
+      [
+        685,
+        772,
+        196,
+        145
+      ],
+      [
+        1001,
+        746,
+        191,
+        171
+      ],
+      [
+        72,
+        1090,
+        168,
+        141
+      ],
+      [
+        379,
+        1049,
+        181,
+        181
+      ],
+      [
+        691,
+        1052,
+        184,
+        178
+      ],
+      [
+        1007,
+        1049,
+        179,
+        181
+      ]
+    ],
+    "margins": [
+      [
+        102.5,
+        165,
+        205,
+        203
+      ],
+      [
+        103.5,
+        167,
+        207,
+        205
+      ],
+      [
+        99.5,
+        185,
+        199,
+        223
+      ],
+      [
+        97.5,
+        225,
+        195,
+        263
+      ],
+      [
+        101.5,
+        169,
+        203,
+        207
+      ],
+      [
+        102.0,
+        172,
+        204,
+        210
+      ],
+      [
+        101.5,
+        170,
+        203,
+        208
+      ],
+      [
+        100.5,
+        168,
+        201,
+        206
+      ],
+      [
+        100.0,
+        223,
+        200,
+        261
+      ],
+      [
+        95.0,
+        188,
+        190,
+        226
+      ],
+      [
+        94.0,
+        201,
+        188,
+        239
+      ],
+      [
+        96.5,
+        175,
+        193,
+        213
+      ],
+      [
+        108.0,
+        205,
+        216,
+        243
+      ],
+      [
+        101.5,
+        165,
+        203,
+        203
+      ],
+      [
+        100.0,
+        168,
+        200,
+        206
+      ],
+      [
+        102.5,
+        165,
+        205,
+        203
+      ]
+    ],
+    "visible_bounds": [
+      [
+        102.5,
+        165,
+        179,
+        181
+      ],
+      [
+        103.5,
+        167,
+        177,
+        179
+      ],
+      [
+        99.5,
+        185,
+        185,
+        161
+      ],
+      [
+        97.5,
+        225,
+        189,
+        121
+      ],
+      [
+        101.5,
+        169,
+        181,
+        177
+      ],
+      [
+        102.0,
+        172,
+        180,
+        174
+      ],
+      [
+        101.5,
+        170,
+        181,
+        176
+      ],
+      [
+        100.5,
+        168,
+        183,
+        178
+      ],
+      [
+        100.0,
+        223,
+        184,
+        123
+      ],
+      [
+        95.0,
+        188,
+        194,
+        158
+      ],
+      [
+        94.0,
+        201,
+        196,
+        145
+      ],
+      [
+        96.5,
+        175,
+        191,
+        171
+      ],
+      [
+        108.0,
+        205,
+        168,
+        141
+      ],
+      [
+        101.5,
+        165,
+        181,
+        181
+      ],
+      [
+        100.0,
+        168,
+        184,
+        178
+      ],
+      [
+        102.5,
+        165,
+        179,
+        181
+      ]
+    ]
+  },
+  "measurement_note": "Alpha>=8 outermost support baseline after translation; not anatomical foot tracking. Lower8px alpha-weighted contact centroid also recorded; wax, thread and rat tails may contribute. All16 frames use ONE uniform scale. Preview height is a review assumption, not game registration.",
+  "source_border_alpha_max": 14
+}

@@ -1,0 +1,19 @@
+{
+  "status": "ACCEPTED_NOT_INTEGRATED",
+  "sources": [
+    {
+      "file": "attempt_1.png"
+    }
+  ],
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "evidence": "큰 겹등딱지 윗면·압축 다리·낮은 보라 눈·타원. NE 뒤껍질.",
+  "notes": [
+    "Six legs partly occluded by broad shell. SW skill brace tucks face under front shell, not direction flip. Small rivet count/locations vary."
+  ]
+}

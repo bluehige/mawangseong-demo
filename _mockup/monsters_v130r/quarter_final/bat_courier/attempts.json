@@ -1,0 +1,42 @@
+[
+  {
+    "original_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a14588-d174-7ed2-bebf-5cbb83d79b1e\\exec-4c34cf79-bd52-4d91-b96b-b3482c05ee42.png",
+    "sha256": "99551db1404f0c81eac4440d914102a41b0589be76820489d3c292ad3d372573",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "native_alpha_extrema": [
+      0,
+      254
+    ],
+    "transparent_fraction": 0.47840309143066406,
+    "attempt": 1,
+    "status": "PARTIAL",
+    "adopted_poses": 34,
+    "reason": "Four SW attack/skill full-rectangle crops include neighbor pixels; movement phase4 looked defeated. Six movement/attack/skill poses replaced.",
+    "transparent_background": true,
+    "tool": "image_gen.imagegen"
+  },
+  {
+    "original_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a14588-d174-7ed2-bebf-5cbb83d79b1e\\exec-bfb48dfe-5bbf-4e20-83af-acd9b2476bed.png",
+    "sha256": "d9c9d2645ce55f15fbf07418ae15ade7535de5e94be372fa23cb329c828c703a",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "native_alpha_extrema": [
+      0,
+      254
+    ],
+    "transparent_fraction": 0.6738789876302084,
+    "attempt": 2,
+    "status": "ADOPTED",
+    "adopted_poses": 6,
+    "reason": "Six SW replacements; wide gutters, alert moving poses, attached letter glint. T/F/H/E/S pass.",
+    "transparent_background": true,
+    "tool": "image_gen.imagegen"
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "status": "ACCEPTED_NOT_INTEGRATED",
+  "sources": [
+    {
+      "file": "attempt_1.png"
+    }
+  ],
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "evidence": "넓은 상자 뚜껑·짧은 앞벽·낮은 이빨 입·타원·남서. NE는 경첩 뒤.",
+  "notes": [
+    "No invented eyes. Red banner and gold arrow rune preserved; generated rune shape varies slightly."
+  ]
+}

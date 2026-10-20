@@ -1,0 +1,29 @@
+{
+  "attempt": 3,
+  "cols": 2,
+  "rows": 2,
+  "keys": [
+    [
+      3,
+      0
+    ],
+    [
+      3,
+      3
+    ],
+    [
+      4,
+      0
+    ],
+    [
+      4,
+      3
+    ]
+  ],
+  "poses": [
+    "SW skill gather: protective wooden sign brace",
+    "SW skill settle: return wooden sign to chest",
+    "SW hit startle, worried eyes angled down-left",
+    "SW hit recover wooden sign at chest, face angled down-left"
+  ]
+}

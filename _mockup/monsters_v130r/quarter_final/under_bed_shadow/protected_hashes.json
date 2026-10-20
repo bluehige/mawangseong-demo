@@ -1,0 +1,16 @@
+{
+  "assets/sprites/v130r/under_bed_shadow/art_review.json": "c074b6d4a7772f6acc33726628dc6d90efa19cb5c52a062b29b3cbad06f275a9",
+  "assets/sprites/v130r/under_bed_shadow/portrait_under_bed_shadow_base.png": "d7c951ca93b17cb914a5980921e8e025404ca8a7305ec4c3c5bdb239f55bc7a3",
+  "assets/sprites/v130r/under_bed_shadow/portrait_under_bed_shadow_base.png.import": "3a875dc063b27bd3e32f39a07d249622ba6029054924038425438d61d2ea5bd2",
+  "assets/sprites/v130r/under_bed_shadow/portrait_under_bed_shadow_card.png": "eafd06c97404744aba24bed033a980342efdc75337f4b5d211535a46eec0ca9c",
+  "assets/sprites/v130r/under_bed_shadow/portrait_under_bed_shadow_card.png.import": "aea6caa2f7d5c7d95cc48deaa8d2086d282a00ec807004a94146456992cad0c3",
+  "assets/sprites/v130r/under_bed_shadow/portrait_under_bed_shadow_determined.png": "9ef9084a54bccf24b250f29f82b6f0946c87b9cd0ff18a555b2e7bfa8b764825",
+  "assets/sprites/v130r/under_bed_shadow/portrait_under_bed_shadow_determined.png.import": "00f48cb729b933b9264f3f90cd1f93e2e3ddbab6b7c238e1b54c99acbff7864e",
+  "assets/sprites/v130r/under_bed_shadow/portrait_under_bed_shadow_happy.png": "36e781f22e04ad74a4813a75de976a58f7298538344d8710ba866af5ea159242",
+  "assets/sprites/v130r/under_bed_shadow/portrait_under_bed_shadow_happy.png.import": "bc0ae22398806cd59043a521a5b71f51ab8733e8832040763e62dc5b4661af29",
+  "assets/sprites/v130r/under_bed_shadow/under_bed_shadow_hurt_ne.png": "7979417c17bf804f7ded2158656c29022cea91a6ff8df657cc037992aa6f9e51",
+  "assets/sprites/v130r/under_bed_shadow/under_bed_shadow_hurt_sw.png": "f7df812eac9b1aba870386da79b7011014bb80a637e28eb7598eca42f7ab2c1d",
+  "assets/sprites/v130r/under_bed_shadow/under_bed_shadow_sheet.png": "b8141bd38570550de74722275f78d25c594ccd3210ff10d8a951032b6157770c",
+  "assets/sprites/v130r/under_bed_shadow/under_bed_shadow_sheet.png.import": "cce82829b2cd3d3ed5e4f372ba29056c0c223150cfc362da6705962891efc856",
+  "assets/sprites/v130r/under_bed_shadow/under_bed_shadow_sheet_ne.png": "da309a6c3f01cb48521f73c9611c59c09637180dcab0fdef6adae3b0bd2e21ff"
+}

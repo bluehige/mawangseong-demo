@@ -1,0 +1,8 @@
+{
+  "local_main": "ABSENT",
+  "origin_main": "0ac9fdc7f1a5f3d2e8cc23ca2ec771873094c53b",
+  "remote_main_ls_remote": "0ac9fdc7f1a5f3d2e8cc23ca2ec771873094c53b",
+  "base_head": "54857b10c1171bf30dc4a474611a5fd94f3f7b09",
+  "requested_0098_base": "ace7678ff5430a21708237bd49ef56786e36e54d",
+  "instructions": "User supplied policy and 0101d scope take precedence. No main/CURRENT modification."
+}

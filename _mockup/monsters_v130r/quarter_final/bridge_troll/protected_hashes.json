@@ -1,0 +1,16 @@
+{
+  "assets/sprites/v130r/bridge_troll/art_review.json": "057cd7610771b9b242458df1eb5e51e8f5a8bd36d7089e177c3ff4991139ba3f",
+  "assets/sprites/v130r/bridge_troll/bridge_troll_hurt_ne.png": "7abf5745153de01640c897a7bb6ab145c1b481b823eba03af5a49e328a9396da",
+  "assets/sprites/v130r/bridge_troll/bridge_troll_hurt_sw.png": "7f3418e1619ef6dd51f9e74c9f89feff8557c5177905f8c6b98bf50ee93aeab5",
+  "assets/sprites/v130r/bridge_troll/bridge_troll_sheet.png": "9711b84cca7d6b27df1786b66ba8120011bdcbb3771b5cff3394a665125e584c",
+  "assets/sprites/v130r/bridge_troll/bridge_troll_sheet.png.import": "6e1b98e2ae1b3540e4728cea5093d38a38476cdb1f374723117a22f94b4626a8",
+  "assets/sprites/v130r/bridge_troll/bridge_troll_sheet_ne.png": "ab8d17de424de09b48d37d55f60cf10e4f367fa38d46ea6a6381a73d4948d5be",
+  "assets/sprites/v130r/bridge_troll/portrait_bridge_troll_base.png": "61fd6657417718f4aa0cd34605efb05e154f5b1082884bcb22b38dd7cf17c462",
+  "assets/sprites/v130r/bridge_troll/portrait_bridge_troll_base.png.import": "b8a6dd04f6aa80d2608007d77de5052185728a868e84824e65778b11c6051d74",
+  "assets/sprites/v130r/bridge_troll/portrait_bridge_troll_card.png": "045dfdb73409a3f78a8b9baeaeebea37897be961041e0880f5403ea872f18fb5",
+  "assets/sprites/v130r/bridge_troll/portrait_bridge_troll_card.png.import": "26c4375a6e80913a746bbb8b88f4d45bf8cd6ccb4d529f1e7c14510880d22b6c",
+  "assets/sprites/v130r/bridge_troll/portrait_bridge_troll_determined.png": "dc0c0dfe4894362c6bcd5fca7e96c6cd343d34eb476e2236ad7435d6099d12e5",
+  "assets/sprites/v130r/bridge_troll/portrait_bridge_troll_determined.png.import": "90954b04da9f5894e878faa57626864928adb22b197ac024d9c4ab64901ea6df",
+  "assets/sprites/v130r/bridge_troll/portrait_bridge_troll_happy.png": "ac74de134b76ecc8dbfa78ddd04fcc556fb70d5655698228de609a51fdabe895",
+  "assets/sprites/v130r/bridge_troll/portrait_bridge_troll_happy.png.import": "133b26cecd5fce5e7f86a85a00b5ec1fbc3093e03635c912d81af4191a5415ad"
+}

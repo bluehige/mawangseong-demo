@@ -1,0 +1,22 @@
+[
+  {
+    "original_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a14588-d174-7ed2-bebf-5cbb83d79b1e\\exec-c2830c8a-8fb1-4bf9-9920-2e09709dc71d.png",
+    "sha256": "a28a6b593efdb593a6cb8bf9a772953463d66c97cba4d3f5bb5f90898fdea921",
+    "size": [
+      1586,
+      992
+    ],
+    "mode": "RGBA",
+    "native_alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.4546015030712281,
+    "attempt": 1,
+    "status": "ADOPTED",
+    "adopted_poses": 40,
+    "reason": "T/F/H/E/S pass; lid top, red banner, lock, teeth, wooden limbs retained.",
+    "transparent_background": true,
+    "tool": "image_gen.imagegen"
+  }
+]

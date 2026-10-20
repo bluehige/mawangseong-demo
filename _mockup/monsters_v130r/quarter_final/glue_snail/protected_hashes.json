@@ -1,0 +1,16 @@
+{
+  "assets/sprites/v130r/glue_snail/art_review.json": "dd4b8592ba3555cdf320aeb84ae47bf4f9001a3762399875efcc6a96352641f1",
+  "assets/sprites/v130r/glue_snail/glue_snail_hurt_ne.png": "25a969cd74f60c4d0cdff0992b76f9119b6dec53b8b6ff60f64894fc17f7cc99",
+  "assets/sprites/v130r/glue_snail/glue_snail_hurt_sw.png": "13ae4b6b1a731765672bf6d0b1946e5feedfaec41982a4817ba0cf71fb58ef40",
+  "assets/sprites/v130r/glue_snail/glue_snail_sheet.png": "951a21780aaa4e21b6cfa6d413bd532881a91dda01a6ee0ac10fc55dc08e982b",
+  "assets/sprites/v130r/glue_snail/glue_snail_sheet.png.import": "c2788d9db74b40c7598a5d29c5acbbdf7106b43f6581858773a3cb33f958945a",
+  "assets/sprites/v130r/glue_snail/glue_snail_sheet_ne.png": "4a19cf9f6e9e0c2269b5b6cc4a05af87a84e24cd3f3409259f499fd31b0f6bec",
+  "assets/sprites/v130r/glue_snail/portrait_glue_snail_base.png": "db6d036e25a3224dd39c2ce4315de2de1d403ec8be1f04010eb7b464d512b2a8",
+  "assets/sprites/v130r/glue_snail/portrait_glue_snail_base.png.import": "42d334a6ed7e9524f2c791e6520552a160fd76fd218dd5a327bfac3c3fea2397",
+  "assets/sprites/v130r/glue_snail/portrait_glue_snail_card.png": "ed6be1a9a3f837392e4b9c05aa5740102794e568a88a15a09ae990eb83c00d00",
+  "assets/sprites/v130r/glue_snail/portrait_glue_snail_card.png.import": "83957df07ce94708e5e367fa6ad4b04e6b7eec7d1e749ca42d1521bdd25d6228",
+  "assets/sprites/v130r/glue_snail/portrait_glue_snail_determined.png": "d883bfc3d9ee753f8c7c66a79a222b202d5e7ac7ce5710bda76fb69b9d25a0ea",
+  "assets/sprites/v130r/glue_snail/portrait_glue_snail_determined.png.import": "16134a7afe817826e9a4e4876829a993df84ab8be6eaabdd6c9480add1c86e3e",
+  "assets/sprites/v130r/glue_snail/portrait_glue_snail_happy.png": "9d288d4bdbb56d3deb45d116afcaab29a0c3cef53fa22883a4be2e5f8740f3ff",
+  "assets/sprites/v130r/glue_snail/portrait_glue_snail_happy.png.import": "b4ae14a02739f8fd7e56e6d89012390ee8f04604145769a439e36221a0d1c41b"
+}

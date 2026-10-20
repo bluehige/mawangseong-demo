@@ -2,7 +2,7 @@
 
 - Generation model: GPT internal image generation
 - Generated date: 2026-10-16
-- Target version: 1.3.0
+- Target version: v1.3.0
 
 No generation call. Reuse of assets_v7d GPT pixels already imported in v130r_step1.
 Source ownership and original prompts: ../v130r_step1/SOURCE.md.

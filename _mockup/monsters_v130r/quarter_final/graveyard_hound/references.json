@@ -1,0 +1,67 @@
+[
+  {
+    "role": "identity portrait",
+    "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\portraits\\update3\\portrait_graveyard_hound_base.png",
+    "sha256": "766dc5834d3d40693c5afaeebae3d6001936a3cf37ca71e198a0bf2005a60b26"
+  },
+  {
+    "role": "identity combat",
+    "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\uiux3d\\graveyard_hound_sheet.png",
+    "regions": [
+      [
+        36,
+        8,
+        269,
+        293
+      ],
+      [
+        50,
+        579,
+        273,
+        253
+      ],
+      [
+        56,
+        841,
+        256,
+        260
+      ]
+    ],
+    "sha256": "58c900a0a07c24fd2daa03e7126b60a86f9d3c20e72676c31cd564043f2f3fd0"
+  },
+  {
+    "role": "approved C camera",
+    "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\v130r_quarter_pilot2\\river_frog\\candidate_C.png",
+    "sha256": "fdc651ee70c3172c53fc8eec76e0701db80fe69a56b8109dd90f32cc45cb4f41"
+  },
+  {
+    "role": "approved C camera",
+    "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\v130r_quarter_pilot2\\bridge_troll\\candidate_C.png",
+    "sha256": "29394412c39befb8372cb13256fed389f6341d391eff4f099fa1efce6d31d087"
+  },
+  {
+    "role": "approved C camera",
+    "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\source\\imagegen\\v130r_quarter_pilot2\\slime\\candidate_C.png",
+    "sha256": "bb8ad376fc3d8bd65cf2df68a75c4067aeef4d2e522d1d5f7359d2559c19963a"
+  },
+  {
+    "role": "map camera",
+    "path": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\assets_v7d\\final\\interiors\\barracks.png",
+    "sha256": "a96688511230cc8552fe015ff04d781ac0679c15ead73104124d937f9c67ff6d"
+  },
+  {
+    "role": "map camera",
+    "path": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\assets_v7d\\final\\interiors\\bait_treasure.png",
+    "sha256": "30e1651e6f402c087e8d66405ff7c5bc1a8ab764eac79f6c5a7fa56d7ed5ca66"
+  },
+  {
+    "role": "map camera",
+    "path": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\assets_v7d\\final\\interiors\\watchtower.png",
+    "sha256": "1b3a2c9313b6d78942728be3e2fb568b69ec3cd83bddb1ebd49c57f7aa195f64"
+  },
+  {
+    "role": "map camera",
+    "path": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\assets_v7d\\final\\bridge\\bridge_water_y.png",
+    "sha256": "bb486a0f83a927d2eb8039e96298c6c8b8a3531ea301d149cdf54467a24eeb60"
+  }
+]

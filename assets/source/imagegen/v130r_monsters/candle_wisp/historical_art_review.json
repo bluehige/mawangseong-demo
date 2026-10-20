@@ -1,0 +1,916 @@
+{
+  "species_id": "candle_wisp",
+  "status": "USER_REVIEW_PENDING_NOT_INTEGRATED",
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "hurt_animation": "Absent in existing Unit.gd sheet contract",
+  "portrait_size": [
+    512,
+    512
+  ],
+  "portrait_margin": 18,
+  "card_size": [
+    82,
+    82
+  ],
+  "uniform_frame_scale": 0.6313993174061433,
+  "frames": [
+    {
+      "index": 0,
+      "source_bbox": [
+        65,
+        12,
+        240,
+        307
+      ],
+      "source_cell_size": [
+        313,
+        313
+      ],
+      "source_slice_rect": [
+        0,
+        0,
+        313,
+        313
+      ],
+      "rect": [
+        101,
+        104,
+        110,
+        186
+      ],
+      "cell": [
+        0,
+        0,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 155.648
+    },
+    {
+      "index": 1,
+      "source_bbox": [
+        68,
+        13,
+        245,
+        304
+      ],
+      "source_cell_size": [
+        314,
+        313
+      ],
+      "source_slice_rect": [
+        313,
+        0,
+        627,
+        313
+      ],
+      "rect": [
+        414,
+        106,
+        112,
+        184
+      ],
+      "cell": [
+        313,
+        0,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 156.406
+    },
+    {
+      "index": 2,
+      "source_bbox": [
+        51,
+        66,
+        241,
+        304
+      ],
+      "source_cell_size": [
+        313,
+        313
+      ],
+      "source_slice_rect": [
+        627,
+        0,
+        940,
+        313
+      ],
+      "rect": [
+        723,
+        140,
+        120,
+        150
+      ],
+      "cell": [
+        627,
+        0,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 158.246
+    },
+    {
+      "index": 3,
+      "source_bbox": [
+        34,
+        146,
+        281,
+        305
+      ],
+      "source_cell_size": [
+        314,
+        313
+      ],
+      "source_slice_rect": [
+        940,
+        0,
+        1254,
+        313
+      ],
+      "rect": [
+        1019,
+        190,
+        156,
+        100
+      ],
+      "cell": [
+        940,
+        0,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 161.587
+    },
+    {
+      "index": 4,
+      "source_bbox": [
+        77,
+        8,
+        243,
+        295
+      ],
+      "source_cell_size": [
+        313,
+        314
+      ],
+      "source_slice_rect": [
+        0,
+        313,
+        313,
+        627
+      ],
+      "rect": [
+        104,
+        422,
+        105,
+        181
+      ],
+      "cell": [
+        0,
+        313,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 149.321
+    },
+    {
+      "index": 5,
+      "source_bbox": [
+        74,
+        11,
+        242,
+        298
+      ],
+      "source_cell_size": [
+        314,
+        314
+      ],
+      "source_slice_rect": [
+        313,
+        313,
+        627,
+        627
+      ],
+      "rect": [
+        417,
+        422,
+        106,
+        181
+      ],
+      "cell": [
+        313,
+        313,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 156.876
+    },
+    {
+      "index": 6,
+      "source_bbox": [
+        74,
+        10,
+        238,
+        298
+      ],
+      "source_cell_size": [
+        313,
+        314
+      ],
+      "source_slice_rect": [
+        627,
+        313,
+        940,
+        627
+      ],
+      "rect": [
+        731,
+        421,
+        104,
+        182
+      ],
+      "cell": [
+        627,
+        313,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 160.47
+    },
+    {
+      "index": 7,
+      "source_bbox": [
+        79,
+        8,
+        243,
+        300
+      ],
+      "source_cell_size": [
+        314,
+        314
+      ],
+      "source_slice_rect": [
+        940,
+        313,
+        1254,
+        627
+      ],
+      "rect": [
+        1045,
+        419,
+        104,
+        184
+      ],
+      "cell": [
+        940,
+        313,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 154.131
+    },
+    {
+      "index": 8,
+      "source_bbox": [
+        54,
+        7,
+        255,
+        293
+      ],
+      "source_cell_size": [
+        313,
+        313
+      ],
+      "source_slice_rect": [
+        0,
+        627,
+        313,
+        940
+      ],
+      "rect": [
+        93,
+        736,
+        127,
+        181
+      ],
+      "cell": [
+        0,
+        627,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 159.166
+    },
+    {
+      "index": 9,
+      "source_bbox": [
+        51,
+        15,
+        256,
+        309
+      ],
+      "source_cell_size": [
+        314,
+        313
+      ],
+      "source_slice_rect": [
+        313,
+        627,
+        627,
+        940
+      ],
+      "rect": [
+        405,
+        731,
+        129,
+        186
+      ],
+      "cell": [
+        313,
+        627,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 172.62
+    },
+    {
+      "index": 10,
+      "source_bbox": [
+        25,
+        10,
+        310,
+        295
+      ],
+      "source_cell_size": [
+        313,
+        313
+      ],
+      "source_slice_rect": [
+        627,
+        627,
+        940,
+        940
+      ],
+      "rect": [
+        693,
+        737,
+        180,
+        180
+      ],
+      "cell": [
+        627,
+        627,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 142.125
+    },
+    {
+      "index": 11,
+      "source_bbox": [
+        72,
+        8,
+        248,
+        293
+      ],
+      "source_cell_size": [
+        314,
+        313
+      ],
+      "source_slice_rect": [
+        940,
+        627,
+        1254,
+        940
+      ],
+      "rect": [
+        1041,
+        737,
+        111,
+        180
+      ],
+      "cell": [
+        940,
+        627,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 157.491
+    },
+    {
+      "index": 12,
+      "source_bbox": [
+        69,
+        27,
+        249,
+        290
+      ],
+      "source_cell_size": [
+        313,
+        314
+      ],
+      "source_slice_rect": [
+        0,
+        940,
+        313,
+        1254
+      ],
+      "rect": [
+        99,
+        1065,
+        114,
+        166
+      ],
+      "cell": [
+        0,
+        940,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 155.023
+    },
+    {
+      "index": 13,
+      "source_bbox": [
+        45,
+        4,
+        271,
+        292
+      ],
+      "source_cell_size": [
+        314,
+        314
+      ],
+      "source_slice_rect": [
+        313,
+        940,
+        627,
+        1254
+      ],
+      "rect": [
+        398,
+        1049,
+        143,
+        182
+      ],
+      "cell": [
+        313,
+        940,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 159.48
+    },
+    {
+      "index": 14,
+      "source_bbox": [
+        30,
+        2,
+        286,
+        297
+      ],
+      "source_cell_size": [
+        313,
+        314
+      ],
+      "source_slice_rect": [
+        627,
+        940,
+        940,
+        1254
+      ],
+      "rect": [
+        702,
+        1044,
+        162,
+        186
+      ],
+      "cell": [
+        627,
+        940,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 158.316
+    },
+    {
+      "index": 15,
+      "source_bbox": [
+        71,
+        15,
+        247,
+        291
+      ],
+      "source_cell_size": [
+        314,
+        314
+      ],
+      "source_slice_rect": [
+        940,
+        940,
+        1254,
+        1254
+      ],
+      "rect": [
+        1041,
+        1056,
+        111,
+        174
+      ],
+      "cell": [
+        940,
+        940,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 155.947
+    }
+  ],
+  "support_baseline_range_px": 0,
+  "bbox_center_range_px": 1.0,
+  "support_band_centroid_range_px": 30.495,
+  "source_support_baseline_range_px": 19,
+  "preview_body_height_on_128x64_tile": 59.3,
+  "catalog_candidate_not_registered": {
+    "path": "res://assets/sprites/v130r/candle_wisp/candle_wisp_sheet.png",
+    "frame_size": [
+      384,
+      384
+    ],
+    "regions": [
+      [
+        101,
+        104,
+        110,
+        186
+      ],
+      [
+        414,
+        106,
+        112,
+        184
+      ],
+      [
+        723,
+        140,
+        120,
+        150
+      ],
+      [
+        1019,
+        190,
+        156,
+        100
+      ],
+      [
+        104,
+        422,
+        105,
+        181
+      ],
+      [
+        417,
+        422,
+        106,
+        181
+      ],
+      [
+        731,
+        421,
+        104,
+        182
+      ],
+      [
+        1045,
+        419,
+        104,
+        184
+      ],
+      [
+        93,
+        736,
+        127,
+        181
+      ],
+      [
+        405,
+        731,
+        129,
+        186
+      ],
+      [
+        693,
+        737,
+        180,
+        180
+      ],
+      [
+        1041,
+        737,
+        111,
+        180
+      ],
+      [
+        99,
+        1065,
+        114,
+        166
+      ],
+      [
+        398,
+        1049,
+        143,
+        182
+      ],
+      [
+        702,
+        1044,
+        162,
+        186
+      ],
+      [
+        1041,
+        1056,
+        111,
+        174
+      ]
+    ],
+    "margins": [
+      [
+        137.0,
+        160,
+        274,
+        198
+      ],
+      [
+        136.0,
+        162,
+        272,
+        200
+      ],
+      [
+        132.0,
+        196,
+        264,
+        234
+      ],
+      [
+        114.0,
+        246,
+        228,
+        284
+      ],
+      [
+        139.5,
+        165,
+        279,
+        203
+      ],
+      [
+        139.0,
+        165,
+        278,
+        203
+      ],
+      [
+        140.0,
+        164,
+        280,
+        202
+      ],
+      [
+        140.0,
+        162,
+        280,
+        200
+      ],
+      [
+        128.5,
+        165,
+        257,
+        203
+      ],
+      [
+        127.5,
+        160,
+        255,
+        198
+      ],
+      [
+        102.0,
+        166,
+        204,
+        204
+      ],
+      [
+        136.5,
+        166,
+        273,
+        204
+      ],
+      [
+        135.0,
+        180,
+        270,
+        218
+      ],
+      [
+        120.5,
+        164,
+        241,
+        202
+      ],
+      [
+        111.0,
+        160,
+        222,
+        198
+      ],
+      [
+        136.5,
+        172,
+        273,
+        210
+      ]
+    ],
+    "visible_bounds": [
+      [
+        137.0,
+        160,
+        110,
+        186
+      ],
+      [
+        136.0,
+        162,
+        112,
+        184
+      ],
+      [
+        132.0,
+        196,
+        120,
+        150
+      ],
+      [
+        114.0,
+        246,
+        156,
+        100
+      ],
+      [
+        139.5,
+        165,
+        105,
+        181
+      ],
+      [
+        139.0,
+        165,
+        106,
+        181
+      ],
+      [
+        140.0,
+        164,
+        104,
+        182
+      ],
+      [
+        140.0,
+        162,
+        104,
+        184
+      ],
+      [
+        128.5,
+        165,
+        127,
+        181
+      ],
+      [
+        127.5,
+        160,
+        129,
+        186
+      ],
+      [
+        102.0,
+        166,
+        180,
+        180
+      ],
+      [
+        136.5,
+        166,
+        111,
+        180
+      ],
+      [
+        135.0,
+        180,
+        114,
+        166
+      ],
+      [
+        120.5,
+        164,
+        143,
+        182
+      ],
+      [
+        111.0,
+        160,
+        162,
+        186
+      ],
+      [
+        136.5,
+        172,
+        111,
+        174
+      ]
+    ]
+  },
+  "measurement_note": "Alpha>=8 outermost support baseline after translation; not anatomical foot tracking. Lower8px alpha-weighted contact centroid also recorded; wax, thread and rat tails may contribute. All16 frames use ONE uniform scale. Preview height is a review assumption, not game registration.",
+  "source_border_alpha_max": 2
+}

@@ -1,0 +1,20 @@
+{
+  "status": "ACCEPTED_NOT_INTEGRATED",
+  "sources": [
+    {
+      "file": "attempt_2.png"
+    }
+  ],
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "evidence": "넓은 모자·두개골·등 윗면·작은 아래왼쪽 얼굴·짧은 다리. NE 등.",
+  "notes": [
+    "Attempt1 rejected: frontal face/camera T,H,S insufficient and NE hurt compression switched to front. Attempt2 all40 poses replaces first.",
+    "Needle/loop, side pouch with two spools, thimble pendant and forelock retained; pins, eye dots and cap trim vary at tiny size."
+  ]
+}

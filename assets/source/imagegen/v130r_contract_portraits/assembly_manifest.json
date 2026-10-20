@@ -1,0 +1,482 @@
+[
+  {
+    "id": "mori",
+    "name": "모리",
+    "emotion": "happy",
+    "base": "assets/sprites/portraits/uiux3d/mori_base.png",
+    "base_sha256": "dd9c5eaf5ff9c77d9759e95c5b731ffe683c37f302ad866367642278f61c96aa",
+    "source": "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/monsters_v130r/contract/mori_happy_generated.png",
+    "source_sha256": "7fce6649aa94e24f62b52c632533d6693c6a83a8efd0272c5a84ee55ac55a2ed",
+    "generator_original": "C:/Users/blueh/.codex/generated_images/01a1446c-cfd1-7950-b157-6e9c61401ffe/exec-689b9998-0af6-4106-b211-2269dc8213b5.png",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_alpha": [
+      0,
+      255
+    ],
+    "source_transparent_fraction": 0.5840131356374116,
+    "runtime": "assets/sprites/v130r/portraits_contract/mori_happy.png",
+    "runtime_sha256": "476c87b83bc6d344b11915de228e38334957b32e4027d7fc3dd86dfbd4d49fbc",
+    "runtime_size": [
+      1254,
+      1254
+    ],
+    "base_bbox": [
+      35,
+      21,
+      1222,
+      1254
+    ],
+    "generated_bbox": [
+      0,
+      91,
+      1230,
+      1254
+    ],
+    "runtime_bbox": [
+      35,
+      132,
+      1222,
+      1254
+    ],
+    "placement": [
+      35,
+      132
+    ],
+    "scale": 0.9650406504065041
+  },
+  {
+    "id": "mori",
+    "name": "모리",
+    "emotion": "determined",
+    "base": "assets/sprites/portraits/uiux3d/mori_base.png",
+    "base_sha256": "dd9c5eaf5ff9c77d9759e95c5b731ffe683c37f302ad866367642278f61c96aa",
+    "source": "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/monsters_v130r/contract/mori_determined_generated.png",
+    "source_sha256": "10420e758dd97ac69f162c6b50482f60779615399755fb8a7d44ff59a340cbc2",
+    "generator_original": "C:/Users/blueh/.codex/generated_images/01a1446c-cfd1-7950-b157-6e9c61401ffe/exec-6bbcdd3f-5c2a-4112-9124-2cea0ed323e4.png",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_alpha": [
+      0,
+      255
+    ],
+    "source_transparent_fraction": 0.5852322011349964,
+    "runtime": "assets/sprites/v130r/portraits_contract/mori_determined.png",
+    "runtime_sha256": "129d318a84ed078033af936ab39b2dcda4a78f8a4317735c706e1830ac8b88ef",
+    "runtime_size": [
+      1254,
+      1254
+    ],
+    "base_bbox": [
+      35,
+      21,
+      1222,
+      1254
+    ],
+    "generated_bbox": [
+      0,
+      21,
+      1226,
+      1254
+    ],
+    "runtime_bbox": [
+      35,
+      60,
+      1222,
+      1254
+    ],
+    "placement": [
+      35,
+      60
+    ],
+    "scale": 0.968189233278956
+  },
+  {
+    "id": "dolkong",
+    "name": "돌콩",
+    "emotion": "happy",
+    "base": "assets/sprites/portraits/uiux3d/dolkong_base.png",
+    "base_sha256": "883cda84aad0b19050e015a5283b0167b298ac29be8a383060c7fb06bbb2061e",
+    "source": "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/monsters_v130r/contract/dolkong_happy_generated.png",
+    "source_sha256": "101da29c89fc046e6412c5b335fcfb34fa79c5da86cb7582c5c34e6cc510a1fa",
+    "generator_original": "C:/Users/blueh/.codex/generated_images/01a1446c-cfd1-7950-b157-6e9c61401ffe/exec-0c520b47-a1dc-4578-b45d-06daffb9c401.png",
+    "source_size": [
+      1223,
+      1286
+    ],
+    "source_alpha": [
+      0,
+      255
+    ],
+    "source_transparent_fraction": 0.3063636444558609,
+    "runtime": "assets/sprites/v130r/portraits_contract/dolkong_happy.png",
+    "runtime_sha256": "59d06fa235070a5c7ccfcd9b2970957391909278fa90f7844aae609f7ac69a2d",
+    "runtime_size": [
+      1223,
+      1286
+    ],
+    "base_bbox": [
+      0,
+      29,
+      1209,
+      1257
+    ],
+    "generated_bbox": [
+      14,
+      30,
+      1215,
+      1260
+    ],
+    "runtime_bbox": [
+      5,
+      29,
+      1204,
+      1257
+    ],
+    "placement": [
+      5,
+      29
+    ],
+    "scale": 0.9983739837398374
+  },
+  {
+    "id": "dolkong",
+    "name": "돌콩",
+    "emotion": "determined",
+    "base": "assets/sprites/portraits/uiux3d/dolkong_base.png",
+    "base_sha256": "883cda84aad0b19050e015a5283b0167b298ac29be8a383060c7fb06bbb2061e",
+    "source": "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/monsters_v130r/contract/dolkong_determined_generated.png",
+    "source_sha256": "8c8f8f8c812fe4abc4248f587f3cebd005b7c6337aece4f3e0b5f46e997f4a4c",
+    "generator_original": "C:/Users/blueh/.codex/generated_images/01a1446c-cfd1-7950-b157-6e9c61401ffe/exec-458e21c9-183e-4d62-9598-bfa01bc04263.png",
+    "source_size": [
+      1223,
+      1286
+    ],
+    "source_alpha": [
+      0,
+      255
+    ],
+    "source_transparent_fraction": 0.3047855450673903,
+    "runtime": "assets/sprites/v130r/portraits_contract/dolkong_determined.png",
+    "runtime_sha256": "58c90eeb0ea790d3c539abb92d56eda002b320978817cc2b9abb9d6877cd84e3",
+    "runtime_size": [
+      1223,
+      1286
+    ],
+    "base_bbox": [
+      0,
+      29,
+      1209,
+      1257
+    ],
+    "generated_bbox": [
+      0,
+      23,
+      1211,
+      1258
+    ],
+    "runtime_bbox": [
+      2,
+      29,
+      1206,
+      1257
+    ],
+    "placement": [
+      2,
+      29
+    ],
+    "scale": 0.994331983805668
+  },
+  {
+    "id": "dudum",
+    "name": "두둠",
+    "emotion": "happy",
+    "base": "assets/sprites/portraits/uiux3d/dudum_base.png",
+    "base_sha256": "5eee2411e73f5046d2f302db311e33aea5258952149b1374d9ea14333add4695",
+    "source": "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/monsters_v130r/contract/dudum_happy_generated.png",
+    "source_sha256": "6aa51911d2e6d09c8ed2b8a0f65d3a7b6baab213d91840304a554aa576ad0f2f",
+    "generator_original": "C:/Users/blueh/.codex/generated_images/01a1446c-cfd1-7950-b157-6e9c61401ffe/exec-fab5bf07-d9ad-468b-a3d8-3c1d27eaf4f3.png",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_alpha": [
+      0,
+      255
+    ],
+    "source_transparent_fraction": 0.5765772812486487,
+    "runtime": "assets/sprites/v130r/portraits_contract/dudum_happy.png",
+    "runtime_sha256": "e4234e3731eb1ffc17cac45f47fb54e6294a8b2e8e100c1e7dd768c9054105f2",
+    "runtime_size": [
+      1254,
+      1254
+    ],
+    "base_bbox": [
+      25,
+      9,
+      1236,
+      1238
+    ],
+    "generated_bbox": [
+      0,
+      7,
+      1232,
+      1238
+    ],
+    "runtime_bbox": [
+      25,
+      28,
+      1236,
+      1238
+    ],
+    "placement": [
+      25,
+      28
+    ],
+    "scale": 0.9829545454545454
+  },
+  {
+    "id": "dudum",
+    "name": "두둠",
+    "emotion": "determined",
+    "base": "assets/sprites/portraits/uiux3d/dudum_base.png",
+    "base_sha256": "5eee2411e73f5046d2f302db311e33aea5258952149b1374d9ea14333add4695",
+    "source": "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/monsters_v130r/contract/dudum_determined_generated.png",
+    "source_sha256": "841a6fe99551df702615851aaddf09c80be13b7db512f72362194af17b6a138d",
+    "generator_original": "C:/Users/blueh/.codex/generated_images/01a1446c-cfd1-7950-b157-6e9c61401ffe/exec-80cbe045-44ea-4411-aa9f-763a7f9a0cae.png",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_alpha": [
+      0,
+      255
+    ],
+    "source_transparent_fraction": 0.5786968145316168,
+    "runtime": "assets/sprites/v130r/portraits_contract/dudum_determined.png",
+    "runtime_sha256": "93026d71f1e92561e35625dd54d65673a24d5badc8949f0b53dc20acd0ca4891",
+    "runtime_size": [
+      1254,
+      1254
+    ],
+    "base_bbox": [
+      25,
+      9,
+      1236,
+      1238
+    ],
+    "generated_bbox": [
+      25,
+      5,
+      1238,
+      1240
+    ],
+    "runtime_bbox": [
+      27,
+      9,
+      1234,
+      1238
+    ],
+    "placement": [
+      27,
+      9
+    ],
+    "scale": 0.9951417004048583
+  },
+  {
+    "id": "moon",
+    "name": "루미",
+    "emotion": "happy",
+    "base": "assets/sprites/portraits/uiux3d/moon_base.png",
+    "base_sha256": "e6cd06114b4d502eba7342dce607c2fcfddbbdf26f845462c4cb47232f10c977",
+    "source": "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/monsters_v130r/contract/moon_happy_generated.png",
+    "source_sha256": "dfb4ad3f4d939cab9ed08fabbc0cbd397318d4cda0937189fbc07dfccd018f05",
+    "generator_original": "C:/Users/blueh/.codex/generated_images/01a1446c-cfd1-7950-b157-6e9c61401ffe/exec-01a30c60-aff3-4ee5-bd8d-ec8b2d697862.png",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_alpha": [
+      0,
+      255
+    ],
+    "source_transparent_fraction": 0.46650463333918385,
+    "runtime": "assets/sprites/v130r/portraits_contract/moon_happy.png",
+    "runtime_sha256": "8ce5660d50e2bb087af5396e2fc14c66b10859d817e09f98fd53abc86485420b",
+    "runtime_size": [
+      1254,
+      1254
+    ],
+    "base_bbox": [
+      0,
+      0,
+      1254,
+      1254
+    ],
+    "generated_bbox": [
+      33,
+      0,
+      1254,
+      1254
+    ],
+    "runtime_bbox": [
+      16,
+      0,
+      1237,
+      1254
+    ],
+    "placement": [
+      16,
+      0
+    ],
+    "scale": 1.0
+  },
+  {
+    "id": "moon",
+    "name": "루미",
+    "emotion": "determined",
+    "base": "assets/sprites/portraits/uiux3d/moon_base.png",
+    "base_sha256": "e6cd06114b4d502eba7342dce607c2fcfddbbdf26f845462c4cb47232f10c977",
+    "source": "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/monsters_v130r/contract/moon_determined_generated.png",
+    "source_sha256": "eb1595c609707780d6491a4292f30c95730da39bb545f1afdf55cfa893c3ea38",
+    "generator_original": "C:/Users/blueh/.codex/generated_images/01a1446c-cfd1-7950-b157-6e9c61401ffe/exec-3957d484-d7f7-4c65-8199-a71a1e48f66f.png",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "source_alpha": [
+      0,
+      255
+    ],
+    "source_transparent_fraction": 0.4719513187783145,
+    "runtime": "assets/sprites/v130r/portraits_contract/moon_determined.png",
+    "runtime_sha256": "2b457e03d7ad036d5b79b656c492d7ddd06a4db74cc35fd99083e8d99d793de1",
+    "runtime_size": [
+      1254,
+      1254
+    ],
+    "base_bbox": [
+      0,
+      0,
+      1254,
+      1254
+    ],
+    "generated_bbox": [
+      32,
+      0,
+      1254,
+      1254
+    ],
+    "runtime_bbox": [
+      16,
+      0,
+      1238,
+      1254
+    ],
+    "placement": [
+      16,
+      0
+    ],
+    "scale": 1.0
+  },
+  {
+    "id": "mimi",
+    "name": "미미",
+    "emotion": "happy",
+    "base": "assets/sprites/portraits/uiux3d/mimi_base.png",
+    "base_sha256": "bf4748f9c84a3f333ff006e0ee99953df239436c132ee19275ebc32079c4d450",
+    "source": "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/monsters_v130r/contract/mimi_happy_generated.png",
+    "source_sha256": "64ebb472cf5b99ac605b0cd79b6139ee46f0268214ea07c048c02a31dde2c414",
+    "generator_original": "C:/Users/blueh/.codex/generated_images/01a1446c-cfd1-7950-b157-6e9c61401ffe/exec-e2d6bea5-e653-47f5-bf89-314d13ece904.png",
+    "source_size": [
+      1402,
+      1122
+    ],
+    "source_alpha": [
+      0,
+      255
+    ],
+    "source_transparent_fraction": 0.5041626299073643,
+    "runtime": "assets/sprites/v130r/portraits_contract/mimi_happy.png",
+    "runtime_sha256": "f1350defc9dc857ef9f8636ab559e46789a43ff7bc03fe951531bef09422a4ff",
+    "runtime_size": [
+      1402,
+      1122
+    ],
+    "base_bbox": [
+      0,
+      0,
+      1402,
+      1122
+    ],
+    "generated_bbox": [
+      0,
+      0,
+      1346,
+      1122
+    ],
+    "runtime_bbox": [
+      28,
+      0,
+      1374,
+      1122
+    ],
+    "placement": [
+      28,
+      0
+    ],
+    "scale": 1.0
+  },
+  {
+    "id": "mimi",
+    "name": "미미",
+    "emotion": "determined",
+    "base": "assets/sprites/portraits/uiux3d/mimi_base.png",
+    "base_sha256": "bf4748f9c84a3f333ff006e0ee99953df239436c132ee19275ebc32079c4d450",
+    "source": "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/monsters_v130r/contract/mimi_determined_generated.png",
+    "source_sha256": "4569933cbbf24ac0db118b51b7de04b216d490751233d39abd29cb54738ae157",
+    "generator_original": "C:/Users/blueh/.codex/generated_images/01a1446c-cfd1-7950-b157-6e9c61401ffe/exec-64063e5f-a915-479b-951b-4170f17244a3.png",
+    "source_size": [
+      1402,
+      1122
+    ],
+    "source_alpha": [
+      0,
+      255
+    ],
+    "source_transparent_fraction": 0.41819618523067376,
+    "runtime": "assets/sprites/v130r/portraits_contract/mimi_determined.png",
+    "runtime_sha256": "b2fa97c5d760651f3843f479ca489ecc07881ed74050141602685ef4c84f86ff",
+    "runtime_size": [
+      1402,
+      1122
+    ],
+    "base_bbox": [
+      0,
+      0,
+      1402,
+      1122
+    ],
+    "generated_bbox": [
+      0,
+      15,
+      1387,
+      1122
+    ],
+    "runtime_bbox": [
+      0,
+      3,
+      1402,
+      1122
+    ],
+    "placement": [
+      0,
+      3
+    ],
+    "scale": 1.010814708002884
+  }
+]
