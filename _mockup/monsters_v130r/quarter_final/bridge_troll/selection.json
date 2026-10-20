@@ -1,0 +1,1439 @@
+{
+  "accepted": true,
+  "combat_and_hurt": {
+    "sw": {
+      "combat": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\bridge_troll\\bridge_troll_sheet.png",
+        "frames": [
+          {
+            "source_slice": [
+              0,
+              0,
+              198,
+              220
+            ],
+            "source_bbox": [
+              41,
+              33,
+              192,
+              218
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 0,
+            "rect": [
+              54,
+              112,
+              151,
+              185
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.1671,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              198,
+              0,
+              396,
+              220
+            ],
+            "source_bbox": [
+              41,
+              37,
+              194,
+              220
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 1,
+            "rect": [
+              369,
+              111,
+              153,
+              183
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.3386,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              396,
+              0,
+              595,
+              220
+            ],
+            "source_bbox": [
+              45,
+              51,
+              199,
+              220
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 2,
+            "rect": [
+              674,
+              127,
+              154,
+              169
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.0036,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              595,
+              0,
+              793,
+              220
+            ],
+            "source_bbox": [
+              16,
+              86,
+              196,
+              220
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 3,
+            "rect": [
+              1007,
+              158,
+              180,
+              134
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.4636,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              220,
+              198,
+              405
+            ],
+            "source_bbox": [
+              42,
+              5,
+              198,
+              181
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 58,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 4,
+            "rect": [
+              99,
+              436,
+              156,
+              176
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.7278,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              198,
+              220,
+              396,
+              405
+            ],
+            "source_bbox": [
+              31,
+              6,
+              191,
+              184
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 13,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 5,
+            "rect": [
+              376,
+              430,
+              160,
+              178
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.5588,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              396,
+              220,
+              595,
+              405
+            ],
+            "source_bbox": [
+              30,
+              3,
+              197,
+              185
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 8,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 6,
+            "rect": [
+              708,
+              425,
+              167,
+              182
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.8013,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              595,
+              220,
+              793,
+              405
+            ],
+            "source_bbox": [
+              16,
+              31,
+              181,
+              179
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 21,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 7,
+            "rect": [
+              996,
+              461,
+              165,
+              148
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.9451,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              405,
+              198,
+              595
+            ],
+            "source_bbox": [
+              37,
+              0,
+              198,
+              182
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 8,
+            "rect": [
+              44,
+              743,
+              161,
+              182
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.4092,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              198,
+              405,
+              400,
+              595
+            ],
+            "source_bbox": [
+              37,
+              13,
+              202,
+              181
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 15,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 9,
+            "rect": [
+              417,
+              755,
+              165,
+              168
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.2758,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              400,
+              405,
+              595,
+              595
+            ],
+            "source_bbox": [
+              22,
+              6,
+              184,
+              181
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 10,
+            "rect": [
+              668,
+              749,
+              162,
+              175
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.1554,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              595,
+              405,
+              793,
+              595
+            ],
+            "source_bbox": [
+              24,
+              17,
+              180,
+              187
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 11,
+            "rect": [
+              990,
+              756,
+              156,
+              170
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.1191,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              0,
+              768,
+              512
+            ],
+            "source_bbox": [
+              261,
+              62,
+              647,
+              477
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 24,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "source_normalization": 0.4187192118226601,
+            "index": 12,
+            "rect": [
+              41,
+              1060,
+              162,
+              174
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.5352,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              199,
+              595,
+              404,
+              770
+            ],
+            "source_bbox": [
+              48,
+              2,
+              205,
+              174
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 10,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 13,
+            "rect": [
+              373,
+              1063,
+              157,
+              172
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.5448,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              404,
+              595,
+              595,
+              770
+            ],
+            "source_bbox": [
+              18,
+              5,
+              190,
+              175
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 4,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 14,
+            "rect": [
+              665,
+              1063,
+              172,
+              170
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.9078,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              768,
+              0,
+              1536,
+              512
+            ],
+            "source_bbox": [
+              181,
+              79,
+              525,
+              482
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "source_normalization": 0.4122137404580153,
+            "index": 15,
+            "rect": [
+              999,
+              1067,
+              142,
+              166
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.1558,
+            "support_y": 289
+          }
+        ],
+        "sha256": "4c1b001e373101859caef3ad50552312fe5e4c9fc76c7bb3afcc03eaab726d81"
+      },
+      "hurt": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\bridge_troll\\bridge_troll_hurt_sw.png",
+        "frames": [
+          {
+            "source_slice": [
+              0,
+              512,
+              768,
+              1024
+            ],
+            "source_bbox": [
+              253,
+              37,
+              651,
+              451
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 12,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "source_normalization": 0.4236453201970443,
+            "index": 0,
+            "rect": [
+              48,
+              118,
+              169,
+              175
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.692,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              198,
+              770,
+              396,
+              992
+            ],
+            "source_bbox": [
+              33,
+              4,
+              196,
+              178
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 13,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 1,
+            "rect": [
+              343,
+              121,
+              163,
+              174
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.1922,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              396,
+              770,
+              595,
+              992
+            ],
+            "source_bbox": [
+              30,
+              26,
+              197,
+              180
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 2,
+            "rect": [
+              671,
+              142,
+              167,
+              154
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.2251,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              768,
+              512,
+              1536,
+              1024
+            ],
+            "source_bbox": [
+              178,
+              53,
+              521,
+              450
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "source_normalization": 0.4533678756476684,
+            "index": 3,
+            "rect": [
+              988,
+              114,
+              156,
+              180
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.3796,
+            "support_y": 289
+          }
+        ],
+        "sha256": "b9a3b9add85f8f7720dc483513851b9f5b4054baf601c469c810463f1092e805"
+      }
+    },
+    "ne": {
+      "combat": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\bridge_troll\\bridge_troll_sheet_ne.png",
+        "frames": [
+          {
+            "source_slice": [
+              793,
+              0,
+              991,
+              220
+            ],
+            "source_bbox": [
+              28,
+              36,
+              176,
+              220
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 0,
+            "rect": [
+              72,
+              109,
+              148,
+              184
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.2375,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              991,
+              0,
+              1189,
+              220
+            ],
+            "source_bbox": [
+              7,
+              35,
+              158,
+              220
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 1,
+            "rect": [
+              375,
+              112,
+              151,
+              185
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.1222,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1189,
+              0,
+              1384,
+              220
+            ],
+            "source_bbox": [
+              7,
+              64,
+              158,
+              220
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 14,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 2,
+            "rect": [
+              723,
+              138,
+              151,
+              156
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.9545,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1384,
+              0,
+              1586,
+              220
+            ],
+            "source_bbox": [
+              0,
+              95,
+              172,
+              220
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 3,
+            "rect": [
+              1053,
+              169,
+              172,
+              125
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.8872,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              793,
+              220,
+              991,
+              405
+            ],
+            "source_bbox": [
+              32,
+              13,
+              177,
+              185
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 8,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 4,
+            "rect": [
+              111,
+              435,
+              145,
+              172
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.5015,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              991,
+              220,
+              1189,
+              405
+            ],
+            "source_bbox": [
+              15,
+              16,
+              170,
+              185
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 5,
+            "rect": [
+              377,
+              436,
+              155,
+              169
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.3215,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1189,
+              220,
+              1388,
+              405
+            ],
+            "source_bbox": [
+              10,
+              9,
+              161,
+              185
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 6,
+            "rect": [
+              692,
+              432,
+              151,
+              176
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.2689,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1388,
+              220,
+              1586,
+              405
+            ],
+            "source_bbox": [
+              14,
+              8,
+              149,
+              182
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 92,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 7,
+            "rect": [
+              1070,
+              434,
+              135,
+              174
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.9848,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              793,
+              405,
+              991,
+              595
+            ],
+            "source_bbox": [
+              26,
+              17,
+              192,
+              182
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 27,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 8,
+            "rect": [
+              98,
+              760,
+              166,
+              165
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.3022,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              991,
+              405,
+              1189,
+              595
+            ],
+            "source_bbox": [
+              32,
+              17,
+              188,
+              190
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 44,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 9,
+            "rect": [
+              406,
+              748,
+              156,
+              173
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.5926,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1189,
+              405,
+              1388,
+              595
+            ],
+            "source_bbox": [
+              20,
+              4,
+              186,
+              184
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 44,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 10,
+            "rect": [
+              755,
+              743,
+              166,
+              180
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.0903,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1388,
+              405,
+              1586,
+              595
+            ],
+            "source_bbox": [
+              10,
+              15,
+              166,
+              181
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 24,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 11,
+            "rect": [
+              1070,
+              759,
+              156,
+              166
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.6925,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              793,
+              595,
+              991,
+              770
+            ],
+            "source_bbox": [
+              24,
+              14,
+              187,
+              168
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 26,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 12,
+            "rect": [
+              89,
+              1086,
+              163,
+              154
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.384,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              991,
+              595,
+              1189,
+              770
+            ],
+            "source_bbox": [
+              8,
+              13,
+              174,
+              175
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 13,
+            "rect": [
+              417,
+              1073,
+              166,
+              162
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.9123,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1189,
+              595,
+              1388,
+              770
+            ],
+            "source_bbox": [
+              16,
+              8,
+              177,
+              175
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 14,
+            "rect": [
+              694,
+              1064,
+              161,
+              167
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.7388,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1388,
+              595,
+              1586,
+              770
+            ],
+            "source_bbox": [
+              5,
+              7,
+              174,
+              169
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 15,
+            "rect": [
+              1066,
+              1075,
+              169,
+              162
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.0402,
+            "support_y": 289
+          }
+        ],
+        "sha256": "d4261e88b2b821b07dafb31cfa508f53d6416794c43eaeff91dbc9f11615ac68"
+      },
+      "hurt": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\bridge_troll\\bridge_troll_hurt_ne.png",
+        "frames": [
+          {
+            "source_slice": [
+              793,
+              770,
+              991,
+              992
+            ],
+            "source_bbox": [
+              30,
+              0,
+              182,
+              183
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 0,
+            "rect": [
+              75,
+              112,
+              152,
+              183
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.3288,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              991,
+              770,
+              1189,
+              992
+            ],
+            "source_bbox": [
+              22,
+              11,
+              177,
+              183
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 1,
+            "rect": [
+              377,
+              123,
+              155,
+              172
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.9932,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1189,
+              770,
+              1388,
+              992
+            ],
+            "source_bbox": [
+              15,
+              27,
+              168,
+              182
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 30,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 2,
+            "rect": [
+              708,
+              140,
+              153,
+              155
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.1382,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              841,
+              1099,
+              1122,
+              1402
+            ],
+            "source_bbox": [
+              50,
+              6,
+              245,
+              247
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\bridge_troll\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.711864406779661,
+            "index": 3,
+            "rect": [
+              1017,
+              120,
+              139,
+              172
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.7701,
+            "support_y": 289
+          }
+        ],
+        "sha256": "307ebdd511532d5bb21b612444e0da4705295e91230d33f06188576ea3d19cf3"
+      }
+    }
+  },
+  "selected_attempts": [
+    1,
+    2,
+    3
+  ]
+}

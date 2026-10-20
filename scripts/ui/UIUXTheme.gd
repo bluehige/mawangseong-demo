@@ -1,11 +1,13 @@
 extends RefCounted
 class_name UIUXTheme
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
-const INK := Color("#17121f")
-const LINE := Color("#67546e")
-const PAPER := Color("#f4eadc")
-const MUTED := Color("#c0b2c6")
-const GOLD := Color("#e8bd76")
+const Standard = preload("res://scripts/ui/UIStandard.gd")
+const Tokens = preload("res://scripts/ui/kit/UIKitTokens.gd")
+const INK := Tokens.LEGACY_INK
+const LINE := Tokens.LEGACY_LINE
+const PAPER := Tokens.LEGACY_PAPER
+const MUTED := Tokens.LEGACY_MUTED
+const GOLD := Tokens.LEGACY_GOLD
 
 const Obsidian = preload("res://scripts/ui/ObsidianStyleBox.gd")
 static var _panel_texture: Texture2D
@@ -15,10 +17,20 @@ static func panel(fill: Color, border: Color, width: int = 1, _radius: int = 6) 
 	return surface(fill,border,width,false)
 
 static func surface(fill: Color, border: Color, width: int = 1, is_button: bool = true) -> StyleBox:
+	# Mask and transparent holder surfaces have no decorative frame/texture.
+	if not is_button and width == 0:
+		var flat := StyleBoxFlat.new()
+		flat.bg_color = fill
+		return flat
 	if _panel_texture == null:
 		_panel_texture = load("res://assets/ui/uiux/obsidian_panel.png")
 		_button_texture = load("res://assets/ui/uiux/obsidian_button.png")
 	var result := Obsidian.new()
+	if is_button:
+		result.content_margin_left = Standard.BUTTON_PADDING.x
+		result.content_margin_right = Standard.BUTTON_PADDING.x
+		result.content_margin_top = Standard.BUTTON_PADDING.y
+		result.content_margin_bottom = Standard.BUTTON_PADDING.y
 	result.texture = _button_texture if is_button else _panel_texture
 	result.button_shape = is_button
 	result.panel_texture = _panel_texture
@@ -41,14 +53,21 @@ static var _world_badges: Dictionary = {}
 static func world_badge(accent: Color) -> StyleBox:
 	var key := accent.to_html()
 	if not _world_badges.has(key):
-		var style := surface(INK, accent, 1, true)
-		style.set("strong", false)
-		style.set("tint", Color(0.96,0.96,1.0,0.96))
+		var style := StyleBoxFlat.new()
+		style.bg_color = Color("#15111ff5")
+		style.border_color = accent.darkened(0.25)
+		style.set_border_width_all(1)
+		style.set_corner_radius_all(4)
 		_world_badges[key] = style
 	return _world_badges[key]
 
 static func apply_tree(node: Node) -> void:
+	if node is Label and not node.get_meta("hud_text_fit", false):
+		Standard.fit_fixed_label.call_deferred(node)
 	if node is Button and not node.has_meta("uiux_external_button"):
+		# Some standalone builders apply the theme button-by-button when tabs
+		# rebuild locally. Include their sibling text after construction finishes.
+		Standard.fit_screen_labels.call_deferred(node.get_parent())
 		if LanguageSettings.locale == LanguageSettings.LOCALE_CHINESE:
 			# Empty card buttons still render translated tooltips.
 			node.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))

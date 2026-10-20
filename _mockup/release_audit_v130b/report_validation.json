@@ -1,0 +1,12 @@
+{
+  "baseline_files": 9497,
+  "unexpected_file_changes": [],
+  "directly_viewed_images": 12,
+  "opened_images_max_edge": 960,
+  "compatibility_battle_wins": 3,
+  "report_links": 18,
+  "missing_links": [],
+  "release_verdict": "FAIL",
+  "audit_task_completed": true,
+  "product_sha": "e40eb91c4902e72237783508105004be7e4d989e"
+}

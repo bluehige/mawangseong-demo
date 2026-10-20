@@ -1,0 +1,1379 @@
+{
+  "species_id": "candle_wisp",
+  "selected_attempts": {
+    "sw": 2,
+    "ne": 3
+  },
+  "status": "FINAL_ART_NOT_INTEGRATED",
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "logical_anchor": [
+    192,
+    345
+  ],
+  "atlas_anchor": [
+    156.5,
+    289
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "uniform_scale": 0.9108527131782945,
+  "camera_reference": "0098 C, 42 degree downward orthographic visual match",
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "visual_reason": "넓은 왁스 윗면·낮은 앞벽·아래왼쪽 얼굴·왁스 바닥 접지",
+  "directions": {
+    "sw": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/candle_wisp/candle_wisp_sheet.png",
+        "frames": [
+          {
+            "source_slice": [
+              68,
+              37,
+              228,
+              282
+            ],
+            "source_bbox": [
+              0,
+              0,
+              160,
+              245
+            ],
+            "source_seam_alpha_ge8": 14,
+            "source_seam_max_alpha": 17,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 0,
+            "rect": [
+              72,
+              73,
+              146,
+              223
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.61922105194083,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              346,
+              32,
+              504,
+              282
+            ],
+            "source_bbox": [
+              0,
+              0,
+              158,
+              250
+            ],
+            "source_seam_alpha_ge8": 6,
+            "source_seam_max_alpha": 9,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 1,
+            "rect": [
+              377,
+              67,
+              144,
+              228
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.47005080387197,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              621,
+              92,
+              790,
+              279
+            ],
+            "source_bbox": [
+              0,
+              0,
+              169,
+              187
+            ],
+            "source_seam_alpha_ge8": 11,
+            "source_seam_max_alpha": 15,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 2,
+            "rect": [
+              700,
+              126,
+              154,
+              170
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.82630017702502,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              876,
+              131,
+              1089,
+              283
+            ],
+            "source_bbox": [
+              0,
+              0,
+              213,
+              152
+            ],
+            "source_seam_alpha_ge8": 8,
+            "source_seam_max_alpha": 10,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 3,
+            "rect": [
+              990,
+              157,
+              194,
+              138
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.2115200606319,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              68,
+              317,
+              225,
+              543
+            ],
+            "source_bbox": [
+              0,
+              0,
+              157,
+              226
+            ],
+            "source_seam_alpha_ge8": 43,
+            "source_seam_max_alpha": 26,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 4,
+            "rect": [
+              102,
+              406,
+              143,
+              206
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.50669234472798,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              353,
+              315,
+              503,
+              547
+            ],
+            "source_bbox": [
+              0,
+              0,
+              150,
+              232
+            ],
+            "source_seam_alpha_ge8": 8,
+            "source_seam_max_alpha": 9,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 5,
+            "rect": [
+              391,
+              398,
+              137,
+              211
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.4573258319368,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              624,
+              324,
+              781,
+              543
+            ],
+            "source_bbox": [
+              0,
+              0,
+              157,
+              219
+            ],
+            "source_seam_alpha_ge8": 76,
+            "source_seam_max_alpha": 37,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 6,
+            "rect": [
+              694,
+              413,
+              143,
+              199
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.92994117110544,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              906,
+              322,
+              1060,
+              547
+            ],
+            "source_bbox": [
+              0,
+              0,
+              154,
+              225
+            ],
+            "source_seam_alpha_ge8": 19,
+            "source_seam_max_alpha": 30,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 7,
+            "rect": [
+              1031,
+              404,
+              140,
+              205
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.17756119846194,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              61,
+              587,
+              243,
+              820
+            ],
+            "source_bbox": [
+              0,
+              0,
+              182,
+              233
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 8,
+            "rect": [
+              76,
+              712,
+              166,
+              212
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.8788459598507,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              318,
+              587,
+              516,
+              819
+            ],
+            "source_bbox": [
+              0,
+              0,
+              198,
+              232
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 9,
+            "rect": [
+              360,
+              712,
+              180,
+              211
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.5296574457326,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              581,
+              596,
+              803,
+              819
+            ],
+            "source_bbox": [
+              0,
+              0,
+              222,
+              223
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 4,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 10,
+            "rect": [
+              659,
+              720,
+              202,
+              203
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.64399069877965,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              903,
+              581,
+              1061,
+              817
+            ],
+            "source_bbox": [
+              0,
+              0,
+              158,
+              236
+            ],
+            "source_seam_alpha_ge8": 8,
+            "source_seam_max_alpha": 11,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 11,
+            "rect": [
+              1022,
+              710,
+              144,
+              215
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.68465246927107,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              69,
+              889,
+              223,
+              1098
+            ],
+            "source_bbox": [
+              0,
+              0,
+              154,
+              209
+            ],
+            "source_seam_alpha_ge8": 13,
+            "source_seam_max_alpha": 18,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 12,
+            "rect": [
+              77,
+              1046,
+              140,
+              190
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.4677596080296,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              346,
+              850,
+              507,
+              1098
+            ],
+            "source_bbox": [
+              0,
+              0,
+              161,
+              248
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 13,
+            "rect": [
+              381,
+              1009,
+              147,
+              226
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.4704505807769,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              622,
+              840,
+              793,
+              1098
+            ],
+            "source_bbox": [
+              0,
+              0,
+              171,
+              258
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 14,
+            "rect": [
+              705,
+              1002,
+              156,
+              235
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.6416193131684,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              908,
+              858,
+              1061,
+              1098
+            ],
+            "source_bbox": [
+              0,
+              0,
+              153,
+              240
+            ],
+            "source_seam_alpha_ge8": 11,
+            "source_seam_max_alpha": 17,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 15,
+            "rect": [
+              1034,
+              1016,
+              139,
+              219
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.04116257574202,
+            "contact_y": 289
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/candle_wisp/candle_wisp_hurt_sw.png",
+        "frames": [
+          {
+            "source_slice": [
+              66,
+              1130,
+              233,
+              1359
+            ],
+            "source_bbox": [
+              0,
+              0,
+              167,
+              229
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 0,
+            "rect": [
+              70,
+              86,
+              152,
+              209
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.73861998330932,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              321,
+              1145,
+              513,
+              1358
+            ],
+            "source_bbox": [
+              0,
+              0,
+              192,
+              213
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 1,
+            "rect": [
+              360,
+              101,
+              175,
+              194
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.1513491058712,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              616,
+              1181,
+              791,
+              1361
+            ],
+            "source_bbox": [
+              0,
+              0,
+              175,
+              180
+            ],
+            "source_seam_alpha_ge8": 11,
+            "source_seam_max_alpha": 12,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 2,
+            "rect": [
+              699,
+              131,
+              159,
+              164
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.96474329158457,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              902,
+              1124,
+              1061,
+              1359
+            ],
+            "source_bbox": [
+              0,
+              0,
+              159,
+              235
+            ],
+            "source_seam_alpha_ge8": 20,
+            "source_seam_max_alpha": 26,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 3,
+            "rect": [
+              1011,
+              81,
+              145,
+              214
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.80238324188775,
+            "contact_y": 289
+          }
+        ]
+      }
+    },
+    "ne": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/candle_wisp/candle_wisp_sheet_ne.png",
+        "frames": [
+          {
+            "source_slice": [
+              77,
+              31,
+              246,
+              282
+            ],
+            "source_bbox": [
+              0,
+              0,
+              169,
+              251
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 1,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 0,
+            "rect": [
+              77,
+              67,
+              154,
+              229
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.9641222145361,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              349,
+              31,
+              518,
+              282
+            ],
+            "source_bbox": [
+              0,
+              0,
+              169,
+              251
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 1,
+            "rect": [
+              388,
+              66,
+              154,
+              229
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.88883733380922,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              622,
+              101,
+              810,
+              288
+            ],
+            "source_bbox": [
+              0,
+              0,
+              188,
+              187
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 2,
+            "rect": [
+              708,
+              125,
+              171,
+              170
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.59424172775368,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              862,
+              155,
+              1095,
+              293
+            ],
+            "source_bbox": [
+              0,
+              0,
+              233,
+              138
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 1,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 3,
+            "rect": [
+              978,
+              169,
+              212,
+              126
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.86258445574592,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              76,
+              306,
+              248,
+              547
+            ],
+            "source_bbox": [
+              0,
+              0,
+              172,
+              241
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 1,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 4,
+            "rect": [
+              86,
+              388,
+              157,
+              220
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.60459886758076,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              348,
+              318,
+              514,
+              547
+            ],
+            "source_bbox": [
+              0,
+              0,
+              166,
+              229
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 1,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 5,
+            "rect": [
+              402,
+              399,
+              151,
+              209
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.95439680232556,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              630,
+              326,
+              808,
+              548
+            ],
+            "source_bbox": [
+              0,
+              0,
+              178,
+              222
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 6,
+            "rect": [
+              702,
+              407,
+              162,
+              202
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.1608452817606,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              896,
+              333,
+              1075,
+              545
+            ],
+            "source_bbox": [
+              0,
+              0,
+              179,
+              212
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 7,
+            "rect": [
+              1012,
+              415,
+              163,
+              193
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.9387435481894,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              73,
+              590,
+              249,
+              811
+            ],
+            "source_bbox": [
+              0,
+              0,
+              176,
+              221
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 8,
+            "rect": [
+              93,
+              721,
+              160,
+              201
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.34487844625747,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              330,
+              604,
+              555,
+              815
+            ],
+            "source_bbox": [
+              0,
+              0,
+              225,
+              211
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 9,
+            "rect": [
+              368,
+              730,
+              205,
+              192
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.17576060562777,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              591,
+              599,
+              837,
+              812
+            ],
+            "source_bbox": [
+              0,
+              0,
+              246,
+              213
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 10,
+            "rect": [
+              650,
+              728,
+              224,
+              194
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.60066336737918,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              897,
+              590,
+              1079,
+              812
+            ],
+            "source_bbox": [
+              0,
+              0,
+              182,
+              222
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 1,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 11,
+            "rect": [
+              1014,
+              720,
+              166,
+              202
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.41483791912665,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              84,
+              886,
+              260,
+              1088
+            ],
+            "source_bbox": [
+              0,
+              0,
+              176,
+              202
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 12,
+            "rect": [
+              84,
+              1052,
+              160,
+              184
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.3960370537316,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              346,
+              838,
+              540,
+              1085
+            ],
+            "source_bbox": [
+              0,
+              0,
+              194,
+              247
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 13,
+            "rect": [
+              389,
+              1010,
+              177,
+              225
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.62156547642377,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              602,
+              829,
+              809,
+              1087
+            ],
+            "source_bbox": [
+              0,
+              0,
+              207,
+              258
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 14,
+            "rect": [
+              680,
+              1000,
+              189,
+              235
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.57293950201222,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              899,
+              865,
+              1075,
+              1090
+            ],
+            "source_bbox": [
+              0,
+              0,
+              176,
+              225
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 15,
+            "rect": [
+              1019,
+              1031,
+              160,
+              205
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.08064117818736,
+            "contact_y": 289
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/candle_wisp/candle_wisp_hurt_ne.png",
+        "frames": [
+          {
+            "source_slice": [
+              76,
+              1134,
+              249,
+              1358
+            ],
+            "source_bbox": [
+              0,
+              0,
+              173,
+              224
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 0,
+            "rect": [
+              75,
+              90,
+              158,
+              204
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.50030459945174,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              336,
+              1149,
+              534,
+              1356
+            ],
+            "source_bbox": [
+              0,
+              0,
+              198,
+              207
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 1,
+            "rect": [
+              370,
+              106,
+              180,
+              189
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.97120027451655,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              621,
+              1172,
+              819,
+              1354
+            ],
+            "source_bbox": [
+              0,
+              0,
+              198,
+              182
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 2,
+            "rect": [
+              689,
+              129,
+              180,
+              166
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.5861804810786,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              899,
+              1127,
+              1077,
+              1357
+            ],
+            "source_bbox": [
+              0,
+              0,
+              178,
+              230
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 3,
+            "rect": [
+              1013,
+              86,
+              162,
+              209
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.8489826471589,
+            "contact_y": 289
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "data_monsters",
+  "exit_code": 0,
+  "seconds": 0.27,
+  "command": [
+    "C:\\Users\\blueh\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-X",
+    "utf8",
+    "tools/content/validate_v130r_monsters.py",
+    "--json"
+  ],
+  "result": "PASS",
+  "checks": 2408,
+  "errors": []
+}

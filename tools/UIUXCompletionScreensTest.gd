@@ -42,12 +42,12 @@ func _run() -> void:
 				chronicle._select_tab(page)
 				await capture(tag+"_chronicle%d"%page)
 			game.update4_active_run=active.duplicate(true)
-			game.update4_active_run.upper_floor={"layout_id":"upper_compact_guard","layout_locked":false}
-			game._set_screen(C.SCREEN_UPPER_FLOOR)
-			await capture(tag+"_upper")
-			game.update4_active_run.upper_floor.layout_locked=true
-			game._set_screen(C.SCREEN_UPPER_FLOOR)
-			await capture(tag+"_upper_locked")
+			game.update4_active_run.expansion={"unlocked":true,"temporary":true,"objective_hp":{"crown_sanctum":600},"rooms":{}}
+			game._set_screen(C.SCREEN_EXPANSION)
+			await capture(tag+"_temporary_objectives")
+			game.update4_active_run.expansion.temporary=false
+			game._set_screen(C.SCREEN_EXPANSION)
+			await capture(tag+"_expanded_objectives")
 			game.update4_active_run=active.duplicate(true)
 			game.update4_active_run.outpost.assigned_monster_ids=["mon_core_pudding","mon_core_gob","mon_contract_mori"]
 			GameState.day=10
@@ -131,32 +131,12 @@ func screen_checks(tag: String) -> void:
 	await press("ChronicleCloseButton")
 	expect(game.current_screen==C.SCREEN_MANAGEMENT,tag+" chronicle returns to management")
 	game.update4_profile=profile
-	game.update4_active_run.upper_floor={"unlocked":true,"layout_id":"upper_compact_guard","layout_locked":false}
-	game._set_screen(C.SCREEN_UPPER_FLOOR)
+	game.update4_active_run.expansion={"unlocked":true,"temporary":true,"objective_hp":{"crown_sanctum":600},"rooms":{}}
+	game._set_screen(C.SCREEN_EXPANSION)
 	await settle()
 	var active: Dictionary=game.update4_active_run.duplicate(true)
-	await press("UpperLayout_upper_split_vault")
-	expect(game.update4_active_run==active and [GameState.gold,GameState.mana]==economy,tag+" upper preview changes no game state or resources")
-	await capture(tag+"_upper_candidate")
-	await press("UpperFloorCloseButton")
-	expect(game.update4_active_run==active,tag+" leave candidate cancels")
-	game._set_screen(C.SCREEN_UPPER_FLOOR)
-	await settle()
-	for layout_id in ["upper_compact_guard","upper_split_vault","upper_long_gallery"]:
-		await press("UpperLayout_"+layout_id)
-		var detail:=node("UpperLayoutDetail")
-		var connection_count:=0
-		for child in detail.get_children():
-			if child is Line2D: connection_count+=1
-		expect(connection_count==DataRegistry.update4_upper_floor_layouts[layout_id].connections.size(),tag+" exact graph edges "+layout_id)
-	await press("UpperLayoutConfirmButton")
-	expect(game.update4_active_run.upper_floor.layout_id=="upper_long_gallery" and bool(game.update4_active_run.upper_floor.layout_locked),tag+" actual existing service commits selection")
-	var confirmed: Dictionary=game.update4_active_run.duplicate(true)
-	await press("UpperLayout_upper_compact_guard")
-	expect((node("UpperLayoutConfirmButton") as Button).disabled and game.update4_active_run==confirmed,tag+" locked layout can inspect without replacement")
-	await capture(tag+"_upper_confirmed")
-	(node("UpperFloorScreen"))._confirm()
-	expect(game.update4_active_run==confirmed,tag+" duplicate upper confirm no second mutation")
+	await capture(tag+"_objective_overview")
+	expect(game.update4_active_run==active and [GameState.gold,GameState.mana]==economy,tag+" objective overview does not mutate state or resources")
 	game._set_screen(C.SCREEN_MANAGEMENT)
 	check_copy(game.ui_layer)
 

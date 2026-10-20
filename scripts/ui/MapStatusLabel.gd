@@ -53,3 +53,36 @@ static func draw(target: CanvasItem, info: Dictionary, color: Color, font: Font)
 	target.draw_set_transform_matrix(Transform2D.IDENTITY)
 static func at(target: CanvasItem, anchor: Vector2, text: String, color: Color, font: Font, base_size: int = 18) -> void:
 	draw(target,layout(target,anchor,text,font,base_size),color,font)
+
+# Management uses the same screen-space collision placement for both rendering
+# and build-label hit testing. Combat's existing typography remains unchanged.
+static func management_layout(point: Vector2, text: String, font: Font, font_size: int, viewport: Vector2, above: bool = false) -> Dictionary:
+	text = LanguageSettings.ui_text(text)
+	var limit := minf(440.0,viewport.x-40.0)
+	var lines: Array[String] = []
+	var current := ""
+	for word in text.replace("\n"," ").split(" ",false):
+		var candidate := word if current == "" else current+" "+word
+		if current != "" and font.get_string_size(candidate,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x > limit-24:
+			lines.append(current)
+			current = word
+		else: current = candidate
+	if current != "": lines.append(current)
+	var width := 0.0
+	for value in lines: width = maxf(width,font.get_string_size(value,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x)
+	var line_height := font.get_height(font_size)
+	var size := Vector2(maxf(64,width+24),line_height*lines.size()+12)
+	var rect := Rect2(point-Vector2(size.x*0.5,size.y+6 if above else -6),size)
+	rect.position.x = clampf(rect.position.x,12,maxf(12,viewport.x-size.x-12))
+	return {"rect":rect,"font_size":font_size,"lines":lines,"line_height":line_height}
+
+static func draw_management(target: CanvasItem, anchor: Vector2, info: Dictionary, color: Color, font: Font) -> void:
+	var rect: Rect2 = info.rect
+	target.draw_set_transform_matrix(target.get_global_transform_with_canvas().affine_inverse())
+	if not rect.has_point(anchor): target.draw_line(anchor,rect.get_center(),Color(color,0.5),1,true)
+	target.draw_style_box(UXTheme.world_badge(color),rect)
+	var baseline := rect.position.y+6+font.get_ascent(info.font_size)
+	for value in info.lines:
+		target.draw_string(font,Vector2(rect.position.x+12,baseline),value,HORIZONTAL_ALIGNMENT_CENTER,rect.size.x-24,info.font_size,Color("#fff4e8"))
+		baseline += float(info.line_height)
+	target.draw_set_transform_matrix(Transform2D.IDENTITY)

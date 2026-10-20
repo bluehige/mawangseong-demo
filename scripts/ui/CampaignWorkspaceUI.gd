@@ -14,6 +14,9 @@ var committed := false
 var contract_selection := false
 
 func frame(title: String, subtitle: String) -> void:
+	if kind == "contract":
+		contract_frame(title,subtitle)
+		return
 	expected_screen = root.current_screen
 	screen = panel(Rect2(0,0,1920,1080),"CampaignWorkspace")
 	copy(screen,title,Rect2(40,28,1840,66),40,GOLD)
@@ -24,6 +27,34 @@ func frame(title: String, subtitle: String) -> void:
 	notice = copy(screen,"",Rect2(414,966,1040,86),22,MUTED,"CampaignActionNotice")
 	action = button(screen,"확정",Rect2(1480,976,400,64),confirm,"CampaignConfirmButton","primary")
 	button(screen,"선택 지우기 · ESC",Rect2(40,976,344,64),cancel,"CampaignCancelButton")
+
+func contract_frame(title: String, subtitle: String) -> void:
+	expected_screen = root.current_screen
+	shared_theme = null
+	screen = kit_panel(Rect2(24,24,1872,1032),"CampaignWorkspace")
+	var column := kit_content(screen,24)
+	kit_line(column,LanguageSettings.ui_text(title),"",GOLD)
+	kit_line(column,LanguageSettings.ui_text(subtitle),"",MUTED)
+	var row := kit_flow(column)
+	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var left := VBoxContainer.new()
+	left.name = "CampaignChoiceList"
+	left.custom_minimum_size.x = 460
+	row.add_child(left)
+	var scroll := ScrollContainer.new()
+	scroll.name = "CampaignChoiceScroll"
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	left.add_child(scroll)
+	list = kit_flow(scroll,true)
+	detail = Control.new()
+	detail.name = "CampaignChoiceDetail"
+	detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(detail)
+	notice = kit_line(column,"","CampaignActionNotice",GOLD)
+	var footer := kit_flow(column)
+	action = kit_button(footer,root.continuity.localized("확정","Confirm","确认"),Rect2(),confirm,"CampaignConfirmButton","primary")
+	kit_button(footer,root.continuity.localized("선택 지우기","Clear selection","清除选择"),Rect2(),cancel,"CampaignCancelButton")
 
 func scrolling(parent: Control, rect: Rect2, id: String) -> VBoxContainer:
 	var scroll := ScrollContainer.new()
@@ -48,15 +79,37 @@ func paragraph(parent: Control, text: String, width: float, font_size: int = 24,
 	return label
 
 func detail_content() -> VBoxContainer:
+	if kind == "contract":
+		for child in detail.get_children():
+			detail.remove_child(child)
+			child.queue_free()
+		var scroll := ScrollContainer.new()
+		scroll.name = "CampaignDetailScroll"
+		scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		detail.add_child(scroll)
+		return kit_flow(scroll,true) as VBoxContainer
 	for child in detail.get_children():
+		if kind == "archive" and child is Surface: continue
 		detail.remove_child(child)
 		child.queue_free()
-	return scrolling(detail,Rect2(32,24,1196,700),"CampaignDetailScroll")
+	return scrolling(detail,Rect2(32,24,1196,656 if kind=="archive" else 700),"CampaignDetailScroll")
 
 func active() -> bool:
 	return is_instance_valid(root) and not root.is_queued_for_deletion() and is_instance_valid(screen) and screen.is_inside_tree() and not screen.is_queued_for_deletion() and root.current_screen == expected_screen and not committed
 
 func entry(id: String, title: String, subtitle: String, portrait: Texture2D = null) -> void:
+	if kind in ["contract","archive"]:
+		var row := kit_button(list,"",Rect2(),select.bind(id),"CampaignChoice_"+id,"tactical")
+		row.custom_minimum_size.y = 160
+		row.set_meta("choice_id",id)
+		row.tooltip_text = LanguageSettings.ui_text(title+" · "+subtitle)
+		var box := kit_content(row,12)
+		kit_line(box,LanguageSettings.ui_text(title),"",GOLD)
+		kit_line(box,LanguageSettings.ui_text(subtitle),"",MUTED)
+		box.minimum_size_changed.connect(func():
+			if is_instance_valid(row): row.custom_minimum_size.y = maxf(160,box.get_combined_minimum_size().y+24))
+		return
 	var b := button(list,"",Rect2(0,0,496,168),select.bind(id),"CampaignChoice_"+id,"tactical")
 	b.custom_minimum_size = Vector2(496,168)
 	b.set_meta("choice_id",id)
@@ -74,7 +127,11 @@ func select(id: String) -> void:
 	selected_id = id
 	root.secondary_selection_ids[expected_screen] = id
 	for b in list.get_children():
-		hud.apply_button_state(b,"selected" if str(b.get_meta("choice_id","")) == id else "default")
+		if kind in ["contract","archive"]:
+			b.theme_type_variation = "KitPrimary" if str(b.get_meta("choice_id","")) == id else "Button"
+			b.set_meta("kit_selected",str(b.get_meta("choice_id","")) == id)
+			b.surface.sync(b)
+		else: hud.apply_button_state(b,"selected" if str(b.get_meta("choice_id","")) == id else "default")
 	match kind:
 		"archive": archive_detail()
 		"contract": contract_detail()
@@ -123,18 +180,35 @@ func cycle_detail() -> void:
 
 func build_archive() -> void:
 	kind = "archive"
-	ids = root._ending_catalog_ids()
 	entries = root._ending_archive_snapshot()
-	frame("엔딩 도감","발견 %d / %d · 확인한 결말은 다음 회차에도 남습니다." % [entries.size(),ids.size()])
+	ids = root._ending_catalog_ids().filter(func(id): return entries.has(id))
+	expected_screen = root.current_screen
+	root.management_scene.monster_ui._background()
+	root.ui_layer.get_node("MonsterCastleBackground").name = "RecordsCastleBackground"
+	screen = kit_panel(Rect2(0,0,1920,1080),"CampaignWorkspace")
+	screen.add_theme_stylebox_override("panel",StyleBoxEmpty.new())
+	for child in screen.get_children():
+		if child is Surface: child.hide()
+	var banner := kit_panel(Rect2(54,16,1812,98),"RecordsTitleBanner")
+	root.management_scene.monster_ui._glass(banner,0.82)
+	var title := kit_copy(banner,root.continuity.localized("기록실 · 엔딩","Records · Endings","记录室 · 结局"),Rect2(20,4,1772,76),48,GOLD,"RecordsHeading")
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	kit_button(screen,root.continuity.localized("엔딩","Endings","结局"),Rect2(54,132,892,62),Callable(),"RecordsEndingTab","primary")
+	kit_button(screen,root.continuity.localized("연대기","Chronicle","编年史"),Rect2(960,132,906,62),Callable(root,"_open_chronicle"),"RecordsChronicleTab")
+	var nav := kit_panel(Rect2(40,220,556,704),"CampaignChoiceList")
+	root.management_scene.monster_ui._glass(nav,0.78)
+	list = scrolling(nav,Rect2(16,16,524,672),"CampaignChoiceScroll")
+	detail = kit_panel(Rect2(620,220,1260,704),"CampaignChoiceDetail")
+	root.management_scene.monster_ui._glass(detail,0.78)
+	notice = kit_copy(screen,root.continuity.localized("발견한 결말만 표시합니다.","Only discovered endings are shown.","仅显示已发现的结局。"),Rect2(40,950,1200,72),24,MUTED,"CampaignActionNotice")
+	action = kit_button(screen,root.continuity.localized("돌아가기","Back","返回"),Rect2(1480,976,400,64),Callable(root,"_return_from_records"),"CampaignConfirmButton","primary")
 	for value in ids:
 		var id := str(value)
 		var data := DataRegistry.ending_rule(id)
-		var discovered := entries.has(id)
-		entry(id,str(data.get("display_name",id)) if discovered else "아직 발견하지 못한 결말",str(data.get("catalog_code","?"))+(" · 발견" if discovered else " · 미발견"),load(str(data.get("thumbnail"))) as Texture2D if discovered and ResourceLoader.exists(str(data.get("thumbnail",""))) else null)
-	screen.find_child("CampaignCancelButton",true,false).hide()
-	action.text = "타이틀로 돌아가기"
-	notice.text = "목록을 스크롤하거나 Tab으로 이동해 결말을 선택하세요."
-	restore_selection()
+		entry(id,str(data.get("display_name",id)),str(data.get("catalog_code","?"))+root.continuity.localized(" · 발견"," · Discovered"," · 已发现"))
+	if ids.is_empty():
+		paragraph(detail_content(),root.continuity.localized("아직 발견한 엔딩이 없습니다.","No endings discovered yet.","尚未发现结局。"),1160,28,MUTED)
+	else: restore_selection()
 
 func archive_detail() -> void:
 	var content := detail_content()
@@ -181,6 +255,7 @@ func build_contract(selection_open: bool) -> void:
 		action.text = "편성 완료"
 	else:
 		action.text = "두 계약 확정"
+	action.text = LanguageSettings.ui_text(action.text)
 	refresh_contract_notice()
 	restore_selection()
 
@@ -190,7 +265,7 @@ func refresh_contract_notice() -> void:
 		notice.text = "선택 %d / 2 · 확정 뒤 계약 상대는 회차가 끝날 때까지 유지됩니다." % count
 		action.disabled = count != ContractService.REQUIRED_CONTRACT_COUNT
 	else:
-		var errors: Array = ContractService.validate_deployment(root.deployed_instance_ids,root._contract_owned_instance_ids(true),root.castle_art_stage,root._current_stage_deployment_limit()-ContractService.stage_deployment_limit(root.castle_art_stage))
+		var errors: Array = ContractService.validate_deployment(root.deployed_instance_ids,root._contract_owned_instance_ids(true),root.castle_art_stage,root._current_contract_deployment_limit()-ContractService.stage_deployment_limit(root.castle_art_stage))
 		var reserve_count := 0
 		var support_count := 0
 		var unavailable_count := 0
@@ -202,9 +277,11 @@ func refresh_contract_notice() -> void:
 				support_count += 1
 			else:
 				unavailable_count += 1
-		notice.text = str(errors[0]) if not errors.is_empty() else "출전 %d / 최대 %d명 · 예비 %d명 · 지원 %d명" % [root.deployed_instance_ids.size(),root._current_stage_deployment_limit(),reserve_count,support_count]
+		notice.text = str(errors[0]) if not errors.is_empty() else "출전 %d / 최대 %d명 · 예비 %d명 · 지원 %d명" % [root.deployed_instance_ids.size(),root._current_contract_deployment_limit(),reserve_count,support_count]
 		if errors.is_empty() and unavailable_count > 0: notice.text += " · 출전 불가 %d명" % unavailable_count
 		action.disabled = not errors.is_empty()
+
+	notice.text = LanguageSettings.ui_text(notice.text)
 
 func contract_portrait(species: String) -> Texture2D:
 	var path: String = root.management_scene.monster_portrait_path(species)
@@ -217,34 +294,35 @@ func contract_detail() -> void:
 	var instance := DataRegistry.monster_instance(instance_id)
 	var species := str(instance.get("species_id",selected_id))
 	var monster := DataRegistry.monster(species)
-	paragraph(content,str(contract.get("display_name",instance.get("display_name",species))),1160,38,GOLD)
+	kit_line(content,LanguageSettings.ui_text(str(contract.get("display_name",instance.get("display_name",species)))),"",GOLD)
 	var selected: bool = root.contract_board_pending_ids.has(selected_id) if contract_selection else root.deployed_instance_ids.has(selected_id)
 	var ready: bool = root._contract_combat_asset_ready(selected_id) if contract_selection else root._monster_available_for_defense(species)
 	var status: Dictionary = root._monster_roster_status(species)
 	var state_text := ("함께할 후보" if selected else "계약 후보") if contract_selection else ("출전 · " + str(status.location) if selected else ("예비 · 전투 미참가" if ready else str(status.label)))
-	var hero: Panel = hud.child_panel(content,Rect2(0,0,1160,280),INK,LINE)
-	hero.custom_minimum_size = Vector2(1160,280)
-	var portrait: Texture2D = contract_portrait(species)
-	if portrait != null:
-		var art: TextureRect = hud.texture(hero,"",Rect2(12,10,300,260))
-		art.texture = portrait
-		art.name = "ContractDetailArt"
-		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	copy(hero,state_text,Rect2(340,12,784,48),28,GOLD)
-	copy(hero,str(contract.get("role",monster.get("role",""))),Rect2(340,72,784,52),24)
-	copy(hero,str(contract.get("description",monster.get("description",""))),Rect2(340,138,784,122),22,MUTED)
+	var row := kit_flow(content)
+	var art := TextureRect.new()
+	art.name = "ContractDetailArt"
+	art.texture = contract_portrait(species)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	art.custom_minimum_size = Vector2(230,240)
+	row.add_child(art)
+	var words := kit_flow(row,true)
+	kit_line(words,LanguageSettings.ui_text(state_text),"",GOLD)
+	kit_line(words,LanguageSettings.ui_text(str(contract.get("role",monster.get("role","")))))
+	kit_line(words,LanguageSettings.ui_text(str(contract.get("description",monster.get("description","")))),"",MUTED)
 	if not contract_selection and ready:
-		paragraph(content,"저장된 배치 · "+str(status.location),1160,24,PAPER,"ContractSavedRoom")
-		paragraph(content,"예비로 전환해도 배치 자리는 유지되며 방 정원에 포함됩니다.",1160,20,MUTED)
+		var mastery: String = root.support_mastery.summary(species)
+		if mastery != "": kit_line(content,LanguageSettings.ui_text(mastery),"ContractMastery",GOLD)
+		kit_line(content,LanguageSettings.ui_text("저장된 배치 · "+str(status.location)),"ContractSavedRoom")
+		kit_line(content,LanguageSettings.ui_text("예비로 전환해도 배치 자리는 유지되며 방 정원에 포함됩니다."),"",MUTED)
 	var text := ("후보에서 빼기" if selected else "함께할 후보로 선택") if contract_selection else ("예비로 전환" if selected else "출전으로 전환")
-	var toggle := button(content,text,Rect2(0,0,1160,68),toggle_contract,"ContractToggleButton","tactical")
-	toggle.custom_minimum_size = Vector2(1160,68)
-	var full: bool = root.contract_board_pending_ids.size() >= 2 if contract_selection else root.deployed_instance_ids.size() >= root._current_stage_deployment_limit()
+	var toggle := kit_button(content,LanguageSettings.ui_text(text),Rect2(),toggle_contract,"ContractToggleButton","tactical")
+	var full: bool = root.contract_board_pending_ids.size() >= 2 if contract_selection else root.deployed_instance_ids.size() >= root._current_contract_deployment_limit()
 	toggle.disabled = not ready or (full and not selected)
 	var reason := "정원이 찼습니다. 다른 동료를 해제한 뒤 선택하세요." if full and not selected else ("후보 선택은 확정 전까지 바꿀 수 있습니다." if contract_selection else "버튼을 누르면 편성에 즉시 반영됩니다.")
-	if not ready:
-		reason = "원정·정찰 지원 전용입니다. 방어전에는 출전하지 않습니다." if status.state == "support" else ("전투 외형 준비 중 · 예비로 유지됩니다." if bool(root.monster_roster.get(species,{}).get("combat_asset_pending",false)) or contract_selection else "현재 방어에 출전할 수 없는 동료입니다.")
-	paragraph(content,reason,1160,22,MUTED,"ContractToggleReason")
+	if not ready: reason = "원정·정찰 지원 전용입니다. 방어전에는 출전하지 않습니다." if status.state == "support" else "현재 방어에 출전할 수 없는 동료입니다."
+	kit_line(content,LanguageSettings.ui_text(reason),"ContractToggleReason",MUTED)
 
 func toggle_contract() -> void:
 	if not active() or not ids.has(selected_id):
@@ -259,7 +337,7 @@ func confirm() -> void:
 		return
 	if kind == "archive":
 		committed = true
-		root._set_screen(Constants.SCREEN_TITLE)
+		root._return_from_records()
 	elif kind == "contract":
 		committed = true
 		if contract_selection:

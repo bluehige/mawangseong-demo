@@ -1,0 +1,150 @@
+{
+  "runs": 72,
+  "errors": 100,
+  "warnings": 311,
+  "error_types": 35,
+  "warning_types": 2,
+  "top20": [
+    {
+      "type": "WARNING: Campaign autosave failed: 저장할 진행 정보가 올바르지 않습니다: 날짜와 마왕성 진화 단계가 일치하지 않습니다.",
+      "count": 309,
+      "example": "logs\\perf_day19.stderr.log"
+    },
+    {
+      "type": "SCRIPT ERROR: Invalid assignment of property or key 'flip_h' with value of type 'bool' on a base object of type 'previously freed'.",
+      "count": 22,
+      "example": "logs\\campaign_final_13011.stderr.log"
+    },
+    {
+      "type": "SCRIPT ERROR: Invalid access to property or key 'sprite_frames' on a base object of type 'previously freed'.",
+      "count": 21,
+      "example": "logs\\campaign_final_13011.stderr.log"
+    },
+    {
+      "type": "SCRIPT ERROR: Invalid assignment of property or key 'modulate' with value of type 'Color' on a base object of type 'previously freed'.",
+      "count": 14,
+      "example": "logs\\campaign_final_13011.stderr.log"
+    },
+    {
+      "type": "SCRIPT ERROR: Invalid access to property or key 'tile_size' on a base object of type 'RefCounted (ApprovedBattleMap.gd)'.",
+      "count": 6,
+      "example": "logs\\campaign_final_13011.stderr.log"
+    },
+    {
+      "type": "SCRIPT ERROR: Invalid call. Nonexistent function 'debug_cell_data' in base 'RefCounted (ApprovedBattleMap.gd)'.",
+      "count": 3,
+      "example": "logs\\campaign_final_13011.stderr.log"
+    },
+    {
+      "type": "ERROR: Can't play finished Tween, use stop() first to reset its state.",
+      "count": 3,
+      "example": "logs\\perf_1080_day19.stderr.log"
+    },
+    {
+      "type": "SCRIPT ERROR: Invalid access to property or key 'battle' on a base object of type 'Control (ApprovedMapView.gd)'.",
+      "count": 3,
+      "example": "logs\\V130RStep1MapTest.stderr.log"
+    },
+    {
+      "type": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+      "count": 2,
+      "example": "logs\\SkillActionDuoTest_isolated.stderr.log"
+    },
+    {
+      "type": "ERROR: Test user directory must be isolated before any save",
+      "count": 1,
+      "example": "logs\\ChineseLocalizationTest.stderr.log"
+    },
+    {
+      "type": "ERROR: [ChroniclePhase26] FAIL: 합동 기억 6종·후일담 카드 3종 구성",
+      "count": 1,
+      "example": "logs\\ChroniclePhase26Test.stderr.log"
+    },
+    {
+      "type": "ERROR: [DuoLinkPhase9] FAIL: 자동 사용 토글 UI 기본 OFF",
+      "count": 1,
+      "example": "logs\\DuoLinkPhase9Test.stderr.log"
+    },
+    {
+      "type": "ERROR: [DuoLinksPhase10] FAIL: Phase 24 누적 6개 카탈로그에서 기존 L01·L05·L06 유지",
+      "count": 1,
+      "example": "logs\\DuoLinksPhase10Test.stderr.log"
+    },
+    {
+      "type": "ERROR: [DuoLinksPhase10] FAIL: 실제 전투에서 L06만 먼저 발동",
+      "count": 1,
+      "example": "logs\\DuoLinksPhase10Test.stderr.log"
+    },
+    {
+      "type": "ERROR: [DuoLinksPhase10] FAIL: 가짜 등대는 일반 적 최대 2명만 유인",
+      "count": 1,
+      "example": "logs\\DuoLinksPhase10Test.stderr.log"
+    },
+    {
+      "type": "ERROR: [DuoLinksPhase10] FAIL: 감정가는 즉시 루미 표식",
+      "count": 1,
+      "example": "logs\\DuoLinksPhase10Test.stderr.log"
+    },
+    {
+      "type": "SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array')",
+      "count": 1,
+      "example": "logs\\DuoLinksPhase10Test.stderr.log"
+    },
+    {
+      "type": "ERROR: [DuoLinksPhase24] FAIL: L01~L06 합동기 총 6개 카탈로그",
+      "count": 1,
+      "example": "logs\\DuoLinksPhase24Test.stderr.log"
+    },
+    {
+      "type": "ERROR: [DuoLinksPhase24] FAIL: 한 회차에 조건을 쌓아 여섯 합동 기억 모두 해금 후보 가능",
+      "count": 1,
+      "example": "logs\\DuoLinksPhase24Test.stderr.log"
+    },
+    {
+      "type": "ERROR: `--path` was specified on the command line, but this Godot binary was compiled without support for path overrides. Aborting.",
+      "count": 1,
+      "example": "logs\\export_flow.stderr.log"
+    }
+  ],
+  "all_errors": {
+    "SCRIPT ERROR: Invalid call. Nonexistent function 'debug_cell_data' in base 'RefCounted (ApprovedBattleMap.gd)'.": 3,
+    "SCRIPT ERROR: Invalid access to property or key 'tile_size' on a base object of type 'RefCounted (ApprovedBattleMap.gd)'.": 6,
+    "SCRIPT ERROR: Invalid assignment of property or key 'flip_h' with value of type 'bool' on a base object of type 'previously freed'.": 22,
+    "SCRIPT ERROR: Invalid access to property or key 'sprite_frames' on a base object of type 'previously freed'.": 21,
+    "SCRIPT ERROR: Invalid assignment of property or key 'modulate' with value of type 'Color' on a base object of type 'previously freed'.": 14,
+    "ERROR: Test user directory must be isolated before any save": 1,
+    "ERROR: [ChroniclePhase26] FAIL: 합동 기억 6종·후일담 카드 3종 구성": 1,
+    "ERROR: [DuoLinkPhase9] FAIL: 자동 사용 토글 UI 기본 OFF": 1,
+    "ERROR: [DuoLinksPhase10] FAIL: Phase 24 누적 6개 카탈로그에서 기존 L01·L05·L06 유지": 1,
+    "ERROR: [DuoLinksPhase10] FAIL: 실제 전투에서 L06만 먼저 발동": 1,
+    "ERROR: [DuoLinksPhase10] FAIL: 가짜 등대는 일반 적 최대 2명만 유인": 1,
+    "ERROR: [DuoLinksPhase10] FAIL: 감정가는 즉시 루미 표식": 1,
+    "SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array')": 1,
+    "ERROR: [DuoLinksPhase24] FAIL: L01~L06 합동기 총 6개 카탈로그": 1,
+    "ERROR: [DuoLinksPhase24] FAIL: 한 회차에 조건을 쌓아 여섯 합동 기억 모두 해금 후보 가능": 1,
+    "ERROR: `--path` was specified on the command line, but this Godot binary was compiled without support for path overrides. Aborting.": 1,
+    "ERROR: [GuildRepossessionPhase21] FAIL: DAY 10 기존 인원 예산 6명 유지": 1,
+    "ERROR: [GuildRepossessionPhase21] FAIL: DAY 15 기존 인원 예산 6명 유지": 1,
+    "ERROR: [GuildRepossessionPhase21] FAIL: DAY 20 기존 인원 예산 7명 유지": 1,
+    "ERROR: [GuildRepossessionPhase21] FAIL: DAY 25 기존 인원 예산 6명 유지": 1,
+    "ERROR: [HeroOathPhase23] FAIL: DAY 15 기존 6명 예산 유지·도둑을 심장 조사관으로 교체": 1,
+    "ERROR: [HolyPurificationPhase19] FAIL: DAY 11 웨이브 인원 예산이 기본 편성과 동일(8명)": 1,
+    "ERROR: [HolyPurificationPhase19] FAIL: 레온 전선 DAY 15 기존 셀렌 웨이브 회귀 방지": 1,
+    "ERROR: Can't play finished Tween, use stop() first to reset its state.": 3,
+    "ERROR: isolated synthetic user data": 1,
+    "ERROR: 1.2.10 acknowledgement does not suppress first 1.3.0 notes": 1,
+    "ERROR: startup update owns focus without manual focus injection": 1,
+    "ERROR: unacknowledged update returns when title is revisited": 1,
+    "SCRIPT ERROR: Invalid access to property or key 'text' on a base object of type 'null instance'.": 1,
+    "ERROR: isolated duo userdata": 1,
+    "ERROR: PlayerFeedbackHotfixTest timed out": 1,
+    "ERROR: 1 resources still in use at exit (run with --verbose for details).": 1,
+    "ERROR: [Update3DataContract] FAIL: DataRegistry는 Phase 24 누적 전선·심장·합동기 6종·신규 몬스터·신규 적을 로드": 1,
+    "SCRIPT ERROR: Invalid access to property or key 'battle' on a base object of type 'Control (ApprovedMapView.gd)'.": 3,
+    "SCRIPT ERROR: Invalid access to property or key '퐁당' on a base object of type 'Dictionary'.": 1
+  },
+  "all_warnings": {
+    "WARNING: Campaign autosave failed: 저장할 진행 정보가 올바르지 않습니다: 날짜와 마왕성 진화 단계가 일치하지 않습니다.": 309,
+    "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).": 2
+  }
+}

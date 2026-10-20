@@ -1,0 +1,17 @@
+{
+  "id": "validator_tests",
+  "exit_code": 0,
+  "seconds": 2.62,
+  "command": [
+    "C:\\Users\\blueh\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tools/content",
+    "-p",
+    "test_validate_v130r_story.py"
+  ]
+}

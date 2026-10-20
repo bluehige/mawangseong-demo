@@ -1,0 +1,571 @@
+{
+  "id": "approved_v8_D",
+  "grade": "D",
+  "size": [
+    40,
+    20
+  ],
+  "rows": [
+    "........~~KKKKK..........WWW....~~.TTTTT",
+    "........~~KKKKK..........WWW....~~.TTTTT",
+    "........~~KKKKK..........WWW....~~.TTTTT",
+    "...WWW..~~KKKKK...........m=....~~.TTTTT",
+    "...WWW..~~KKKKK...........==....~~.TTTTT",
+    "...WWW..~~=mm==================XBB==mm..",
+    "....mm..~~=mm==================XBB==mm..",
+    "....m=..~~......==.CCCCC......==~~==....",
+    "EEE====XBB=========CCCCC......==~~==....",
+    "EEE====XBB========mCCCCC......==~~==....",
+    "EEE.==..~~......==.CCCCC......==~~==....",
+    "....==..~~......==.CCCCC......==~~==....",
+    "....===XBB=mm===================~~==....",
+    "....mm=XBB=mm===================~~==VVVV",
+    "...LLL..~~RRRRR...........=====XBB=mVVVV",
+    "...LLL..~~RRRRR...........m====XBB=mVVVV",
+    "...LLL..~~RRRRR..........LLL....~~..VVVV",
+    "........~~RRRRR..........LLL....~~......",
+    "........~~RRRRR..........LLL....~~......",
+    "........~~......................~~......"
+  ],
+  "buildings": [
+    {
+      "code": "E",
+      "rect": [
+        0,
+        8,
+        3,
+        3
+      ],
+      "door": "E",
+      "id": "entrance",
+      "kind": "entrance",
+      "fixed": true,
+      "defense_cells": [],
+      "door_outside": [
+        [
+          3,
+          8
+        ],
+        [
+          3,
+          9
+        ]
+      ]
+    },
+    {
+      "code": "W",
+      "rect": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "door": "S",
+      "id": "watchtower",
+      "kind": "watchtower",
+      "fixed": false,
+      "defense_cells": [
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          4,
+          7
+        ]
+      ],
+      "door_outside": [
+        [
+          4,
+          6
+        ],
+        [
+          5,
+          6
+        ]
+      ]
+    },
+    {
+      "code": "L",
+      "rect": [
+        3,
+        14,
+        3,
+        3
+      ],
+      "door": "N",
+      "id": "bait_treasure",
+      "kind": "bait_treasure",
+      "fixed": false,
+      "defense_cells": [
+        [
+          4,
+          13
+        ],
+        [
+          5,
+          13
+        ]
+      ],
+      "door_outside": [
+        [
+          4,
+          13
+        ],
+        [
+          5,
+          13
+        ]
+      ]
+    },
+    {
+      "code": "K",
+      "rect": [
+        10,
+        0,
+        5,
+        5
+      ],
+      "door": "S",
+      "id": "barracks",
+      "kind": "barracks",
+      "fixed": false,
+      "defense_cells": [
+        [
+          11,
+          5
+        ],
+        [
+          12,
+          5
+        ],
+        [
+          11,
+          6
+        ],
+        [
+          12,
+          6
+        ]
+      ],
+      "door_outside": [
+        [
+          11,
+          5
+        ],
+        [
+          12,
+          5
+        ]
+      ]
+    },
+    {
+      "code": "R",
+      "rect": [
+        10,
+        14,
+        5,
+        5
+      ],
+      "door": "N",
+      "id": "recovery_nest",
+      "kind": "recovery_nest",
+      "fixed": false,
+      "defense_cells": [
+        [
+          11,
+          12
+        ],
+        [
+          12,
+          12
+        ],
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          13
+        ]
+      ],
+      "door_outside": [
+        [
+          11,
+          13
+        ],
+        [
+          12,
+          13
+        ]
+      ]
+    },
+    {
+      "code": "C",
+      "rect": [
+        19,
+        7,
+        5,
+        5
+      ],
+      "door": "W",
+      "id": "ward_core",
+      "kind": "ward_core",
+      "fixed": false,
+      "defense_cells": [
+        [
+          18,
+          9
+        ]
+      ],
+      "door_outside": [
+        [
+          18,
+          8
+        ],
+        [
+          18,
+          9
+        ]
+      ]
+    },
+    {
+      "code": "W",
+      "rect": [
+        25,
+        0,
+        3,
+        3
+      ],
+      "door": "S",
+      "id": "watchtower_2",
+      "kind": "watchtower",
+      "fixed": false,
+      "defense_cells": [
+        [
+          26,
+          3
+        ]
+      ],
+      "door_outside": [
+        [
+          26,
+          3
+        ],
+        [
+          27,
+          3
+        ]
+      ]
+    },
+    {
+      "code": "L",
+      "rect": [
+        25,
+        16,
+        3,
+        3
+      ],
+      "door": "N",
+      "id": "bait_treasure_2",
+      "kind": "bait_treasure",
+      "fixed": false,
+      "defense_cells": [
+        [
+          26,
+          15
+        ]
+      ],
+      "door_outside": [
+        [
+          26,
+          15
+        ],
+        [
+          27,
+          15
+        ]
+      ]
+    },
+    {
+      "code": "T",
+      "rect": [
+        35,
+        0,
+        5,
+        5
+      ],
+      "door": "S",
+      "id": "throne",
+      "kind": "throne",
+      "fixed": true,
+      "defense_cells": [
+        [
+          36,
+          5
+        ],
+        [
+          37,
+          5
+        ],
+        [
+          36,
+          6
+        ],
+        [
+          37,
+          6
+        ]
+      ],
+      "door_outside": [
+        [
+          36,
+          5
+        ],
+        [
+          37,
+          5
+        ]
+      ]
+    },
+    {
+      "code": "V",
+      "rect": [
+        36,
+        13,
+        4,
+        4
+      ],
+      "door": "W",
+      "id": "vault",
+      "kind": "vault",
+      "fixed": true,
+      "defense_cells": [
+        [
+          35,
+          14
+        ],
+        [
+          35,
+          15
+        ]
+      ],
+      "door_outside": [
+        [
+          35,
+          14
+        ],
+        [
+          35,
+          15
+        ]
+      ]
+    }
+  ],
+  "door_goal_center": true,
+  "branch_routes": true,
+  "route_segments": [
+    [
+      [
+        3,
+        8
+      ],
+      [
+        16,
+        8
+      ]
+    ],
+    [
+      [
+        4,
+        6
+      ],
+      [
+        4,
+        12
+      ]
+    ],
+    [
+      [
+        4,
+        12
+      ],
+      [
+        16,
+        12
+      ]
+    ],
+    [
+      [
+        16,
+        5
+      ],
+      [
+        16,
+        12
+      ]
+    ],
+    [
+      [
+        10,
+        5
+      ],
+      [
+        30,
+        5
+      ]
+    ],
+    [
+      [
+        10,
+        12
+      ],
+      [
+        30,
+        12
+      ]
+    ],
+    [
+      [
+        16,
+        8
+      ],
+      [
+        17,
+        8
+      ]
+    ],
+    [
+      [
+        26,
+        3
+      ],
+      [
+        26,
+        5
+      ]
+    ],
+    [
+      [
+        26,
+        12
+      ],
+      [
+        26,
+        14
+      ]
+    ],
+    [
+      [
+        30,
+        5
+      ],
+      [
+        30,
+        14
+      ]
+    ],
+    [
+      [
+        30,
+        5
+      ],
+      [
+        36,
+        5
+      ]
+    ],
+    [
+      [
+        26,
+        12
+      ],
+      [
+        26,
+        14
+      ]
+    ],
+    [
+      [
+        26,
+        14
+      ],
+      [
+        34,
+        14
+      ]
+    ],
+    [
+      [
+        34,
+        5
+      ],
+      [
+        34,
+        14
+      ]
+    ]
+  ],
+  "traps": [
+    {
+      "kind": "spikes",
+      "cell": [
+        31,
+        5
+      ]
+    },
+    {
+      "kind": "sticky",
+      "cell": [
+        31,
+        6
+      ]
+    },
+    {
+      "kind": "spikes",
+      "cell": [
+        7,
+        8
+      ]
+    },
+    {
+      "kind": "sticky",
+      "cell": [
+        7,
+        9
+      ]
+    },
+    {
+      "kind": "spikes",
+      "cell": [
+        7,
+        12
+      ]
+    },
+    {
+      "kind": "sticky",
+      "cell": [
+        7,
+        13
+      ]
+    },
+    {
+      "kind": "spikes",
+      "cell": [
+        31,
+        14
+      ]
+    },
+    {
+      "kind": "sticky",
+      "cell": [
+        31,
+        15
+      ]
+    }
+  ]
+}

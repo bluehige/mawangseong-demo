@@ -1,0 +1,9 @@
+{
+  "id": "frame_normal",
+  "prompt": "Create ONE square game UI button frame, the NORMAL/DEFAULT state of a reusable circular frame, no symbol inside. Reference image is style reference ONLY: match its hand-painted damp blue-slate cave stone and restrained warm worn bronze palette, chunky dark contours, softly beveled material and upper-left light. World: a rookie demon calls a damp mountain cave his castle, cute horror comedy, no hell/lava/blood. Front-facing exact circular button, NOT isometric. A clean thick round weathered blue-grey stone rim with a very thin muted bronze inner lip, four modest rivets, dark desaturated navy-slate recessed circular face. Broad simple readable shapes, no excessive decoration, no horns, no face, no text, no letters, no digits, no logos. Centered circle occupies 88 percent of square canvas with generous completely transparent margin on ALL sides, actual transparent PNG background (not checkerboard artwork). The entire circular face inside rim is opaque dark slate, completely EMPTY to receive symbols later. Circle must be perfectly round and centered and its silhouette fully contained; sharp game-ready art readable at 64 pixels. Deliver one single frame only, no sheet, no other objects.",
+  "generated_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a141b1-72da-7ac1-8549-11dd400e7eb4\\exec-a5cbef17-202a-4d8e-b821-d0bedc483947.png",
+  "references": [
+    "../assets_v1/A_style/style_reference.png"
+  ],
+  "source": "source/frame_normal.png"
+}

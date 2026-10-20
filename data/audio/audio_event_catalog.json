@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "target_version": "v1.2.2",
-  "manifest": "tools/audio/lyria_v122_manifest.json",
+  "target_version": "v1.3.0",
+  "manifest": "tools/audio/lyria_v130_runtime_manifest.json",
   "policy": {
     "assets_are_manifest_backed": true,
     "events_are_runtime_calls_only": true,
@@ -18,24 +18,24 @@
     ]
   },
   "summary": {
-    "asset_count": 116,
-    "event_count": 108,
-    "actual_runtime_asset_count": 106,
+    "asset_count": 131,
+    "event_count": 123,
+    "actual_runtime_asset_count": 121,
     "data_only_asset_count": 0,
     "unconnected_asset_count": 10,
     "provenance_count": {
-      "lyria": 72,
+      "lyria": 87,
       "procedural": 44
     },
     "bus_count": {
-      "Music": 9,
+      "Music": 24,
       "SFX": 107
     }
   },
   "assets": [
     {
       "id": "combat_dungeon_pressure",
-      "runtime_path": "assets/audio/bgm/combat_dungeon_pressure.wav",
+      "runtime_path": "assets/audio/bgm/combat_dungeon_pressure.ogg",
       "kind": "music_loop",
       "bus": "Music",
       "provenance": "lyria",
@@ -49,7 +49,7 @@
     },
     {
       "id": "management_castle_bustle",
-      "runtime_path": "assets/audio/bgm/management_castle_bustle.wav",
+      "runtime_path": "assets/audio/bgm/management_castle_bustle.ogg",
       "kind": "music_loop",
       "bus": "Music",
       "provenance": "lyria",
@@ -64,7 +64,7 @@
     },
     {
       "id": "combat_boss_council",
-      "runtime_path": "assets/audio/bgm/combat_boss_council.wav",
+      "runtime_path": "assets/audio/bgm/combat_boss_council.ogg",
       "kind": "music_loop",
       "bus": "Music",
       "provenance": "lyria",
@@ -78,7 +78,7 @@
     },
     {
       "id": "boss_brassa_motif",
-      "runtime_path": "assets/audio/music/update4/rivals/boss_brassa_motif.wav",
+      "runtime_path": "assets/audio/music/update4/rivals/boss_brassa_motif.ogg",
       "kind": "musical_stinger",
       "bus": "Music",
       "provenance": "procedural",
@@ -92,7 +92,7 @@
     },
     {
       "id": "boss_vesper_motif",
-      "runtime_path": "assets/audio/music/update4/rivals/boss_vesper_motif.wav",
+      "runtime_path": "assets/audio/music/update4/rivals/boss_vesper_motif.ogg",
       "kind": "musical_stinger",
       "bus": "Music",
       "provenance": "procedural",
@@ -106,7 +106,7 @@
     },
     {
       "id": "boss_mirella_motif",
-      "runtime_path": "assets/audio/music/update4/rivals/boss_mirella_motif.wav",
+      "runtime_path": "assets/audio/music/update4/rivals/boss_mirella_motif.ogg",
       "kind": "musical_stinger",
       "bus": "Music",
       "provenance": "procedural",
@@ -120,7 +120,7 @@
     },
     {
       "id": "combat_down",
-      "runtime_path": "assets/audio/sfx/combat_down.wav",
+      "runtime_path": "assets/audio/sfx/combat_down.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -134,7 +134,7 @@
     },
     {
       "id": "combat_fire_burst",
-      "runtime_path": "assets/audio/sfx/combat_fire_burst.wav",
+      "runtime_path": "assets/audio/sfx/combat_fire_burst.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -148,7 +148,7 @@
     },
     {
       "id": "combat_hit",
-      "runtime_path": "assets/audio/sfx/combat_hit.wav",
+      "runtime_path": "assets/audio/sfx/combat_hit.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -162,7 +162,7 @@
     },
     {
       "id": "combat_shield_bash",
-      "runtime_path": "assets/audio/sfx/combat_shield_bash.wav",
+      "runtime_path": "assets/audio/sfx/combat_shield_bash.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -176,7 +176,7 @@
     },
     {
       "id": "combat_slash",
-      "runtime_path": "assets/audio/sfx/combat_slash.wav",
+      "runtime_path": "assets/audio/sfx/combat_slash.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -190,7 +190,7 @@
     },
     {
       "id": "skill_slime_shield",
-      "runtime_path": "assets/audio/sfx/skills/slime_shield.wav",
+      "runtime_path": "assets/audio/sfx/skills/slime_shield.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -204,7 +204,7 @@
     },
     {
       "id": "skill_hold_corridor",
-      "runtime_path": "assets/audio/sfx/skills/hold_corridor.wav",
+      "runtime_path": "assets/audio/sfx/skills/hold_corridor.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -218,7 +218,7 @@
     },
     {
       "id": "skill_quick_slash",
-      "runtime_path": "assets/audio/sfx/skills/quick_slash.wav",
+      "runtime_path": "assets/audio/sfx/skills/quick_slash.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -232,7 +232,7 @@
     },
     {
       "id": "skill_loot_instinct",
-      "runtime_path": "assets/audio/sfx/skills/loot_instinct.wav",
+      "runtime_path": "assets/audio/sfx/skills/loot_instinct.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -246,7 +246,7 @@
     },
     {
       "id": "skill_fireball",
-      "runtime_path": "assets/audio/sfx/skills/fireball.wav",
+      "runtime_path": "assets/audio/sfx/skills/fireball.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -260,7 +260,7 @@
     },
     {
       "id": "skill_flame_zone",
-      "runtime_path": "assets/audio/sfx/skills/flame_zone.wav",
+      "runtime_path": "assets/audio/sfx/skills/flame_zone.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -274,7 +274,7 @@
     },
     {
       "id": "skill_false_footprints",
-      "runtime_path": "assets/audio/sfx/skills/false_footprints.wav",
+      "runtime_path": "assets/audio/sfx/skills/false_footprints.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -288,7 +288,7 @@
     },
     {
       "id": "skill_rumor_boost",
-      "runtime_path": "assets/audio/sfx/skills/rumor_boost.wav",
+      "runtime_path": "assets/audio/sfx/skills/rumor_boost.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -302,7 +302,7 @@
     },
     {
       "id": "skill_spore_mend",
-      "runtime_path": "assets/audio/sfx/skills/spore_mend.wav",
+      "runtime_path": "assets/audio/sfx/skills/spore_mend.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -316,7 +316,7 @@
     },
     {
       "id": "skill_cleansing_bloom",
-      "runtime_path": "assets/audio/sfx/skills/cleansing_bloom.wav",
+      "runtime_path": "assets/audio/sfx/skills/cleansing_bloom.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -330,7 +330,7 @@
     },
     {
       "id": "skill_rooted_guard",
-      "runtime_path": "assets/audio/sfx/skills/rooted_guard.wav",
+      "runtime_path": "assets/audio/sfx/skills/rooted_guard.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -344,7 +344,7 @@
     },
     {
       "id": "skill_stone_pulse",
-      "runtime_path": "assets/audio/sfx/skills/stone_pulse.wav",
+      "runtime_path": "assets/audio/sfx/skills/stone_pulse.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -358,7 +358,7 @@
     },
     {
       "id": "skill_war_rhythm",
-      "runtime_path": "assets/audio/sfx/skills/war_rhythm.wav",
+      "runtime_path": "assets/audio/sfx/skills/war_rhythm.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -372,7 +372,7 @@
     },
     {
       "id": "skill_steady_beat",
-      "runtime_path": "assets/audio/sfx/skills/steady_beat.wav",
+      "runtime_path": "assets/audio/sfx/skills/steady_beat.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -386,7 +386,7 @@
     },
     {
       "id": "skill_moon_mark",
-      "runtime_path": "assets/audio/sfx/skills/moon_mark.wav",
+      "runtime_path": "assets/audio/sfx/skills/moon_mark.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -400,7 +400,7 @@
     },
     {
       "id": "skill_scent_pursuit",
-      "runtime_path": "assets/audio/sfx/skills/scent_pursuit.wav",
+      "runtime_path": "assets/audio/sfx/skills/scent_pursuit.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -414,7 +414,7 @@
     },
     {
       "id": "skill_false_treasure",
-      "runtime_path": "assets/audio/sfx/skills/false_treasure.wav",
+      "runtime_path": "assets/audio/sfx/skills/false_treasure.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -428,7 +428,7 @@
     },
     {
       "id": "skill_vault_swap",
-      "runtime_path": "assets/audio/sfx/skills/vault_swap.wav",
+      "runtime_path": "assets/audio/sfx/skills/vault_swap.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -442,7 +442,7 @@
     },
     {
       "id": "skill_spectral_transfer",
-      "runtime_path": "assets/audio/sfx/skills/spectral_transfer.wav",
+      "runtime_path": "assets/audio/sfx/skills/spectral_transfer.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -456,7 +456,7 @@
     },
     {
       "id": "skill_haunted_broom_whirl",
-      "runtime_path": "assets/audio/sfx/skills/haunted_broom_whirl.wav",
+      "runtime_path": "assets/audio/sfx/skills/haunted_broom_whirl.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -470,7 +470,7 @@
     },
     {
       "id": "skill_scent_lock",
-      "runtime_path": "assets/audio/sfx/skills/scent_lock.wav",
+      "runtime_path": "assets/audio/sfx/skills/scent_lock.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -484,7 +484,7 @@
     },
     {
       "id": "skill_home_guard_bark",
-      "runtime_path": "assets/audio/sfx/skills/home_guard_bark.wav",
+      "runtime_path": "assets/audio/sfx/skills/home_guard_bark.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -498,7 +498,7 @@
     },
     {
       "id": "skill_carapace_ram",
-      "runtime_path": "assets/audio/sfx/skills/carapace_ram.wav",
+      "runtime_path": "assets/audio/sfx/skills/carapace_ram.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -512,7 +512,7 @@
     },
     {
       "id": "skill_patch_plates",
-      "runtime_path": "assets/audio/sfx/skills/patch_plates.wav",
+      "runtime_path": "assets/audio/sfx/skills/patch_plates.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -526,7 +526,7 @@
     },
     {
       "id": "sfx_popo_alarm",
-      "runtime_path": "assets/audio/sfx/update4/contract_monsters/sfx_popo_alarm.wav",
+      "runtime_path": "assets/audio/sfx/update4/contract_monsters/sfx_popo_alarm.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -541,7 +541,7 @@
     },
     {
       "id": "sfx_popo_relay",
-      "runtime_path": "assets/audio/sfx/update4/contract_monsters/sfx_popo_relay.wav",
+      "runtime_path": "assets/audio/sfx/update4/contract_monsters/sfx_popo_relay.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -555,7 +555,7 @@
     },
     {
       "id": "sfx_silky_rescue",
-      "runtime_path": "assets/audio/sfx/update4/contract_monsters/sfx_silky_rescue.wav",
+      "runtime_path": "assets/audio/sfx/update4/contract_monsters/sfx_silky_rescue.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -569,7 +569,7 @@
     },
     {
       "id": "sfx_silky_stitch",
-      "runtime_path": "assets/audio/sfx/update4/contract_monsters/sfx_silky_stitch.wav",
+      "runtime_path": "assets/audio/sfx/update4/contract_monsters/sfx_silky_stitch.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -583,7 +583,7 @@
     },
     {
       "id": "sfx_crown_gob_ascend",
-      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_gob_ascend.wav",
+      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_gob_ascend.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -597,7 +597,7 @@
     },
     {
       "id": "sfx_crown_mori_ascend",
-      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_mori_ascend.wav",
+      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_mori_ascend.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -611,7 +611,7 @@
     },
     {
       "id": "sfx_crown_popo_ascend",
-      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_popo_ascend.wav",
+      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_popo_ascend.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
@@ -625,7 +625,7 @@
     },
     {
       "id": "sfx_crown_pudding_ascend",
-      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_pudding_ascend.wav",
+      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_pudding_ascend.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -639,7 +639,7 @@
     },
     {
       "id": "sfx_crown_pynn_ascend",
-      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_pynn_ascend.wav",
+      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_pynn_ascend.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -653,7 +653,7 @@
     },
     {
       "id": "sfx_crown_toktok_ascend",
-      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_toktok_ascend.wav",
+      "runtime_path": "assets/audio/sfx/update4/crowns/sfx_crown_toktok_ascend.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -667,7 +667,7 @@
     },
     {
       "id": "boss_roman_motif",
-      "runtime_path": "assets/audio/update3/boss_roman_motif.wav",
+      "runtime_path": "assets/audio/update3/boss_roman_motif.ogg",
       "kind": "musical_stinger",
       "bus": "SFX",
       "provenance": "procedural",
@@ -681,7 +681,7 @@
     },
     {
       "id": "boss_selen_motif",
-      "runtime_path": "assets/audio/update3/boss_selen_motif.wav",
+      "runtime_path": "assets/audio/update3/boss_selen_motif.ogg",
       "kind": "musical_stinger",
       "bus": "SFX",
       "provenance": "procedural",
@@ -695,7 +695,7 @@
     },
     {
       "id": "duo_beacon",
-      "runtime_path": "assets/audio/update3/duo_beacon.wav",
+      "runtime_path": "assets/audio/update3/duo_beacon.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -709,7 +709,7 @@
     },
     {
       "id": "duo_ghost",
-      "runtime_path": "assets/audio/update3/duo_ghost.wav",
+      "runtime_path": "assets/audio/update3/duo_ghost.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -723,7 +723,7 @@
     },
     {
       "id": "duo_molten",
-      "runtime_path": "assets/audio/update3/duo_molten.wav",
+      "runtime_path": "assets/audio/update3/duo_molten.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -737,7 +737,7 @@
     },
     {
       "id": "duo_moon",
-      "runtime_path": "assets/audio/update3/duo_moon.wav",
+      "runtime_path": "assets/audio/update3/duo_moon.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -751,7 +751,7 @@
     },
     {
       "id": "duo_spore",
-      "runtime_path": "assets/audio/update3/duo_spore.wav",
+      "runtime_path": "assets/audio/update3/duo_spore.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -765,7 +765,7 @@
     },
     {
       "id": "duo_stone",
-      "runtime_path": "assets/audio/update3/duo_stone.wav",
+      "runtime_path": "assets/audio/update3/duo_stone.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -779,7 +779,7 @@
     },
     {
       "id": "enemy_bounty_tracker",
-      "runtime_path": "assets/audio/update3/enemy_bounty_tracker.wav",
+      "runtime_path": "assets/audio/update3/enemy_bounty_tracker.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -793,7 +793,7 @@
     },
     {
       "id": "enemy_choir_exorcist",
-      "runtime_path": "assets/audio/update3/enemy_choir_exorcist.wav",
+      "runtime_path": "assets/audio/update3/enemy_choir_exorcist.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -807,7 +807,7 @@
     },
     {
       "id": "enemy_combat_alchemist",
-      "runtime_path": "assets/audio/update3/enemy_combat_alchemist.wav",
+      "runtime_path": "assets/audio/update3/enemy_combat_alchemist.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -821,7 +821,7 @@
     },
     {
       "id": "enemy_ledger_binder",
-      "runtime_path": "assets/audio/update3/enemy_ledger_binder.wav",
+      "runtime_path": "assets/audio/update3/enemy_ledger_binder.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -835,7 +835,7 @@
     },
     {
       "id": "enemy_reliquary_guard",
-      "runtime_path": "assets/audio/update3/enemy_reliquary_guard.wav",
+      "runtime_path": "assets/audio/update3/enemy_reliquary_guard.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -849,7 +849,7 @@
     },
     {
       "id": "enemy_seal_chainbearer",
-      "runtime_path": "assets/audio/update3/enemy_seal_chainbearer.wav",
+      "runtime_path": "assets/audio/update3/enemy_seal_chainbearer.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -863,7 +863,7 @@
     },
     {
       "id": "heart_disabled",
-      "runtime_path": "assets/audio/update3/heart_disabled.wav",
+      "runtime_path": "assets/audio/update3/heart_disabled.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -877,7 +877,7 @@
     },
     {
       "id": "heart_dream_active",
-      "runtime_path": "assets/audio/update3/heart_dream_active.wav",
+      "runtime_path": "assets/audio/update3/heart_dream_active.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -891,7 +891,7 @@
     },
     {
       "id": "heart_dream_loop",
-      "runtime_path": "assets/audio/update3/heart_dream_loop.wav",
+      "runtime_path": "assets/audio/update3/heart_dream_loop.ogg",
       "kind": "loop_cue",
       "bus": "SFX",
       "provenance": "procedural",
@@ -905,7 +905,7 @@
     },
     {
       "id": "heart_hungry_active",
-      "runtime_path": "assets/audio/update3/heart_hungry_active.wav",
+      "runtime_path": "assets/audio/update3/heart_hungry_active.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -919,7 +919,7 @@
     },
     {
       "id": "heart_hungry_loop",
-      "runtime_path": "assets/audio/update3/heart_hungry_loop.wav",
+      "runtime_path": "assets/audio/update3/heart_hungry_loop.ogg",
       "kind": "loop_cue",
       "bus": "SFX",
       "provenance": "procedural",
@@ -933,7 +933,7 @@
     },
     {
       "id": "heart_ready",
-      "runtime_path": "assets/audio/update3/heart_ready.wav",
+      "runtime_path": "assets/audio/update3/heart_ready.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -945,7 +945,7 @@
     },
     {
       "id": "heart_stonebone_active",
-      "runtime_path": "assets/audio/update3/heart_stonebone_active.wav",
+      "runtime_path": "assets/audio/update3/heart_stonebone_active.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "procedural",
@@ -959,7 +959,7 @@
     },
     {
       "id": "heart_stonebone_loop",
-      "runtime_path": "assets/audio/update3/heart_stonebone_loop.wav",
+      "runtime_path": "assets/audio/update3/heart_stonebone_loop.ogg",
       "kind": "loop_cue",
       "bus": "SFX",
       "provenance": "procedural",
@@ -973,7 +973,7 @@
     },
     {
       "id": "monster_signature_01",
-      "runtime_path": "assets/audio/update3/monster_signature_01.wav",
+      "runtime_path": "assets/audio/update3/monster_signature_01.ogg",
       "kind": "musical_stinger",
       "bus": "SFX",
       "provenance": "procedural",
@@ -985,7 +985,7 @@
     },
     {
       "id": "monster_signature_02",
-      "runtime_path": "assets/audio/update3/monster_signature_02.wav",
+      "runtime_path": "assets/audio/update3/monster_signature_02.ogg",
       "kind": "musical_stinger",
       "bus": "SFX",
       "provenance": "procedural",
@@ -997,7 +997,7 @@
     },
     {
       "id": "monster_signature_03",
-      "runtime_path": "assets/audio/update3/monster_signature_03.wav",
+      "runtime_path": "assets/audio/update3/monster_signature_03.ogg",
       "kind": "musical_stinger",
       "bus": "SFX",
       "provenance": "procedural",
@@ -1009,7 +1009,7 @@
     },
     {
       "id": "monster_signature_04",
-      "runtime_path": "assets/audio/update3/monster_signature_04.wav",
+      "runtime_path": "assets/audio/update3/monster_signature_04.ogg",
       "kind": "musical_stinger",
       "bus": "SFX",
       "provenance": "procedural",
@@ -1021,7 +1021,7 @@
     },
     {
       "id": "monster_signature_05",
-      "runtime_path": "assets/audio/update3/monster_signature_05.wav",
+      "runtime_path": "assets/audio/update3/monster_signature_05.ogg",
       "kind": "musical_stinger",
       "bus": "SFX",
       "provenance": "procedural",
@@ -1033,7 +1033,7 @@
     },
     {
       "id": "monster_signature_06",
-      "runtime_path": "assets/audio/update3/monster_signature_06.wav",
+      "runtime_path": "assets/audio/update3/monster_signature_06.ogg",
       "kind": "musical_stinger",
       "bus": "SFX",
       "provenance": "procedural",
@@ -1045,7 +1045,7 @@
     },
     {
       "id": "monster_signature_07",
-      "runtime_path": "assets/audio/update3/monster_signature_07.wav",
+      "runtime_path": "assets/audio/update3/monster_signature_07.ogg",
       "kind": "musical_stinger",
       "bus": "SFX",
       "provenance": "procedural",
@@ -1057,7 +1057,7 @@
     },
     {
       "id": "monster_signature_08",
-      "runtime_path": "assets/audio/update3/monster_signature_08.wav",
+      "runtime_path": "assets/audio/update3/monster_signature_08.ogg",
       "kind": "musical_stinger",
       "bus": "SFX",
       "provenance": "procedural",
@@ -1069,7 +1069,7 @@
     },
     {
       "id": "monster_signature_09",
-      "runtime_path": "assets/audio/update3/monster_signature_09.wav",
+      "runtime_path": "assets/audio/update3/monster_signature_09.ogg",
       "kind": "musical_stinger",
       "bus": "SFX",
       "provenance": "procedural",
@@ -1081,61 +1081,71 @@
     },
     {
       "id": "ambience_stage01_cave",
-      "runtime_path": "assets/audio/ambience/stage01_cave.wav",
+      "runtime_path": "assets/audio/ambience/stage01_cave.ogg",
       "kind": "ambience_loop",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "pending",
       "runtime_connection": "actual_runtime",
-      "events": ["ambience.stage01.cave"],
+      "events": [
+        "ambience.stage01.cave"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ambience_stage01_cave/SOURCE.md"
     },
     {
       "id": "ambience_stage02_indoor",
-      "runtime_path": "assets/audio/ambience/stage02_indoor.wav",
+      "runtime_path": "assets/audio/ambience/stage02_indoor.ogg",
       "kind": "ambience_loop",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "pending",
       "runtime_connection": "actual_runtime",
-      "events": ["ambience.stage02.indoor"],
+      "events": [
+        "ambience.stage02.indoor"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ambience_stage02_indoor/SOURCE.md"
     },
     {
       "id": "ambience_stage03_keep",
-      "runtime_path": "assets/audio/ambience/stage03_keep.wav",
+      "runtime_path": "assets/audio/ambience/stage03_keep.ogg",
       "kind": "ambience_loop",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "pending",
       "runtime_connection": "actual_runtime",
-      "events": ["ambience.stage03.keep"],
+      "events": [
+        "ambience.stage03.keep"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ambience_stage03_keep/SOURCE.md"
     },
     {
       "id": "ambience_stage04_citadel",
-      "runtime_path": "assets/audio/ambience/stage04_citadel.wav",
+      "runtime_path": "assets/audio/ambience/stage04_citadel.ogg",
       "kind": "ambience_loop",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "pending",
       "runtime_connection": "actual_runtime",
-      "events": ["ambience.stage04.citadel"],
+      "events": [
+        "ambience.stage04.citadel"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ambience_stage04_citadel/SOURCE.md"
     },
     {
       "id": "footstep_cave_rough_01",
-      "runtime_path": "assets/audio/sfx/footsteps/footstep_cave_rough_01.wav",
+      "runtime_path": "assets/audio/sfx/footsteps/footstep_cave_rough_01.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.cave_rough.01"],
+      "events": [
+        "footstep.cave_rough.01"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_cave_rough_01/SOURCE.md",
       "voice_category": "footstep",
@@ -1143,13 +1153,15 @@
     },
     {
       "id": "footstep_cave_rough_02",
-      "runtime_path": "assets/audio/sfx/footsteps/footstep_cave_rough_02.wav",
+      "runtime_path": "assets/audio/sfx/footsteps/footstep_cave_rough_02.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.cave_rough.02"],
+      "events": [
+        "footstep.cave_rough.02"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_cave_rough_02/SOURCE.md",
       "voice_category": "footstep",
@@ -1157,13 +1169,15 @@
     },
     {
       "id": "footstep_cave_rough_03",
-      "runtime_path": "assets/audio/sfx/footsteps/footstep_cave_rough_03.wav",
+      "runtime_path": "assets/audio/sfx/footsteps/footstep_cave_rough_03.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.cave_rough.03"],
+      "events": [
+        "footstep.cave_rough.03"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_cave_rough_03/SOURCE.md",
       "voice_category": "footstep",
@@ -1171,13 +1185,15 @@
     },
     {
       "id": "footstep_castle_stone_01",
-      "runtime_path": "assets/audio/sfx/footsteps/footstep_castle_stone_01.wav",
+      "runtime_path": "assets/audio/sfx/footsteps/footstep_castle_stone_01.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.castle_stone.01"],
+      "events": [
+        "footstep.castle_stone.01"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_castle_stone_01/SOURCE.md",
       "voice_category": "footstep",
@@ -1185,13 +1201,15 @@
     },
     {
       "id": "footstep_castle_stone_02",
-      "runtime_path": "assets/audio/sfx/footsteps/footstep_castle_stone_02.wav",
+      "runtime_path": "assets/audio/sfx/footsteps/footstep_castle_stone_02.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.castle_stone.02"],
+      "events": [
+        "footstep.castle_stone.02"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_castle_stone_02/SOURCE.md",
       "voice_category": "footstep",
@@ -1199,13 +1217,15 @@
     },
     {
       "id": "footstep_castle_stone_03",
-      "runtime_path": "assets/audio/sfx/footsteps/footstep_castle_stone_03.wav",
+      "runtime_path": "assets/audio/sfx/footsteps/footstep_castle_stone_03.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.castle_stone.03"],
+      "events": [
+        "footstep.castle_stone.03"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_castle_stone_03/SOURCE.md",
       "voice_category": "footstep",
@@ -1213,13 +1233,15 @@
     },
     {
       "id": "footstep_metal_passage_01",
-      "runtime_path": "assets/audio/sfx/footsteps/footstep_metal_passage_01.wav",
+      "runtime_path": "assets/audio/sfx/footsteps/footstep_metal_passage_01.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.metal_passage.01"],
+      "events": [
+        "footstep.metal_passage.01"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_metal_passage_01/SOURCE.md",
       "voice_category": "footstep",
@@ -1227,13 +1249,15 @@
     },
     {
       "id": "footstep_metal_passage_02",
-      "runtime_path": "assets/audio/sfx/footsteps/footstep_metal_passage_02.wav",
+      "runtime_path": "assets/audio/sfx/footsteps/footstep_metal_passage_02.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.metal_passage.02"],
+      "events": [
+        "footstep.metal_passage.02"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_metal_passage_02/SOURCE.md",
       "voice_category": "footstep",
@@ -1241,13 +1265,15 @@
     },
     {
       "id": "footstep_metal_passage_03",
-      "runtime_path": "assets/audio/sfx/footsteps/footstep_metal_passage_03.wav",
+      "runtime_path": "assets/audio/sfx/footsteps/footstep_metal_passage_03.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["footstep.metal_passage.03"],
+      "events": [
+        "footstep.metal_passage.03"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/footstep_metal_passage_03/SOURCE.md",
       "voice_category": "footstep",
@@ -1255,327 +1281,591 @@
     },
     {
       "id": "combat_attack_blade_01",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_blade_01.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_blade_01.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.blade.01"],
+      "events": [
+        "combat.attack.blade.01"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_blade_01/SOURCE.md"
     },
     {
       "id": "combat_attack_blade_02",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_blade_02.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_blade_02.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.blade.02"],
+      "events": [
+        "combat.attack.blade.02"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_blade_02/SOURCE.md"
     },
     {
       "id": "combat_attack_blade_03",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_blade_03.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_blade_03.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.blade.03"],
+      "events": [
+        "combat.attack.blade.03"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_blade_03/SOURCE.md"
     },
     {
       "id": "combat_attack_blunt_shield_01",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_blunt_shield_01.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_blunt_shield_01.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.blunt_shield.01"],
+      "events": [
+        "combat.attack.blunt_shield.01"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_blunt_shield_01/SOURCE.md"
     },
     {
       "id": "combat_attack_blunt_shield_02",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_blunt_shield_02.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_blunt_shield_02.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.blunt_shield.02"],
+      "events": [
+        "combat.attack.blunt_shield.02"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_blunt_shield_02/SOURCE.md"
     },
     {
       "id": "combat_attack_blunt_shield_03",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_blunt_shield_03.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_blunt_shield_03.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.blunt_shield.03"],
+      "events": [
+        "combat.attack.blunt_shield.03"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_blunt_shield_03/SOURCE.md"
     },
     {
       "id": "combat_attack_claw_bite_01",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_claw_bite_01.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_claw_bite_01.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.claw_bite.01"],
+      "events": [
+        "combat.attack.claw_bite.01"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_claw_bite_01/SOURCE.md"
     },
     {
       "id": "combat_attack_claw_bite_02",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_claw_bite_02.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_claw_bite_02.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.claw_bite.02"],
+      "events": [
+        "combat.attack.claw_bite.02"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_claw_bite_02/SOURCE.md"
     },
     {
       "id": "combat_attack_claw_bite_03",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_claw_bite_03.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_claw_bite_03.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.claw_bite.03"],
+      "events": [
+        "combat.attack.claw_bite.03"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_claw_bite_03/SOURCE.md"
     },
     {
       "id": "combat_attack_fire_magic_01",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_fire_magic_01.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_fire_magic_01.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.fire_magic.01"],
+      "events": [
+        "combat.attack.fire_magic.01"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_fire_magic_01/SOURCE.md"
     },
     {
       "id": "combat_attack_fire_magic_02",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_fire_magic_02.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_fire_magic_02.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.fire_magic.02"],
+      "events": [
+        "combat.attack.fire_magic.02"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_fire_magic_02/SOURCE.md"
     },
     {
       "id": "combat_attack_fire_magic_03",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_fire_magic_03.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_attack_fire_magic_03.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.attack.fire_magic.03"],
+      "events": [
+        "combat.attack.fire_magic.03"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_attack_fire_magic_03/SOURCE.md"
     },
     {
       "id": "combat_impact_body",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_impact_body.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_impact_body.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.impact.body"],
+      "events": [
+        "combat.impact.body"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_impact_body/SOURCE.md"
     },
     {
       "id": "combat_impact_metal",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_impact_metal.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_impact_metal.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.impact.metal"],
+      "events": [
+        "combat.impact.metal"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_impact_metal/SOURCE.md"
     },
     {
       "id": "combat_impact_stone",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_impact_stone.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_impact_stone.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.impact.stone"],
+      "events": [
+        "combat.impact.stone"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_impact_stone/SOURCE.md"
     },
     {
       "id": "combat_outcome_down",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_outcome_down.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_outcome_down.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.outcome.down"],
+      "events": [
+        "combat.outcome.down"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_outcome_down/SOURCE.md"
     },
     {
       "id": "combat_outcome_critical",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_outcome_critical.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_outcome_critical.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.outcome.critical"],
+      "events": [
+        "combat.outcome.critical"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_outcome_critical/SOURCE.md"
     },
     {
       "id": "combat_outcome_reward",
-      "runtime_path": "assets/audio/sfx/combat/basic/combat_outcome_reward.wav",
+      "runtime_path": "assets/audio/sfx/combat/basic/combat_outcome_reward.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["combat.outcome.reward"],
+      "events": [
+        "combat.outcome.reward"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/combat_outcome_reward/SOURCE.md"
     },
     {
       "id": "ui_click",
-      "runtime_path": "assets/audio/ui/ui_click.wav",
+      "runtime_path": "assets/audio/ui/ui_click.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["ui.click"],
+      "events": [
+        "ui.click"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ui_click/SOURCE.md"
     },
     {
       "id": "ui_select",
-      "runtime_path": "assets/audio/ui/ui_select.wav",
+      "runtime_path": "assets/audio/ui/ui_select.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["ui.select"],
+      "events": [
+        "ui.select"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ui_select/SOURCE.md"
     },
     {
       "id": "ui_confirm",
-      "runtime_path": "assets/audio/ui/ui_confirm.wav",
+      "runtime_path": "assets/audio/ui/ui_confirm.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["ui.confirm"],
+      "events": [
+        "ui.confirm"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ui_confirm/SOURCE.md"
     },
     {
       "id": "ui_cancel",
-      "runtime_path": "assets/audio/ui/ui_cancel.wav",
+      "runtime_path": "assets/audio/ui/ui_cancel.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["ui.cancel"],
+      "events": [
+        "ui.cancel"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ui_cancel/SOURCE.md"
     },
     {
       "id": "ui_fail",
-      "runtime_path": "assets/audio/ui/ui_fail.wav",
+      "runtime_path": "assets/audio/ui/ui_fail.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["ui.fail"],
+      "events": [
+        "ui.fail"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ui_fail/SOURCE.md"
     },
     {
       "id": "ui_danger",
-      "runtime_path": "assets/audio/ui/ui_danger.wav",
+      "runtime_path": "assets/audio/ui/ui_danger.ogg",
       "kind": "one_shot",
       "bus": "SFX",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["ui.danger"],
+      "events": [
+        "ui.danger"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/ui_danger/SOURCE.md"
     },
     {
       "id": "music_title_demon_castle_overture",
-      "runtime_path": "assets/audio/bgm/title_demon_castle_overture.wav",
+      "runtime_path": "assets/audio/bgm/title_demon_castle_overture.ogg",
       "kind": "music_loop",
       "bus": "Music",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["music.screen.title"],
+      "events": [
+        "music.screen.title"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/music_title_demon_castle_overture/SOURCE.md"
     },
     {
       "id": "music_combat_late_siege_pressure",
-      "runtime_path": "assets/audio/bgm/combat_late_siege_pressure.wav",
+      "runtime_path": "assets/audio/bgm/combat_late_siege_pressure.ogg",
       "kind": "music_loop",
       "bus": "Music",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["music.combat.late_risk"],
+      "events": [
+        "music.combat.late_risk"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/music_combat_late_siege_pressure/SOURCE.md"
     },
     {
       "id": "music_final_ending_crown_of_ashes",
-      "runtime_path": "assets/audio/bgm/final_ending_crown_of_ashes.wav",
+      "runtime_path": "assets/audio/bgm/final_ending_crown_of_ashes.ogg",
       "kind": "music_loop",
       "bus": "Music",
       "provenance": "lyria",
       "review_status": "approved",
       "runtime_connection": "actual_runtime",
-      "events": ["music.final.ending"],
+      "events": [
+        "music.final.ending"
+      ],
       "source_record_status": "present",
       "source_record": "assets/source/audio/lyria/v1.2.2/music_final_ending_crown_of_ashes/SOURCE.md"
+    },
+    {
+      "id": "v130_title_01_lantern_gate",
+      "runtime_path": "assets/audio/bgm/v130/title_01_lantern_gate.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.title.01"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_title_01_lantern_gate/SOURCE.md"
+    },
+    {
+      "id": "v130_title_02_crooked_banner",
+      "runtime_path": "assets/audio/bgm/v130/title_02_crooked_banner.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.title.02"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_title_02_crooked_banner/SOURCE.md"
+    },
+    {
+      "id": "v130_title_03_moon_clock",
+      "runtime_path": "assets/audio/bgm/v130/title_03_moon_clock.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.title.03"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_title_03_moon_clock/SOURCE.md"
+    },
+    {
+      "id": "v130_management_01_blueprint_shuffle",
+      "runtime_path": "assets/audio/bgm/v130/management_01_blueprint_shuffle.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.management.01"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_management_01_blueprint_shuffle/SOURCE.md"
+    },
+    {
+      "id": "v130_management_02_mushroom_tea",
+      "runtime_path": "assets/audio/bgm/v130/management_02_mushroom_tea.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.management.02"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_management_02_mushroom_tea/SOURCE.md"
+    },
+    {
+      "id": "v130_management_03_market_receipts",
+      "runtime_path": "assets/audio/bgm/v130/management_03_market_receipts.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.management.03"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_management_03_market_receipts/SOURCE.md"
+    },
+    {
+      "id": "v130_combat_01_corridor_counterattack",
+      "runtime_path": "assets/audio/bgm/v130/combat_01_corridor_counterattack.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.combat.01"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_combat_01_corridor_counterattack/SOURCE.md"
+    },
+    {
+      "id": "v130_combat_02_wardstone_relay",
+      "runtime_path": "assets/audio/bgm/v130/combat_02_wardstone_relay.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.combat.02"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_combat_02_wardstone_relay/SOURCE.md"
+    },
+    {
+      "id": "v130_result_01_debrief_biscuits",
+      "runtime_path": "assets/audio/bgm/v130/result_01_debrief_biscuits.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.result.01"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_result_01_debrief_biscuits/SOURCE.md"
+    },
+    {
+      "id": "v130_result_02_mended_flags",
+      "runtime_path": "assets/audio/bgm/v130/result_02_mended_flags.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.result.02"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_result_02_mended_flags/SOURCE.md"
+    },
+    {
+      "id": "v130_result_03_little_medals",
+      "runtime_path": "assets/audio/bgm/v130/result_03_little_medals.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.result.03"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_result_03_little_medals/SOURCE.md"
+    },
+    {
+      "id": "v130_final_ending_01_one_throne_many_paths",
+      "runtime_path": "assets/audio/bgm/v130/final_ending_01_one_throne_many_paths.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.final_ending.01"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_final_ending_01_one_throne_many_paths/SOURCE.md"
+    },
+    {
+      "id": "v130_final_ending_02_home_after_siege",
+      "runtime_path": "assets/audio/bgm/v130/final_ending_02_home_after_siege.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.final_ending.02"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_final_ending_02_home_after_siege/SOURCE.md"
+    },
+    {
+      "id": "v130_final_ending_03_truce_lanterns",
+      "runtime_path": "assets/audio/bgm/v130/final_ending_03_truce_lanterns.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.final_ending.03"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_final_ending_03_truce_lanterns/SOURCE.md"
+    },
+    {
+      "id": "v130_final_ending_04_last_candle_dawn",
+      "runtime_path": "assets/audio/bgm/v130/final_ending_04_last_candle_dawn.ogg",
+      "kind": "music_loop",
+      "bus": "Music",
+      "provenance": "lyria",
+      "review_status": "pending",
+      "runtime_connection": "actual_runtime",
+      "events": [
+        "music.v130.final_ending.04"
+      ],
+      "source_record_status": "present",
+      "source_record": "assets/source/audio/lyria/v1.3.0/v130_final_ending_04_last_candle_dawn/SOURCE.md"
     }
   ],
   "events": [
@@ -2104,8 +2394,8 @@
     {
       "id": "update4.floor_intrusion.alarm",
       "asset_id": "sfx_popo_alarm",
-      "owner": "scenes/ui/hud/MultiFloorHUD.gd",
-      "locator": "push_hidden_floor_alert",
+      "owner": "scripts/combat/CouncilObjectiveRuntime.gd",
+      "locator": "alert",
       "bus": "SFX",
       "runtime_status": "connected"
     },
@@ -2458,6 +2748,126 @@
       "asset_id": "music_final_ending_crown_of_ashes",
       "owner": "scripts/audio/MusicStateResolver.gd",
       "locator": "EVENT_BY_STATE",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.title.01",
+      "asset_id": "v130_title_01_lantern_gate",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.title.02",
+      "asset_id": "v130_title_02_crooked_banner",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.title.03",
+      "asset_id": "v130_title_03_moon_clock",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.management.01",
+      "asset_id": "v130_management_01_blueprint_shuffle",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.management.02",
+      "asset_id": "v130_management_02_mushroom_tea",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.management.03",
+      "asset_id": "v130_management_03_market_receipts",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.combat.01",
+      "asset_id": "v130_combat_01_corridor_counterattack",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.combat.02",
+      "asset_id": "v130_combat_02_wardstone_relay",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.result.01",
+      "asset_id": "v130_result_01_debrief_biscuits",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.result.02",
+      "asset_id": "v130_result_02_mended_flags",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.result.03",
+      "asset_id": "v130_result_03_little_medals",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.final_ending.01",
+      "asset_id": "v130_final_ending_01_one_throne_many_paths",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.final_ending.02",
+      "asset_id": "v130_final_ending_02_home_after_siege",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.final_ending.03",
+      "asset_id": "v130_final_ending_03_truce_lanterns",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
+      "bus": "Music",
+      "runtime_status": "connected"
+    },
+    {
+      "id": "music.v130.final_ending.04",
+      "asset_id": "v130_final_ending_04_last_candle_dawn",
+      "owner": "scripts/audio/MusicRotation.gd",
+      "locator": "candidates",
       "bus": "Music",
       "runtime_status": "connected"
     }

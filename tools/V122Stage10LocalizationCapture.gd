@@ -64,10 +64,10 @@ func _capture_locale(locale_id: String) -> void:
 			var category_ready := false
 			match category_id:
 				"general":
-					var language_option := game.ui_layer.find_child("LanguageOption", true, false) as OptionButton
+					var language_option := game.ui_layer.find_child("SettingsLanguage_"+locale_id, true, false) as Button
 					category_ready = (
 						language_option != null
-						and str(language_option.get_selected_metadata()) == locale_id
+						and language_option.button_pressed
 					)
 				"display":
 					category_ready = game.ui_layer.find_child("LayoutModeOption", true, false) != null

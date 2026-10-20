@@ -1,0 +1,1379 @@
+{
+  "species_id": "rat_union",
+  "selected_attempts": {
+    "sw": 1,
+    "ne": 2
+  },
+  "status": "FINAL_ART_NOT_INTEGRATED",
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "logical_anchor": [
+    192,
+    345
+  ],
+  "atlas_anchor": [
+    156.5,
+    289
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "uniform_scale": 0.6666666666666666,
+  "camera_reference": "0098 C, 42 degree downward orthographic visual match",
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "visual_reason": "세 마리 정수리/등·낮은 얼굴·단축된 군집·치즈 깃발 유지",
+  "directions": {
+    "sw": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/rat_union/rat_union_sheet.png",
+        "frames": [
+          {
+            "source_slice": [
+              42,
+              44,
+              258,
+              290
+            ],
+            "source_bbox": [
+              0,
+              0,
+              216,
+              246
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 0,
+            "rect": [
+              99,
+              132,
+              144,
+              164
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.03605777762004,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              306,
+              47,
+              520,
+              289
+            ],
+            "source_bbox": [
+              0,
+              0,
+              214,
+              242
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 5,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 1,
+            "rect": [
+              412,
+              134,
+              143,
+              161
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.16922874786493,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              587,
+              51,
+              819,
+              283
+            ],
+            "source_bbox": [
+              0,
+              0,
+              232,
+              232
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 6,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 2,
+            "rect": [
+              723,
+              140,
+              155,
+              155
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.66020336416247,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              850,
+              95,
+              1103,
+              286
+            ],
+            "source_bbox": [
+              0,
+              0,
+              253,
+              191
+            ],
+            "source_seam_alpha_ge8": 21,
+            "source_seam_max_alpha": 12,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 3,
+            "rect": [
+              1004,
+              169,
+              169,
+              127
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.02745075086125,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              52,
+              310,
+              256,
+              537
+            ],
+            "source_bbox": [
+              0,
+              0,
+              204,
+              227
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 4,
+            "rect": [
+              87,
+              458,
+              136,
+              151
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.87124285832573,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              320,
+              307,
+              529,
+              537
+            ],
+            "source_bbox": [
+              0,
+              0,
+              209,
+              230
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 5,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 5,
+            "rect": [
+              385,
+              454,
+              139,
+              153
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.00325169503253,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              595,
+              307,
+              812,
+              538
+            ],
+            "source_bbox": [
+              0,
+              0,
+              217,
+              231
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 6,
+            "rect": [
+              699,
+              456,
+              145,
+              154
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.69822842065588,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              870,
+              319,
+              1081,
+              539
+            ],
+            "source_bbox": [
+              0,
+              0,
+              211,
+              220
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 7,
+            "rect": [
+              1008,
+              471,
+              141,
+              147
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.39447350356284,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              58,
+              574,
+              255,
+              810
+            ],
+            "source_bbox": [
+              0,
+              0,
+              197,
+              236
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 8,
+            "rect": [
+              80,
+              774,
+              131,
+              157
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.60254173934712,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              325,
+              558,
+              540,
+              807
+            ],
+            "source_bbox": [
+              0,
+              0,
+              215,
+              249
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 9,
+            "rect": [
+              375,
+              756,
+              143,
+              166
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.7906282259254,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              572,
+              569,
+              816,
+              809
+            ],
+            "source_bbox": [
+              0,
+              0,
+              244,
+              240
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 6,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 10,
+            "rect": [
+              667,
+              766,
+              163,
+              160
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.86530022476722,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              871,
+              569,
+              1080,
+              809
+            ],
+            "source_bbox": [
+              0,
+              0,
+              209,
+              240
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 5,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 11,
+            "rect": [
+              994,
+              768,
+              139,
+              160
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.71567132504362,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              51,
+              868,
+              257,
+              1068
+            ],
+            "source_bbox": [
+              0,
+              0,
+              206,
+              200
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 12,
+            "rect": [
+              67,
+              1104,
+              137,
+              133
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.12791319630168,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              322,
+              838,
+              540,
+              1068
+            ],
+            "source_bbox": [
+              0,
+              0,
+              218,
+              230
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 13,
+            "rect": [
+              370,
+              1089,
+              145,
+              153
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.55796784299272,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              578,
+              827,
+              813,
+              1067
+            ],
+            "source_bbox": [
+              0,
+              0,
+              235,
+              240
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 5,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 14,
+            "rect": [
+              681,
+              1081,
+              157,
+              160
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.5978844713083,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              882,
+              847,
+              1092,
+              1069
+            ],
+            "source_bbox": [
+              0,
+              0,
+              210,
+              222
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 15,
+            "rect": [
+              1017,
+              1086,
+              140,
+              148
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.78159153005464,
+            "contact_y": 289
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/rat_union/rat_union_hurt_sw.png",
+        "frames": [
+          {
+            "source_slice": [
+              47,
+              1094,
+              262,
+              1330
+            ],
+            "source_bbox": [
+              0,
+              0,
+              215,
+              236
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 6,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 0,
+            "rect": [
+              65,
+              144,
+              143,
+              157
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.65384615384616,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              331,
+              1094,
+              537,
+              1334
+            ],
+            "source_bbox": [
+              0,
+              0,
+              206,
+              240
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 5,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 1,
+            "rect": [
+              380,
+              144,
+              137,
+              160
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.8230677735405,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              610,
+              1117,
+              806,
+              1326
+            ],
+            "source_bbox": [
+              0,
+              0,
+              196,
+              209
+            ],
+            "source_seam_alpha_ge8": 13,
+            "source_seam_max_alpha": 17,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 2,
+            "rect": [
+              707,
+              158,
+              131,
+              139
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.22377008447904,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              889,
+              1104,
+              1089,
+              1335
+            ],
+            "source_bbox": [
+              0,
+              0,
+              200,
+              231
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 4,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 3,
+            "rect": [
+              1012,
+              141,
+              133,
+              154
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.33466640442316,
+            "contact_y": 289
+          }
+        ]
+      }
+    },
+    "ne": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/rat_union/rat_union_sheet_ne.png",
+        "frames": [
+          {
+            "source_slice": [
+              21,
+              31,
+              255,
+              280
+            ],
+            "source_bbox": [
+              0,
+              0,
+              234,
+              249
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 4,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 0,
+            "rect": [
+              68,
+              128,
+              156,
+              166
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.75467065029642,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              297,
+              30,
+              531,
+              280
+            ],
+            "source_bbox": [
+              0,
+              0,
+              234,
+              250
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 5,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 1,
+            "rect": [
+              380,
+              127,
+              156,
+              167
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.74186935405072,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              578,
+              91,
+              807,
+              289
+            ],
+            "source_bbox": [
+              0,
+              0,
+              229,
+              198
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 5,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 2,
+            "rect": [
+              699,
+              163,
+              153,
+              132
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.9793447463985,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              847,
+              94,
+              1111,
+              293
+            ],
+            "source_bbox": [
+              0,
+              0,
+              264,
+              199
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 3,
+            "rect": [
+              990,
+              162,
+              176,
+              133
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.8799288221865,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              33,
+              314,
+              266,
+              545
+            ],
+            "source_bbox": [
+              0,
+              0,
+              233,
+              231
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 6,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 4,
+            "rect": [
+              68,
+              453,
+              155,
+              154
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.21251197622354,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              306,
+              313,
+              548,
+              545
+            ],
+            "source_bbox": [
+              0,
+              0,
+              242,
+              232
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 4,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 5,
+            "rect": [
+              376,
+              452,
+              161,
+              155
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.82210962690004,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              589,
+              313,
+              812,
+              543
+            ],
+            "source_bbox": [
+              0,
+              0,
+              223,
+              230
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 6,
+            "rect": [
+              699,
+              455,
+              149,
+              153
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.9472699168651,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              859,
+              313,
+              1092,
+              545
+            ],
+            "source_bbox": [
+              0,
+              0,
+              233,
+              232
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 5,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 7,
+            "rect": [
+              1004,
+              452,
+              155,
+              155
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.73647139666724,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              42,
+              571,
+              273,
+              795
+            ],
+            "source_bbox": [
+              0,
+              0,
+              231,
+              224
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 4,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 8,
+            "rect": [
+              65,
+              772,
+              154,
+              149
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.23537712807337,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              321,
+              576,
+              553,
+              796
+            ],
+            "source_bbox": [
+              0,
+              0,
+              232,
+              220
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 6,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 9,
+            "rect": [
+              377,
+              774,
+              155,
+              147
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.54868290610395,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              576,
+              566,
+              829,
+              800
+            ],
+            "source_bbox": [
+              0,
+              0,
+              253,
+              234
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 4,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 10,
+            "rect": [
+              683,
+              766,
+              169,
+              156
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.7817885256365,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              867,
+              569,
+              1096,
+              800
+            ],
+            "source_bbox": [
+              0,
+              0,
+              229,
+              231
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 11,
+            "rect": [
+              1007,
+              768,
+              153,
+              154
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.03023502327045,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              53,
+              839,
+              264,
+              1073
+            ],
+            "source_bbox": [
+              0,
+              0,
+              211,
+              234
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 4,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 12,
+            "rect": [
+              76,
+              1079,
+              141,
+              156
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.94636445610297,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              306,
+              836,
+              548,
+              1072
+            ],
+            "source_bbox": [
+              0,
+              0,
+              242,
+              236
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 5,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 13,
+            "rect": [
+              371,
+              1077,
+              161,
+              157
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.05395838887918,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              573,
+              850,
+              821,
+              1075
+            ],
+            "source_bbox": [
+              0,
+              0,
+              248,
+              225
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 5,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 14,
+            "rect": [
+              686,
+              1084,
+              165,
+              150
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.68647611891603,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              865,
+              834,
+              1095,
+              1078
+            ],
+            "source_bbox": [
+              0,
+              0,
+              230,
+              244
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 5,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 15,
+            "rect": [
+              1006,
+              1071,
+              153,
+              163
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.04878151481657,
+            "contact_y": 289
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/rat_union/rat_union_hurt_ne.png",
+        "frames": [
+          {
+            "source_slice": [
+              38,
+              1105,
+              270,
+              1342
+            ],
+            "source_bbox": [
+              0,
+              0,
+              232,
+              237
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 0,
+            "rect": [
+              66,
+              136,
+              155,
+              158
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.58732597215555,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              311,
+              1108,
+              542,
+              1343
+            ],
+            "source_bbox": [
+              0,
+              0,
+              231,
+              235
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 4,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 1,
+            "rect": [
+              374,
+              137,
+              154,
+              157
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.04680360554954,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              605,
+              1117,
+              818,
+              1342
+            ],
+            "source_bbox": [
+              0,
+              0,
+              213,
+              225
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 4,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 2,
+            "rect": [
+              702,
+              144,
+              142,
+              150
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.48029721955896,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              872,
+              1107,
+              1094,
+              1344
+            ],
+            "source_bbox": [
+              0,
+              0,
+              222,
+              237
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 3,
+            "rect": [
+              1012,
+              136,
+              148,
+              158
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.3414915059027,
+            "contact_y": 289
+          }
+        ]
+      }
+    }
+  }
+}

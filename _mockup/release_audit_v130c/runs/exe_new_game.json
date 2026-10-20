@@ -1,0 +1,20 @@
+{
+  "id": "exe_new_game",
+  "exit_code": 0,
+  "seconds": 772.0,
+  "timeout": false,
+  "error_lines": 0,
+  "warning_lines": 0,
+  "command": [
+    "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-action\\tmp\\release_audit_v130c_v130r_release_blockers\\export\\MawangCastle.exe",
+    "--windowed",
+    "--resolution",
+    "900x506",
+    "--position",
+    "40,40",
+    "--max-fps",
+    "60"
+  ],
+  "profile": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-action\\tmp\\release_audit_v130c_v130r_release_blockers\\profiles\\computer_use",
+  "engines_after": []
+}

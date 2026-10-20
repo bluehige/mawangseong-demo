@@ -1,10 +1,10 @@
-"""Generate deterministic, original Update 3 game audio cues as PCM WAV files."""
+"""Generate deterministic, original Update 3 game audio cues as OGG Vorbis files."""
 
 from __future__ import annotations
 
 import math
 import random
-import wave
+from audio.vorbis import write_pcm16
 from pathlib import Path
 
 
@@ -33,11 +33,7 @@ def write_cue(name: str, frequencies: tuple[float, ...], duration: float, *, noi
         tone += (rng.uniform(-1.0, 1.0) * noise) * (0.4 + 0.6 * release)
         value = int(max(-1.0, min(1.0, tone * envelope * volume)) * 32767)
         samples.extend(value.to_bytes(2, "little", signed=True))
-    with wave.open(str(OUT / f"{name}.wav"), "wb") as wav:
-        wav.setnchannels(1)
-        wav.setsampwidth(2)
-        wav.setframerate(RATE)
-        wav.writeframes(samples)
+    write_pcm16(OUT / f"{name}.ogg", samples, sample_rate=RATE)
 
 
 def main() -> None:

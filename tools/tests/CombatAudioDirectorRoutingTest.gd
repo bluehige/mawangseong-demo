@@ -1,7 +1,6 @@
 extends Node
 
 const GameRootScene = preload("res://scenes/game/GameRoot.tscn")
-const MultiFloorHUDScene = preload("res://scenes/ui/hud/MultiFloorHUD.tscn")
 const CombatSceneControllerScript = preload("res://scripts/game/CombatSceneController.gd")
 
 var failed := false
@@ -38,19 +37,15 @@ func _run() -> void:
 	_expect(runtime_game.audio_director.active_voice_ids().size() == 1, "combat skill creates exactly one voice")
 	runtime_game.audio_director.stop_all()
 
-	var hud = MultiFloorHUDScene.instantiate()
-	add_child(hud)
+	combat.council_objectives.alert("entrance")
 	await get_tree().process_frame
-	hud.audio_director = runtime_game.audio_director
-	hud.push_hidden_floor_alert("2F", 3, false)
+	_expect(runtime_game.audio_director.active_voice_count()==1,"objective alert uses common catalog voice")
+	combat.council_objectives.alert("entrance")
 	await get_tree().process_frame
-	_expect(runtime_game.audio_director.active_voice_count() == 1, "hidden-floor alert uses the common catalog voice path")
-	hud.push_hidden_floor_alert("2F", 4, true)
+	_expect(runtime_game.audio_director.active_voice_count()==1,"repeated objective alert does not stack voices")
+	combat.council_objectives.clear()
 	await get_tree().process_frame
-	_expect(runtime_game.audio_director.active_voice_count() == 1, "repeated floor alert replaces its own voice instead of stacking")
-	hud.queue_free()
-	await get_tree().process_frame
-	_expect(runtime_game.audio_director.active_voice_count() == 0, "HUD removal releases only its alert voice")
+	_expect(runtime_game.audio_director.active_voice_count()==0,"objective cleanup releases its owned alert voice")
 	runtime_game.queue_free()
 	await get_tree().process_frame
 

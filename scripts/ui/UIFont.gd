@@ -6,6 +6,7 @@ const ROLE_DIALOGUE := "dialogue"
 const ROLE_EMPHASIS := "emphasis"
 const ROLE_BUTTON := "button"
 const ROLE_FALLBACK := "fallback"
+const ROLE_DAMAGE := "damage"
 
 const BODY_FONT = preload("res://assets/fonts/NEXON_Maplestory_Light.otf")
 const DIALOGUE_FONT = BODY_FONT
@@ -21,6 +22,9 @@ static func font_for_role(role: String) -> Font:
 		body.fallbacks = [FALLBACK_FONT]
 	if emphasis.fallbacks.is_empty():
 		emphasis.fallbacks = [FALLBACK_FONT]
+	# Numeric impact typography stays consistent in all three locales.
+	if role == ROLE_DAMAGE:
+		return EMPHASIS_FONT
 	if TranslationServer.get_locale().begins_with("zh"):
 		return FALLBACK_FONT
 	match role:

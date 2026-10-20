@@ -25,6 +25,7 @@ const SAFE_SCREENS := [
 	"region_selection",
 	"outpost_management",
 	"upper_floor",
+	"expansion",
 	"front_selection",
 	"heart_selection",
 	"duo_link_loadout",

@@ -142,7 +142,8 @@ func _run() -> void:
 	_expect(map_editor_workspace != null, "map editing remains a separate named workspace")
 	_expect(map_save_button != null and map_save_button.size.y >= 72.0, "map editor save is touch-sized")
 	_expect(map_cancel_button != null and map_cancel_button.size.y >= 72.0, "map editor cancel is touch-sized")
-	_expect(game._management_ui_at(Vector2(100, 900)), "map editor touch hit-test blocks its live workspace")
+	var map_hit_point: Vector2 = map_editor_workspace.get_global_transform_with_canvas() * (map_editor_workspace.size * 0.5) if map_editor_workspace != null else Vector2.ZERO
+	_expect(game._management_ui_at(map_hit_point), "map editor touch hit-test blocks its live workspace")
 	if map_cancel_button != null:
 		map_cancel_button.pressed.emit()
 	await get_tree().process_frame

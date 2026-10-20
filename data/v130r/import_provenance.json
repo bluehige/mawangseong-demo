@@ -1,0 +1,575 @@
+{
+  "source_branch": "codex/v130r-monsters",
+  "source_sha": "d8648efcf80b02261e4baa179e6fe8a1392dccef",
+  "method": "git checkout branch -- explicit paths",
+  "files": [
+    {
+      "path": "assets/sprites/v130r/bridge_troll/portrait_bridge_troll_base.png",
+      "sha256": "61fd6657417718f4aa0cd34605efb05e154f5b1082884bcb22b38dd7cf17c462"
+    },
+    {
+      "path": "assets/sprites/v130r/bridge_troll/portrait_bridge_troll_card.png",
+      "sha256": "045dfdb73409a3f78a8b9baeaeebea37897be961041e0880f5403ea872f18fb5"
+    },
+    {
+      "path": "assets/sprites/v130r/bridge_troll/portrait_bridge_troll_determined.png",
+      "sha256": "dc0c0dfe4894362c6bcd5fca7e96c6cd343d34eb476e2236ad7435d6099d12e5"
+    },
+    {
+      "path": "assets/sprites/v130r/bridge_troll/portrait_bridge_troll_happy.png",
+      "sha256": "ac74de134b76ecc8dbfa78ddd04fcc556fb70d5655698228de609a51fdabe895"
+    },
+    {
+      "path": "assets/sprites/v130r/candle_wisp/portrait_candle_wisp_base.png",
+      "sha256": "957ccda64cb241332f97871e6ae593221b16a454bf57e971282a4e6caa61c273"
+    },
+    {
+      "path": "assets/sprites/v130r/candle_wisp/portrait_candle_wisp_card.png",
+      "sha256": "92440cea251733abf1dbbd89537cdd2af54cf90c3563670ff57de8091a079e12"
+    },
+    {
+      "path": "assets/sprites/v130r/candle_wisp/portrait_candle_wisp_determined.png",
+      "sha256": "cb4c1aa2b1b00d2d3d77971e551206da9004239ad546f646518c6a38125bfd68"
+    },
+    {
+      "path": "assets/sprites/v130r/candle_wisp/portrait_candle_wisp_happy.png",
+      "sha256": "9bfcc20607306ef227c513811e2b6ecc1509b18559a8e5866b70e3743f5eba5d"
+    },
+    {
+      "path": "assets/sprites/v130r/crumpled_map/portrait_crumpled_map_base.png",
+      "sha256": "b3fd363b8e14ac3a78409d9547551e53452bfe5d4852a1513ddcddaef8ebba02"
+    },
+    {
+      "path": "assets/sprites/v130r/crumpled_map/portrait_crumpled_map_card.png",
+      "sha256": "2ad38c01e1fafb5443ef4eb7c20e4f4ddc188a075d9b83d776bf4447afb7a572"
+    },
+    {
+      "path": "assets/sprites/v130r/crumpled_map/portrait_crumpled_map_determined.png",
+      "sha256": "98dba7d2b229505908421da93f9d4e3d9554216ee1c1b6ad13be350c6bbaa9f7"
+    },
+    {
+      "path": "assets/sprites/v130r/crumpled_map/portrait_crumpled_map_happy.png",
+      "sha256": "2b22bedfb79a2d575df92b2f925af0a042b3a3d25ce7cf6e74fb1d7ac5edc616"
+    },
+    {
+      "path": "assets/sprites/v130r/curse_doll/portrait_curse_doll_base.png",
+      "sha256": "91a379b70df58cb693343e3cd1a126afa99a330da8b5fd467531146a77454937"
+    },
+    {
+      "path": "assets/sprites/v130r/curse_doll/portrait_curse_doll_card.png",
+      "sha256": "71d0c803c71dbfb313e1dd08ebd6ec1480495234641d023a242c4d54c6103665"
+    },
+    {
+      "path": "assets/sprites/v130r/curse_doll/portrait_curse_doll_determined.png",
+      "sha256": "657c0fd6a792d17de0d74c26e589dbad584bb2c91138cda4433101e905daa4cc"
+    },
+    {
+      "path": "assets/sprites/v130r/curse_doll/portrait_curse_doll_happy.png",
+      "sha256": "89e48317031e3ed0534340e26b546ef01f51d6125a74e2ddc609071d53eb1372"
+    },
+    {
+      "path": "assets/sprites/v130r/glue_snail/portrait_glue_snail_base.png",
+      "sha256": "db6d036e25a3224dd39c2ce4315de2de1d403ec8be1f04010eb7b464d512b2a8"
+    },
+    {
+      "path": "assets/sprites/v130r/glue_snail/portrait_glue_snail_card.png",
+      "sha256": "ed6be1a9a3f837392e4b9c05aa5740102794e568a88a15a09ae990eb83c00d00"
+    },
+    {
+      "path": "assets/sprites/v130r/glue_snail/portrait_glue_snail_determined.png",
+      "sha256": "d883bfc3d9ee753f8c7c66a79a222b202d5e7ac7ce5710bda76fb69b9d25a0ea"
+    },
+    {
+      "path": "assets/sprites/v130r/glue_snail/portrait_glue_snail_happy.png",
+      "sha256": "9d288d4bdbb56d3deb45d116afcaab29a0c3cef53fa22883a4be2e5f8740f3ff"
+    },
+    {
+      "path": "assets/sprites/v130r/hollow_armor/portrait_hollow_armor_base.png",
+      "sha256": "6bf8f86eedd406f9f8a52eeeaa74b34c98f8fe36ddec3141eab75ec5b269eed3"
+    },
+    {
+      "path": "assets/sprites/v130r/hollow_armor/portrait_hollow_armor_card.png",
+      "sha256": "d077c4ec683dd5f62ee5656d3820d204790ebfcd880f5bc80821aab47666465f"
+    },
+    {
+      "path": "assets/sprites/v130r/hollow_armor/portrait_hollow_armor_determined.png",
+      "sha256": "d9a7c5cf2419a36a8dd5cd8a22d513da2d57f10bf8ed521ea5741e4c99f6abb6"
+    },
+    {
+      "path": "assets/sprites/v130r/hollow_armor/portrait_hollow_armor_happy.png",
+      "sha256": "5a068d5d9dce8a15aa6710730338f996ed53ea439867531d2af97ec3b8fa892e"
+    },
+    {
+      "path": "assets/sprites/v130r/mole_digger/portrait_mole_digger_base.png",
+      "sha256": "3cd5ab8d0c90068a36fbb40809737181a816dbb51ee521309bfe07f47d58f5a6"
+    },
+    {
+      "path": "assets/sprites/v130r/mole_digger/portrait_mole_digger_card.png",
+      "sha256": "6038d083a34fcd7c1f9af551f5520e362015b330d88c8e30c9997787eac5414d"
+    },
+    {
+      "path": "assets/sprites/v130r/mole_digger/portrait_mole_digger_determined.png",
+      "sha256": "659fb40a8c3336c883ef7341ffea455a0c628c41da8a9f56b342c983b9064442"
+    },
+    {
+      "path": "assets/sprites/v130r/mole_digger/portrait_mole_digger_happy.png",
+      "sha256": "af4814bd9359033e58dfeb9ebec6213628168aebc186f55c0bb81377589aff35"
+    },
+    {
+      "path": "assets/sprites/v130r/portraits_contract/dolkong_determined.png",
+      "sha256": "58c90eeb0ea790d3c539abb92d56eda002b320978817cc2b9abb9d6877cd84e3"
+    },
+    {
+      "path": "assets/sprites/v130r/portraits_contract/dolkong_happy.png",
+      "sha256": "59d06fa235070a5c7ccfcd9b2970957391909278fa90f7844aae609f7ac69a2d"
+    },
+    {
+      "path": "assets/sprites/v130r/portraits_contract/dudum_determined.png",
+      "sha256": "93026d71f1e92561e35625dd54d65673a24d5badc8949f0b53dc20acd0ca4891"
+    },
+    {
+      "path": "assets/sprites/v130r/portraits_contract/dudum_happy.png",
+      "sha256": "e4234e3731eb1ffc17cac45f47fb54e6294a8b2e8e100c1e7dd768c9054105f2"
+    },
+    {
+      "path": "assets/sprites/v130r/portraits_contract/mimi_determined.png",
+      "sha256": "b2fa97c5d760651f3843f479ca489ecc07881ed74050141602685ef4c84f86ff"
+    },
+    {
+      "path": "assets/sprites/v130r/portraits_contract/mimi_happy.png",
+      "sha256": "f1350defc9dc857ef9f8636ab559e46789a43ff7bc03fe951531bef09422a4ff"
+    },
+    {
+      "path": "assets/sprites/v130r/portraits_contract/moon_determined.png",
+      "sha256": "2b457e03d7ad036d5b79b656c492d7ddd06a4db74cc35fd99083e8d99d793de1"
+    },
+    {
+      "path": "assets/sprites/v130r/portraits_contract/moon_happy.png",
+      "sha256": "8ce5660d50e2bb087af5396e2fc14c66b10859d817e09f98fd53abc86485420b"
+    },
+    {
+      "path": "assets/sprites/v130r/portraits_contract/mori_determined.png",
+      "sha256": "129d318a84ed078033af936ab39b2dcda4a78f8a4317735c706e1830ac8b88ef"
+    },
+    {
+      "path": "assets/sprites/v130r/portraits_contract/mori_happy.png",
+      "sha256": "476c87b83bc6d344b11915de228e38334957b32e4027d7fc3dd86dfbd4d49fbc"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/armored_beetle/armored_beetle_hurt_ne.png",
+      "sha256": "444c54bcf6f3b01929451a8fadf6d0cccddf501aa861ed983510aca7039e171a"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/armored_beetle/armored_beetle_hurt_sw.png",
+      "sha256": "9b2ea1587916fa32744ce6c1a7bbb5105dc74232d80495baef01c90ef0fa0a2b"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/armored_beetle/armored_beetle_sheet.png",
+      "sha256": "76a0418c9cd166f8296c8fc9b86e7d30841f600710fd30b719d655422373a9ae"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/armored_beetle/armored_beetle_sheet_ne.png",
+      "sha256": "280b64b8d54f57118d9f6ebe47f961a64cbe4a9c62f5e9197f16a638813295c1"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/bat_courier/bat_courier_hurt_ne.png",
+      "sha256": "5d62875186e3e3cc0c90e0530e7eda514b4cb19b8a1cb2029be83dfbdbc0aef0"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/bat_courier/bat_courier_hurt_sw.png",
+      "sha256": "dd64a05d84097e67c8b38dfdb9d5603db925012aec674ebc90bba0d5e9222bdc"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/bat_courier/bat_courier_sheet.png",
+      "sha256": "18e05de8c0b820df61e0f0e3e09d3aaa0840ed57ae0031caa80f2a0b31692bde"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/bat_courier/bat_courier_sheet_ne.png",
+      "sha256": "fad52c51ed55ba0264e92969e6df8f1872ee539c83b0f51d3646e934e5e7ce01"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/bridge_troll/bridge_troll_hurt_ne.png",
+      "sha256": "307ebdd511532d5bb21b612444e0da4705295e91230d33f06188576ea3d19cf3"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/bridge_troll/bridge_troll_hurt_sw.png",
+      "sha256": "b9a3b9add85f8f7720dc483513851b9f5b4054baf601c469c810463f1092e805"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/bridge_troll/bridge_troll_sheet.png",
+      "sha256": "4c1b001e373101859caef3ad50552312fe5e4c9fc76c7bb3afcc03eaab726d81"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/bridge_troll/bridge_troll_sheet_ne.png",
+      "sha256": "d4261e88b2b821b07dafb31cfa508f53d6416794c43eaeff91dbc9f11615ac68"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/candle_wisp/candle_wisp_hurt_ne.png",
+      "sha256": "c16c6f9398c7113ebc99c2563bbefa6d37666388c01416867b3576cd9299b45e"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/candle_wisp/candle_wisp_hurt_sw.png",
+      "sha256": "76f1a52843d5ee1001fd5f9a2a8d0d5df188f00f131795afc2af232b14885faa"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/candle_wisp/candle_wisp_sheet.png",
+      "sha256": "b0843570af2f174231ee7ad57eb3a96f5e5374b2bb44a1b7c3f6768a802d7acf"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/candle_wisp/candle_wisp_sheet_ne.png",
+      "sha256": "ac8a43fe6d2eabd82a64aaf34e5fc3b56c2aa536296d5309370f14058298a915"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/curse_doll/curse_doll_hurt_ne.png",
+      "sha256": "8bb60350d0e78e6d8d301e3a5ed333f9ba3ff933f7112b72413a4ac9e2d6ce3f"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/curse_doll/curse_doll_hurt_sw.png",
+      "sha256": "496d678d51fb463a30df1f9ee1fd39ba24dfb7545cf7b2ccff4aeb4012018e02"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/curse_doll/curse_doll_sheet.png",
+      "sha256": "752bb9fff6ee256522e95e638bd1cd1574d4d59dfc51bfd248cffb9fa4badcd5"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/curse_doll/curse_doll_sheet_ne.png",
+      "sha256": "7a6b3ae9dc40b04238df7c9da7ba108d891458cd7a43a4e54624b524545ec81b"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/ghost_housemaid/ghost_housemaid_hurt_ne.png",
+      "sha256": "a925495b428bb5050dfd8bc3f76284ff366833be8f8107ef6ff0ace08e4a5212"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/ghost_housemaid/ghost_housemaid_hurt_sw.png",
+      "sha256": "347c9a0e966ab195144ecd41e1539a317e0f05ea2a0265202563a6206ead569b"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/ghost_housemaid/ghost_housemaid_sheet.png",
+      "sha256": "a94a8ae2ba0f398227422a23c9b35fbc5e0156e7308c842aef74c0649b1f5745"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/ghost_housemaid/ghost_housemaid_sheet_ne.png",
+      "sha256": "4ce0123d614c340b017626c709b6599dcb2bcd70c7bcda81469421c7289d9217"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/glue_snail/glue_snail_hurt_ne.png",
+      "sha256": "68fde2c17610e0b3be273c471e108a3be24fd067bb430ae0fd85f4913bb970d0"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/glue_snail/glue_snail_hurt_sw.png",
+      "sha256": "52d5d3b14dbd67082ca92377774022996d8540f697af6427ee6392bafeca60e1"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/glue_snail/glue_snail_sheet.png",
+      "sha256": "f4c90768fb21ed7f6d4ab7759f7588c5b82f4c8d7267695d6e0bda9ac9e4f47c"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/glue_snail/glue_snail_sheet_ne.png",
+      "sha256": "26deab64c0badbde40aa9fce3080591af2594af65df37d6f32a577b5eb32b50d"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/goblin/goblin_hurt_ne.png",
+      "sha256": "86443d2e324dc834142206353a71b24ba2027d619ac5f9626387f01c3a30a0a9"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/goblin/goblin_hurt_sw.png",
+      "sha256": "460b35a1d64a0829195e345b20dc6a439146cdc99cd4ac549710efebcefd8605"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/goblin/goblin_sheet.png",
+      "sha256": "34b8d6f6f6fa24844f03d6aeb13ae092be5053cda6660e197b2638676e1119fa"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/goblin/goblin_sheet_ne.png",
+      "sha256": "5588cf2c1d4cde0c917a028d894060b4cfae2490232b61c70b10bf3152a2de25"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/graveyard_hound/graveyard_hound_hurt_ne.png",
+      "sha256": "7bf187960da9c2a334fbf6997c82a35ce4d007ffb713fab722236bd277ce5b5d"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/graveyard_hound/graveyard_hound_hurt_sw.png",
+      "sha256": "352d6577065de8268ae21394688081228fc68a0a838ec930a1ecbeb8c93691f5"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/graveyard_hound/graveyard_hound_sheet.png",
+      "sha256": "ad2f3e8d4bbb3f59f85883d1146833cc0533d6248bd26d161c0c34e9867fd2d1"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/graveyard_hound/graveyard_hound_sheet_ne.png",
+      "sha256": "c2fa6c88b69207de0f5bde0b4105aadf6284a28d1dbee94fe6178f47925787e6"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/hollow_armor/hollow_armor_hurt_ne.png",
+      "sha256": "3a174c4ae06f0c4e513513087126e657ed300dda94469f1208713c46d06bacfc"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/hollow_armor/hollow_armor_hurt_sw.png",
+      "sha256": "a2861e69ba61580ba1c67f3845d60052d657e52fe61fe40b8421bfc31c621894"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/hollow_armor/hollow_armor_sheet.png",
+      "sha256": "b07ced3c4fb6a4dcba34ae88dee0de58665af21f8c73fedd8fef73c991ebe967"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/hollow_armor/hollow_armor_sheet_ne.png",
+      "sha256": "42017c19fbff387dbba79fcd728e12d1779bf9223404e9ad801c0c76f6357841"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/imp/imp_hurt_ne.png",
+      "sha256": "92f8ddccc027f5390b2a340558df63d41cde044066c6ad1053efd5d89be720d2"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/imp/imp_hurt_sw.png",
+      "sha256": "cef5e1fc6d55610f77614d19f7421a56f38b467b1621df34dfd1b3b941016abe"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/imp/imp_sheet.png",
+      "sha256": "563485e8e3f9df59ebccd2b6f270bdd347001d2786251a5d8c2ed72afeb4169e"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/imp/imp_sheet_ne.png",
+      "sha256": "85f48e8ede1eba54a2f19268a93945088a4aeac276ea98bb7f9593a667caf46a"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/kobold_scout/kobold_scout_hurt_ne.png",
+      "sha256": "f7f08af725d1ec5c501f8dbadbebdfce1afd8ebc502cc14ae3b1547249dbb9fc"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/kobold_scout/kobold_scout_hurt_sw.png",
+      "sha256": "28b8326ad923cb5c6333ce45d31b3b07dedca9af7b607c5fb595b4f1ba8a2e0e"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/kobold_scout/kobold_scout_sheet.png",
+      "sha256": "277c0b509c46147da6b33432b1d06c4f5507baee0b0e464cdb68a7325c423625"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/kobold_scout/kobold_scout_sheet_ne.png",
+      "sha256": "5cbd287d0c00ce97798a1e007d663c22a477eba3a1ae4e8f83c5316638faa881"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/mimic_porter/mimic_porter_hurt_ne.png",
+      "sha256": "552bd63d3738dbf9bcf2da9c43051bbbfd480b465e8674fcbf592a9b643e73a9"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/mimic_porter/mimic_porter_hurt_sw.png",
+      "sha256": "2f4b7b36459fd1b50a806f396807c220867dd92df1fd44c1841a726e1b2bd7f8"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/mimic_porter/mimic_porter_sheet.png",
+      "sha256": "0a353b73d4f9108c74d956b0d51682ca9bedaf34012f658d7a680a61e0158c95"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/mimic_porter/mimic_porter_sheet_ne.png",
+      "sha256": "e7082765cbfff2920dcb5fdb30f2274702c405f6814b46d5cfa1737023c0b84c"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/mole_digger/mole_digger_hurt_ne.png",
+      "sha256": "770143f7cc939dbd63bbc4b45fe8cf58ce6fe97ac6310b498b2b67d396d07c7c"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/mole_digger/mole_digger_hurt_sw.png",
+      "sha256": "a599ad2a12941ab6abc3e080e028b643cfe46ecd9a362d53700f3850d11c7d4a"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/mole_digger/mole_digger_sheet.png",
+      "sha256": "3d99718c36bdda559e38a885c18e58cbf12c9bbdb6914fdeefcc488658a13460"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/mole_digger/mole_digger_sheet_ne.png",
+      "sha256": "85b11ce67c0d1d483f57870296c05bb58559d1e92d873a8fef55a605463a4f80"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/moon_tracker/moon_tracker_hurt_ne.png",
+      "sha256": "561af18569715fb77ad544a449e1ecea66cdbcef7aa9042ec811f4555be5f7b8"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/moon_tracker/moon_tracker_hurt_sw.png",
+      "sha256": "cbb25da241370b814e20bac469bfab301388fd82f1eb0cdc3edbcf7088b2f6ec"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/moon_tracker/moon_tracker_sheet.png",
+      "sha256": "8b3702a12966db445a1e023c5acbc88d14f2e3cdf6ca47f8aff6be846fc17232"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/moon_tracker/moon_tracker_sheet_ne.png",
+      "sha256": "4f730ac856ecc4f63400a26518406807c733f92156b3c61f90540027383b0e52"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/rat_union/rat_union_hurt_ne.png",
+      "sha256": "2525b54fb607b03b2a446291486ff8cc19e84cbfafcbd1ba61147aa631d60dd6"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/rat_union/rat_union_hurt_sw.png",
+      "sha256": "0e4ffaad57c27cf53c68ef788ce693def40f3a041772a1bf7c4f4fa180aa5114"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/rat_union/rat_union_sheet.png",
+      "sha256": "6138789d47ab4a8caff3e268c584daf4299ab6dfb0711d1e724da5cee0d903ec"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/rat_union/rat_union_sheet_ne.png",
+      "sha256": "963996f4c0fc2b1daaecbfe2cc054160c772629b5e06a2d16e5e0c5a458e84ee"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/river_frog/river_frog_hurt_ne.png",
+      "sha256": "30c9e112becf965ef69b4160c93b5f5978dc602b2842511270448ff74bef23c9"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/river_frog/river_frog_hurt_sw.png",
+      "sha256": "bd0a24f633083eb587cdd4aaa635d303bc8d919b9b0483446fbbfdc15147e224"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/river_frog/river_frog_sheet.png",
+      "sha256": "596fa5916bc4cb482cb5151c4f15855899c90ae50cb554d249bb01c27e6a8f89"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/river_frog/river_frog_sheet_ne.png",
+      "sha256": "fba5e19461ab8607afdcd31545205b957ef1e817760495c6e736d653654a9180"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/slime/slime_hurt_ne.png",
+      "sha256": "e58bdb1330708cfbd234323c89cb706973195114590e799a1e9ab89439903a9f"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/slime/slime_hurt_sw.png",
+      "sha256": "278040a372fa98c483f10fbeebd728aa3ab34b745fc160936027266ac32bab0c"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/slime/slime_sheet.png",
+      "sha256": "48d5ec47d21b31e69a4958bf637f6b71f4201044395b524e3bd34ae5f27f08b7"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/slime/slime_sheet_ne.png",
+      "sha256": "65cc7bd39a4a4699e05e8acafb6a5fef6929522be70f564b6a93b3d545c9efa6"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/spider_tailor/spider_tailor_hurt_ne.png",
+      "sha256": "b2b0b54ed6b2e822e2482efcd07f4526e9cc9ef89131b3b658a71f540c7db79d"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/spider_tailor/spider_tailor_hurt_sw.png",
+      "sha256": "43038913a28d096b764fb20b7238638db6fb99e7c1cf0e6aa4c89ae95d8cd519"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/spider_tailor/spider_tailor_sheet.png",
+      "sha256": "41d541cca958f2df18e5f04cdc20000ad633b6618d45faa20e019be15f0bb11c"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/spider_tailor/spider_tailor_sheet_ne.png",
+      "sha256": "c6789350192d4701b97fe8ab1be8db355ce442903ecf50808347113fcc3a0d43"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/spore_healer/spore_healer_hurt_ne.png",
+      "sha256": "269d3340ed5ac4d440d1f70459e535c7cabbd734a586d8c5683ce3ce7e9b9bb6"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/spore_healer/spore_healer_hurt_sw.png",
+      "sha256": "874759e4ceee4c48fc30705b316859b081b8e7a1cabe7be82d79748150804673"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/spore_healer/spore_healer_sheet.png",
+      "sha256": "71a5bf4fb6f80a229f4c939f10d12095d1cc0367c253c9566050599b65f25939"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/spore_healer/spore_healer_sheet_ne.png",
+      "sha256": "54add912d7e7792bf148303d8172dffdea8d523a2bc8c6709d432150291f1416"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/stone_sentinel/stone_sentinel_hurt_ne.png",
+      "sha256": "fce56828d6a4d97456fd369d9f42a1b9de5c510e4dd1c7a7df908a86dd2f63b8"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/stone_sentinel/stone_sentinel_hurt_sw.png",
+      "sha256": "86d25bd4a77d95bee4d0f3732adff1b9148a5073be4a7599a417c822db529c6e"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/stone_sentinel/stone_sentinel_sheet.png",
+      "sha256": "35768eb34c965dc8f2c0dfa420a76a248676af6a7e351677af3dc13989bb68a8"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/stone_sentinel/stone_sentinel_sheet_ne.png",
+      "sha256": "4d928ef5f30a177c3beefeb3e325727e3139e538bcba3fbe04071f78556d13ab"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/under_bed_shadow/under_bed_shadow_hurt_ne.png",
+      "sha256": "575c073481ed099873f2ad0eabbc7ddc8bab452af6a323638367187ea5f2e8b4"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/under_bed_shadow/under_bed_shadow_hurt_sw.png",
+      "sha256": "0a7a9ddc25a7c7a4070b0d562a556abfd51bacbfaa45d45920de247bc16833e5"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/under_bed_shadow/under_bed_shadow_sheet.png",
+      "sha256": "505e9232488d16f47aca468003bade6736d7f4251cf826b6dcc90dd671c5c5f6"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/under_bed_shadow/under_bed_shadow_sheet_ne.png",
+      "sha256": "9c7c9c1f64f54680ae97e22d903406b41218d3776c7795dcbd90f82108d58eba"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/war_drummer/war_drummer_hurt_ne.png",
+      "sha256": "20c37662265e88201e476e023b96bdb4fb348514de708c095b48bbbb703e0ab1"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/war_drummer/war_drummer_hurt_sw.png",
+      "sha256": "cc512af4ceaeb3772bd49d29f987666a30ac392bf597d5f15a37209de8c289c9"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/war_drummer/war_drummer_sheet.png",
+      "sha256": "087d5a96fe52cae90fcdd638f46f810b244037b0030da9bf282f80b4a35587d3"
+    },
+    {
+      "path": "assets/sprites/v130r/quarter_final/war_drummer/war_drummer_sheet_ne.png",
+      "sha256": "422e5b369a20db026a6f545bec6d8ae0d9ca3389e8cf02ba0bb9f536a2102f8b"
+    },
+    {
+      "path": "assets/sprites/v130r/rat_union/portrait_rat_union_base.png",
+      "sha256": "3d3836b2b761533b2315615cd432b314040f5a9049dddc7cfb37682400e9eb7e"
+    },
+    {
+      "path": "assets/sprites/v130r/rat_union/portrait_rat_union_card.png",
+      "sha256": "77ee264fafb4d86c0cb84a4da085d18849f559d32370d7112570aa01267bcf05"
+    },
+    {
+      "path": "assets/sprites/v130r/rat_union/portrait_rat_union_determined.png",
+      "sha256": "b312fdcc094bfdf2fa73d1374d17eaeaa312220a8c3f2b5d7f3bd8cac969021e"
+    },
+    {
+      "path": "assets/sprites/v130r/rat_union/portrait_rat_union_happy.png",
+      "sha256": "eb977caf3e9264751b8901a2a2d0d325e175922671dbb046a4bb135f92f67737"
+    },
+    {
+      "path": "assets/sprites/v130r/river_frog/portrait_river_frog_base.png",
+      "sha256": "93f7004d32da64b88aeb57507fd12f9d5ae0d445863e47edd0969394efb0c4c2"
+    },
+    {
+      "path": "assets/sprites/v130r/river_frog/portrait_river_frog_card.png",
+      "sha256": "016ae70f318c0054dee22d2f2e5ec5944d19a23dc367e0a9785af388d8a22149"
+    },
+    {
+      "path": "assets/sprites/v130r/river_frog/portrait_river_frog_determined.png",
+      "sha256": "febda6f9773a18a7e21f0b3719f0d5c258d49c295e1f9d550f7a1f03c64bf83e"
+    },
+    {
+      "path": "assets/sprites/v130r/river_frog/portrait_river_frog_happy.png",
+      "sha256": "2e86e0b6f1836116d8afb099df17ff698ed7d27a4505964fb81cfb300cae0266"
+    },
+    {
+      "path": "assets/sprites/v130r/under_bed_shadow/portrait_under_bed_shadow_base.png",
+      "sha256": "d7c951ca93b17cb914a5980921e8e025404ca8a7305ec4c3c5bdb239f55bc7a3"
+    },
+    {
+      "path": "assets/sprites/v130r/under_bed_shadow/portrait_under_bed_shadow_card.png",
+      "sha256": "eafd06c97404744aba24bed033a980342efdc75337f4b5d211535a46eec0ca9c"
+    },
+    {
+      "path": "assets/sprites/v130r/under_bed_shadow/portrait_under_bed_shadow_determined.png",
+      "sha256": "9ef9084a54bccf24b250f29f82b6f0946c87b9cd0ff18a555b2e7bfa8b764825"
+    },
+    {
+      "path": "assets/sprites/v130r/under_bed_shadow/portrait_under_bed_shadow_happy.png",
+      "sha256": "36e781f22e04ad74a4813a75de976a58f7298538344d8710ba866af5ea159242"
+    }
+  ]
+}

@@ -1,0 +1,197 @@
+{
+  "threshold_note": "alpha >=8 visible support; alpha >=240 opaque core; alpha1..7 retained and reported, never removed",
+  "characters": [
+    {
+      "file": "assets/source/imagegen/v1213_bati_cute/bati_portrait_dry.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 31.810379,
+      "partial_alpha_pct": 67.499161,
+      "low_alpha_1_to_7_pct": 1.227188,
+      "visible_bbox_alpha_ge8": [
+        4,
+        9,
+        509,
+        512
+      ],
+      "edge_nonzero_pixels": 367,
+      "edge_alpha_ge8_pixels": 325,
+      "max_distance_alpha_ge8_from_core_px": 3.606,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 254
+    },
+    {
+      "file": "assets/source/imagegen/v1213_bati_cute/bati_portrait_dry_happy.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 31.58226,
+      "partial_alpha_pct": 67.709732,
+      "low_alpha_1_to_7_pct": 1.159286,
+      "visible_bbox_alpha_ge8": [
+        3,
+        9,
+        509,
+        512
+      ],
+      "edge_nonzero_pixels": 358,
+      "edge_alpha_ge8_pixels": 326,
+      "max_distance_alpha_ge8_from_core_px": 3.162,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 255
+    },
+    {
+      "file": "assets/source/imagegen/v1213_bati_cute/bati_portrait_stern.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 31.634903,
+      "partial_alpha_pct": 67.650223,
+      "low_alpha_1_to_7_pct": 1.19133,
+      "visible_bbox_alpha_ge8": [
+        4,
+        9,
+        509,
+        512
+      ],
+      "edge_nonzero_pixels": 374,
+      "edge_alpha_ge8_pixels": 326,
+      "max_distance_alpha_ge8_from_core_px": 3.606,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 255
+    },
+    {
+      "file": "assets/source/imagegen/v1213_bati_cute/bati_portrait_tutorial.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 255,
+      "zero_alpha_pct": 31.250763,
+      "partial_alpha_pct": 68.051529,
+      "low_alpha_1_to_7_pct": 1.166534,
+      "visible_bbox_alpha_ge8": [
+        3,
+        8,
+        509,
+        512
+      ],
+      "edge_nonzero_pixels": 379,
+      "edge_alpha_ge8_pixels": 328,
+      "max_distance_alpha_ge8_from_core_px": 4.0,
+      "alpha_ge32_farther_than_4px_from_core": 0,
+      "max_edge_alpha": 255
+    },
+    {
+      "file": "assets/source/imagegen/v1213_bati_cute/bati_standing_dry.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "zero_alpha_pct": 55.642446,
+      "partial_alpha_pct": 44.357554,
+      "low_alpha_1_to_7_pct": 1.371892,
+      "visible_bbox_alpha_ge8": [
+        11,
+        156,
+        1013,
+        1333
+      ],
+      "edge_nonzero_pixels": 42,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 11.18,
+      "alpha_ge32_farther_than_4px_from_core": 82,
+      "max_edge_alpha": 1
+    },
+    {
+      "file": "assets/source/imagegen/v1213_bati_cute/bati_standing_dry_happy.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "zero_alpha_pct": 53.213437,
+      "partial_alpha_pct": 46.786563,
+      "low_alpha_1_to_7_pct": 1.32281,
+      "visible_bbox_alpha_ge8": [
+        8,
+        119,
+        1016,
+        1323
+      ],
+      "edge_nonzero_pixels": 145,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 8.062,
+      "alpha_ge32_farther_than_4px_from_core": 59,
+      "max_edge_alpha": 2
+    },
+    {
+      "file": "assets/source/imagegen/v1213_bati_cute/bati_standing_stern.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "zero_alpha_pct": 48.076312,
+      "partial_alpha_pct": 51.923688,
+      "low_alpha_1_to_7_pct": 1.432546,
+      "visible_bbox_alpha_ge8": [
+        4,
+        92,
+        1019,
+        1381
+      ],
+      "edge_nonzero_pixels": 217,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 13.928,
+      "alpha_ge32_farther_than_4px_from_core": 173,
+      "max_edge_alpha": 6
+    },
+    {
+      "file": "assets/source/imagegen/v1213_bati_cute/bati_standing_tutorial.png",
+      "size": [
+        1024,
+        1536
+      ],
+      "mode": "RGBA",
+      "alpha_min": 0,
+      "alpha_max": 254,
+      "zero_alpha_pct": 51.366425,
+      "partial_alpha_pct": 48.633575,
+      "low_alpha_1_to_7_pct": 1.446342,
+      "visible_bbox_alpha_ge8": [
+        5,
+        126,
+        1023,
+        1363
+      ],
+      "edge_nonzero_pixels": 181,
+      "edge_alpha_ge8_pixels": 0,
+      "max_distance_alpha_ge8_from_core_px": 10.63,
+      "alpha_ge32_farther_than_4px_from_core": 111,
+      "max_edge_alpha": 6
+    }
+  ]
+}

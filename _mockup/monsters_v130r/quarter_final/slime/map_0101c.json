@@ -1,0 +1,177 @@
+[
+  {
+    "species_id": "slime",
+    "map_source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+    "map_sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+    "crop": [
+      280,
+      210,
+      760,
+      510
+    ],
+    "capture_anchor": [
+      472,
+      342
+    ],
+    "capture_tile_width": 96,
+    "target_body_height": 72,
+    "body_to_tile": 0.75,
+    "scale": 0.6785714285714286,
+    "rounded_body_height": 72,
+    "sprite_origin": [
+      135,
+      61
+    ],
+    "note": "Same recorded defense cell in separate panel. Original map actors preserved."
+  },
+  {
+    "species_id": "goblin",
+    "map_source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+    "map_sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+    "crop": [
+      280,
+      210,
+      760,
+      510
+    ],
+    "capture_anchor": [
+      472,
+      342
+    ],
+    "capture_tile_width": 96,
+    "target_body_height": 72,
+    "body_to_tile": 0.75,
+    "scale": 0.5401459854014599,
+    "rounded_body_height": 72,
+    "sprite_origin": [
+      151,
+      61
+    ],
+    "note": "Same recorded defense cell in separate panel. Original map actors preserved."
+  },
+  {
+    "species_id": "imp",
+    "map_source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+    "map_sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+    "crop": [
+      280,
+      210,
+      760,
+      510
+    ],
+    "capture_anchor": [
+      472,
+      342
+    ],
+    "capture_tile_width": 96,
+    "target_body_height": 72,
+    "body_to_tile": 0.75,
+    "scale": 0.357487922705314,
+    "rounded_body_height": 72,
+    "sprite_origin": [
+      153,
+      61
+    ],
+    "note": "Same recorded defense cell in separate panel. Original map actors preserved."
+  },
+  {
+    "species_id": "kobold_scout",
+    "map_source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+    "map_sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+    "crop": [
+      280,
+      210,
+      760,
+      510
+    ],
+    "capture_anchor": [
+      472,
+      342
+    ],
+    "capture_tile_width": 96,
+    "target_body_height": 72,
+    "body_to_tile": 0.75,
+    "scale": 0.5319148936170213,
+    "rounded_body_height": 72,
+    "sprite_origin": [
+      149,
+      61
+    ],
+    "note": "Same recorded defense cell in separate panel. Original map actors preserved."
+  },
+  {
+    "species_id": "spore_healer",
+    "map_source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+    "map_sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+    "crop": [
+      280,
+      210,
+      760,
+      510
+    ],
+    "capture_anchor": [
+      472,
+      342
+    ],
+    "capture_tile_width": 96,
+    "target_body_height": 72,
+    "body_to_tile": 0.75,
+    "scale": 0.3826530612244898,
+    "rounded_body_height": 72,
+    "sprite_origin": [
+      155,
+      60
+    ],
+    "note": "Same recorded defense cell in separate panel. Original map actors preserved."
+  },
+  {
+    "species_id": "stone_sentinel",
+    "map_source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+    "map_sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+    "crop": [
+      280,
+      210,
+      760,
+      510
+    ],
+    "capture_anchor": [
+      472,
+      342
+    ],
+    "capture_tile_width": 96,
+    "target_body_height": 72,
+    "body_to_tile": 0.75,
+    "scale": 0.4873417721518987,
+    "rounded_body_height": 72,
+    "sprite_origin": [
+      149,
+      59
+    ],
+    "note": "Same recorded defense cell in separate panel. Original map actors preserved."
+  },
+  {
+    "species_id": "war_drummer",
+    "map_source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+    "map_sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+    "crop": [
+      280,
+      210,
+      760,
+      510
+    ],
+    "capture_anchor": [
+      472,
+      342
+    ],
+    "capture_tile_width": 96,
+    "target_body_height": 72,
+    "body_to_tile": 0.75,
+    "scale": 0.3712871287128713,
+    "rounded_body_height": 72,
+    "sprite_origin": [
+      161,
+      60
+    ],
+    "note": "Same recorded defense cell in separate panel. Original map actors preserved."
+  }
+]

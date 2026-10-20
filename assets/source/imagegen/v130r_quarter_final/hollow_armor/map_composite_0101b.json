@@ -1,0 +1,188 @@
+{
+  "source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+  "sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+  "crop": [
+    130,
+    210,
+    825,
+    655
+  ],
+  "placements": [
+    {
+      "body_box": [
+        5,
+        4,
+        233,
+        259
+      ],
+      "source_size": [
+        237,
+        264
+      ],
+      "scale": 0.2823529411764706,
+      "resized_size": [
+        67,
+        75
+      ],
+      "origin": [
+        438,
+        269
+      ],
+      "contact_anchor": [
+        472,
+        342
+      ],
+      "requested_body_height": 72,
+      "rounded_body_height": 72.44318181818181,
+      "species": "hollow_armor",
+      "capture_contact": [
+        472,
+        342
+      ],
+      "tile_width": 96,
+      "body_to_tile": 0.75
+    },
+    {
+      "body_box": [
+        5,
+        4,
+        154,
+        240
+      ],
+      "source_size": [
+        160,
+        245
+      ],
+      "scale": 0.3050847457627119,
+      "resized_size": [
+        49,
+        75
+      ],
+      "origin": [
+        256,
+        365
+      ],
+      "contact_anchor": [
+        280,
+        438
+      ],
+      "requested_body_height": 72,
+      "rounded_body_height": 72.24489795918367,
+      "species": "candle_wisp",
+      "capture_contact": [
+        280,
+        438
+      ],
+      "tile_width": 96,
+      "body_to_tile": 0.75
+    },
+    {
+      "body_box": [
+        5,
+        4,
+        242,
+        243
+      ],
+      "source_size": [
+        246,
+        247
+      ],
+      "scale": 0.301255230125523,
+      "resized_size": [
+        74,
+        74
+      ],
+      "origin": [
+        435,
+        461
+      ],
+      "contact_anchor": [
+        472,
+        534
+      ],
+      "requested_body_height": 72,
+      "rounded_body_height": 71.60323886639677,
+      "species": "mole_digger",
+      "capture_contact": [
+        472,
+        534
+      ],
+      "tile_width": 96,
+      "body_to_tile": 0.75
+    },
+    {
+      "body_box": [
+        4,
+        4,
+        212,
+        241
+      ],
+      "source_size": [
+        216,
+        246
+      ],
+      "scale": 0.3037974683544304,
+      "resized_size": [
+        66,
+        75
+      ],
+      "origin": [
+        631,
+        365
+      ],
+      "contact_anchor": [
+        664,
+        438
+      ],
+      "requested_body_height": 72,
+      "rounded_body_height": 72.2560975609756,
+      "species": "rat_union",
+      "capture_contact": [
+        664,
+        438
+      ],
+      "tile_width": 96,
+      "body_to_tile": 0.75
+    },
+    {
+      "body_box": [
+        4,
+        4,
+        231,
+        240
+      ],
+      "source_size": [
+        235,
+        245
+      ],
+      "scale": 0.3050847457627119,
+      "resized_size": [
+        72,
+        75
+      ],
+      "origin": [
+        532,
+        413
+      ],
+      "contact_anchor": [
+        568,
+        486
+      ],
+      "requested_body_height": 72,
+      "rounded_body_height": 72.24489795918367,
+      "species": "curse_doll",
+      "capture_contact": [
+        568,
+        486
+      ],
+      "tile_width": 96,
+      "body_to_tile": 0.75
+    }
+  ],
+  "world_tile": [
+    128,
+    64
+  ],
+  "world_body_height": 96,
+  "not_live_engine": true
+}

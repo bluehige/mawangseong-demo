@@ -1,0 +1,52 @@
+{
+  "floor_c_source.png": {
+    "size": [
+      1536,
+      1024
+    ],
+    "alpha": [
+      255,
+      255
+    ]
+  },
+  "floor_d_source.png": {
+    "size": [
+      1536,
+      1024
+    ],
+    "alpha": [
+      255,
+      255
+    ]
+  },
+  "gate_frame_source.png": {
+    "size": [
+      1385,
+      1136
+    ],
+    "alpha": [
+      0,
+      255
+    ]
+  },
+  "masonry_source.png": {
+    "size": [
+      1254,
+      1254
+    ],
+    "alpha": [
+      0,
+      255
+    ]
+  },
+  "stone_deck_source.png": {
+    "size": [
+      1774,
+      887
+    ],
+    "alpha": [
+      0,
+      255
+    ]
+  }
+}

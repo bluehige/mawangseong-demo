@@ -116,7 +116,7 @@ def main() -> None:
         for index, item in enumerate(config["skill"]):
             extract_effect(sheet, item, index).save(EFFECT_ROOT / f"fx_{effect_id}_{index:02d}.png", optimize=True)
         for cue, frequency in config["sfx"].items():
-            write_sfx(SFX_ROOT / f"sfx_{species}_{cue}.wav", float(frequency))
+            write_sfx(SFX_ROOT / f"sfx_{species}_{cue}.ogg", float(frequency))
         previews.append((species, atlas, portraits))
         print(f"prepared {species}: 16 frames, 3 portraits, 4 VFX, 2 SFX")
     write_preview(previews)

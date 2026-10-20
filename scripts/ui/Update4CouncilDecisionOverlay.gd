@@ -4,6 +4,7 @@ class_name Update4CouncilDecisionOverlay
 const CouncilVoteScript = preload("res://scripts/systems/council/CouncilVoteLedger.gd")
 const CrownService = preload("res://scripts/systems/crown/CrownEvolutionService.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
+const Standard = preload("res://scripts/ui/UIStandard.gd")
 
 signal vote_confirmed(agenda_id: String, choice_id: String)
 signal crown_confirmed(instance_id: String, crown_id: String)
@@ -83,7 +84,7 @@ func _build_vote(parent: VBoxContainer, day: int, active_run: Dictionary, catalo
 		for choice_id in CouncilVoteScript.VALID_CHOICES:
 			var forecast := CouncilVoteScript.forecast(active_run, agenda_id, agenda_catalog, rival_catalog, choice_id)
 			var tally: Dictionary = forecast.get("tally", {})
-			var button := Button.new()
+			var button := preload("res://scripts/ui/ReadableTooltipButton.gd").new()
 			button.custom_minimum_size = Vector2(345, 64)
 			button.text = "%s  ·  %s 예상  (%d/%d/%d)" % [
 				_choice_label(choice_id),
@@ -111,7 +112,7 @@ func _build_crown(parent: VBoxContainer, active_run: Dictionary, catalogs: Dicti
 		var candidate: Dictionary = candidate_value
 		var crown_id := str(candidate.get("crown_form_id", ""))
 		var crown: Dictionary = crown_catalog.get(crown_id, {})
-		var button := Button.new()
+		var button := preload("res://scripts/ui/ReadableTooltipButton.gd").new()
 		button.custom_minimum_size = Vector2(0, 70)
 		var payment := str(candidate.get("payment","council_seals"))
 		button.text = "%s · %s %d\n%s" % [str(candidate.get("display_name", crown_id)), "의회 인장" if payment == "council_seals" else "대체 인장", int(crown.get("cost",{}).get(payment,2)), str(crown.get("weakness_text", ""))]
@@ -131,8 +132,8 @@ func _build_crown(parent: VBoxContainer, active_run: Dictionary, catalogs: Dicti
 		"council_support_token": "의회 지원 토큰"
 	}
 	for option_id in labels.keys():
-		var button := Button.new()
-		button.custom_minimum_size = Vector2(330, 64)
+		var button := preload("res://scripts/ui/ReadableTooltipButton.gd").new()
+		button.custom_minimum_size = Vector2(372, 64)
 		var assessment := CrownService.decline(active_run, str(option_id))
 		button.text = str(labels[option_id]) + "\n" + ("의회 인장 2" if int(council.get("council_seals",0)) >= 2 else "대체 인장 2")
 		button.custom_minimum_size.y = 94
@@ -157,7 +158,7 @@ func _build_final_declaration(parent: VBoxContainer, active_run: Dictionary, cat
 		{"id": "reject_council_authority", "title": "의회의 권위를 거부한다", "summary": "허가보다 서로의 성을 직접 지키는 독립 노선을 선언한다."}
 	]
 	for choice in choices:
-		var button := Button.new()
+		var button := preload("res://scripts/ui/ReadableTooltipButton.gd").new()
 		button.custom_minimum_size = Vector2(0, 118)
 		button.text = "%s\n%s" % [str(choice.title), str(choice.summary)]
 		_style_button(button, 19)
@@ -195,6 +196,7 @@ func _add_label(parent: Control, text_value: String, font_size: int, color: Colo
 
 
 func _style_button(button: Button, font_size: int) -> void:
+	if button.tooltip_text == "": button.tooltip_text = Standard.action_tooltip(button.text, Callable())
 	button.mouse_filter = Control.MOUSE_FILTER_STOP
 	button.focus_mode = Control.FOCUS_ALL
 	button.add_theme_stylebox_override("focus", _panel_style(Color.TRANSPARENT, Color("#e8bd76"), 3))
@@ -213,6 +215,10 @@ func _panel_style(fill: Color, border: Color, width: int) -> StyleBoxFlat:
 	style.bg_color = fill
 	style.border_color = border
 	style.set_border_width_all(width)
+	style.content_margin_left = Standard.BUTTON_PADDING.x
+	style.content_margin_right = Standard.BUTTON_PADDING.x
+	style.content_margin_top = Standard.BUTTON_PADDING.y
+	style.content_margin_bottom = Standard.BUTTON_PADDING.y
 	style.corner_radius_top_left = 8
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_left = 8
@@ -224,6 +230,7 @@ func _choice_label(choice_id: String) -> String:
 	return {"approve": "찬성", "amend": "수정안", "reject": "반대"}.get(choice_id, choice_id)
 
 func _focus_choices() -> void:
+	if not is_inside_tree() or is_queued_for_deletion(): return
 	var enabled: Array[Button] = []
 	for control in find_children("*","Button",true,false):
 		if not control.disabled:

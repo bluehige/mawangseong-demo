@@ -25,10 +25,6 @@ static func required_choice_id(active_run_value, day: int) -> String:
 		return "crown_choice"
 	if day == 29 and str(council.get("day29_decision_id", "")) == "":
 		return "council_final_declaration"
-	if day >= 16:
-		var upper: Dictionary = active_run_value.get("upper_floor", {})
-		if bool(upper.get("unlocked", false)) and str(upper.get("layout_id", "")) == "":
-			return "upper_layout"
 	if day >= 24 and str(council.get("final_representative_id", "")) == "":
 		return "representative_lock"
 	return ""
@@ -166,7 +162,7 @@ static func _wave_entries(template: Dictionary, day: int) -> Array:
 			"reward_scale": 1.0,
 			"update4_region_id": str(template.get("region_id", "")),
 			"update4_chapter_slot": int(template.get("chapter_slot", 0)),
-			"update4_floor_pattern": str(template.get("floor_pattern", "")),
+			"update4_objective_pattern": str(template.get("objective_pattern", "")),
 			"update4_day": day
 		})
 	return result

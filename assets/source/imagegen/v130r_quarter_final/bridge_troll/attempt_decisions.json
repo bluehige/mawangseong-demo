@@ -1,0 +1,17 @@
+[
+  {
+    "attempt": 1,
+    "status": "PARTIAL",
+    "reason": "SW camera criteria pass; NE last hurt turns frontal; four SW skill/hurt frames touch source boundaries"
+  },
+  {
+    "attempt": 2,
+    "status": "ADOPTED_ONE_NE",
+    "reason": "NE rear-only generation; select last hurt recover only"
+  },
+  {
+    "attempt": 3,
+    "status": "ADOPTED_SW_PATCH",
+    "reason": "Four SW skill/hurt poses; all criteria pass"
+  }
+]

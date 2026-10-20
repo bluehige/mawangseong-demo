@@ -2,8 +2,7 @@ extends Node
 
 const RegionScreenScene = preload("res://scenes/ui/screens/RegionSelectionScreen.tscn")
 const OutpostScreenScene = preload("res://scenes/ui/screens/OutpostManagementScreen.tscn")
-const UpperScreenScene = preload("res://scenes/ui/screens/UpperFloorScreen.tscn")
-const FloorHudScene = preload("res://scenes/ui/hud/MultiFloorHUD.tscn")
+const ExpansionScreenScene = preload("res://scenes/ui/screens/ExpansionObjectivesScreen.tscn")
 const CampaignModeScript = preload("res://scripts/systems/campaign/CampaignModeService.gd")
 
 const SIZES := [Vector2i(1920, 1080), Vector2i(1366, 768)]
@@ -71,7 +70,7 @@ func _test_upper_assets() -> void:
 	var stolen := _image("res://assets/props/update4/upper/seal_vault_stolen.png")
 	_expect(_digest(normal) != _digest(alarm) and _digest(alarm) != _digest(stolen), "인장 금고 기본·경보·절도 상태 구분")
 	_expect(_red_energy(alarm) > _red_energy(normal) * 1.15, "인장 금고 경보 상태 적색 신호 강화")
-	_expect(DataRegistry.update4_upper_floor_modules.seal_vault.art_states.alarm.ends_with("seal_vault_alarm.png"), "인장 금고 경보 데이터 연결")
+	_expect(DataRegistry.update4_expansion_modules.seal_vault.art_states.alarm.ends_with("seal_vault_alarm.png"), "인장 금고 경보 데이터 연결")
 
 
 func _test_source_records() -> void:
@@ -105,31 +104,16 @@ func _test_screen_layers_and_captures() -> void:
 	outpost_screen.queue_free()
 	await get_tree().process_frame
 
-	var upper: Dictionary = active.upper_floor.duplicate(true)
-	upper.layout_id = "upper_compact_guard"
-	upper.layout_locked = true
-	upper.objective_hp = {"crown_sanctum": 600}
-	upper.graph_runtime = {"visible_floor": "2F", "seal_alert_active": true, "entities": {}}
-	var upper_screen = UpperScreenScene.instantiate()
-	upper_screen.setup(upper, DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules)
-	add_child(upper_screen)
+	var state := preload("res://scripts/systems/council/CouncilExpansionService.gd").default_state()
+	state.unlocked=true;state.objective_hp={"crown_sanctum":600}
+	var screen=ExpansionScreenScene.instantiate()
+	add_child(screen);screen.setup(state,DataRegistry.update4_expansion_modules)
 	await get_tree().process_frame
-	var layout_preview = upper_screen.find_child("UpperModuleArt_crown_sanctum", true, false)
-	_expect(layout_preview is TextureRect and layout_preview.z_index == 0, "상층 선택 상세의 실제 왕관 모듈 그림 z-index")
-	upper_screen.queue_free()
-	await get_tree().process_frame
-
-	var hud = FloorHudScene.instantiate()
-	hud.setup(upper, DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules)
-	await _capture_at_sizes(hud, "phase34_upper_hud")
-	var backdrop = hud.get_node_or_null("DesignCanvas/UpperFloorSchematic/UpperFloorBackdrop")
-	var alert = hud.get_node_or_null("DesignCanvas/HiddenFloorAlert")
-	var vault_art = hud.get_node_or_null("DesignCanvas/UpperFloorSchematic/upper_vault/ModuleArt_seal_vault")
-	_expect(backdrop is TextureRect and backdrop.z_index == -1, "상층 HUD 배경 z-index")
-	_expect(alert is Panel and alert.z_index == 50, "숨은 층 경보 최상위 z-index")
-	_expect(vault_art is TextureRect and str(vault_art.texture.resource_path).ends_with("seal_vault_alarm.png"), "상층 HUD 인장 금고 경보 아트")
-	hud.queue_free()
-	await get_tree().process_frame
+	var crown_art=screen.find_child("ObjectiveArt_crown_sanctum",true,false)
+	var vault_art=screen.find_child("ObjectiveArt_seal_vault",true,false)
+	_expect(crown_art is TextureRect and crown_art.z_index==0 and str(crown_art.texture.resource_path).ends_with("crown_pedestal_empty.png"),"first-floor overview reuses existing crown art")
+	_expect(vault_art is TextureRect and str(vault_art.texture.resource_path).ends_with("seal_vault_normal.png"),"first-floor overview reuses existing vault art")
+	screen.queue_free();await get_tree().process_frame
 
 
 func _capture_at_sizes(screen: Control, prefix: String) -> void:

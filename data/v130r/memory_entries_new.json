@@ -1,0 +1,317 @@
+{
+  "bond_river_frog_rank_1": {
+    "monster_id": "river_frog",
+    "bond_rank": 1,
+    "title": "연못 반환 요구서",
+    "summary": "퐁당은 37번째 요구서 끝에 작은 글씨로 '다리는 지켜 드림'이라고 덧붙였다.",
+    "quote": "집주인이 누구든, 물은 지켜야 하는 거거든요."
+  },
+  "bond_river_frog_rank_2": {
+    "monster_id": "river_frog",
+    "bond_rank": 2,
+    "title": "비 새는 밤의 노래",
+    "summary": "천장이 가장 많이 새던 밤, 퐁당은 양동이마다 다른 음을 맞춰 식구들을 재웠다.",
+    "quote": "물방울도 박자만 맞으면 자장가인데요."
+  },
+  "bond_river_frog_rank_3": {
+    "monster_id": "river_frog",
+    "bond_rank": 3,
+    "title": "우리 연못",
+    "summary": "퐁당은 마지막 요구서를 찢고 '우리 연못'이라고 쓴 팻말을 다리 옆에 박았다.",
+    "quote": "반환은 취소예요. 이제 같이 쓰는 연못이니까."
+  },
+  "bond_glue_snail_rank_1": {
+    "monster_id": "glue_snail",
+    "bond_rank": 1,
+    "title": "사흘 걸린 인사",
+    "summary": "느릿은 마왕에게 인사하러 왕좌까지 가는 데 하루가 걸렸고, 마왕은 그동안 자리를 비우지 않았다.",
+    "quote": "기다려…준…사람은… 처음…이에요."
+  },
+  "bond_glue_snail_rank_2": {
+    "monster_id": "glue_snail",
+    "bond_rank": 2,
+    "title": "피해 가는 발자국",
+    "summary": "식구들이 느릿의 점액 자국을 밟지 않으려고 까치발로 돌아가는 걸, 느릿은 한참 바라봤다.",
+    "quote": "내 흔적을… 지켜 주는… 집이네요."
+  },
+  "bond_glue_snail_rank_3": {
+    "monster_id": "glue_snail",
+    "bond_rank": 3,
+    "title": "이삿짐 풀기",
+    "summary": "느릿은 평생 처음으로 껍질 속 짐을 꺼내 병영 선반에 하나씩 올려놓았다.",
+    "quote": "여기서는… 천천히… 살아도… 되죠?"
+  },
+  "bond_bridge_troll_rank_1": {
+    "monster_id": "bridge_troll",
+    "bond_rank": 1,
+    "title": "40년 경력 이력서",
+    "summary": "벙벙의 이력서 뒷면에는 지금까지 지킨 다리 이름이 빼곡했고, 마지막 칸은 비어 있었다.",
+    "quote": "빈칸은… 여기 다리 이름 쓰려고 남겨 둔 거예요."
+  },
+  "bond_bridge_troll_rank_2": {
+    "monster_id": "bridge_troll",
+    "bond_rank": 2,
+    "title": "돌다리 승진식",
+    "summary": "나무다리가 돌다리로 바뀐 날, 벙벙은 자기가 승진했다며 넥타이를 매고 나타났다.",
+    "quote": "다리가 단단해지면 저도 단단해져야죠!"
+  },
+  "bond_bridge_troll_rank_3": {
+    "monster_id": "bridge_troll",
+    "bond_rank": 3,
+    "title": "무너져도 괜찮은 다리",
+    "summary": "벙벙은 다리 옆에 '이 다리가 무너지면 제가 다리가 됩니다'라는 팻말을 직접 새겼다.",
+    "quote": "튼튼한 다리 말고, 지키고 싶은 다리를 찾은 거예요."
+  },
+  "bond_under_bed_shadow_rank_1": {
+    "monster_id": "under_bed_shadow",
+    "bond_rank": 1,
+    "title": "뒤에서 하는 인사",
+    "summary": "쉿은 처음으로 마왕의 앞에서 인사하려다 실패하고, 대신 그림자 손으로 망토 먼지를 털어 주었다.",
+    "quote": "앞에서는… 아직 부끄러워요."
+  },
+  "bond_under_bed_shadow_rank_2": {
+    "monster_id": "under_bed_shadow",
+    "bond_rank": 2,
+    "title": "안 무서운 밤",
+    "summary": "병영 막내가 악몽을 꾼 밤, 쉿은 침대 밑에 들어가 밤새 '괜찮아'라고 속삭였다.",
+    "quote": "무서운 것보다… 옆에 있는 게 더 좋은 거였어요."
+  },
+  "bond_under_bed_shadow_rank_3": {
+    "monster_id": "under_bed_shadow",
+    "bond_rank": 3,
+    "title": "이름을 불러 준 날",
+    "summary": "마왕이 어둠을 향해 '쉿, 거기 있지?'라고 부른 날, 쉿은 처음으로 그림자 밖으로 나왔다.",
+    "quote": "찾아 주는 사람이 있으면, 그림자도 집이 생겨요."
+  },
+  "bond_hollow_armor_rank_1": {
+    "monster_id": "hollow_armor",
+    "bond_rank": 1,
+    "title": "빈 투구 속 이름",
+    "summary": "투구 안쪽에 새겨진 옛 주인의 이름 옆에, 텅텅은 몰래 '텅텅'이라고 작게 새겼다.",
+    "quote": "안이 비어 있어도, 이름은 하나쯤 있어야지."
+  },
+  "bond_hollow_armor_rank_2": {
+    "monster_id": "hollow_armor",
+    "bond_rank": 2,
+    "title": "녹 닦는 저녁",
+    "summary": "푸딩이 젤 손으로 텅텅의 녹을 닦아 주자, 텅텅은 처음으로 갑옷 안이 따뜻하다고 느꼈다.",
+    "quote": "용사는 혼자인 줄 알았다. 식구가 있는 용사도 있구나."
+  },
+  "bond_hollow_armor_rank_3": {
+    "monster_id": "hollow_armor",
+    "bond_rank": 3,
+    "title": "옥좌 앞의 맹세",
+    "summary": "레온이 오기 전날 밤, 텅텅은 옥좌 앞에 무릎 꿇고 옛 주인이 아닌 지금의 식구에게 맹세했다.",
+    "quote": "정의는 모르겠다. 하지만 이 자리는 내가 지킨다."
+  },
+  "bond_candle_wisp_rank_1": {
+    "monster_id": "candle_wisp",
+    "bond_rank": 1,
+    "title": "200년 된 심지",
+    "summary": "녹녹은 자기 심지가 초대 마왕의 생일 케이크에서 왔다는 이야기를 처음으로 털어놓았다.",
+    "quote": "축하하려고 켜진 불이니까, 쉽게 꺼질 순 없지!"
+  },
+  "bond_candle_wisp_rank_2": {
+    "monster_id": "candle_wisp",
+    "bond_rank": 2,
+    "title": "양동이 경보",
+    "summary": "천장에서 물이 새자 녹녹은 비명을 지르면서도 식구들 침대 위의 양동이부터 옮겼다.",
+    "quote": "무서운 건 무서운 거고, 할 일은 할 일이야!"
+  },
+  "bond_candle_wisp_rank_3": {
+    "monster_id": "candle_wisp",
+    "bond_rank": 3,
+    "title": "꺼지지 않는 방",
+    "summary": "마왕이 옥좌 위에 작은 지붕을 달아 주자, 녹녹은 처음으로 떨지 않고 밤새 타올랐다.",
+    "quote": "여기선 안 꺼져도 돼. 지켜 주는 지붕이 있으니까."
+  },
+  "bond_mole_digger_rank_1": {
+    "monster_id": "mole_digger",
+    "bond_rank": 1,
+    "title": "무너진 갱도",
+    "summary": "파파는 붕괴 때 마지막까지 동료 공병의 이름을 불렀지만, 돌아온 건 곱의 목소리뿐이었다.",
+    "quote": "안전 제일이라고 외친 건, 날 버린 쪽이 아니라 나였지."
+  },
+  "bond_mole_digger_rank_2": {
+    "monster_id": "mole_digger",
+    "bond_rank": 2,
+    "title": "성 밑 지도",
+    "summary": "파파는 마왕성 밑 굴 지도를 그려 바티에게 건넸다. 비상 탈출로에는 식구 수만큼 표시가 있었다.",
+    "quote": "모두 나갈 길이 있어야 진짜 안전한 현장입니다."
+  },
+  "bond_mole_digger_rank_3": {
+    "monster_id": "mole_digger",
+    "bond_rank": 3,
+    "title": "안전모 두 개",
+    "summary": "파파는 곱에게 자기 것과 똑같은 작은 안전모를 선물했다.",
+    "quote": "구해 준 동료한테는, 제일 좋은 장비를 줘야죠."
+  },
+  "bond_crumpled_map_rank_1": {
+    "monster_id": "crumpled_map",
+    "bond_rank": 1,
+    "title": "세 개의 왕좌",
+    "summary": "꼬깃은 자기 몸에 그려진 왕좌 세 개 중 진짜가 어디냐는 질문에, 셋 다 마왕님 자리라고 우겼다.",
+    "quote": "왕좌가 하나뿐이면 침입자가 너무 쉽잖아!"
+  },
+  "bond_crumpled_map_rank_2": {
+    "monster_id": "crumpled_map",
+    "bond_rank": 2,
+    "title": "다림질",
+    "summary": "골딘이 장부 누르는 돌로 꼬깃의 구김을 펴 주자, 꼬깃은 처음으로 자기 지도를 똑바로 읽었다.",
+    "quote": "펴고 보니… 내가 그린 길, 다 집으로 가고 있었네."
+  },
+  "bond_crumpled_map_rank_3": {
+    "monster_id": "crumpled_map",
+    "bond_rank": 3,
+    "title": "새로 그린 지도",
+    "summary": "꼬깃은 몸 한쪽에 식구들 방을 하나하나 새로 그려 넣었다. 그 부분만은 한 번도 틀리지 않았다.",
+    "quote": "밖에선 헤매게 하고, 안에선 길을 잃지 않게 할게."
+  },
+  "bond_rat_union_rank_1": {
+    "monster_id": "rat_union",
+    "bond_rank": 1,
+    "title": "단체 협약서",
+    "summary": "찍찍단은 협약서에 발도장을 세 번 찍었고, 골딘은 처음으로 지출 장부에 '치즈'라는 항목을 만들었다.",
+    "quote": "찍! 찍! 찍! (계약은 셋이 지킨다!)"
+  },
+  "bond_rat_union_rank_2": {
+    "monster_id": "rat_union",
+    "bond_rank": 2,
+    "title": "야근 수당",
+    "summary": "도둑을 잡은 밤, 찍찍단은 수당으로 받은 치즈를 반으로 나눠 느릿에게 가져다주었다.",
+    "quote": "제일 늦게 오는 동료 몫은 미리 떼어 두는 거다!"
+  },
+  "bond_rat_union_rank_3": {
+    "monster_id": "rat_union",
+    "bond_rank": 3,
+    "title": "원래 주인",
+    "summary": "찍찍단은 동굴의 진짜 주인은 자기들이라는 주장을 거두고, 마왕성 문패 아래 작은 글씨로 자기들 이름을 새겼다.",
+    "quote": "주인 말고 식구로 하자. 그게 더 오래 간다!"
+  },
+  "bond_curse_doll_rank_1": {
+    "monster_id": "curse_doll",
+    "bond_rank": 1,
+    "title": "서른두 군데 실밥",
+    "summary": "실키가 마지막 실밥을 매듭짓자, 누비는 처음으로 '저주해 줄게' 대신 '고마워'라고 말했다.",
+    "quote": "꿰매 준 손은… 저주하지 않을게."
+  },
+  "bond_curse_doll_rank_2": {
+    "monster_id": "curse_doll",
+    "bond_rank": 2,
+    "title": "니아에게 보낸 편지",
+    "summary": "누비는 니아에게 '버려 줘서 고마워'라는 편지를 보냈고, 니아는 답장 없이 사탕 한 봉지를 문 앞에 두고 갔다.",
+    "quote": "무서워해도 괜찮아. 다음엔 놀러 와."
+  },
+  "bond_curse_doll_rank_3": {
+    "monster_id": "curse_doll",
+    "bond_rank": 3,
+    "title": "대신 아픈 자리",
+    "summary": "큰 전투 뒤 누비의 몸에 새 실밥이 늘자, 식구들은 돌아가며 한 땀씩 꿰매 주었다.",
+    "quote": "이제 내 몸엔 식구들 바늘땀이 제일 많아."
+  },
+  "bond_spore_healer_rank_1": {
+    "monster_id": "spore_healer",
+    "bond_rank": 1,
+    "title": "포자 이불",
+    "summary": "첫 전투 뒤 모리는 다친 푸딩 위에 포자를 이불처럼 덮어 두고 밤새 곁을 지켰다.",
+    "quote": "상처는 천천히 낫는 게 제일 덜 아파."
+  },
+  "bond_spore_healer_rank_2": {
+    "monster_id": "spore_healer",
+    "bond_rank": 2,
+    "title": "곰팡이와 버섯 사이",
+    "summary": "골딘이 왕좌의 곰팡이를 걱정하자, 모리는 곰팡이를 버섯 정원으로 바꿔 '권위의 정원'이라 이름 붙였다.",
+    "quote": "습한 곳에서도 예쁘게 자랄 수 있어."
+  },
+  "bond_spore_healer_rank_3": {
+    "monster_id": "spore_healer",
+    "bond_rank": 3,
+    "title": "정화의 꽃",
+    "summary": "모리는 마왕성에서 처음 핀 하얀 버섯꽃을 마왕의 망토 단추 구멍에 꽂아 주었다.",
+    "quote": "이 성이 건강해지면, 나도 피는 거야."
+  },
+  "bond_stone_sentinel_rank_1": {
+    "monster_id": "stone_sentinel",
+    "bond_rank": 1,
+    "title": "굴러온 돌",
+    "summary": "돌콩은 산사태에 굴러 내려와 입구에 박혔고, 아무도 빼내지 못하자 그대로 문지기가 되었다.",
+    "quote": "굴러온 돌이 박힌 돌 된다. 콩."
+  },
+  "bond_stone_sentinel_rank_2": {
+    "monster_id": "stone_sentinel",
+    "bond_rank": 2,
+    "title": "이끼 목도리",
+    "summary": "퐁당이 물을 뿌려 키운 이끼가 돌콩의 목을 감싸자, 돌콩은 처음으로 춥지 않다고 했다.",
+    "quote": "돌도 따뜻해질 수 있다. 콩."
+  },
+  "bond_stone_sentinel_rank_3": {
+    "monster_id": "stone_sentinel",
+    "bond_rank": 3,
+    "title": "움직이지 않는 이유",
+    "summary": "돌콩은 한 번도 자리를 뜨지 않은 이유를 묻자, 자기가 비키면 식구들이 지나갈 길이 막힌다고 했다.",
+    "quote": "내가 서 있는 곳이, 다들 돌아오는 문이다. 콩."
+  },
+  "bond_war_drummer_rank_1": {
+    "monster_id": "war_drummer",
+    "bond_rank": 1,
+    "title": "깨진 북",
+    "summary": "두둠의 북은 왕국 축제에서 깨져 버려졌던 것이었고, 핀이 불로 가죽을 말려 다시 소리를 살렸다.",
+    "quote": "둥! 다시 울리면 다시 시작이다!"
+  },
+  "bond_war_drummer_rank_2": {
+    "monster_id": "war_drummer",
+    "bond_rank": 2,
+    "title": "빗소리 박자",
+    "summary": "비 새는 밤, 두둠은 천장 물방울 박자에 맞춰 북을 쳐서 모두의 잠을 깨웠다가 크게 혼났다.",
+    "quote": "박자가 너무 좋아서 참을 수가 없었어. 둥…"
+  },
+  "bond_war_drummer_rank_3": {
+    "monster_id": "war_drummer",
+    "bond_rank": 3,
+    "title": "행진곡의 이름",
+    "summary": "두둠은 식구들 이름을 하나씩 넣은 행진곡을 만들었고, 마지막 소절은 비워 두었다.",
+    "quote": "새 식구가 오면 채울 자리야. 둥둥!"
+  },
+  "bond_moon_tracker_rank_1": {
+    "monster_id": "moon_tracker",
+    "bond_rank": 1,
+    "title": "달 없는 동굴",
+    "summary": "달빛 추적자인 루미는 달이 안 보이는 동굴이 싫었지만, 녹녹의 촛불을 '작은 달'이라 부르며 적응했다.",
+    "quote": "달이 없으면 만들면 돼. 작게라도."
+  },
+  "bond_moon_tracker_rank_2": {
+    "monster_id": "moon_tracker",
+    "bond_rank": 2,
+    "title": "놓친 표적",
+    "summary": "루미는 처음으로 표적을 놓친 날, 쫓는 대신 다친 곱을 업고 돌아왔다.",
+    "quote": "쫓을 건 또 와. 식구는 한 번 놓치면 끝이야."
+  },
+  "bond_moon_tracker_rank_3": {
+    "monster_id": "moon_tracker",
+    "bond_rank": 3,
+    "title": "표식의 의미",
+    "summary": "루미는 식구들 이마에 보이지 않는 달빛 표식을 남겼다. 길을 잃어도 찾을 수 있도록.",
+    "quote": "내 표식은 원래 찾으려고 남기는 거야."
+  },
+  "bond_mimic_porter_rank_1": {
+    "monster_id": "mimic_porter",
+    "bond_rank": 1,
+    "title": "열어 보지 마세요",
+    "summary": "미미 뚜껑에 붙은 '열어 보지 마세요' 쪽지는, 사실 미미가 수줍어서 스스로 붙인 것이었다.",
+    "quote": "열면… 놀라는 건 내가 먼저야."
+  },
+  "bond_mimic_porter_rank_2": {
+    "monster_id": "mimic_porter",
+    "bond_rank": 2,
+    "title": "진짜 보물",
+    "summary": "미미는 몸 안에 가짜 보물만 넣고 다니다가, 어느 날 식구들이 준 조약돌 하나를 진짜 보물로 넣었다.",
+    "quote": "이건 아무한테도 안 뱉을 거야."
+  },
+  "bond_mimic_porter_rank_3": {
+    "monster_id": "mimic_porter",
+    "bond_rank": 3,
+    "title": "짐꾼의 꿈",
+    "summary": "미미는 언젠가 마왕성이 이사 가는 날, 식구들 짐을 전부 자기가 나르겠다고 약속했다.",
+    "quote": "큰 성이 되면 나도 커질 거야. 다 담을 수 있게."
+  }
+}

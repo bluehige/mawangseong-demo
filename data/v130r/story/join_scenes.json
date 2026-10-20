@@ -1,0 +1,2661 @@
+{
+  "schema_version": 1,
+  "locale": "ko",
+  "status": "draft",
+  "scope": "v130r_story_staging_0111",
+  "kind": "join",
+  "scenes": [
+    {
+      "id": "V130R_JOIN_RIVER_FROG",
+      "title": "퐁당",
+      "trigger": "management_entered",
+      "seed_scene_id": "join_river_frog",
+      "seed_line_count": 4,
+      "monster_id": "river_frog",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "river_frog"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 6,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "당황",
+          "portrait_emotion": "base",
+          "text": "마왕님, 오늘도 왕좌에 젖은 종이가 붙어 있습니다.",
+          "id": "V130R_JOIN_RIVER_FROG_001",
+          "line": "[골딘|당황]: 마왕님, 오늘도 왕좌에 젖은 종이가 붙어 있습니다."
+        },
+        {
+          "speaker_id": "CHR_PONGDANG",
+          "speaker_label": "퐁당",
+          "emotion_direction": "무표정",
+          "portrait_emotion": "base",
+          "text": "연못 반환 요구서 37번째인데요.",
+          "id": "V130R_JOIN_RIVER_FROG_002",
+          "line": "[퐁당|무표정]: 연못 반환 요구서 37번째인데요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "발끈",
+          "portrait_emotion": "base",
+          "text": "여긴 내 성이다!",
+          "id": "V130R_JOIN_RIVER_FROG_003",
+          "line": "[마왕|발끈]: 여긴 내 성이다!"
+        },
+        {
+          "speaker_id": "CHR_PONGDANG",
+          "speaker_label": "퐁당",
+          "emotion_direction": "단호",
+          "portrait_emotion": "determined",
+          "text": "그럼 세입자로 하죠. 월세는 다리 지키기로 내겠는데요.",
+          "id": "V130R_JOIN_RIVER_FROG_004",
+          "line": "[퐁당|단호]: 그럼 세입자로 하죠. 월세는 다리 지키기로 내겠는데요."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "집세보다 먼저 확인할 것이 있습니다. 물길을 메우겠다는 왕국 공문입니다.",
+          "id": "V130R_JOIN_RIVER_FROG_005",
+          "line": "[바티|건조]: 집세보다 먼저 확인할 것이 있습니다. 물길을 메우겠다는 왕국 공문입니다."
+        },
+        {
+          "speaker_id": "CHR_PONGDANG",
+          "speaker_label": "퐁당",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "제 연못에 흙을 붓겠다는 건데요. 그쪽은 세입자로도 안 받겠는데요.",
+          "id": "V130R_JOIN_RIVER_FROG_006",
+          "line": "[퐁당|결심]: 제 연못에 흙을 붓겠다는 건데요. 그쪽은 세입자로도 안 받겠는데요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "좋다! 나의 위엄 아래 연못의 물 한 방울까지 보호하겠다!",
+          "id": "V130R_JOIN_RIVER_FROG_007",
+          "line": "[마왕|허세]: 좋다! 나의 위엄 아래 연못의 물 한 방울까지 보호하겠다!"
+        },
+        {
+          "speaker_id": "CHR_PONGDANG",
+          "speaker_label": "퐁당",
+          "emotion_direction": "무표정",
+          "portrait_emotion": "base",
+          "text": "그럼 망토 끝부터 빼 주세요. 지금 제 거실을 닦고 계신데요.",
+          "id": "V130R_JOIN_RIVER_FROG_008",
+          "line": "[퐁당|무표정]: 그럼 망토 끝부터 빼 주세요. 지금 제 거실을 닦고 계신데요."
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_RIVER_FROG",
+      "title": "퐁당",
+      "trigger": "precombat_confirmed",
+      "monster_id": "river_frog",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "river_frog"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 6,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_PONGDANG",
+          "speaker_label": "퐁당",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "니아 씨가 건너오면 혀로 멈춰 볼 건데요. 동전 말고 발만 잡아요.",
+          "id": "V130R_FIRST_COMBAT_RIVER_FROG_001",
+          "line": "[퐁당|결심]: 니아 씨가 건너오면 혀로 멈춰 볼 건데요. 동전 말고 발만 잡아요."
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "동전도 잡을 수 있다면 면담을 한 번 더 합시다.",
+          "id": "V130R_FIRST_COMBAT_RIVER_FROG_002",
+          "line": "[골딘|계산]: 동전도 잡을 수 있다면 면담을 한 번 더 합시다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_GLUE_SNAIL",
+      "title": "느릿",
+      "trigger": "management_entered",
+      "seed_scene_id": "join_glue_snail",
+      "seed_line_count": 4,
+      "monster_id": "glue_snail",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "glue_snail",
+          "imp"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 8,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "사흘 전 입구에서 출발한 손님이 이제 막 도착했습니다.",
+          "id": "V130R_JOIN_GLUE_SNAIL_001",
+          "line": "[바티|건조]: 사흘 전 입구에서 출발한 손님이 이제 막 도착했습니다."
+        },
+        {
+          "speaker_id": "CHR_NEURIT",
+          "speaker_label": "느릿",
+          "emotion_direction": "숨참",
+          "portrait_emotion": "base",
+          "text": "저… 여기… 방… 있…나요…",
+          "id": "V130R_JOIN_GLUE_SNAIL_002",
+          "line": "[느릿|숨참]: 저… 여기… 방… 있…나요…"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "감동",
+          "portrait_emotion": "base",
+          "text": "사흘을 걸어왔다고? 그 끈기, 마왕성에 필요하다!",
+          "id": "V130R_JOIN_GLUE_SNAIL_003",
+          "line": "[마왕|감동]: 사흘을 걸어왔다고? 그 끈기, 마왕성에 필요하다!"
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "유지비가 하루 식량 1입니다. 이동 속도 대비 아주 합리적이군요.",
+          "id": "V130R_JOIN_GLUE_SNAIL_004",
+          "line": "[골딘|계산]: 유지비가 하루 식량 1입니다. 이동 속도 대비 아주 합리적이군요."
+        },
+        {
+          "speaker_id": "CHR_NEURIT",
+          "speaker_label": "느릿",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "base",
+          "text": "집은… 있는데… 돌아올… 곳이… 없어서요…",
+          "id": "V130R_JOIN_GLUE_SNAIL_005",
+          "line": "[느릿|속삭임]: 집은… 있는데… 돌아올… 곳이… 없어서요…"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "그럼 여기로 돌아오면 된다. 내 환영 연설은 아직 두 장 남았다.",
+          "id": "V130R_JOIN_GLUE_SNAIL_006",
+          "line": "[마왕|허세]: 그럼 여기로 돌아오면 된다. 내 환영 연설은 아직 두 장 남았다."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "연설이 끝나기 전에는 충분히 도착하시겠습니다.",
+          "id": "V130R_JOIN_GLUE_SNAIL_007",
+          "line": "[바티|건조]: 연설이 끝나기 전에는 충분히 도착하시겠습니다."
+        },
+        {
+          "speaker_id": "CHR_NEURIT",
+          "speaker_label": "느릿",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "처음으로… 제가… 빠르네요…",
+          "id": "V130R_JOIN_GLUE_SNAIL_008",
+          "line": "[느릿|기쁨]: 처음으로… 제가… 빠르네요…"
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_GLUE_SNAIL",
+      "title": "느릿",
+      "trigger": "precombat_confirmed",
+      "monster_id": "glue_snail",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "glue_snail",
+          "imp"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 8,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_NEURIT",
+          "speaker_label": "느릿",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "함정 길에… 흔적… 남길게요… 식구들은… 옆으로…",
+          "id": "V130R_FIRST_COMBAT_GLUE_SNAIL_001",
+          "line": "[느릿|결심]: 함정 길에… 흔적… 남길게요… 식구들은… 옆으로…"
+        },
+        {
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "base",
+          "text": "알았어. 네가 깔고 내가 데울게. 집까지 굽진 않고.",
+          "id": "V130R_FIRST_COMBAT_GLUE_SNAIL_002",
+          "line": "[핀|자신만만]: 알았어. 네가 깔고 내가 데울게. 집까지 굽진 않고."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_BRIDGE_TROLL",
+      "title": "벙벙",
+      "trigger": "management_entered",
+      "seed_scene_id": "join_bridge_troll",
+      "seed_line_count": 4,
+      "monster_id": "bridge_troll",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "bridge_troll"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 13,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_BEONGBEONG",
+          "speaker_label": "벙벙",
+          "emotion_direction": "간절",
+          "portrait_emotion": "determined",
+          "text": "이력서입니다! 경력: 다리 지키기 40년!",
+          "id": "V130R_JOIN_BRIDGE_TROLL_001",
+          "line": "[벙벙|간절]: 이력서입니다! 경력: 다리 지키기 40년!"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "마지막 직장 퇴사 사유가 '다리가 너무 튼튼해짐'이군요.",
+          "id": "V130R_JOIN_BRIDGE_TROLL_002",
+          "line": "[바티|확인]: 마지막 직장 퇴사 사유가 '다리가 너무 튼튼해짐'이군요."
+        },
+        {
+          "speaker_id": "CHR_BEONGBEONG",
+          "speaker_label": "벙벙",
+          "emotion_direction": "울먹",
+          "portrait_emotion": "base",
+          "text": "이 다리는… 이 다리는 정말 금방 무너질 것 같아요! 제가 필요해요!",
+          "id": "V130R_JOIN_BRIDGE_TROLL_003",
+          "line": "[벙벙|울먹]: 이 다리는… 이 다리는 정말 금방 무너질 것 같아요! 제가 필요해요!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "복잡",
+          "portrait_emotion": "base",
+          "text": "칭찬인지 욕인지 모르겠지만, 채용이다.",
+          "id": "V130R_JOIN_BRIDGE_TROLL_004",
+          "line": "[마왕|복잡]: 칭찬인지 욕인지 모르겠지만, 채용이다."
+        },
+        {
+          "speaker_id": "CHR_BEONGBEONG",
+          "speaker_label": "벙벙",
+          "emotion_direction": "울먹",
+          "portrait_emotion": "base",
+          "text": "근무지를 잃으면 이름도 필요 없어지는 줄 알았어요.",
+          "id": "V130R_JOIN_BRIDGE_TROLL_005",
+          "line": "[벙벙|울먹]: 근무지를 잃으면 이름도 필요 없어지는 줄 알았어요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "결심",
+          "portrait_emotion": "serious",
+          "text": "여기선 벙벙이라고 부른다. 다리가 튼튼해져도 이름은 그대로다.",
+          "id": "V130R_JOIN_BRIDGE_TROLL_006",
+          "line": "[마왕|결심]: 여기선 벙벙이라고 부른다. 다리가 튼튼해져도 이름은 그대로다."
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "울음은 물가 쪽으로 부탁드립니다. 서류가 젖으면 재발급 비용이 듭니다.",
+          "id": "V130R_JOIN_BRIDGE_TROLL_007",
+          "line": "[골딘|계산]: 울음은 물가 쪽으로 부탁드립니다. 서류가 젖으면 재발급 비용이 듭니다."
+        },
+        {
+          "speaker_id": "CHR_BEONGBEONG",
+          "speaker_label": "벙벙",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "네! 눈물도 지정된 자리에서 흘리겠습니다!",
+          "id": "V130R_JOIN_BRIDGE_TROLL_008",
+          "line": "[벙벙|기쁨]: 네! 눈물도 지정된 자리에서 흘리겠습니다!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_BRIDGE_TROLL",
+      "title": "벙벙",
+      "trigger": "precombat_confirmed",
+      "monster_id": "bridge_troll",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "bridge_troll"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 13,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_BEONGBEONG",
+          "speaker_label": "벙벙",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "방패가 크네요. 그래도 제 다리는 못 지나갑니다!",
+          "id": "V130R_FIRST_COMBAT_BRIDGE_TROLL_001",
+          "line": "[벙벙|결심]: 방패가 크네요. 그래도 제 다리는 못 지나갑니다!"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "다리와 함께 버티십시오. 다리 대신 무너지지는 마시고요.",
+          "id": "V130R_FIRST_COMBAT_BRIDGE_TROLL_002",
+          "line": "[바티|건조]: 다리와 함께 버티십시오. 다리 대신 무너지지는 마시고요."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_UNDER_BED_SHADOW",
+      "title": "쉿",
+      "trigger": "management_entered",
+      "seed_scene_id": "join_under_bed_shadow",
+      "seed_line_count": 4,
+      "monster_id": "under_bed_shadow",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "under_bed_shadow"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 10,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "흠칫",
+          "portrait_emotion": "base",
+          "text": "…방금 누가 내 뒤에서 '안녕'이라고 했나?",
+          "id": "V130R_JOIN_UNDER_BED_SHADOW_001",
+          "line": "[마왕|흠칫]: …방금 누가 내 뒤에서 '안녕'이라고 했나?"
+        },
+        {
+          "speaker_id": "CHR_SHH",
+          "speaker_label": "쉿",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "base",
+          "text": "무서웠어요…?",
+          "id": "V130R_JOIN_UNDER_BED_SHADOW_002",
+          "line": "[쉿|속삭임]: 무서웠어요…?"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "전혀! 마왕은 겁먹지 않는다!",
+          "id": "V130R_JOIN_UNDER_BED_SHADOW_003",
+          "line": "[마왕|허세]: 전혀! 마왕은 겁먹지 않는다!"
+        },
+        {
+          "speaker_id": "CHR_SHH",
+          "speaker_label": "쉿",
+          "emotion_direction": "시무룩",
+          "portrait_emotion": "base",
+          "text": "…그럼 여기서 더 연습해도 돼요?",
+          "id": "V130R_JOIN_UNDER_BED_SHADOW_004",
+          "line": "[쉿|시무룩]: …그럼 여기서 더 연습해도 돼요?"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "등 뒤 인사는 성공입니다. 마왕님이 찻잔을 두 번 놓치셨습니다.",
+          "id": "V130R_JOIN_UNDER_BED_SHADOW_005",
+          "line": "[바티|건조]: 등 뒤 인사는 성공입니다. 마왕님이 찻잔을 두 번 놓치셨습니다."
+        },
+        {
+          "speaker_id": "CHR_SHH",
+          "speaker_label": "쉿",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "base",
+          "text": "그럼… 제 자리도… 등 뒤에 있나요?",
+          "id": "V130R_JOIN_UNDER_BED_SHADOW_006",
+          "line": "[쉿|속삭임]: 그럼… 제 자리도… 등 뒤에 있나요?"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "앞이든 뒤든 네 자리는 있다. 내 찻잔 바로 밑만 피해라.",
+          "id": "V130R_JOIN_UNDER_BED_SHADOW_007",
+          "line": "[마왕|허세]: 앞이든 뒤든 네 자리는 있다. 내 찻잔 바로 밑만 피해라."
+        },
+        {
+          "speaker_id": "CHR_SHH",
+          "speaker_label": "쉿",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "컵은… 받아 줄게요. 연습한 뒤에요…",
+          "id": "V130R_JOIN_UNDER_BED_SHADOW_008",
+          "line": "[쉿|기쁨]: 컵은… 받아 줄게요. 연습한 뒤에요…"
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_UNDER_BED_SHADOW",
+      "title": "쉿",
+      "trigger": "precombat_confirmed",
+      "monster_id": "under_bed_shadow",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "under_bed_shadow"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 10,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_SHH",
+          "speaker_label": "쉿",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "조사관이 돌아보면… 그 뒤로 갈게요…",
+          "id": "V130R_FIRST_COMBAT_UNDER_BED_SHADOW_001",
+          "line": "[쉿|결심]: 조사관이 돌아보면… 그 뒤로 갈게요…"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "놀라게 하는 대상만 정확히 기억하십시오. 저는 이미 출근했습니다.",
+          "id": "V130R_FIRST_COMBAT_UNDER_BED_SHADOW_002",
+          "line": "[바티|건조]: 놀라게 하는 대상만 정확히 기억하십시오. 저는 이미 출근했습니다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_HOLLOW_ARMOR",
+      "title": "텅텅",
+      "trigger": "management_entered",
+      "seed_scene_id": "join_hollow_armor",
+      "seed_line_count": 4,
+      "monster_id": "hollow_armor",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "hollow_armor"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 25,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_TEONGTEONG",
+          "speaker_label": "텅텅",
+          "emotion_direction": "정의감",
+          "portrait_emotion": "determined",
+          "text": "멈춰라, 악의 마왕! 이 몸이 정의의 이름으로…",
+          "id": "V130R_JOIN_HOLLOW_ARMOR_001",
+          "line": "[텅텅|정의감]: 멈춰라, 악의 마왕! 이 몸이 정의의 이름으로…"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "지금 마왕성 고용 계약서에 서명하셨습니다.",
+          "id": "V130R_JOIN_HOLLOW_ARMOR_002",
+          "line": "[바티|건조]: 지금 마왕성 고용 계약서에 서명하셨습니다."
+        },
+        {
+          "speaker_id": "CHR_TEONGTEONG",
+          "speaker_label": "텅텅",
+          "emotion_direction": "당황",
+          "portrait_emotion": "base",
+          "text": "…악의 마왕님, 근무 시간은 어떻게 됩니까?",
+          "id": "V130R_JOIN_HOLLOW_ARMOR_003",
+          "line": "[텅텅|당황]: …악의 마왕님, 근무 시간은 어떻게 됩니까?"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "흡족",
+          "portrait_emotion": "base",
+          "text": "옥좌 앞이다. 거기가 이 성에서 제일 용사다운 자리다.",
+          "id": "V130R_JOIN_HOLLOW_ARMOR_004",
+          "line": "[마왕|흡족]: 옥좌 앞이다. 거기가 이 성에서 제일 용사다운 자리다."
+        },
+        {
+          "speaker_id": "CHR_TEONGTEONG",
+          "speaker_label": "텅텅",
+          "emotion_direction": "당황",
+          "portrait_emotion": "base",
+          "text": "레온이 보면… 빈 갑옷이 용사 흉내 낸다고 하겠지요.",
+          "id": "V130R_JOIN_HOLLOW_ARMOR_005",
+          "line": "[텅텅|당황]: 레온이 보면… 빈 갑옷이 용사 흉내 낸다고 하겠지요."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "결심",
+          "portrait_emotion": "serious",
+          "text": "내 뒤에 선 식구를 지키는데 속이 찼는지 누가 따지느냐.",
+          "id": "V130R_JOIN_HOLLOW_ARMOR_006",
+          "line": "[마왕|결심]: 내 뒤에 선 식구를 지키는데 속이 찼는지 누가 따지느냐."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "다만 빗물은 비우십시오. 걸을 때마다 출렁입니다.",
+          "id": "V130R_JOIN_HOLLOW_ARMOR_007",
+          "line": "[바티|건조]: 다만 빗물은 비우십시오. 걸을 때마다 출렁입니다."
+        },
+        {
+          "speaker_id": "CHR_TEONGTEONG",
+          "speaker_label": "텅텅",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "정의의 배수부터 실시하겠습니다!",
+          "id": "V130R_JOIN_HOLLOW_ARMOR_008",
+          "line": "[텅텅|기쁨]: 정의의 배수부터 실시하겠습니다!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_HOLLOW_ARMOR",
+      "title": "텅텅",
+      "trigger": "precombat_confirmed",
+      "monster_id": "hollow_armor",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "hollow_armor"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 25,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_TEONGTEONG",
+          "speaker_label": "텅텅",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "레온이 온다… 정의는 모르겠지만, 내 뒤의 이름들은 압니다.",
+          "id": "V130R_FIRST_COMBAT_HOLLOW_ARMOR_001",
+          "line": "[텅텅|결심]: 레온이 온다… 정의는 모르겠지만, 내 뒤의 이름들은 압니다."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "그것부터 지켜라. 나머지 연설은 내가 맡는다.",
+          "id": "V130R_FIRST_COMBAT_HOLLOW_ARMOR_002",
+          "line": "[마왕|허세]: 그것부터 지켜라. 나머지 연설은 내가 맡는다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_CANDLE_WISP",
+      "title": "녹녹",
+      "trigger": "management_entered",
+      "seed_scene_id": "join_candle_wisp",
+      "seed_line_count": 4,
+      "monster_id": "candle_wisp",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "candle_wisp"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 15,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_SELEN",
+          "speaker_label": "셀렌",
+          "emotion_direction": "엄숙",
+          "portrait_emotion": "base",
+          "text": "어둠의 소굴에 빛을 들이겠습니다.",
+          "id": "V130R_JOIN_CANDLE_WISP_001",
+          "line": "[셀렌|엄숙]: 어둠의 소굴에 빛을 들이겠습니다."
+        },
+        {
+          "speaker_id": "CHR_NOKNOK",
+          "speaker_label": "녹녹",
+          "emotion_direction": "발끈",
+          "portrait_emotion": "determined",
+          "text": "빛 담당은 여기 이미 있거든요?! 양초 경력 200년!",
+          "id": "V130R_JOIN_CANDLE_WISP_002",
+          "line": "[녹녹|발끈]: 빛 담당은 여기 이미 있거든요?! 양초 경력 200년!"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "기록",
+          "portrait_emotion": "base",
+          "text": "촛대에서 양초가 직접 걸어 나왔습니다. 인사 서류는 제가 처리하겠습니다.",
+          "id": "V130R_JOIN_CANDLE_WISP_003",
+          "line": "[바티|기록]: 촛대에서 양초가 직접 걸어 나왔습니다. 인사 서류는 제가 처리하겠습니다."
+        },
+        {
+          "speaker_id": "CHR_NOKNOK",
+          "speaker_label": "녹녹",
+          "emotion_direction": "비명",
+          "portrait_emotion": "base",
+          "text": "으악 물방울! …아무튼 잘 부탁해요!",
+          "id": "V130R_JOIN_CANDLE_WISP_004",
+          "line": "[녹녹|비명]: 으악 물방울! …아무튼 잘 부탁해요!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "이백 년 경력이면 나보다 선임 아닌가?",
+          "id": "V130R_JOIN_CANDLE_WISP_005",
+          "line": "[마왕|허세]: 이백 년 경력이면 나보다 선임 아닌가?"
+        },
+        {
+          "speaker_id": "CHR_NOKNOK",
+          "speaker_label": "녹녹",
+          "emotion_direction": "겁",
+          "portrait_emotion": "base",
+          "text": "선임이면 지붕부터 주세요! 저 물방울 방금 저 봤어요!",
+          "id": "V130R_JOIN_CANDLE_WISP_006",
+          "line": "[녹녹|겁]: 선임이면 지붕부터 주세요! 저 물방울 방금 저 봤어요!"
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "양초에 지붕을 씌우는 지출은 처음입니다. 장부가 낯을 가리는군요.",
+          "id": "V130R_JOIN_CANDLE_WISP_007",
+          "line": "[골딘|계산]: 양초에 지붕을 씌우는 지출은 처음입니다. 장부가 낯을 가리는군요."
+        },
+        {
+          "speaker_id": "CHR_NOKNOK",
+          "speaker_label": "녹녹",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "저도 처음으로 걸어 나왔거든요! 장부랑 같이 적응할게요!",
+          "id": "V130R_JOIN_CANDLE_WISP_008",
+          "line": "[녹녹|기쁨]: 저도 처음으로 걸어 나왔거든요! 장부랑 같이 적응할게요!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_CANDLE_WISP",
+      "title": "녹녹",
+      "trigger": "precombat_confirmed",
+      "monster_id": "candle_wisp",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "candle_wisp"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 15,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_NOKNOK",
+          "speaker_label": "녹녹",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "셀렌 씨 빛보다 큰지는 몰라도, 우리 집은 제가 비출게요!",
+          "id": "V130R_FIRST_COMBAT_CANDLE_WISP_001",
+          "line": "[녹녹|결심]: 셀렌 씨 빛보다 큰지는 몰라도, 우리 집은 제가 비출게요!"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "경력 소개는 짧게. 물방울 경보는 정확하게 부탁합니다.",
+          "id": "V130R_FIRST_COMBAT_CANDLE_WISP_002",
+          "line": "[바티|건조]: 경력 소개는 짧게. 물방울 경보는 정확하게 부탁합니다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_MOLE_DIGGER",
+      "title": "파파",
+      "trigger": "management_entered",
+      "seed_scene_id": "join_mole_digger",
+      "seed_line_count": 4,
+      "monster_id": "mole_digger",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "goblin",
+          "mole_digger"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 20,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "emotion_direction": "자랑",
+          "portrait_emotion": "base",
+          "text": "곱이 땅에서 뭐 주웠다! 안전모 쓴 두더지!",
+          "id": "V130R_JOIN_MOLE_DIGGER_001",
+          "line": "[곱|자랑]: 곱이 땅에서 뭐 주웠다! 안전모 쓴 두더지!"
+        },
+        {
+          "speaker_id": "CHR_PAPA",
+          "speaker_label": "파파",
+          "emotion_direction": "단호",
+          "portrait_emotion": "determined",
+          "text": "주운 게 아니라 구조한 겁니다. 안전 제일!",
+          "id": "V130R_JOIN_MOLE_DIGGER_002",
+          "line": "[파파|단호]: 주운 게 아니라 구조한 겁니다. 안전 제일!"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "왕국 공병대 출신이군요. 공사 일정표를 외우고 있습니까?",
+          "id": "V130R_JOIN_MOLE_DIGGER_003",
+          "line": "[바티|확인]: 왕국 공병대 출신이군요. 공사 일정표를 외우고 있습니까?"
+        },
+        {
+          "speaker_id": "CHR_PAPA",
+          "speaker_label": "파파",
+          "emotion_direction": "씩",
+          "portrait_emotion": "happy",
+          "text": "외우는 정도가 아니라, 어디가 부실 공사인지도 압니다.",
+          "id": "V130R_JOIN_MOLE_DIGGER_004",
+          "line": "[파파|씩]: 외우는 정도가 아니라, 어디가 부실 공사인지도 압니다."
+        },
+        {
+          "speaker_id": "CHR_PAPA",
+          "speaker_label": "파파",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "붕괴 때 왕국 동료들은 제 이름을 못 들은 척했죠.",
+          "id": "V130R_JOIN_MOLE_DIGGER_005",
+          "line": "[파파|확인]: 붕괴 때 왕국 동료들은 제 이름을 못 들은 척했죠."
+        },
+        {
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "emotion_direction": "씩",
+          "portrait_emotion": "base",
+          "text": "곱은 들었다! 소리 나는 데 팠다!",
+          "id": "V130R_JOIN_MOLE_DIGGER_006",
+          "line": "[곱|씩]: 곱은 들었다! 소리 나는 데 팠다!"
+        },
+        {
+          "speaker_id": "CHR_PAPA",
+          "speaker_label": "파파",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "다음부터는 버팀목 먼저! 구조한 사람까지 묻히면 안 됩니다!",
+          "id": "V130R_JOIN_MOLE_DIGGER_007",
+          "line": "[파파|결심]: 다음부터는 버팀목 먼저! 구조한 사람까지 묻히면 안 됩니다!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "좋다. 우리 성의 첫 안전 수칙은 곱도 무사히 돌아오기다.",
+          "id": "V130R_JOIN_MOLE_DIGGER_008",
+          "line": "[마왕|허세]: 좋다. 우리 성의 첫 안전 수칙은 곱도 무사히 돌아오기다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_MOLE_DIGGER",
+      "title": "파파",
+      "trigger": "precombat_confirmed",
+      "monster_id": "mole_digger",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "goblin",
+          "mole_digger"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 20,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_PAPA",
+          "speaker_label": "파파",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "로만의 공병은 받침부터 봅니다. 우리는 식구 발밑부터 봅시다!",
+          "id": "V130R_FIRST_COMBAT_MOLE_DIGGER_001",
+          "line": "[파파|결심]: 로만의 공병은 받침부터 봅니다. 우리는 식구 발밑부터 봅시다!"
+        },
+        {
+          "speaker_id": "CHR_GOB",
+          "speaker_label": "곱",
+          "emotion_direction": "씩",
+          "portrait_emotion": "base",
+          "text": "알았다! 땅 때리기 전에 옆에 누가 있나 본다!",
+          "id": "V130R_FIRST_COMBAT_MOLE_DIGGER_002",
+          "line": "[곱|씩]: 알았다! 땅 때리기 전에 옆에 누가 있나 본다!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_CRUMPLED_MAP",
+      "title": "꼬깃",
+      "trigger": "management_entered",
+      "seed_scene_id": "join_crumpled_map",
+      "seed_line_count": 4,
+      "monster_id": "crumpled_map",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "crumpled_map",
+          "kobold_scout"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 5,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_EXPLORER_MILO",
+          "speaker_label": "밀로",
+          "emotion_direction": "당황",
+          "portrait_emotion": "base",
+          "text": "이 지도에 왕좌가 세 군데나 표시되어 있는데요?",
+          "id": "V130R_JOIN_CRUMPLED_MAP_001",
+          "line": "[밀로|당황]: 이 지도에 왕좌가 세 군데나 표시되어 있는데요?"
+        },
+        {
+          "speaker_id": "CHR_KKOGIT",
+          "speaker_label": "꼬깃",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "happy",
+          "text": "셋 다 맞아! …아마도!",
+          "id": "V130R_JOIN_CRUMPLED_MAP_002",
+          "line": "[꼬깃|자신만만]: 셋 다 맞아! …아마도!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "감탄",
+          "portrait_emotion": "base",
+          "text": "침입자를 헤매게 하는 지도라니, 이건 보물이다!",
+          "id": "V130R_JOIN_CRUMPLED_MAP_003",
+          "line": "[마왕|감탄]: 침입자를 헤매게 하는 지도라니, 이건 보물이다!"
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "종이라서 유지비가 식량 1입니다. 단, 핀 근처는 피하라고 하십시오.",
+          "id": "V130R_JOIN_CRUMPLED_MAP_004",
+          "line": "[골딘|계산]: 종이라서 유지비가 식량 1입니다. 단, 핀 근처는 피하라고 하십시오."
+        },
+        {
+          "speaker_id": "CHR_KKOGIT",
+          "speaker_label": "꼬깃",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "happy",
+          "text": "내가 틀린 게 아니라 동굴이 자꾸 접히는 거야!",
+          "id": "V130R_JOIN_CRUMPLED_MAP_005",
+          "line": "[꼬깃|자신만만]: 내가 틀린 게 아니라 동굴이 자꾸 접히는 거야!"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "현재 접힌 것은 손님 본인입니다.",
+          "id": "V130R_JOIN_CRUMPLED_MAP_006",
+          "line": "[바티|건조]: 현재 접힌 것은 손님 본인입니다."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "식구에게는 귀환로, 침입자에게는 관광 코스다. 할 수 있겠나?",
+          "id": "V130R_JOIN_CRUMPLED_MAP_007",
+          "line": "[마왕|허세]: 식구에게는 귀환로, 침입자에게는 관광 코스다. 할 수 있겠나?"
+        },
+        {
+          "speaker_id": "CHR_KKOGIT",
+          "speaker_label": "꼬깃",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "물론! 우선 내가 어디 있는지부터 맞혀 볼게!",
+          "id": "V130R_JOIN_CRUMPLED_MAP_008",
+          "line": "[꼬깃|기쁨]: 물론! 우선 내가 어디 있는지부터 맞혀 볼게!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_CRUMPLED_MAP",
+      "title": "꼬깃",
+      "trigger": "precombat_confirmed",
+      "monster_id": "crumpled_map",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "crumpled_map",
+          "kobold_scout"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 5,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_KKOGIT",
+          "speaker_label": "꼬깃",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "happy",
+          "text": "밀로가 또 오면 오른쪽으로 보낼게! 내 오른쪽이 어느 쪽이지?",
+          "id": "V130R_FIRST_COMBAT_CRUMPLED_MAP_001",
+          "line": "[꼬깃|자신만만]: 밀로가 또 오면 오른쪽으로 보낼게! 내 오른쪽이 어느 쪽이지?"
+        },
+        {
+          "speaker_id": "CHR_ROLO",
+          "speaker_label": "로로",
+          "emotion_direction": "결심",
+          "portrait_emotion": "base",
+          "text": "식구 길에는 제 발톱표를 남길게요. 그쪽은 접지 마세요.",
+          "id": "V130R_FIRST_COMBAT_CRUMPLED_MAP_002",
+          "line": "[로로|결심]: 식구 길에는 제 발톱표를 남길게요. 그쪽은 접지 마세요."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_RAT_UNION",
+      "title": "찍찍단",
+      "trigger": "management_entered",
+      "seed_scene_id": "join_rat_union",
+      "seed_line_count": 4,
+      "monster_id": "rat_union",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "rat_union"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 4,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_JJIKJJIK",
+          "speaker_label": "찍찍단",
+          "emotion_direction": "합창",
+          "portrait_emotion": "happy",
+          "text": "단결! 투쟁! 치즈 인상!",
+          "id": "V130R_JOIN_RAT_UNION_001",
+          "line": "[찍찍단|합창]: 단결! 투쟁! 치즈 인상!"
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "진땀",
+          "portrait_emotion": "base",
+          "text": "협상안입니다. 금고 경비를 맡는 대신 하루 치즈 한 조각.",
+          "id": "V130R_JOIN_RAT_UNION_002",
+          "line": "[골딘|진땀]: 협상안입니다. 금고 경비를 맡는 대신 하루 치즈 한 조각."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "당황",
+          "portrait_emotion": "flustered",
+          "text": "마왕성에 노조가 생겼다고?",
+          "id": "V130R_JOIN_RAT_UNION_003",
+          "line": "[마왕|당황]: 마왕성에 노조가 생겼다고?"
+        },
+        {
+          "speaker_id": "CHR_JJIKJJIK",
+          "speaker_label": "찍찍단",
+          "emotion_direction": "합창",
+          "portrait_emotion": "happy",
+          "text": "도둑은 우리가 잡는다! 대신 야근 수당!",
+          "id": "V130R_JOIN_RAT_UNION_004",
+          "line": "[찍찍단|합창]: 도둑은 우리가 잡는다! 대신 야근 수당!"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "대표는 어느 분입니까?",
+          "id": "V130R_JOIN_RAT_UNION_005",
+          "line": "[바티|건조]: 대표는 어느 분입니까?"
+        },
+        {
+          "speaker_id": "CHR_JJIKJJIK",
+          "speaker_label": "찍찍단",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "셋 다! 말은 셋 몫! 밥은 한 칸 몫!",
+          "id": "V130R_JOIN_RAT_UNION_006",
+          "line": "[찍찍단|기쁨]: 셋 다! 말은 셋 몫! 밥은 한 칸 몫!"
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "발도장도 세 개 받겠습니다. 치즈 영수증에는 한 번만 찍으십시오.",
+          "id": "V130R_JOIN_RAT_UNION_007",
+          "line": "[골딘|계산]: 발도장도 세 개 받겠습니다. 치즈 영수증에는 한 번만 찍으십시오."
+        },
+        {
+          "speaker_id": "CHR_JJIKJJIK",
+          "speaker_label": "찍찍단",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "합의! 동굴 소유권 주장은 일단 별첨!",
+          "id": "V130R_JOIN_RAT_UNION_008",
+          "line": "[찍찍단|기쁨]: 합의! 동굴 소유권 주장은 일단 별첨!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_RAT_UNION",
+      "title": "찍찍단",
+      "trigger": "precombat_confirmed",
+      "monster_id": "rat_union",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "rat_union"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 4,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_JJIKJJIK",
+          "speaker_label": "찍찍단",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "니아가 가져가는 건 동전이 아니다! 우리 치즈의 미래다!",
+          "id": "V130R_FIRST_COMBAT_RAT_UNION_001",
+          "line": "[찍찍단|결심]: 니아가 가져가는 건 동전이 아니다! 우리 치즈의 미래다!"
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "오늘 구호는 장부 표지에 적어 두겠습니다.",
+          "id": "V130R_FIRST_COMBAT_RAT_UNION_002",
+          "line": "[골딘|계산]: 오늘 구호는 장부 표지에 적어 두겠습니다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_CURSE_DOLL",
+      "title": "누비",
+      "trigger": "management_entered",
+      "seed_scene_id": "join_curse_doll",
+      "seed_line_count": 4,
+      "monster_id": "curse_doll",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "curse_doll",
+          "spider_tailor"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 18,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_THIEF_NIA",
+          "speaker_label": "니아",
+          "emotion_direction": "질겁",
+          "portrait_emotion": "base",
+          "text": "그 인형 아직도 있어?! 내가 버린 거야!",
+          "id": "V130R_JOIN_CURSE_DOLL_001",
+          "line": "[니아|질겁]: 그 인형 아직도 있어?! 내가 버린 거야!"
+        },
+        {
+          "speaker_id": "CHR_NUBI",
+          "speaker_label": "누비",
+          "emotion_direction": "미소",
+          "portrait_emotion": "happy",
+          "text": "버려 줘서 고마워. 덕분에 새 엄마를 만났거든.",
+          "id": "V130R_JOIN_CURSE_DOLL_002",
+          "line": "[누비|미소]: 버려 줘서 고마워. 덕분에 새 엄마를 만났거든."
+        },
+        {
+          "speaker_id": "CHR_SILKY",
+          "speaker_label": "실키",
+          "emotion_direction": "무심",
+          "portrait_emotion": "base",
+          "text": "실밥 서른두 군데. 다 꿰맸어.",
+          "id": "V130R_JOIN_CURSE_DOLL_003",
+          "line": "[실키|무심]: 실밥 서른두 군데. 다 꿰맸어."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "오싹",
+          "portrait_emotion": "base",
+          "text": "…좋다. 채용. 단, 웃을 때 눈은 좀 덜 빛나게.",
+          "id": "V130R_JOIN_CURSE_DOLL_004",
+          "line": "[마왕|오싹]: …좋다. 채용. 단, 웃을 때 눈은 좀 덜 빛나게."
+        },
+        {
+          "speaker_id": "CHR_NUBI",
+          "speaker_label": "누비",
+          "emotion_direction": "무심",
+          "portrait_emotion": "base",
+          "text": "엄마, 나 이제 버려지는 쪽 말고 기다리는 쪽 해도 돼?",
+          "id": "V130R_JOIN_CURSE_DOLL_005",
+          "line": "[누비|무심]: 엄마, 나 이제 버려지는 쪽 말고 기다리는 쪽 해도 돼?"
+        },
+        {
+          "speaker_id": "CHR_SILKY",
+          "speaker_label": "실키",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "응. 다만 현관 한가운데 앉지는 마. 손님이 돌아가.",
+          "id": "V130R_JOIN_CURSE_DOLL_006",
+          "line": "[실키|다정]: 응. 다만 현관 한가운데 앉지는 마. 손님이 돌아가."
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "돌아가는 손님이 도둑이면 아주 좋은 영업입니다.",
+          "id": "V130R_JOIN_CURSE_DOLL_007",
+          "line": "[골딘|계산]: 돌아가는 손님이 도둑이면 아주 좋은 영업입니다."
+        },
+        {
+          "speaker_id": "CHR_NUBI",
+          "speaker_label": "누비",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "그럼 반 걸음 옆에서 다정하게 저주해 줄게.",
+          "id": "V130R_JOIN_CURSE_DOLL_008",
+          "line": "[누비|기쁨]: 그럼 반 걸음 옆에서 다정하게 저주해 줄게."
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_CURSE_DOLL",
+      "title": "누비",
+      "trigger": "precombat_confirmed",
+      "monster_id": "curse_doll",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "curse_doll",
+          "spider_tailor"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 18,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_NUBI",
+          "speaker_label": "누비",
+          "emotion_direction": "무심",
+          "portrait_emotion": "base",
+          "text": "니아한테도 너무 아픈 저주는 안 할게. 여기까지 데려다줬으니까.",
+          "id": "V130R_FIRST_COMBAT_CURSE_DOLL_001",
+          "line": "[누비|무심]: 니아한테도 너무 아픈 저주는 안 할게. 여기까지 데려다줬으니까."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "마음은 따뜻한데 내 등은 왜 서늘하지?",
+          "id": "V130R_FIRST_COMBAT_CURSE_DOLL_002",
+          "line": "[마왕|허세]: 마음은 따뜻한데 내 등은 왜 서늘하지?"
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_SPORE_HEALER",
+      "title": "모리",
+      "trigger": "management_entered",
+      "seed_scene_id": null,
+      "seed_line_count": 0,
+      "monster_id": "spore_healer",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "slime",
+          "spore_healer"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 7,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "계약 확인됐습니다. 모리, 천장보다 먼저 식구들 상태를 봐 주십시오.",
+          "id": "V130R_JOIN_SPORE_HEALER_001",
+          "line": "[바티|건조]: 계약 확인됐습니다. 모리, 천장보다 먼저 식구들 상태를 봐 주십시오."
+        },
+        {
+          "speaker_id": "CHR_MORI",
+          "speaker_label": "모리",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "천장도 많이 아파 보이는데. 물을 자꾸 흘리네.",
+          "id": "V130R_JOIN_SPORE_HEALER_002",
+          "line": "[모리|다정]: 천장도 많이 아파 보이는데. 물을 자꾸 흘리네."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "성의 눈물이다. 위엄이 넘치면 가끔 저런다.",
+          "id": "V130R_JOIN_SPORE_HEALER_003",
+          "line": "[마왕|허세]: 성의 눈물이다. 위엄이 넘치면 가끔 저런다."
+        },
+        {
+          "speaker_id": "CHR_MORI",
+          "speaker_label": "모리",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "그럼 위엄 옆에 버섯을 심어도 될까? 습한 게 좋아서.",
+          "id": "V130R_JOIN_SPORE_HEALER_004",
+          "line": "[모리|다정]: 그럼 위엄 옆에 버섯을 심어도 될까? 습한 게 좋아서."
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "먹을 수 있는 품종이면 재무 담당도 환영합니다.",
+          "id": "V130R_JOIN_SPORE_HEALER_005",
+          "line": "[골딘|계산]: 먹을 수 있는 품종이면 재무 담당도 환영합니다."
+        },
+        {
+          "speaker_id": "CHR_MORI",
+          "speaker_label": "모리",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "먹는 건 나중에. 다친 애들부터 편히 눕히자.",
+          "id": "V130R_JOIN_SPORE_HEALER_006",
+          "line": "[모리|다정]: 먹는 건 나중에. 다친 애들부터 편히 눕히자."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "결심",
+          "portrait_emotion": "serious",
+          "text": "좋다. 치료받는 동안에는 누구도 허세를 부릴 필요 없다.",
+          "id": "V130R_JOIN_SPORE_HEALER_007",
+          "line": "[마왕|결심]: 좋다. 치료받는 동안에는 누구도 허세를 부릴 필요 없다."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "그 규칙은 마왕님께 먼저 전달하겠습니다.",
+          "id": "V130R_JOIN_SPORE_HEALER_008",
+          "line": "[바티|건조]: 그 규칙은 마왕님께 먼저 전달하겠습니다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_SPORE_HEALER",
+      "title": "모리",
+      "trigger": "precombat_confirmed",
+      "monster_id": "spore_healer",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "slime",
+          "spore_healer"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 7,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_MORI",
+          "speaker_label": "모리",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "밀로가 왔다 가도 상처는 남으니까, 돌아올 자리부터 데워 둘게.",
+          "id": "V130R_FIRST_COMBAT_SPORE_HEALER_001",
+          "line": "[모리|결심]: 밀로가 왔다 가도 상처는 남으니까, 돌아올 자리부터 데워 둘게."
+        },
+        {
+          "speaker_id": "CHR_PUDDING",
+          "speaker_label": "푸딩",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "푸딩 자리도? 그럼 푸딩 꼭 돌아온다!",
+          "id": "V130R_FIRST_COMBAT_SPORE_HEALER_002",
+          "line": "[푸딩|기쁨]: 푸딩 자리도? 그럼 푸딩 꼭 돌아온다!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_STONE_SENTINEL",
+      "title": "돌콩",
+      "trigger": "management_entered",
+      "seed_scene_id": null,
+      "seed_line_count": 0,
+      "monster_id": "stone_sentinel",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "stone_sentinel"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 9,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "입구에 새 바위가 생겼다. 누가 허가했지?",
+          "id": "V130R_JOIN_STONE_SENTINEL_001",
+          "line": "[마왕|허세]: 입구에 새 바위가 생겼다. 누가 허가했지?"
+        },
+        {
+          "speaker_id": "CHR_DOLKONG",
+          "speaker_label": "돌콩",
+          "emotion_direction": "엄숙",
+          "portrait_emotion": "base",
+          "text": "굴러왔다. 콩.",
+          "id": "V130R_JOIN_STONE_SENTINEL_002",
+          "line": "[돌콩|엄숙]: 굴러왔다. 콩."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "계약 명단과 일치합니다. 이름은 돌콩입니다.",
+          "id": "V130R_JOIN_STONE_SENTINEL_003",
+          "line": "[바티|건조]: 계약 명단과 일치합니다. 이름은 돌콩입니다."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "입구를 조금만 비켜 줄 수 있나?",
+          "id": "V130R_JOIN_STONE_SENTINEL_004",
+          "line": "[마왕|허세]: 입구를 조금만 비켜 줄 수 있나?"
+        },
+        {
+          "speaker_id": "CHR_DOLKONG",
+          "speaker_label": "돌콩",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "적이 오면 더 안 비킨다. 콩.",
+          "id": "V130R_JOIN_STONE_SENTINEL_005",
+          "line": "[돌콩|결심]: 적이 오면 더 안 비킨다. 콩."
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "문짝 비용을 줄이는 아주 설득력 있는 대답입니다.",
+          "id": "V130R_JOIN_STONE_SENTINEL_006",
+          "line": "[골딘|계산]: 문짝 비용을 줄이는 아주 설득력 있는 대답입니다."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "그럼 네 옆에 식구가 지날 길은 남겨 두자.",
+          "id": "V130R_JOIN_STONE_SENTINEL_007",
+          "line": "[마왕|다정]: 그럼 네 옆에 식구가 지날 길은 남겨 두자."
+        },
+        {
+          "speaker_id": "CHR_DOLKONG",
+          "speaker_label": "돌콩",
+          "emotion_direction": "엄숙",
+          "portrait_emotion": "base",
+          "text": "그 길은 막지 않는다. 콩.",
+          "id": "V130R_JOIN_STONE_SENTINEL_008",
+          "line": "[돌콩|엄숙]: 그 길은 막지 않는다. 콩."
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_STONE_SENTINEL",
+      "title": "돌콩",
+      "trigger": "precombat_confirmed",
+      "monster_id": "stone_sentinel",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "stone_sentinel"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 9,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_DOLKONG",
+          "speaker_label": "돌콩",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "조사관은 적는다. 나는 선다. 콩.",
+          "id": "V130R_FIRST_COMBAT_STONE_SENTINEL_001",
+          "line": "[돌콩|결심]: 조사관은 적는다. 나는 선다. 콩."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "보고서보다 오래 버티면 됩니다. 충분히 가능해 보이는군요.",
+          "id": "V130R_FIRST_COMBAT_STONE_SENTINEL_002",
+          "line": "[바티|건조]: 보고서보다 오래 버티면 됩니다. 충분히 가능해 보이는군요."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_WAR_DRUMMER",
+      "title": "두둠",
+      "trigger": "management_entered",
+      "seed_scene_id": null,
+      "seed_line_count": 0,
+      "monster_id": "war_drummer",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "war_drummer"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 12,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_DUDUM",
+          "speaker_label": "두둠",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "둥! 새 식구 입장곡이다! 둥둥!",
+          "id": "V130R_JOIN_WAR_DRUMMER_001",
+          "line": "[두둠|기쁨]: 둥! 새 식구 입장곡이다! 둥둥!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "좋다! 내 즉위식에도 이런 게 필요했다!",
+          "id": "V130R_JOIN_WAR_DRUMMER_002",
+          "line": "[마왕|허세]: 좋다! 내 즉위식에도 이런 게 필요했다!"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "즉위식 때는 양동이가 박자를 담당했습니다.",
+          "id": "V130R_JOIN_WAR_DRUMMER_003",
+          "line": "[바티|건조]: 즉위식 때는 양동이가 박자를 담당했습니다."
+        },
+        {
+          "speaker_id": "CHR_DUDUM",
+          "speaker_label": "두둠",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "그럼 양동이도 단원으로 받지! 빈 자리 많아!",
+          "id": "V130R_JOIN_WAR_DRUMMER_004",
+          "line": "[두둠|기쁨]: 그럼 양동이도 단원으로 받지! 빈 자리 많아!"
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "단원이 늘어도 출연료는 늘리지 마십시오.",
+          "id": "V130R_JOIN_WAR_DRUMMER_005",
+          "line": "[골딘|계산]: 단원이 늘어도 출연료는 늘리지 마십시오."
+        },
+        {
+          "speaker_id": "CHR_DUDUM",
+          "speaker_label": "두둠",
+          "emotion_direction": "자랑",
+          "portrait_emotion": "happy",
+          "text": "밥 먹고 치면 더 힘나긴 하는데. 둥?",
+          "id": "V130R_JOIN_WAR_DRUMMER_006",
+          "line": "[두둠|자랑]: 밥 먹고 치면 더 힘나긴 하는데. 둥?"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "식구에게 박자를 맞춰라. 내 허세보다 느려도 좋다.",
+          "id": "V130R_JOIN_WAR_DRUMMER_007",
+          "line": "[마왕|다정]: 식구에게 박자를 맞춰라. 내 허세보다 느려도 좋다."
+        },
+        {
+          "speaker_id": "CHR_DUDUM",
+          "speaker_label": "두둠",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "그럼 오래 가는 곡으로! 둥, 같이 가자!",
+          "id": "V130R_JOIN_WAR_DRUMMER_008",
+          "line": "[두둠|결심]: 그럼 오래 가는 곡으로! 둥, 같이 가자!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_WAR_DRUMMER",
+      "title": "두둠",
+      "trigger": "precombat_confirmed",
+      "monster_id": "war_drummer",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "war_drummer"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 12,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_DUDUM",
+          "speaker_label": "두둠",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "방패가 커도 우리 발걸음은 안 작아진다! 둥!",
+          "id": "V130R_FIRST_COMBAT_WAR_DRUMMER_001",
+          "line": "[두둠|결심]: 방패가 커도 우리 발걸음은 안 작아진다! 둥!"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "행군곡입니다. 적 앞에서 공연 인사는 생략하십시오.",
+          "id": "V130R_FIRST_COMBAT_WAR_DRUMMER_002",
+          "line": "[바티|건조]: 행군곡입니다. 적 앞에서 공연 인사는 생략하십시오."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_MOON_TRACKER",
+      "title": "루미",
+      "trigger": "management_entered",
+      "seed_scene_id": null,
+      "seed_line_count": 0,
+      "monster_id": "moon_tracker",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "moon_tracker"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 16,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_LUMI",
+          "speaker_label": "루미",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "base",
+          "text": "감시탑 자리 확인했어. 그런데 여기선 달이 안 보여.",
+          "id": "V130R_JOIN_MOON_TRACKER_001",
+          "line": "[루미|속삭임]: 감시탑 자리 확인했어. 그런데 여기선 달이 안 보여."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "아직 천장 개방 공사를 안 해서 그렇다.",
+          "id": "V130R_JOIN_MOON_TRACKER_002",
+          "line": "[마왕|허세]: 아직 천장 개방 공사를 안 해서 그렇다."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "현재 누수도 충분히 개방적입니다.",
+          "id": "V130R_JOIN_MOON_TRACKER_003",
+          "line": "[바티|건조]: 현재 누수도 충분히 개방적입니다."
+        },
+        {
+          "speaker_id": "CHR_LUMI",
+          "speaker_label": "루미",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "base",
+          "text": "지붕을 부수라는 뜻은 아니야. 작은 빛부터 찾으면 돼.",
+          "id": "V130R_JOIN_MOON_TRACKER_004",
+          "line": "[루미|속삭임]: 지붕을 부수라는 뜻은 아니야. 작은 빛부터 찾으면 돼."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "저 촛불이 쓸 만하겠나?",
+          "id": "V130R_JOIN_MOON_TRACKER_005",
+          "line": "[마왕|허세]: 저 촛불이 쓸 만하겠나?"
+        },
+        {
+          "speaker_id": "CHR_LUMI",
+          "speaker_label": "루미",
+          "emotion_direction": "속삭임",
+          "portrait_emotion": "base",
+          "text": "응. 집에 돌아올 방향을 알 만큼은 밝네.",
+          "id": "V130R_JOIN_MOON_TRACKER_006",
+          "line": "[루미|속삭임]: 응. 집에 돌아올 방향을 알 만큼은 밝네."
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "천장 공사비가 취소됐습니다. 채용 첫날부터 흑자군요.",
+          "id": "V130R_JOIN_MOON_TRACKER_007",
+          "line": "[골딘|계산]: 천장 공사비가 취소됐습니다. 채용 첫날부터 흑자군요."
+        },
+        {
+          "speaker_id": "CHR_LUMI",
+          "speaker_label": "루미",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "돈 말고 발자국도 세어 줘. 나간 수와 돌아온 수가 같게.",
+          "id": "V130R_JOIN_MOON_TRACKER_008",
+          "line": "[루미|결심]: 돈 말고 발자국도 세어 줘. 나간 수와 돌아온 수가 같게."
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_MOON_TRACKER",
+      "title": "루미",
+      "trigger": "precombat_confirmed",
+      "monster_id": "moon_tracker",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "moon_tracker"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 16,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_LUMI",
+          "speaker_label": "루미",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "셀렌의 보급로 지도, 갈래는 읽었어. 돌아오는 길도 표시할게.",
+          "id": "V130R_FIRST_COMBAT_MOON_TRACKER_001",
+          "line": "[루미|결심]: 셀렌의 보급로 지도, 갈래는 읽었어. 돌아오는 길도 표시할게."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "표식은 추격뿐 아니라 귀환에도 씁니다. 좋은 판단입니다.",
+          "id": "V130R_FIRST_COMBAT_MOON_TRACKER_002",
+          "line": "[바티|건조]: 표식은 추격뿐 아니라 귀환에도 씁니다. 좋은 판단입니다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_MIMIC_PORTER",
+      "title": "미미",
+      "trigger": "management_entered",
+      "seed_scene_id": null,
+      "seed_line_count": 0,
+      "monster_id": "mimic_porter",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "mimic_porter"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 17,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "마왕님, 계약 물품이 도착했습니다. 상자 한 개입니다.",
+          "id": "V130R_JOIN_MIMIC_PORTER_001",
+          "line": "[골딘|계산]: 마왕님, 계약 물품이 도착했습니다. 상자 한 개입니다."
+        },
+        {
+          "speaker_id": "CHR_MIMI",
+          "speaker_label": "미미",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "happy",
+          "text": "물품… 아니고… 미미야.",
+          "id": "V130R_JOIN_MIMIC_PORTER_002",
+          "line": "[미미|자신만만]: 물품… 아니고… 미미야."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "상자가 항의했다! 아주 훌륭한 마왕성이다!",
+          "id": "V130R_JOIN_MIMIC_PORTER_003",
+          "line": "[마왕|허세]: 상자가 항의했다! 아주 훌륭한 마왕성이다!"
+        },
+        {
+          "speaker_id": "CHR_MIMI",
+          "speaker_label": "미미",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "happy",
+          "text": "열어 보지 마세요… 쪽지는 내가 붙였어.",
+          "id": "V130R_JOIN_MIMIC_PORTER_004",
+          "line": "[미미|자신만만]: 열어 보지 마세요… 쪽지는 내가 붙였어."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "본인이 작성한 출입 제한이군요. 존중하겠습니다.",
+          "id": "V130R_JOIN_MIMIC_PORTER_005",
+          "line": "[바티|건조]: 본인이 작성한 출입 제한이군요. 존중하겠습니다."
+        },
+        {
+          "speaker_id": "CHR_MIMI",
+          "speaker_label": "미미",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "happy",
+          "text": "필요한 짐은… 앞에 두면 내가 챙길게.",
+          "id": "V130R_JOIN_MIMIC_PORTER_006",
+          "line": "[미미|자신만만]: 필요한 짐은… 앞에 두면 내가 챙길게."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "좋다. 식구가 나를 때리는 고지서는 맨 밑에 넣어라.",
+          "id": "V130R_JOIN_MIMIC_PORTER_007",
+          "line": "[마왕|다정]: 좋다. 식구가 나를 때리는 고지서는 맨 밑에 넣어라."
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "청구 기한은 상자 밑에서도 흐릅니다.",
+          "id": "V130R_JOIN_MIMIC_PORTER_008",
+          "line": "[골딘|계산]: 청구 기한은 상자 밑에서도 흐릅니다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_MIMIC_PORTER",
+      "title": "미미",
+      "trigger": "precombat_confirmed",
+      "monster_id": "mimic_porter",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "mimic_porter"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": 17,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_MIMI",
+          "speaker_label": "미미",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "니아가 두 번 오면… 두 번째에도 뚜껑 안 열어 줄게.",
+          "id": "V130R_FIRST_COMBAT_MIMIC_PORTER_001",
+          "line": "[미미|결심]: 니아가 두 번 오면… 두 번째에도 뚜껑 안 열어 줄게."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "잠깐 조용해져도 끝났다고 생각하지 마십시오.",
+          "id": "V130R_FIRST_COMBAT_MIMIC_PORTER_002",
+          "line": "[바티|건조]: 잠깐 조용해져도 끝났다고 생각하지 마십시오."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_GHOST_HOUSEMAID",
+      "title": "베베",
+      "trigger": "management_entered",
+      "seed_scene_id": null,
+      "seed_line_count": 0,
+      "monster_id": "ghost_housemaid",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "ghost_housemaid"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": null,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "전선 합류 기록 확인. 베베, 관리실로 들어오십시오.",
+          "id": "V130R_JOIN_GHOST_HOUSEMAID_001",
+          "line": "[바티|건조]: 전선 합류 기록 확인. 베베, 관리실로 들어오십시오."
+        },
+        {
+          "speaker_id": "CHR_BEBE",
+          "speaker_label": "베베",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "이미 들어왔어. 문은 닫아 뒀고.",
+          "id": "V130R_JOIN_GHOST_HOUSEMAID_002",
+          "line": "[베베|다정]: 이미 들어왔어. 문은 닫아 뒀고."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "문을 통과했나? 대단하군. 침입자에게도 가르칠 수 있나?",
+          "id": "V130R_JOIN_GHOST_HOUSEMAID_003",
+          "line": "[마왕|허세]: 문을 통과했나? 대단하군. 침입자에게도 가르칠 수 있나?"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "그 교육은 중단하십시오.",
+          "id": "V130R_JOIN_GHOST_HOUSEMAID_004",
+          "line": "[바티|건조]: 그 교육은 중단하십시오."
+        },
+        {
+          "speaker_id": "CHR_BEBE",
+          "speaker_label": "베베",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "식구들 돌아올 문은 열어 둘게. 왕좌 아래도 쓸고.",
+          "id": "V130R_JOIN_GHOST_HOUSEMAID_005",
+          "line": "[베베|다정]: 식구들 돌아올 문은 열어 둘게. 왕좌 아래도 쓸고."
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "먼지 속 동전은 쓰레기가 아닙니다. 발견 즉시 신고해 주십시오.",
+          "id": "V130R_JOIN_GHOST_HOUSEMAID_006",
+          "line": "[골딘|계산]: 먼지 속 동전은 쓰레기가 아닙니다. 발견 즉시 신고해 주십시오."
+        },
+        {
+          "speaker_id": "CHR_BEBE",
+          "speaker_label": "베베",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "네 두개골도 먼지라고 버리진 않을게.",
+          "id": "V130R_JOIN_GHOST_HOUSEMAID_007",
+          "line": "[베베|다정]: 네 두개골도 먼지라고 버리진 않을게."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "base",
+          "text": "좋다. 청소와 공포를 동시에 해결했군.",
+          "id": "V130R_JOIN_GHOST_HOUSEMAID_008",
+          "line": "[마왕|기쁨]: 좋다. 청소와 공포를 동시에 해결했군."
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_GHOST_HOUSEMAID",
+      "title": "베베",
+      "trigger": "precombat_confirmed",
+      "monster_id": "ghost_housemaid",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "ghost_housemaid"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": null,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_BEBE",
+          "speaker_label": "베베",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "방패 뒤로 식구가 밀리면 내가 돌아올 자리를 찾을게.",
+          "id": "V130R_FIRST_COMBAT_GHOST_HOUSEMAID_001",
+          "line": "[베베|결심]: 방패 뒤로 식구가 밀리면 내가 돌아올 자리를 찾을게."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "벽을 지날 수 없는 식구 기준으로 부탁합니다.",
+          "id": "V130R_FIRST_COMBAT_GHOST_HOUSEMAID_002",
+          "line": "[바티|건조]: 벽을 지날 수 없는 식구 기준으로 부탁합니다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_GRAVEYARD_HOUND",
+      "title": "코코",
+      "trigger": "management_entered",
+      "seed_scene_id": null,
+      "seed_line_count": 0,
+      "monster_id": "graveyard_hound",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "graveyard_hound"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": null,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_KOKO",
+          "speaker_label": "코코",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "새 집 냄새… 젖은 돌, 불씨, 걱정.",
+          "id": "V130R_JOIN_GRAVEYARD_HOUND_001",
+          "line": "[코코|확인]: 새 집 냄새… 젖은 돌, 불씨, 걱정."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "마지막은 내 냄새가 아니다. 왕국이 두려워하는 냄새다.",
+          "id": "V130R_JOIN_GRAVEYARD_HOUND_002",
+          "line": "[마왕|허세]: 마지막은 내 냄새가 아니다. 왕국이 두려워하는 냄새다."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "전선 합류 명단의 코코가 맞습니다.",
+          "id": "V130R_JOIN_GRAVEYARD_HOUND_003",
+          "line": "[바티|건조]: 전선 합류 명단의 코코가 맞습니다."
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "목걸이 뼈는 식비에서 공제해도 됩니까?",
+          "id": "V130R_JOIN_GRAVEYARD_HOUND_004",
+          "line": "[골딘|계산]: 목걸이 뼈는 식비에서 공제해도 됩니까?"
+        },
+        {
+          "speaker_id": "CHR_KOKO",
+          "speaker_label": "코코",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "이 뼈는 밥 아니야. 냄새도 잊으면 안 돼.",
+          "id": "V130R_JOIN_GRAVEYARD_HOUND_005",
+          "line": "[코코|확인]: 이 뼈는 밥 아니야. 냄새도 잊으면 안 돼."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "결심",
+          "portrait_emotion": "serious",
+          "text": "그럼 누구도 건드리지 마라. 식구의 약속이다.",
+          "id": "V130R_JOIN_GRAVEYARD_HOUND_006",
+          "line": "[마왕|결심]: 그럼 누구도 건드리지 마라. 식구의 약속이다."
+        },
+        {
+          "speaker_id": "CHR_KOKO",
+          "speaker_label": "코코",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "마왕 냄새도 기억할게. 길 잃으면 내가 와.",
+          "id": "V130R_JOIN_GRAVEYARD_HOUND_007",
+          "line": "[코코|확인]: 마왕 냄새도 기억할게. 길 잃으면 내가 와."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "마왕님은 성 안에서도 자주 잃으십니다. 잘 부탁합니다.",
+          "id": "V130R_JOIN_GRAVEYARD_HOUND_008",
+          "line": "[바티|건조]: 마왕님은 성 안에서도 자주 잃으십니다. 잘 부탁합니다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_GRAVEYARD_HOUND",
+      "title": "코코",
+      "trigger": "precombat_confirmed",
+      "monster_id": "graveyard_hound",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "graveyard_hound"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": null,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_KOKO",
+          "speaker_label": "코코",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "조사관 냄새와 식구 냄새, 달라. 돌아올 길부터 맡을게.",
+          "id": "V130R_FIRST_COMBAT_GRAVEYARD_HOUND_001",
+          "line": "[코코|결심]: 조사관 냄새와 식구 냄새, 달라. 돌아올 길부터 맡을게."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "잡으러 나갈 때도 돌아올 길은 잊지 마라.",
+          "id": "V130R_FIRST_COMBAT_GRAVEYARD_HOUND_002",
+          "line": "[마왕|허세]: 잡으러 나갈 때도 돌아올 길은 잊지 마라."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_ARMORED_BEETLE",
+      "title": "톡톡",
+      "trigger": "management_entered",
+      "seed_scene_id": null,
+      "seed_line_count": 0,
+      "monster_id": "armored_beetle",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "armored_beetle",
+          "imp"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": null,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_TOKTOK",
+          "speaker_label": "톡톡",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "톡. 전선에서 왔다. 고칠 곳은?",
+          "id": "V130R_JOIN_ARMORED_BEETLE_001",
+          "line": "[톡톡|확인]: 톡. 전선에서 왔다. 고칠 곳은?"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "그 질문은 입구에서부터 시작하면 된다.",
+          "id": "V130R_JOIN_ARMORED_BEETLE_002",
+          "line": "[마왕|허세]: 그 질문은 입구에서부터 시작하면 된다."
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "견적은 입구에서 멈춰 주십시오.",
+          "id": "V130R_JOIN_ARMORED_BEETLE_003",
+          "line": "[골딘|계산]: 견적은 입구에서 멈춰 주십시오."
+        },
+        {
+          "speaker_id": "CHR_TOKTOK",
+          "speaker_label": "톡톡",
+          "emotion_direction": "확인",
+          "portrait_emotion": "base",
+          "text": "흠집은 돈이 무서워도 남는다. 톡.",
+          "id": "V130R_JOIN_ARMORED_BEETLE_004",
+          "line": "[톡톡|확인]: 흠집은 돈이 무서워도 남는다. 톡."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "맞는 말이라 반박이 없습니다.",
+          "id": "V130R_JOIN_ARMORED_BEETLE_005",
+          "line": "[바티|건조]: 맞는 말이라 반박이 없습니다."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "네 등에도 흠집이 있는데 먼저 고쳐야 하지 않나?",
+          "id": "V130R_JOIN_ARMORED_BEETLE_006",
+          "line": "[마왕|허세]: 네 등에도 흠집이 있는데 먼저 고쳐야 하지 않나?"
+        },
+        {
+          "speaker_id": "CHR_TOKTOK",
+          "speaker_label": "톡톡",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "내 등은 내가 받친다. 식구 등은 같이 받친다.",
+          "id": "V130R_JOIN_ARMORED_BEETLE_007",
+          "line": "[톡톡|결심]: 내 등은 내가 받친다. 식구 등은 같이 받친다."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "결심",
+          "portrait_emotion": "serious",
+          "text": "그럼 오늘부터 네 등도 식구 몫이다.",
+          "id": "V130R_JOIN_ARMORED_BEETLE_008",
+          "line": "[마왕|결심]: 그럼 오늘부터 네 등도 식구 몫이다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_ARMORED_BEETLE",
+      "title": "톡톡",
+      "trigger": "precombat_confirmed",
+      "monster_id": "armored_beetle",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "armored_beetle",
+          "imp"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": null,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_TOKTOK",
+          "speaker_label": "톡톡",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "방패병 판금, 봤다. 우리 뒤쪽부터 받친다. 톡.",
+          "id": "V130R_FIRST_COMBAT_ARMORED_BEETLE_001",
+          "line": "[톡톡|결심]: 방패병 판금, 봤다. 우리 뒤쪽부터 받친다. 톡."
+        },
+        {
+          "speaker_id": "CHR_PYNN",
+          "speaker_label": "핀",
+          "emotion_direction": "자신만만",
+          "portrait_emotion": "base",
+          "text": "네 판금까지 태우진 않을게. 불은 저쪽에만.",
+          "id": "V130R_FIRST_COMBAT_ARMORED_BEETLE_002",
+          "line": "[핀|자신만만]: 네 판금까지 태우진 않을게. 불은 저쪽에만."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_SPIDER_TAILOR",
+      "title": "실키",
+      "trigger": "management_entered",
+      "seed_scene_id": null,
+      "seed_line_count": 0,
+      "monster_id": "spider_tailor",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "spider_tailor"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": null,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_SILKY",
+          "speaker_label": "실키",
+          "emotion_direction": "단호",
+          "portrait_emotion": "determined",
+          "text": "기존 계약대로 왔어. 먼저 망토 치수부터.",
+          "id": "V130R_JOIN_SPIDER_TAILOR_001",
+          "line": "[실키|단호]: 기존 계약대로 왔어. 먼저 망토 치수부터."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "드디어 위엄의 길이를 알아보는 식구가 생겼군!",
+          "id": "V130R_JOIN_SPIDER_TAILOR_002",
+          "line": "[마왕|허세]: 드디어 위엄의 길이를 알아보는 식구가 생겼군!"
+        },
+        {
+          "speaker_id": "CHR_SILKY",
+          "speaker_label": "실키",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "바닥에 끌리는 만큼 줄일 거야.",
+          "id": "V130R_JOIN_SPIDER_TAILOR_003",
+          "line": "[실키|다정]: 바닥에 끌리는 만큼 줄일 거야."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "합류 첫날부터 권위를 삭감하는 건가?",
+          "id": "V130R_JOIN_SPIDER_TAILOR_004",
+          "line": "[마왕|허세]: 합류 첫날부터 권위를 삭감하는 건가?"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "넘어져서 삭감되기 전에 예방하는 겁니다.",
+          "id": "V130R_JOIN_SPIDER_TAILOR_005",
+          "line": "[바티|건조]: 넘어져서 삭감되기 전에 예방하는 겁니다."
+        },
+        {
+          "speaker_id": "CHR_SILKY",
+          "speaker_label": "실키",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "식구 잡아당길 실도 챙겼어. 다치기 전에 당기는 쪽이 좋아.",
+          "id": "V130R_JOIN_SPIDER_TAILOR_006",
+          "line": "[실키|결심]: 식구 잡아당길 실도 챙겼어. 다치기 전에 당기는 쪽이 좋아."
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "찢어진 망토 수선비도 줄겠군요.",
+          "id": "V130R_JOIN_SPIDER_TAILOR_007",
+          "line": "[골딘|계산]: 찢어진 망토 수선비도 줄겠군요."
+        },
+        {
+          "speaker_id": "CHR_SILKY",
+          "speaker_label": "실키",
+          "emotion_direction": "다정",
+          "portrait_emotion": "base",
+          "text": "계산 끝나면 가만히 서. 해골 옷도 올이 풀렸어.",
+          "id": "V130R_JOIN_SPIDER_TAILOR_008",
+          "line": "[실키|다정]: 계산 끝나면 가만히 서. 해골 옷도 올이 풀렸어."
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_SPIDER_TAILOR",
+      "title": "실키",
+      "trigger": "precombat_confirmed",
+      "monster_id": "spider_tailor",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "spider_tailor"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": null,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_SILKY",
+          "speaker_label": "실키",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "셀렌이 적은 비상구, 실 걸리지 않게 비워 둘게.",
+          "id": "V130R_FIRST_COMBAT_SPIDER_TAILOR_001",
+          "line": "[실키|결심]: 셀렌이 적은 비상구, 실 걸리지 않게 비워 둘게."
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "우리 식구가 나가는 길입니다. 그 구분이 중요합니다.",
+          "id": "V130R_FIRST_COMBAT_SPIDER_TAILOR_002",
+          "line": "[바티|건조]: 우리 식구가 나가는 길입니다. 그 구분이 중요합니다."
+        }
+      ]
+    },
+    {
+      "id": "V130R_JOIN_BAT_COURIER",
+      "title": "포포",
+      "trigger": "management_entered",
+      "seed_scene_id": null,
+      "seed_line_count": 0,
+      "monster_id": "bat_courier",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "bat_courier"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": null,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "cues": [
+        {
+          "speaker_id": "CHR_POPO",
+          "speaker_label": "포포",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "기존 계약 전령 도착! 수령인, 마왕! 위치, 축축한 동굴!",
+          "id": "V130R_JOIN_BAT_COURIER_001",
+          "line": "[포포|기쁨]: 기존 계약 전령 도착! 수령인, 마왕! 위치, 축축한 동굴!"
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "주소 끝을 마왕성으로 고쳐라. 배달 품격이 달라진다.",
+          "id": "V130R_JOIN_BAT_COURIER_002",
+          "line": "[마왕|허세]: 주소 끝을 마왕성으로 고쳐라. 배달 품격이 달라진다."
+        },
+        {
+          "speaker_id": "CHR_POPO",
+          "speaker_label": "포포",
+          "emotion_direction": "자랑",
+          "portrait_emotion": "happy",
+          "text": "품격은 올랐는데 천장 물은 그대로네!",
+          "id": "V130R_JOIN_BAT_COURIER_003",
+          "line": "[포포|자랑]: 품격은 올랐는데 천장 물은 그대로네!"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "우편물이 젖기 전에 내려놓으십시오.",
+          "id": "V130R_JOIN_BAT_COURIER_004",
+          "line": "[바티|건조]: 우편물이 젖기 전에 내려놓으십시오."
+        },
+        {
+          "speaker_id": "CHR_GOLDIN",
+          "speaker_label": "골딘",
+          "emotion_direction": "계산",
+          "portrait_emotion": "accounting",
+          "text": "영수증은 제게. 광고는 마왕님께 전달하십시오.",
+          "id": "V130R_JOIN_BAT_COURIER_005",
+          "line": "[골딘|계산]: 영수증은 제게. 광고는 마왕님께 전달하십시오."
+        },
+        {
+          "speaker_id": "CHR_POPO",
+          "speaker_label": "포포",
+          "emotion_direction": "자랑",
+          "portrait_emotion": "happy",
+          "text": "토벌 경고문은 어느 쪽이야? 글씨가 엄청 큰데.",
+          "id": "V130R_JOIN_BAT_COURIER_006",
+          "line": "[포포|자랑]: 토벌 경고문은 어느 쪽이야? 글씨가 엄청 큰데."
+        },
+        {
+          "speaker_id": "CHR_DARKLORD_PLAYER",
+          "speaker_label": "마왕",
+          "emotion_direction": "허세",
+          "portrait_emotion": "proud",
+          "text": "내게 다오. 접어서 작게 만들면 덜 위협적이겠지.",
+          "id": "V130R_JOIN_BAT_COURIER_007",
+          "line": "[마왕|허세]: 내게 다오. 접어서 작게 만들면 덜 위협적이겠지."
+        },
+        {
+          "speaker_id": "CHR_POPO",
+          "speaker_label": "포포",
+          "emotion_direction": "기쁨",
+          "portrait_emotion": "happy",
+          "text": "접는 건 특기야! 내용까지 작아지진 않지만!",
+          "id": "V130R_JOIN_BAT_COURIER_008",
+          "line": "[포포|기쁨]: 접는 건 특기야! 내용까지 작아지진 않지만!"
+        }
+      ]
+    },
+    {
+      "id": "V130R_FIRST_COMBAT_BAT_COURIER",
+      "title": "포포",
+      "trigger": "precombat_confirmed",
+      "monster_id": "bat_courier",
+      "conditions": {
+        "requires_owned_species_ids": [
+          "bat_courier"
+        ],
+        "requires_join_event_completed": true,
+        "fallback_day": null,
+        "existing_join_condition_first": true
+      },
+      "repeat_policy": "once_per_instance",
+      "side_effects": [],
+      "requires_first_deployment": true,
+      "exclude_days": [
+        29
+      ],
+      "cues": [
+        {
+          "speaker_id": "CHR_POPO",
+          "speaker_label": "포포",
+          "emotion_direction": "결심",
+          "portrait_emotion": "determined",
+          "text": "조사관이 숨으면 내가 먼저 알릴게! 우편보다 빨리!",
+          "id": "V130R_FIRST_COMBAT_BAT_COURIER_001",
+          "line": "[포포|결심]: 조사관이 숨으면 내가 먼저 알릴게! 우편보다 빨리!"
+        },
+        {
+          "speaker_id": "CHR_BATI",
+          "speaker_label": "바티",
+          "emotion_direction": "건조",
+          "portrait_emotion": "dry",
+          "text": "오늘은 오배송 없이 경보 대상을 확인하십시오.",
+          "id": "V130R_FIRST_COMBAT_BAT_COURIER_002",
+          "line": "[바티|건조]: 오늘은 오배송 없이 경보 대상을 확인하십시오."
+        }
+      ]
+    }
+  ]
+}

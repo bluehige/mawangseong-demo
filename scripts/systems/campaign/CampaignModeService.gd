@@ -2,6 +2,7 @@ extends RefCounted
 class_name CampaignModeService
 
 const SaveV5MigratorScript = preload("res://scripts/systems/save/SaveV4ToV5Migrator.gd")
+const SupportMasteryScript=preload("res://scripts/systems/crown/SupportMasteryRuntime.gd")
 const CouncilChronicleScript = preload("res://scripts/systems/chronicle/CouncilChronicleService.gd")
 
 const FRONT_MODE_ID := SaveV5MigratorScript.MODE_FRONT_CHRONICLE
@@ -27,7 +28,7 @@ static func default_active_run() -> Dictionary:
 		"campaign_mode_id": LEGACY_MODE_ID,
 		"council_season": SaveV5MigratorScript.default_council_season(),
 		"outpost": SaveV5MigratorScript.default_outpost(),
-		"upper_floor": SaveV5MigratorScript.default_upper_floor(),
+		"expansion": preload("res://scripts/systems/council/CouncilExpansionService.gd").default_state(),
 		"crown": SaveV5MigratorScript.default_crown(),
 		"run_metrics_update4": {}
 	}
@@ -45,6 +46,8 @@ static func normalize_profile(value, update3_profile: Dictionary = {}) -> Dictio
 		for key in result.keys():
 			if value.has(key) and typeof(value.get(key)) == typeof(result[key]):
 				result[key] = value.get(key).duplicate(true) if value.get(key) is Dictionary or value.get(key) is Array else value.get(key)
+	for key in ["unlocked_reward_ids", "cosmetic_ids", "chronicle", "ending_catalog_codes"]:
+		if value is Dictionary and value.has(key): result[key] = value[key].duplicate(true)
 	var any_front_cleared := _any_front_cleared(update3_profile)
 	var modes: Dictionary = result["campaign_modes"].duplicate(true)
 	modes["update3_any_front_cleared"] = bool(modes.get("update3_any_front_cleared", false)) or any_front_cleared
@@ -62,11 +65,13 @@ static func normalize_profile(value, update3_profile: Dictionary = {}) -> Dictio
 		rivals[rival_id] = rival
 	result["rivals"] = rivals
 	result["chronicle_update4"] = CouncilChronicleScript.normalize_state(result.get("chronicle_update4", {}))
+	result["crown_evolution"]=SupportMasteryScript.normalize_crown(result.get("crown_evolution",{}))
 	return result
 
 
 static func normalize_active_run(value) -> Dictionary:
 	var result := default_active_run()
+	value = preload("res://scripts/systems/council/CouncilExpansionService.gd").convert_active(value)
 	if not (value is Dictionary):
 		return result
 	for key in result.keys():
@@ -96,7 +101,7 @@ static func select_mode(profile_value, active_run_value, mode_id: String, catalo
 	active_run["campaign_mode_id"] = mode_id
 	active_run["council_season"] = SaveV5MigratorScript.default_council_season()
 	active_run["outpost"] = SaveV5MigratorScript.default_outpost()
-	active_run["upper_floor"] = SaveV5MigratorScript.default_upper_floor()
+	active_run["expansion"] = preload("res://scripts/systems/council/CouncilExpansionService.gd").default_state()
 	active_run["crown"] = SaveV5MigratorScript.default_crown()
 	active_run["run_metrics_update4"] = {}
 	return {"ok": true, "error": "", "profile": profile, "active_run": active_run}

@@ -1,4 +1,8 @@
-﻿extends Node2D
+extends Node2D
+const SupportMasteryScript=preload("res://scripts/systems/crown/SupportMasteryRuntime.gd")
+var support_mastery=SupportMasteryScript.new()
+const GrowthFeedbackScript=preload("res://scripts/systems/monsters/GrowthSupportFeedbackRuntime.gd")
+var growth_feedback=GrowthFeedbackScript.new()
 const ActorPreviewArt = preload("res://scripts/ui/UIUXActorArt.gd")
 const WorldBadgeTheme = preload("res://scripts/ui/UIUXTheme.gd")
 const MapStatusLabel = preload("res://scripts/ui/MapStatusLabel.gd")
@@ -20,6 +24,7 @@ const CampaignSaveV5StoreScript = preload("res://scripts/systems/save/CampaignSa
 const V122BattlePlanAdapterScript = preload("res://scripts/v122/spatial/V122BattlePlanAdapter.gd")
 const V122SaveProgressionAdapterScript = preload("res://scripts/v122/save/V122SaveProgressionAdapter.gd")
 const RoomGraphScript = preload("res://scripts/map/RoomGraph.gd")
+const MapBuildServiceScript = preload("res://scripts/map_builder/MapBuildService.gd")
 const ModuleGraphScript = preload("res://scripts/dungeon_quarter/ModuleGraph.gd")
 const WaveManagerScript = preload("res://scripts/combat/WaveManager.gd")
 const TargetingService = preload("res://scripts/combat/TargetingService.gd")
@@ -56,8 +61,8 @@ const CrownEvolutionServiceScript = preload("res://scripts/systems/crown/CrownEv
 const CouncilEndingServiceScript = preload("res://scripts/systems/endings/CouncilEndingService.gd")
 const OutpostServiceScript = preload("res://scripts/systems/outpost/OutpostService.gd")
 const OutpostEncounterServiceScript = preload("res://scripts/systems/outpost/OutpostEncounterService.gd")
-const MultiFloorGraphServiceScript = preload("res://scripts/systems/multifloor/MultiFloorGraphService.gd")
-const UpperFloorObjectiveServiceScript = preload("res://scripts/systems/multifloor/UpperFloorObjectiveService.gd")
+const CouncilExpansionScript = preload("res://scripts/systems/council/CouncilExpansionService.gd")
+const CouncilObjectiveServiceScript = preload("res://scripts/systems/council/CouncilObjectiveService.gd")
 const HeartChamberServiceScript = preload("res://scripts/systems/hearts/HeartChamberService.gd")
 const CastleHeartServiceScript = preload("res://scripts/systems/hearts/CastleHeartService.gd")
 const DuoLinkServiceScript = preload("res://scripts/systems/duo_links/DuoLinkService.gd")
@@ -68,22 +73,21 @@ const CampaignModeSelectionScreenScene = preload("res://scenes/ui/screens/Campai
 const RegionSelectionScreenScene = preload("res://scenes/ui/screens/RegionSelectionScreen.tscn")
 const OutpostManagementScreenScene = preload("res://scenes/ui/screens/OutpostManagementScreen.tscn")
 const OutpostBattleRootScene = preload("res://scenes/outpost/OutpostBattleRoot.tscn")
-const UpperFloorScreenScene = preload("res://scenes/ui/screens/UpperFloorScreen.tscn")
+const ExpansionScreenScene = preload("res://scenes/ui/screens/ExpansionObjectivesScreen.tscn")
 const HeartSelectionScreenScene = preload("res://scenes/ui/screens/HeartSelectionScreen.tscn")
 const DuoLinkLoadoutScreenScene = preload("res://scenes/ui/screens/DuoLinkLoadoutScreen.tscn")
 const ChronicleScreenScene = preload("res://scenes/ui/screens/ChronicleScreen.tscn")
 const HeartCombatHUDScene = preload("res://scenes/ui/hud/HeartCombatHUD.tscn")
 const DuoLinkCombatHUDScene = preload("res://scenes/ui/hud/DuoLinkCombatHUD.tscn")
-const MultiFloorHUDScene = preload("res://scenes/ui/hud/MultiFloorHUD.tscn")
 const Update4CouncilDecisionOverlayScript = preload("res://scripts/ui/Update4CouncilDecisionOverlay.gd")
 const DungeonRendererScript = preload("res://scripts/map/DungeonRenderer.gd")
 const QuarterDungeonRendererScript = preload("res://scripts/dungeon_quarter/QuarterDungeonRenderer.gd")
 const AutoTileMaskScript = preload("res://scripts/dungeon_quarter/AutoTileMask.gd")
 const IsoMathScript = preload("res://scripts/dungeon_quarter/IsoMath.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
-const COMBAT_MUSIC = preload("res://assets/audio/bgm/combat_dungeon_pressure.wav")
-const COMBAT_BOSS_MUSIC = preload("res://assets/audio/bgm/combat_boss_council.wav")
-const MANAGEMENT_MUSIC = preload("res://assets/audio/bgm/management_castle_bustle.wav")
+const COMBAT_MUSIC = preload("res://assets/audio/bgm/combat_dungeon_pressure.ogg")
+const COMBAT_BOSS_MUSIC = preload("res://assets/audio/bgm/combat_boss_council.ogg")
+const MANAGEMENT_MUSIC = preload("res://assets/audio/bgm/management_castle_bustle.ogg")
 const AudioDirectorScript = preload("res://scripts/audio/AudioDirector.gd")
 const AudioCatalogApiScript = preload("res://scripts/audio/AudioCatalogApi.gd")
 const FootstepSchedulerScript = preload("res://scripts/audio/FootstepScheduler.gd")
@@ -128,10 +132,11 @@ const MANAGEMENT_MUSIC_SCREENS := [
 	Constants.SCREEN_CAMPAIGN_MODE,
 	Constants.SCREEN_REGION_SELECTION,
 	Constants.SCREEN_OUTPOST_MANAGEMENT,
-	Constants.SCREEN_UPPER_FLOOR,
+	Constants.SCREEN_EXPANSION,
 	Constants.SCREEN_HEART_SELECTION,
 	Constants.SCREEN_DUO_LINK_LOADOUT,
-	Constants.SCREEN_CHRONICLE
+	Constants.SCREEN_CHRONICLE,
+	Constants.SCREEN_ENDING_ARCHIVE
 ]
 const WORLD_RENDER_SCREENS := [
 	Constants.SCREEN_MANAGEMENT,
@@ -148,7 +153,7 @@ const FACILITY_CHOICES = ["barracks", "treasure", "recovery", "watch_post", "war
 const UNIQUE_FACILITIES = ["treasure", "recovery", "ward_core"]
 const LOCKED_FACILITY_ROOMS = ["entrance", "spike_corridor", "throne", "center"]
 const COMBAT_ZOOM_MIN = 0.78
-const COMBAT_ZOOM_MAX = 1.85
+const COMBAT_ZOOM_MAX = 5.5
 const COMBAT_ZOOM_STEP = 1.12
 const COMBAT_CAMERA_HOME = Vector2(960, 540)
 const COMBAT_MUSIC_TARGET_DB = -7.5
@@ -241,6 +246,11 @@ const ONBOARDING_SCENE_ILLUSTRATIONS = {
 var graph = null
 var use_quarter_module_map := true
 var quarter_layout_id: String = ""
+var runtime_plot_layout: Dictionary = {}
+var plot_unlock_history: Array = []
+const PlotSaveStateScript = preload("res://scripts/map_builder/PlotSaveState.gd")
+const SaveV5ToV6MigratorScript = preload("res://scripts/systems/save/SaveV5ToV6Migrator.gd")
+const CampaignSaveV6StoreScript = preload("res://scripts/systems/save/CampaignSaveV6Store.gd")
 var castle_art_stage: String = CASTLE_STAGE_ONE_ID
 var castle_evolution_history: Array[String] = [CASTLE_STAGE_ONE_ID]
 var last_castle_evolution_day := 0
@@ -267,6 +277,7 @@ var tutorial_practice = TutorialPracticeSessionScript.new()
 var first_play_observation = FirstPlayObservationRecorderScript.new()
 var story_catalog = StoryCatalogScript.new()
 var story_director = StoryDirectorScript.new()
+var v130r_story = preload("res://scripts/story/V130RStoryRuntime.gd").new()
 var story_presenter = StoryDialoguePresenterScript.new()
 var run_metrics_tracker = RunMetricsTrackerScript.new()
 var resolved_campaign_ending_id := "true_demon_castle"
@@ -307,6 +318,8 @@ var story_feature_enabled := false
 var story_combat_overlay_open := false
 var story_combat_previous_paused := false
 var story_auto_remaining := 0.0
+var start_flow = preload("res://scripts/ui/StartFlow.gd").new()
+var continuity = preload("res://scripts/ui/PlayerContinuityUI.gd").new()
 var combat_story_feed = preload("res://scripts/story/CombatStoryFeed.gd").new()
 var story_archive_open := false
 var story_pending_combat_scenes: Array[Dictionary] = []
@@ -373,7 +386,15 @@ var effect_root: Node2D
 var world_overlay_layer: Node2D
 var ui_layer: CanvasLayer
 var _world_overlay_draw_target: CanvasItem
+var spectator_camera: Node
 var combat_camera: Camera2D
+var music_rotation = preload("res://scripts/audio/MusicRotation.gd").new()
+var music_rotation_timer: Timer
+var music_rotation_state := ""
+var music_rotation_scene := ""
+var music_rotation_event := ""
+var music_rotation_log: Array[Dictionary] = []
+var audio_quit_pending := false
 var combat_music_player: AudioStreamPlayer
 var combat_music_secondary_player: AudioStreamPlayer
 var combat_music_preview_player: AudioStreamPlayer
@@ -444,6 +465,7 @@ var drag_monster_position := Vector2.ZERO
 var drag_start_position := Vector2.ZERO
 var drag_hover_room: String = ""
 var monster_drag_texture_cache: Dictionary = {}
+var onboarding_portrait_texture_cache: Dictionary = {}
 
 var floor_texture: Texture2D
 var wall_texture: Texture2D
@@ -478,6 +500,8 @@ var campaign_save_v4_path: String = CampaignSaveV4StoreScript.SAVE_PATH
 var campaign_save_v4_enabled := true
 var campaign_save_v5_path: String = CampaignSaveV5StoreScript.SAVE_PATH
 var campaign_save_v5_enabled := true
+var campaign_save_v6_enabled := true
+var campaign_save_v6_path := CampaignSaveV6StoreScript.SAVE_PATH
 var campaign_save_v5_envelope: Dictionary = {}
 var campaign_save_status: String = CampaignSaveStoreScript.STATUS_MISSING
 var campaign_save_summary: Dictionary = {}
@@ -490,6 +514,16 @@ var pending_title_reset_mode: String = ""
 var settings_category := "display"
 var settings_return_screen := Constants.SCREEN_TITLE
 var settings_open_snapshot: Dictionary = {}
+var settings_accessibility_draft: Dictionary = {}
+var settings_accessibility_persistable := true
+var settings_profile_envelope: Dictionary = {}
+var settings_write_failed := false
+var settings_workspace
+var records_return_screen := Constants.SCREEN_MANAGEMENT
+var records_chronicle_tab := 0
+var records_chronicle_sections: Dictionary = {}
+var records_chronicle_scrolls: Dictionary = {}
+var records_companion_return := false
 var settings_text_preview_label: Label = null
 var pause_menu_open := false
 var pause_menu_source_screen := ""
@@ -497,6 +531,10 @@ var pause_menu_combat_was_paused := false
 var settings_return_to_pause_menu := false
 
 func _ready() -> void:
+	add_child(start_flow)
+	start_flow.setup(self)
+	continuity.setup(self)
+	get_tree().auto_accept_quit = false
 	randomize()
 	RenderingServer.set_default_clear_color(Color("#07050b"))
 	DataRegistry.load_all()
@@ -526,11 +564,13 @@ func _ready() -> void:
 	if onboarding_enabled:
 		tutorial_manager.setup(onboarding_flow.data.get("tutorial_steps", []))
 		_onboarding_set_stage("LV00_TITLE_BOOT")
-		_refresh_campaign_save_status()
-		_set_screen(Constants.SCREEN_TITLE)
-	else:
-		_set_screen(Constants.SCREEN_MANAGEMENT)
+	_refresh_campaign_save_status()
+	_set_screen(Constants.SCREEN_TITLE)
 	set_process_input(true)
+	if OS.has_feature("android"):
+		var lifecycle := preload("res://scripts/core/AndroidLifecycle.gd").new()
+		add_child(lifecycle)
+		lifecycle.setup(self)
 
 
 func _exit_tree() -> void:
@@ -540,6 +580,7 @@ func _exit_tree() -> void:
 
 
 func _shutdown_audio_for_exit() -> void:
+	if music_rotation_timer != null: music_rotation_timer.stop()
 	_stop_music_preview()
 	_kill_combat_music_tween()
 	if audio_director != null and is_instance_valid(audio_director):
@@ -548,6 +589,7 @@ func _shutdown_audio_for_exit() -> void:
 		if player != null:
 			player.stop()
 			player.stream = null
+	music_stream_cache.clear()
 	if update3_heart_loop_player != null:
 		update3_heart_loop_player.stop()
 		update3_heart_loop_player.stream = null
@@ -566,8 +608,11 @@ func _configure_campaign_save_context() -> void:
 		campaign_save_enabled = false
 		campaign_auxiliary_save_enabled = false
 		campaign_save_v5_enabled = false
+		campaign_save_v6_enabled = false
 
-func _set_campaign_save_path_for_tests(path: String, v2_path: String = "", v3_path: String = "", v4_path: String = "", v5_path: String = "") -> void:
+func _set_campaign_save_path_for_tests(path: String, v2_path: String = "", v3_path: String = "", v4_path: String = "", v5_path: String = "", v6_path: String = "") -> void:
+	campaign_save_v6_enabled = v6_path != ""
+	if campaign_save_v6_enabled: campaign_save_v6_path = v6_path
 	campaign_save_path = path
 	campaign_save_enabled = path != ""
 	campaign_auxiliary_save_enabled = v2_path != "" and v3_path != ""
@@ -583,6 +628,104 @@ func _set_campaign_save_path_for_tests(path: String, v2_path: String = "", v3_pa
 	campaign_save_notice = ""
 	_refresh_campaign_save_status()
 
+func _plot_source_from_graph() -> Dictionary:
+	var base := runtime_plot_layout if not runtime_plot_layout.is_empty() else DataRegistry.quarter_layout(quarter_layout_id)
+	var source := _layout_with_castle_stage_expansions(base)
+	if not MapBuildServiceScript.is_plot(graph): return source
+	source["plot_grid"] = graph.layout.plot_grid.duplicate(true)
+	source["decorations"] = graph.layout.get("decorations",[]).duplicate(true)
+	for row in source.get("placed_modules",[]):
+		var placed: Dictionary = graph.placed_module_data(str(row.instance_id))
+		if not placed.is_empty() and DataRegistry.quarter_modules.get(row.module_id,{}).get("module_type","") == "room":
+			row["grid_origin"] = placed.grid_origin.duplicate()
+			row["plot_rotation"] = 0
+			for edited in runtime_plot_layout.get("placed_modules",[]):
+				if edited.instance_id == row.instance_id: row["plot_rotation"] = int(edited.get("plot_rotation",0))
+	return source
+
+func _plot_save_state() -> Dictionary:
+	var index := maxi(0,_castle_stage_index()-1)
+	if plot_unlock_history.is_empty(): plot_unlock_history = PlotSaveStateScript.history(index,0,"new_game")
+	if not MapBuildServiceScript.is_plot(graph):
+		# Legacy checkpoints derive a safe plot before Continue.
+		var migrated := PlotSaveStateScript.migrate({"quarter_layout":_layout_with_castle_stage_expansions(DataRegistry.quarter_layout(quarter_layout_id)),"castle_art_stage":castle_art_stage},GameState.day,update3_active_run)
+		if bool(migrated.get("ok",false)): return migrated.state
+	return PlotSaveStateScript.capture(_plot_source_from_graph(),index,plot_unlock_history)
+
+func _inspect_campaign_v6() -> Dictionary:
+	# Legacy sources are read without inspect(), which may quarantine/rename them.
+	if not FileAccess.file_exists(campaign_save_v6_path) and (FileAccess.file_exists(campaign_save_v6_path+".tmp") or FileAccess.file_exists(campaign_save_v6_path+".bak")):
+		var recovered := CampaignSaveV6StoreScript.inspect(campaign_save_v6_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+		if recovered.status == "valid": return _campaign_v6_primary_inspection(recovered.envelope)
+		return {"status":"corrupt","error":recovered.get("error","")}
+	var paths := [campaign_save_v6_path,campaign_save_v5_path,campaign_save_v4_path,campaign_save_v3_path,campaign_save_v2_path,campaign_save_path]
+	for path in paths:
+		if not FileAccess.file_exists(path): continue
+		var input = JSON.parse_string(FileAccess.get_file_as_string(path))
+		if not input is Dictionary: return {"status":"corrupt","error":"Invalid save JSON"}
+		var migrated: Dictionary
+		if path == campaign_save_v6_path:
+			var error := SaveV5ToV6MigratorScript.validate_v6(input,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+			if error == "":
+				if input.active_run.get("expansion",{}).get("schema") == 1: return _campaign_v6_primary_inspection(input)
+				var archive: String = str(path) + ".council_original"
+				var hash := FileAccess.get_sha256(path)
+				if FileAccess.file_exists(archive) and FileAccess.get_sha256(archive) != hash: archive += "." + hash
+				if not FileAccess.file_exists(archive) and DirAccess.copy_absolute(ProjectSettings.globalize_path(path), ProjectSettings.globalize_path(archive)) != OK: return {"status":"corrupt","error":"Cannot preserve original council save"}
+				var converted := SaveV5ToV6MigratorScript.convert_council(input,DataRegistry.run_metric_definitions)
+				var result := CampaignSaveV6StoreScript.write(converted,path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+				return _campaign_v6_primary_inspection(converted) if result.ok else {"status":"corrupt","error":result.error}
+			if input.get("version") != 6: return {"status":"unsupported","error":error}
+			var compat: Dictionary = input.duplicate(true)
+			compat["version"] = 5
+			migrated = SaveV5ToV6MigratorScript.migrate_envelope(compat,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+			if not bool(migrated.get("ok",false)): return {"status":"corrupt","error":migrated.get("error",error)}
+			# Coordinate repair must retain valid dates/regions from the saved unlock ledger.
+			var saved_plot = input.get("active_run",{}).get("plot_state",{})
+			if saved_plot is Dictionary and saved_plot.get("unlock_history") is Array:
+				var repaired: Dictionary = migrated.envelope.active_run.plot_state.duplicate(true)
+				repaired["unlock_history"] = saved_plot.unlock_history.duplicate(true)
+				if PlotSaveStateScript.validate(repaired) == "": migrated.envelope.active_run["plot_state"] = repaired
+			migrated.envelope["plot_migration_fallback"] = true
+			var preserved := "%s.plot_original" % path
+			var original_hash := FileAccess.get_sha256(path)
+			if FileAccess.file_exists(preserved) and FileAccess.get_sha256(preserved) != original_hash:
+				preserved += "."+original_hash
+			if not FileAccess.file_exists(preserved) and DirAccess.copy_absolute(ProjectSettings.globalize_path(path),ProjectSettings.globalize_path(preserved)) != OK:
+				return {"status":"corrupt","error":"Cannot preserve original plot save"}
+			if FileAccess.get_sha256(preserved) != original_hash: return {"status":"corrupt","error":"Original plot archive differs"}
+		else:
+			migrated = SaveV5ToV6MigratorScript.upgrade_legacy(input,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+		if not bool(migrated.get("ok",false)): return {"status":"corrupt","error":migrated.get("error","")}
+		var write := CampaignSaveV6StoreScript.write(migrated.envelope,campaign_save_v6_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+		if not write.ok: return {"status":"corrupt","error":write.error}
+		return _campaign_v6_primary_inspection(migrated.envelope)
+	return {}
+
+func _campaign_v6_primary_inspection(envelope: Dictionary) -> Dictionary:
+	var inspection := _campaign_v5_primary_inspection({"status":"valid","envelope":envelope})
+	inspection.payload["world"]["plot_state"] = envelope.active_run.plot_state.duplicate(true)
+	return inspection
+
+func _write_campaign_v6_snapshot() -> bool:
+	if not campaign_save_enabled or not campaign_save_v6_enabled: return true
+	var envelope: Dictionary = campaign_save_v5_envelope.duplicate(true)
+	if envelope.is_empty():
+		var input := {"version":1,"payload":_campaign_save_payload(current_screen),"summary":_campaign_save_summary(current_screen)}
+		var migration := SaveV5ToV6MigratorScript.upgrade_legacy(input,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+		if not migration.ok: campaign_save_error = migration.get("error",""); return false
+		envelope = migration.envelope
+	envelope["version"] = 6
+	envelope["summary"] = _campaign_save_summary(current_screen)
+	envelope.profile.merge(update4_profile,true)
+	envelope.active_run.merge(update4_active_run,true)
+	envelope.active_run["legacy_payload"] = _campaign_save_payload(current_screen)
+	envelope.active_run["plot_state"] = _plot_save_state()
+	envelope = SaveV5ToV6MigratorScript.convert_council(envelope,DataRegistry.run_metric_definitions)
+	var result := CampaignSaveV6StoreScript.write(envelope,campaign_save_v6_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+	if not result.ok: campaign_save_error = result.error; return false
+	return true
+
 func _refresh_campaign_save_status() -> Dictionary:
 	if not campaign_save_enabled:
 		campaign_save_status = CampaignSaveStoreScript.STATUS_MISSING
@@ -594,7 +737,9 @@ func _refresh_campaign_save_status() -> Dictionary:
 			"error": campaign_save_error
 		}
 	var inspection: Dictionary = {}
-	if campaign_save_v5_enabled:
+	if campaign_save_v6_enabled:
+		inspection = _inspect_campaign_v6()
+	if inspection.is_empty() and campaign_save_v5_enabled:
 		var v5_inspection := CampaignSaveV5StoreScript.inspect(campaign_save_v5_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs(), DataRegistry.update4_catalogs)
 		if str(v5_inspection.get("status", "")) == CampaignSaveV5StoreScript.STATUS_MISSING and campaign_save_v4_enabled:
 			var migration := CampaignSaveV5StoreScript.migrate_v4_file(campaign_save_v4_path, campaign_save_v5_path, DataRegistry.monster_instances, DataRegistry.run_metric_definitions, _update3_save_catalogs(), DataRegistry.update4_catalogs)
@@ -606,6 +751,7 @@ func _refresh_campaign_save_status() -> Dictionary:
 		inspection = CampaignSaveStoreScript.inspect(campaign_save_path)
 	campaign_save_status = str(inspection.get("status", CampaignSaveStoreScript.STATUS_CORRUPT))
 	campaign_save_summary = inspection.get("summary", {}).duplicate(true)
+	campaign_save_summary["saved_at_text"] = inspection.get("saved_at_text", inspection.get("envelope", {}).get("saved_at_text", ""))
 	campaign_save_error = str(inspection.get("error", ""))
 	return inspection
 
@@ -651,21 +797,41 @@ func _flush_campaign_autosave() -> bool:
 		return false
 	if not _campaign_safe_save_screen(current_screen) or current_screen != campaign_autosave_checkpoint:
 		return false
+	var bundle_guard = preload("res://scripts/core/CampaignSaveBundleGuard.gd")
+	var paths := [campaign_save_path]
+	if campaign_auxiliary_save_enabled: paths.append_array([campaign_save_v2_path, campaign_save_v3_path])
+	if campaign_save_v4_enabled: paths.append(campaign_save_v4_path)
+	if campaign_save_v5_enabled: paths.append(campaign_save_v5_path)
+	if campaign_save_v6_enabled: paths.append(campaign_save_v6_path)
+	for path in paths.duplicate(): paths.append_array([path+".tmp",path+".bak",path+".corrupt"])
+	var before: Dictionary = bundle_guard.snapshot(paths)
+	var previous_save_status: String = campaign_save_status
+	if not bool(before.get("ok", false)):
+		campaign_save_error = str(before.get("error", "기존 저장을 읽을 수 없습니다."))
+		campaign_save_notice = "기존 저장을 보존할 수 없어 새 저장을 중단했습니다.\n%s" % campaign_save_error
+		_log("자동 저장 실패: %s" % campaign_save_error)
+		_show_campaign_save_notice_overlay()
+		return false
 	var payload := _campaign_save_payload(current_screen)
 	var summary := _campaign_save_summary(current_screen)
 	var write_result: Dictionary = CampaignSaveStoreScript.write(payload, summary, campaign_save_path)
 	if not bool(write_result.get("ok", false)):
-		campaign_save_status = CampaignSaveStoreScript.STATUS_CORRUPT
+		var restored: bool = bundle_guard.restore(before)
+		campaign_save_status = previous_save_status if restored else CampaignSaveStoreScript.STATUS_CORRUPT
 		campaign_save_error = str(write_result.get("error", "저장에 실패했습니다."))
-		campaign_save_notice = "자동 저장에 실패했습니다. 이전 저장은 유지됩니다.\n%s" % campaign_save_error
+		if not restored: campaign_save_error += " · 이전 저장 묶음 복구 실패"
+		campaign_save_notice = ("저장에 실패해 이전 체크포인트 묶음을 복구했습니다.\n%s" if restored else "저장 실패 · 이전 체크포인트 묶음도 복구하지 못했습니다.\n%s") % campaign_save_error
 		_log("자동 저장 실패: %s" % campaign_save_error)
 		push_warning("Campaign autosave failed: %s" % campaign_save_error)
 		_show_campaign_save_notice_overlay()
 		return false
 	if not _write_campaign_v2_snapshot():
-		campaign_save_status = CampaignSaveStoreScript.STATUS_CORRUPT
-		campaign_save_notice = "자동 저장 본문은 기록했지만 v5 저장을 완성하지 못했습니다.\n%s" % campaign_save_error
-		push_warning("Campaign v5 autosave failed: %s" % campaign_save_error)
+		var restored: bool = bundle_guard.restore(before)
+		campaign_save_status = previous_save_status if restored else CampaignSaveStoreScript.STATUS_CORRUPT
+		if not restored: campaign_save_error += " · 이전 저장 묶음 복구 실패"
+		campaign_save_notice = ("저장에 실패해 이전 체크포인트 묶음을 복구했습니다.\n%s" if restored else "저장 실패 · 이전 체크포인트 묶음도 복구하지 못했습니다.\n%s") % campaign_save_error
+		_log("자동 저장 실패: %s" % campaign_save_error)
+		push_warning("Campaign snapshot autosave failed: %s" % campaign_save_error)
 		_show_campaign_save_notice_overlay()
 		return false
 	campaign_save_status = CampaignSaveStoreScript.STATUS_VALID
@@ -699,6 +865,9 @@ func _campaign_save_summary(checkpoint: String) -> Dictionary:
 	var stage_info := _castle_stage_info()
 	return {
 		"day": GameState.day,
+		"play_seconds": start_flow.play_seconds,
+		"map_grade": str(get_meta("approved_grade_progression",{}).get("layout",{}).get("grade","F")),
+		"saved_at_text": Time.get_datetime_string_from_system(false, true),
 		"campaign_final_day": REGULAR_CAMPAIGN_FINAL_DAY,
 		"player_name": _onboarding_player_name(),
 		"castle_stage": castle_art_stage,
@@ -762,13 +931,16 @@ func _campaign_checkpoint_label(checkpoint: String) -> String:
 			return "후일담 관리" if campaign_postgame_active else "성 관리"
 
 func _campaign_save_payload(checkpoint: String) -> Dictionary:
+	AchievementService.observe_game(self)
 	return {
 		"checkpoint": checkpoint,
 		"screen": current_screen,
 		"game_state": GameState.campaign_snapshot(),
+		"achievements": AchievementService.snapshot(),
 		"world": {
 			"quarter_layout_id": quarter_layout_id,
 			"quarter_layout": DataRegistry.quarter_layout(quarter_layout_id),
+			"plot_state": _plot_save_state(),
 			"castle_art_stage": castle_art_stage,
 			"castle_evolution_history": castle_evolution_history.duplicate(),
 			"last_castle_evolution_day": last_castle_evolution_day,
@@ -776,7 +948,7 @@ func _campaign_save_payload(checkpoint: String) -> Dictionary:
 			"rooms": rooms.duplicate(true),
 			"selected_room": selected_room,
 			"selected_monster_id": selected_monster_id,
-			"global_directive": global_directive,
+			"global_directive": Constants.DIRECTIVE_DEFENSE if combat_scene.has_method("reset_command") else global_directive,
 			"room_directives": room_directives.duplicate(true),
 			"monster_roster": monster_roster.duplicate(true),
 			"logs": logs.duplicate()
@@ -820,6 +992,7 @@ func _campaign_save_payload(checkpoint: String) -> Dictionary:
 			"last_growth_choice_summary": last_growth_choice_summary.duplicate(true)
 		},
 		"onboarding": {
+			"start_flow": start_flow.snapshot(),
 			"stage_id": onboarding_stage_id,
 			"seen_dialogue_ids": onboarding_seen_dialogue_ids.duplicate(true),
 			"dialogue_queue": onboarding_dialogue_queue.duplicate(true),
@@ -845,7 +1018,9 @@ func _campaign_save_payload(checkpoint: String) -> Dictionary:
 			"selected_contract_ids": selected_contract_ids.duplicate(),
 			"deployed_instance_ids": deployed_instance_ids.duplicate(),
 			"reserve_instance_ids": reserve_instance_ids.duplicate(),
-			"stage_deployment_limit": _current_stage_deployment_limit(),
+			# The free-layout map uses food/slots, not the legacy stage roster cap.
+			# Describe the existing deployment for old save validators only.
+			"stage_deployment_limit": maxi(_current_stage_deployment_limit(),deployed_instance_ids.size()) if preload("res://scripts/map_builder/ApprovedGradeProgression.gd").enabled() else _current_stage_deployment_limit(),
 			"event_deck_order": event_deck_order.duplicate(),
 			"wave_variant_ids": wave_variant_ids.duplicate(),
 			"triggered_event_ids": update2_triggered_event_ids.duplicate(),
@@ -1085,6 +1260,10 @@ func _campaign_payload_is_restorable_without_layout_migration(payload: Dictionar
 			addition,
 			1 if include_heart_chamber else 0
 		)
+	var saved_plot = world.get("plot_state",{})
+	if saved_plot is Dictionary and not saved_plot.is_empty():
+		candidate_layout = MapBuildServiceScript.prepare_layout(saved_plot.get("layout_source",{}),DataRegistry.quarter_modules,target_stage_index-1)
+		if candidate_layout.has("map_build_errors"): return false
 	var candidate_graph = ModuleGraphScript.new()
 	candidate_graph.setup_quarter(DataRegistry.quarter_modules, candidate_layout, world.get("rooms", {}))
 	var graph_validation: Dictionary = candidate_graph.validation_summary()
@@ -1093,6 +1272,8 @@ func _campaign_payload_is_restorable_without_layout_migration(payload: Dictionar
 	return not candidate_graph.path_between(REQUIRED_MAIN_ROUTE_FROM, REQUIRED_MAIN_ROUTE_TO).is_empty()
 
 func _restore_campaign_payload(payload: Dictionary) -> bool:
+	combat_scene.skill_actions.interrupt("load")
+	combat_scene.abandon_suspended_frame()
 	var original_world: Dictionary = payload.get("world", {}) if payload.get("world") is Dictionary else {}
 	var original_layout_id := str(original_world.get("quarter_layout_id", ""))
 	var restore_payload := _campaign_restore_payload(payload)
@@ -1134,6 +1315,8 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	var saved_layout = world.get("quarter_layout", {})
 	if quarter_layout_id != "" and saved_layout is Dictionary and not saved_layout.is_empty():
 		DataRegistry.register_quarter_layout(quarter_layout_id, saved_layout, false)
+	runtime_plot_layout = world.get("plot_state",{}).get("layout_source",{}).duplicate(true)
+	plot_unlock_history = world.get("plot_state",{}).get("unlock_history",[]).duplicate(true)
 	rooms = world.get("rooms", {}).duplicate(true)
 	_init_room_facilities()
 	_sync_castle_stage_content()
@@ -1142,7 +1325,8 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 	if not rooms.has(selected_room):
 		selected_room = "entrance"
 	selected_monster_id = _legacy_species_reference(str(world.get("selected_monster_id", "slime")))
-	global_directive = str(world.get("global_directive", Constants.DIRECTIVE_DEFENSE))
+	# Command stances belong to one battle; older saves may contain a leaked order.
+	global_directive = Constants.DIRECTIVE_DEFENSE
 	room_directives = world.get("room_directives", {}).duplicate(true)
 	for room_id_value in rooms.keys():
 		if not room_directives.has(room_id_value):
@@ -1239,6 +1423,7 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 		campaign_save_restore_active = false
 		return false
 	onboarding_enabled = onboarding_flow.loaded
+	if preload("res://scripts/map_builder/ApprovedPlacement.gd").enabled(): start_flow.restore(onboarding.get("start_flow",{}))
 	story_combat_overlay_open = false
 	story_pending_combat_scenes.clear()
 	story_archive_open = false
@@ -1270,12 +1455,19 @@ func _restore_campaign_payload(payload: Dictionary) -> bool:
 		var setup_screen := _next_update2_cycle_setup_screen()
 		if setup_screen != Constants.SCREEN_MANAGEMENT:
 			restored_screen = setup_screen
+	AchievementService.retroactive(payload,update4_profile)
 	logs.append("저장 기록을 불러왔습니다. DAY %d." % GameState.day)
 	_set_screen(restored_screen)
 	campaign_save_restore_active = false
 	return true
 
 func _continue_campaign_save() -> void:
+	var replay_start_guide: bool = start_flow.replay_on_continue
+	pause_menu_open = false
+	pause_menu_source_screen = ""
+	pause_menu_combat_was_paused = false
+	continuity.backlog_open = false
+	continuity.confirmation_action = ""
 	var inspection := _refresh_campaign_save_status()
 	if campaign_save_status != CampaignSaveStoreScript.STATUS_VALID:
 		_set_screen(Constants.SCREEN_TITLE)
@@ -1295,6 +1487,9 @@ func _continue_campaign_save() -> void:
 		_set_screen(Constants.SCREEN_TITLE)
 	elif not v5_envelope.is_empty():
 		_load_update4_context_from_v5(v5_envelope, true)
+	if replay_start_guide and campaign_save_status==CampaignSaveStoreScript.STATUS_VALID:
+		start_flow.replay_guide()
+		start_flow.replay_on_continue = false
 
 
 func _load_update4_context_from_v5(envelope: Dictionary, include_update3: bool) -> void:
@@ -1305,6 +1500,7 @@ func _load_update4_context_from_v5(envelope: Dictionary, include_update3: bool) 
 	if include_update3:
 		update3_profile = FrontCampaignServiceScript.normalize_update3_profile(profile)
 		update3_active_run = FrontCampaignServiceScript.normalize_active_run(active_run, campaign_cycle_index)
+		if _update4_council_mode_active():_ensure_update4_council_roster()
 
 func _delete_campaign_save() -> bool:
 	campaign_autosave_pending = false
@@ -1312,11 +1508,13 @@ func _delete_campaign_save() -> bool:
 		campaign_save_notice = ""
 		return true
 	var removed := CampaignSaveStoreScript.delete(campaign_save_path)
-	if removed and campaign_save_path == CampaignSaveStoreScript.SAVE_PATH:
-		removed = CampaignSaveV2StoreScript.delete(CampaignSaveV2StoreScript.SAVE_PATH)
-		removed = CampaignSaveV3StoreScript.delete(CampaignSaveV3StoreScript.SAVE_PATH) and removed
-		removed = CampaignSaveV4StoreScript.delete(CampaignSaveV4StoreScript.SAVE_PATH) and removed
-		removed = CampaignSaveV5StoreScript.delete(CampaignSaveV5StoreScript.SAVE_PATH) and removed
+	if removed:
+		if campaign_auxiliary_save_enabled:
+			removed = CampaignSaveV2StoreScript.delete(campaign_save_v2_path) and removed
+			removed = CampaignSaveV3StoreScript.delete(campaign_save_v3_path) and removed
+		if campaign_save_v4_enabled: removed = CampaignSaveV4StoreScript.delete(campaign_save_v4_path) and removed
+		if campaign_save_v5_enabled: removed = CampaignSaveV5StoreScript.delete(campaign_save_v5_path) and removed
+		if campaign_save_v6_enabled: removed = CampaignSaveV6StoreScript.delete(campaign_save_v6_path) and removed
 	if not removed:
 		campaign_save_notice = "저장 기록을 지우지 못해 새 게임을 시작하지 않았습니다.\n파일 사용 권한을 확인한 뒤 다시 시도하세요."
 		campaign_save_error = campaign_save_notice
@@ -1327,7 +1525,25 @@ func _delete_campaign_save() -> bool:
 	return removed
 
 func _physics_process(delta: float) -> void:
+	if combat_scene.presentation_hold:
+		_suspended_interface_tick(delta)
+		return
+	if combat_scene.has_suspended_frame():
+		if current_screen != Constants.SCREEN_COMBAT or combat_scene.requested_pause:
+			_suspended_interface_tick(delta)
+			return
+		var saved_delta: float = combat_scene.suspended_delta()
+		combat_scene.continue_suspended_frame()
+		if combat_scene.has_suspended_frame(): return
+		_combat_frame_tail(saved_delta)
+		combat_scene.finish_suspended_frame()
+		return
 	combat_scene.physics_process(delta)
+	if combat_scene.has_suspended_frame(): return
+	_combat_frame_tail(delta)
+	combat_scene.finish_suspended_frame()
+
+func _combat_frame_tail(delta: float) -> void:
 	if footstep_scheduler != null:
 		footstep_scheduler.update(
 			delta,
@@ -1338,9 +1554,45 @@ func _physics_process(delta: float) -> void:
 	_update3_duo_link_effects(delta)
 	_tick_defense_start_countdown(delta, true)
 	combat_story_feed.tick(self, delta)
+	continuity.tick(delta)
 	_story_tick_auto(delta)
 
+func _suspended_interface_tick(delta: float) -> void:
+	combat_story_feed.tick(self, delta)
+	continuity.tick(delta)
+	if not combat_scene.skill_actions.is_active(): _story_tick_auto(delta)
+
 func _input(event: InputEvent) -> void:
+	if start_flow.input(event):
+		get_viewport().set_input_as_handled()
+		return
+	if combat_scene != null and combat_scene.skill_actions.is_active():
+		if event is InputEventKey and event.pressed and not event.echo:
+			if event.keycode == KEY_ESCAPE: _open_pause_menu()
+			elif event.keycode == KEY_SPACE: combat_scene.skill_actions.skip()
+			get_viewport().set_input_as_handled()
+		return # GUI pointer events remain available; world shortcuts stop.
+	if continuity.input(event):
+		# GUI still receives pointer input; world and dialogue shortcuts stop here.
+		if event is InputEventKey and event.keycode == KEY_ESCAPE: get_viewport().set_input_as_handled()
+		return
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE and current_screen not in [Constants.SCREEN_TITLE, Constants.SCREEN_SETTINGS, Constants.SCREEN_NAME_ENTRY, Constants.SCREEN_TUTORIAL_PRACTICE]:
+		if current_screen == Constants.SCREEN_COMBAT and combat_scene.pending_v122_command_id != "":
+			_cancel_v122_command_targeting()
+		elif current_screen == Constants.SCREEN_MANAGEMENT and _management_action_mode_active():
+			_cancel_management_action_mode()
+		elif current_screen == Constants.SCREEN_DEFENSE_START:
+			_cancel_defense_start()
+		else:
+			_open_pause_menu()
+		get_viewport().set_input_as_handled()
+		return
+	if UISettings.supports_window_mode() and event is InputEventKey and event.pressed and not event.echo and event.alt_pressed and event.keycode == KEY_ENTER:
+		UISettings.set_window_mode(UISettings.WINDOWED if UISettings.window_mode == UISettings.FULLSCREEN else UISettings.FULLSCREEN, current_screen != Constants.SCREEN_SETTINGS)
+		get_viewport().set_input_as_handled()
+		if current_screen == Constants.SCREEN_SETTINGS:
+			_rebuild_settings_screen()
+		return
 	if current_screen == Constants.SCREEN_TITLE and pending_title_reset_mode != "" and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		_cancel_title_reset_confirmation()
 		get_viewport().set_input_as_handled()
@@ -1352,7 +1604,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if story_director.is_active() and (current_screen == Constants.SCREEN_DIALOGUE or story_combat_overlay_open):
 		if event is InputEventKey and event.pressed and not event.echo:
-			if _is_dialogue_advance_event(event) and not (get_viewport().gui_get_focus_owner() is BaseButton):
+			if _is_dialogue_advance_event(event) and (event.keycode==KEY_SPACE or not (get_viewport().gui_get_focus_owner() is BaseButton)):
 				_story_advance_dialogue(true)
 				get_viewport().set_input_as_handled()
 		return
@@ -1376,14 +1628,23 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventKey and event.pressed and not event.echo and current_screen == Constants.SCREEN_DIALOGUE:
-		if _is_dialogue_advance_event(event) and not (get_viewport().gui_get_focus_owner() is BaseButton):
+		if _is_dialogue_advance_event(event) and (event.keycode==KEY_SPACE or not (get_viewport().gui_get_focus_owner() is BaseButton)):
 			_onboarding_advance_dialogue()
 			get_viewport().set_input_as_handled()
 			return
 	if _activate_focused_roster_card(event):
 		get_viewport().set_input_as_handled()
 		return
+	if (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT) or (event is InputEventScreenTouch and event.pressed):
+		var tutorial_room := _tutorial_room_focus_at(event.position)
+		if tutorial_room != "":
+			_select_room(tutorial_room)
+			get_viewport().set_input_as_handled()
+			return
 	if build_placement.handle_input(event):
+		get_viewport().set_input_as_handled()
+		return
+	if spectator_camera.handle_input(event):
 		get_viewport().set_input_as_handled()
 		return
 	if event is InputEventMouseMotion and map_editor_path_drag_active:
@@ -1421,6 +1682,9 @@ func _input(event: InputEvent) -> void:
 					if screen_point.x > -90000 and _management_ui_at(screen_point):
 						return
 					if map_editor_active and _start_map_editor_path_drag(point):
+						return
+					if _tutorial_room_selection_precedes_drag(point):
+						_handle_left_click(point, screen_point)
 						return
 					if not build_pick_mode and deploy_pick_monster_id == "" and _start_management_monster_drag(point):
 						return
@@ -1497,6 +1761,7 @@ func queue_world_overlay_redraw() -> void:
 		world_overlay_layer.queue_redraw()
 
 func _screen_uses_world_render(screen_name: String) -> bool:
+	if bool(ProjectSettings.get_setting("debug/start_flow14",false)) and screen_name==Constants.SCREEN_COMBAT: return false
 	return screen_name in WORLD_RENDER_SCREENS
 
 func _init_roster() -> void:
@@ -1633,10 +1898,12 @@ func _grant_monster_bond(monster_id: String, amount: int) -> Dictionary:
 	var rank_after := _monster_bond_rank(after)
 	monster_roster[monster_id]["bond"] = after
 	monster_roster[monster_id]["bond_rank"] = rank_after
+	support_mastery.record_bond(monster_id,before,after)
 	var unlocked_memory_id := ""
 	if rank_after > rank_before:
 		var custom_memory_ids: Dictionary = DataRegistry.monster(monster_id).get("bond_memory_ids", {})
 		unlocked_memory_id = str(custom_memory_ids.get(str(rank_after), "")) if not custom_memory_ids.is_empty() else "bond_%s_rank_%d" % [monster_id, rank_after]
+		if unlocked_memory_id != "" and DataRegistry.memory_entry(unlocked_memory_id).is_empty(): unlocked_memory_id = ""
 		if unlocked_memory_id != "":
 			var memory_ids: Array = monster_roster[monster_id].get("unlocked_memory_ids", [])
 			if not memory_ids.has(unlocked_memory_id):
@@ -1663,12 +1930,21 @@ func _init_room_facilities() -> void:
 
 func _setup_dungeon_graph() -> void:
 	var layout_data = _quarter_layout_for_graph()
+	if _update4_council_mode_active() and bool(update4_active_run.get("expansion",{}).get("unlocked",false)):
+		for id in ["crown_sanctum","seal_vault"]:
+			if str(update4_active_run.expansion.get("rooms",{}).get(id,"")) != id: continue
+			if not rooms.has(id):
+				rooms[id] = {"id":id,"display_name":str(DataRegistry.update4_expansion_modules[id].display_name),"type":id,"facility_role":id,"max_monsters":2,"hp":600,"max_hp":600,"disabled":false}
+			if id == "crown_sanctum":
+				rooms[id].hp = int(update4_active_run.expansion.objective_hp.get(id,0))
+				rooms[id].max_hp = CouncilObjectiveServiceScript.crown_max_hp(DataRegistry.update4_expansion_modules,_castle_stage_index())
 	var can_use_quarter_map = use_quarter_module_map and not DataRegistry.quarter_modules.is_empty() and not layout_data.is_empty()
 	if can_use_quarter_map:
 		if quarter_layout_id == "" and not map_editor_active:
 			quarter_layout_id = str(layout_data.get("template_id", DataRegistry.quarter_default_layout_id))
 		graph = ModuleGraphScript.new()
 		graph.setup_quarter(DataRegistry.quarter_modules, layout_data, rooms)
+		tutorial_manager.day1_target_rooms = _day1_goblin_tutorial_target_rooms()
 		var validation = graph.validation_summary()
 		if not bool(validation.get("ok", false)) and not map_editor_active:
 			push_warning("Quarter module map validation errors: %s" % str(validation.get("errors", [])))
@@ -1682,7 +1958,39 @@ func _quarter_layout_for_graph() -> Dictionary:
 	if map_editor_active and not map_editor_layout.is_empty():
 		return map_editor_layout.duplicate(true)
 	var layout := DataRegistry.quarter_layout(quarter_layout_id)
-	return _layout_with_castle_stage_expansions(layout)
+	var source := runtime_plot_layout if not runtime_plot_layout.is_empty() else layout
+	var expanded := _layout_with_castle_stage_expansions(source)
+	if not runtime_plot_layout.is_empty():
+		for row in expanded.get("placed_modules",[]):
+			for edited in runtime_plot_layout.get("placed_modules",[]):
+				if row.instance_id == edited.instance_id:
+					row["grid_origin"] = edited.grid_origin.duplicate()
+					row["plot_rotation"] = int(edited.get("plot_rotation",0))
+		expanded["plot_grid"] = runtime_plot_layout.plot_grid.duplicate(true)
+		var next_grade := maxi(0, _castle_stage_index() - 1)
+		var old_grade := int(runtime_plot_layout.plot_grid.grade_index)
+		if next_grade > old_grade:
+			for decoration in expanded.get("decorations",[]):
+				decoration.cell = [int(decoration.cell[0])+6*(next_grade-old_grade),int(decoration.cell[1])+6*(next_grade-old_grade)]
+			for row in expanded.placed_modules:
+				var known := false
+				for edited in runtime_plot_layout.placed_modules:
+					if row.instance_id == edited.instance_id: known = true
+				if known:
+					row.grid_origin = [int(row.grid_origin[0])+6*(next_grade-old_grade),int(row.grid_origin[1])+6*(next_grade-old_grade)]
+				elif DataRegistry.quarter_modules.get(row.module_id,{}).get("module_type","") == "room":
+					# New authored rooms need sites, not their old fixed-map coordinates.
+					row["plot_new_site"] = true
+	var built := MapBuildServiceScript.prepare_layout(expanded, DataRegistry.quarter_modules, maxi(0, _castle_stage_index() - 1))
+	if _update4_council_mode_active() and bool(update4_active_run.get("expansion", {}).get("unlocked", false)):
+		var placed := CouncilExpansionScript.place_objectives(expanded, built, DataRegistry.quarter_modules, _plot_history_for_grade(), update4_active_run.expansion)
+		runtime_plot_layout = placed.source
+		update4_active_run["expansion"] = placed.state
+		return placed.layout
+	return built
+
+func _plot_history_for_grade() -> Array:
+	return plot_unlock_history if plot_unlock_history.size() == _castle_stage_index() else PlotSaveStateScript.history(_castle_stage_index() - 1, GameState.day, "migration")
 
 func _layout_with_castle_stage_expansions(source_layout: Dictionary) -> Dictionary:
 	var expanded := source_layout.duplicate(true)
@@ -1828,14 +2136,9 @@ func _apply_update3_dream_max_hp() -> void:
 	GameState.demon_lord_hp = int(result.get("throne_hp", GameState.demon_lord_hp))
 
 func _apply_update3_daily_heart_upkeep() -> int:
-	var result := CastleHeartServiceScript.apply_daily_upkeep(update3_active_run, GameState.day, GameState.food)
-	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
-	var paid := int(result.get("paid", 0))
-	if paid > 0:
-		GameState.food = int(result.get("food", GameState.food))
-		SignalBus.resources_changed.emit()
-		_log("포식 심장 일일 유지비로 식량 %d을 사용했습니다." % paid)
-	return paid
+	# The old additional food tax is superseded by individual monster rations.
+	return 0
+
 
 func _prepare_update3_heart_battle() -> void:
 	_sync_update3_heart_awaken()
@@ -2013,6 +2316,7 @@ func _emit_update3_hunger_wave() -> Dictionary:
 		var boss := _update3_enemy_is_boss(enemy)
 		var damage := CastleHeartServiceScript.HUNGER_WAVE_BOSS_DAMAGE if boss else CastleHeartServiceScript.HUNGER_WAVE_DAMAGE
 		var dealt := int(enemy.receive_magic_damage(damage))
+		combat_scene._show_combat_hit_feedback(enemy.global_position, "hunger_wave", enemy, dealt, false, "area")
 		enemy.morale = maxi(0, int(enemy.morale) - CastleHeartServiceScript.HUNGER_WAVE_MORALE_DAMAGE)
 		hit_count += 1
 		damage_total += dealt
@@ -2043,38 +2347,66 @@ func _damage_update3_facility(room_id: String, amount: int, event_token: String 
 	if not rooms.has(room_id) or str(rooms[room_id].get("facility_role", "")) in ["", "entry", "trap", "corridor", "core", "build_slot"]:
 		return {"ok": false, "damage": 0, "error": "피해를 받을 활성 시설이 아닙니다."}
 	var token := event_token if event_token != "" else "%s:%d" % [room_id, Time.get_ticks_msec()]
-	var result := CastleHeartServiceScript.apply_room_damage(update3_active_run, room_id, amount, token, combat_time)
+	var before_hp:int=int(rooms[room_id].get("hp",0))
+	var scale:float=combat_scene.crown_facilities.damage_scale(room_id)
+	# apply_room_damage returns a deep-copied run. This discarded comparison does
+	# not commit shields, charge or metrics twice; only the actual result is saved.
+	var unprotected_loss:int=0
+	if scale<1.0:
+		var preview:Dictionary=CastleHeartServiceScript.apply_room_damage(update3_active_run,room_id,amount,token,combat_time)
+		unprotected_loss=mini(before_hp,int(preview.damage))
+	var protected_request:int=maxi(1,roundi(float(amount)*scale)) if amount>0 else 0
+	var result := CastleHeartServiceScript.apply_room_damage(update3_active_run, room_id, protected_request, token, combat_time)
 	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
 	if not rooms[room_id].has("max_hp"):
 		rooms[room_id]["max_hp"] = int(rooms[room_id].get("hp", 0))
 	rooms[room_id]["hp"] = maxi(0, int(rooms[room_id].get("hp", 0)) - int(result.get("damage", 0)))
+	var actual_loss:int=maxi(0,before_hp-int(rooms[room_id]["hp"]))
+	result["actual_hp_loss"]=actual_loss
+	combat_scene.crown_facilities.notify_damage(room_id,actual_loss)
+	if scale<1.0:combat_scene.crown_facilities.record_prevention(room_id,maxi(0,unprotected_loss-actual_loss))
 	if combat_scene != null and combat_scene.has_method("notify_toktok_facility_hit"):
 		combat_scene.notify_toktok_facility_hit(room_id, int(result.get("damage", 0)))
 	result["ok"] = true
 	result["room_hp"] = int(rooms[room_id]["hp"])
 	return result
 
-func _repair_update3_facility(room_id: String, amount: int, event_token: String = "") -> Dictionary:
+func _repair_update3_facility(room_id: String, amount: int, event_token: String = "", maximum_effective_repair:int=-1) -> Dictionary:
 	if not rooms.has(room_id):
 		return {"ok": false, "repair": 0, "error": "수리할 방이 없습니다."}
 	var token := event_token if event_token != "" else "%s:%d" % [room_id, Time.get_ticks_msec()]
-	var result := CastleHeartServiceScript.apply_repair(update3_active_run, amount, token, combat_time)
+	var limit:int=maximum_effective_repair
+	if limit>=0:limit=mini(limit,maxi(0,int(rooms[room_id].get("max_hp",rooms[room_id].get("hp",0)))-int(rooms[room_id].get("hp",0))))
+	var result := CastleHeartServiceScript.apply_repair(update3_active_run, amount, token, combat_time,limit)
 	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
 	var maximum := int(rooms[room_id].get("max_hp", rooms[room_id].get("hp", 0)))
 	var before := int(rooms[room_id].get("hp", 0))
 	rooms[room_id]["hp"] = mini(maximum, before + int(result.get("repair", 0)))
 	if room_id == HeartChamberServiceScript.ROOM_ID:
 		update3_active_run["heart"]["chamber_hp"] = int(rooms[room_id]["hp"])
+	if room_id == "crown_sanctum" and _update4_council_mode_active():
+		update4_active_run["expansion"]["objective_hp"]["crown_sanctum"] = int(rooms[room_id]["hp"])
 	result["ok"] = true
 	result["effective_repair"] = maxi(0, int(rooms[room_id]["hp"]) - before)
 	result["room_hp"] = int(rooms[room_id]["hp"])
 	return result
 
 func _damage_update3_heart_chamber(amount: int) -> Dictionary:
-	var mitigation := CastleHeartServiceScript.apply_room_damage(update3_active_run, HeartChamberServiceScript.ROOM_ID, amount, "heart:%d" % Time.get_ticks_msec(), combat_time)
+	var room_id:String=HeartChamberServiceScript.ROOM_ID
+	var before_hp:int=int(update3_active_run.get("heart",{}).get("chamber_hp",0))
+	var scale:float=combat_scene.crown_facilities.damage_scale(room_id)
+	var token:="heart:%d"%Time.get_ticks_msec()
+	var unprotected_loss:=0
+	if scale<1.0:
+		var preview:Dictionary=CastleHeartServiceScript.apply_room_damage(update3_active_run,room_id,amount,token,combat_time)
+		unprotected_loss=mini(before_hp,int(preview.damage))
+	var protected_request:int=maxi(1,roundi(float(amount)*scale)) if amount>0 else 0
+	var mitigation := CastleHeartServiceScript.apply_room_damage(update3_active_run, room_id, protected_request, token, combat_time)
 	update3_active_run = mitigation.get("active_run", update3_active_run).duplicate(true)
 	var result: Dictionary = HeartChamberServiceScript.damage(update3_active_run, int(mitigation.get("damage", amount)))
 	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	combat_scene.crown_facilities.notify_damage(room_id,int(result.get("damage",0)))
+	if scale<1.0:combat_scene.crown_facilities.record_prevention(room_id,maxi(0,unprotected_loss-int(result.get("damage",0))))
 	if bool(result.get("disabled", false)):
 		update3_active_run = CastleHeartServiceScript.record_chamber_disabled(update3_active_run)
 		result["active_run"] = update3_active_run.duplicate(true)
@@ -2136,12 +2468,12 @@ func _start_update3_heart_loop() -> void:
 		update3_heart_loop_player.name = "Update3HeartLoop"
 		update3_heart_loop_player.bus = AudioSettings.SFX_BUS
 		effect_root.add_child(update3_heart_loop_player)
-	var source := load("res://assets/audio/update3/%s.wav" % cue)
+	var source := load("res://assets/audio/update3/%s.ogg" % cue)
 	if source == null:
 		return
 	var loop_stream := source.duplicate(true)
-	if loop_stream is AudioStreamWAV:
-		loop_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	if loop_stream is AudioStreamOggVorbis:
+		loop_stream.loop = true
 	update3_heart_loop_player.stream = loop_stream
 	update3_heart_loop_player.volume_db = -22.0
 	update3_heart_loop_player.play()
@@ -2335,6 +2667,7 @@ func _apply_update3_devouring_pulse(room_id: String) -> Dictionary:
 		if not is_instance_valid(enemy) or not enemy.is_alive() or str(enemy.current_room) != room_id:
 			continue
 		var dealt := int(enemy.receive_magic_damage(CastleHeartServiceScript.HUNGRY_ACTIVE_DAMAGE_PER_SECOND))
+		combat_scene._show_combat_hit_feedback(enemy.global_position, "devouring_pulse", enemy, dealt, false, "area_dot")
 		enemy.apply_slow(1.1, CastleHeartServiceScript.HUNGRY_ACTIVE_BOSS_SLOW_SCALE if _update3_enemy_is_boss(enemy) else CastleHeartServiceScript.HUNGRY_ACTIVE_SLOW_SCALE)
 		hit_count += 1
 		damage_total += dealt
@@ -3981,7 +4314,11 @@ func set_combat_vfx_accessibility(reduce_flash: bool, intensity_scale: float = 1
 	combat_vfx_accessibility["intensity_scale"] = clampf(intensity_scale, 0.45, 1.25)
 
 func get_combat_vfx_accessibility() -> Dictionary:
-	return combat_vfx_accessibility.duplicate(true)
+	var result: Dictionary = combat_vfx_accessibility.duplicate(true)
+	if UISettings.reduce_combat_effects:
+		result.reduce_flash = true
+		result.intensity_scale = float(result.get("intensity_scale", 1.0)) * 0.75
+	return result
 
 func _load_png(path: String) -> Texture2D:
 	if ResourceLoader.exists(path):
@@ -4017,6 +4354,11 @@ func room_icon_path(icon_name: String) -> String:
 	return "res://assets/sprites/rooms/%s" % icon_name
 
 func _create_layers() -> void:
+	music_rotation_timer = Timer.new()
+	music_rotation_timer.one_shot = true
+	music_rotation_timer.process_mode = Node.PROCESS_MODE_ALWAYS
+	music_rotation_timer.timeout.connect(_advance_music_rotation)
+	add_child(music_rotation_timer)
 	combat_music_player = _new_music_player("CombatMusicPlayer", COMBAT_MUSIC)
 	add_child(combat_music_player)
 	combat_music_secondary_player = _new_music_player("CombatMusicPlayerSecondary")
@@ -4036,6 +4378,9 @@ func _create_layers() -> void:
 	combat_camera.enabled = false
 	combat_camera.position = COMBAT_CAMERA_HOME
 	add_child(combat_camera)
+	spectator_camera = preload("res://scripts/camera/SpectatorCameraDirector.gd").new()
+	spectator_camera.setup(self)
+	add_child(spectator_camera)
 	world_overlay_layer = WorldOverlayLayerScript.new()
 	world_overlay_layer.name = "WorldOverlayLayer"
 	world_overlay_layer.z_index = 60
@@ -4071,16 +4416,28 @@ func _create_controllers() -> void:
 	management_scene.setup(self, hud)
 	build_placement.setup(self)
 	combat_scene = CombatSceneControllerScript.new()
+	support_mastery.setup(self)
+	growth_feedback.setup(self)
 	combat_scene.setup(self, hud)
 
 func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
+	# The Approved view owns its live HUD and reparented unit sprites. A combat
+	# refresh must never let hud.clear() destroy that owner.
+	if screen_name == Constants.SCREEN_COMBAT and current_screen == Constants.SCREEN_COMBAT and start_flow.has_live_battle_view():
+		return
+	start_flow.before_screen_change(screen_name)
+	if screen_name not in [Constants.SCREEN_MONSTER,Constants.SCREEN_CHRONICLE,Constants.SCREEN_ENDING_ARCHIVE,Constants.SCREEN_SETTINGS]:
+		records_companion_return = false
+	if screen_name != Constants.SCREEN_COMBAT and combat_scene != null:
+		combat_scene.skill_actions.interrupt("scene_change")
+		if screen_name == Constants.SCREEN_TITLE: combat_scene.abandon_suspended_frame()
+	if screen_name != Constants.SCREEN_COMBAT and combat_scene != null:
+		combat_scene.skill_cutins.cancel()
 	var leaving_build_preview := build_pick_mode
 	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_region_selection_pending():
 		screen_name = Constants.SCREEN_REGION_SELECTION
 	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_outpost_setup_pending():
 		screen_name = Constants.SCREEN_OUTPOST_MANAGEMENT
-	if screen_name == Constants.SCREEN_MANAGEMENT and _update4_upper_layout_pending():
-		screen_name = Constants.SCREEN_UPPER_FLOOR
 	if screen_name == Constants.SCREEN_INTRUSION_BRIEF:
 		if bool(_campaign_day_info().get("management_only", false)) or not _has_defense_wave_for_day(GameState.day):
 			screen_name = Constants.SCREEN_MANAGEMENT
@@ -4093,7 +4450,8 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 	var previous_screen = current_screen
 	if (
 		previous_screen == Constants.SCREEN_COMBAT
-		and screen_name not in [Constants.SCREEN_COMBAT, Constants.SCREEN_SETTINGS]
+		and screen_name not in [Constants.SCREEN_COMBAT, Constants.SCREEN_SETTINGS, Constants.SCREEN_TITLE]
+		and not campaign_save_restore_active
 		and _update4_council_mode_active()
 	):
 		var completed := CouncilSeasonServiceScript.complete_combat(_update4_council_day_state())
@@ -4123,6 +4481,8 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 	hud.clear()
 	tutorial_targets.clear()
 	match current_screen:
+		"prologue":
+			start_flow.build_prologue()
 		Constants.SCREEN_TITLE:
 			_build_onboarding_title_ui()
 		Constants.SCREEN_NAME_ENTRY:
@@ -4135,14 +4495,15 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 		Constants.SCREEN_INTRUSION_BRIEF:
 			management_scene.build_intrusion_brief_ui(intrusion_brief_snapshot)
 		Constants.SCREEN_MANAGEMENT:
+			if previous_screen!=Constants.SCREEN_MANAGEMENT:
+				preload("res://scripts/map_builder/ApprovedGradeProgression.gd").sync_campaign_day(self)
 			management_scene.build_management_ui()
 		Constants.SCREEN_DEFENSE_START:
 			management_scene.build_defense_start_ui(pending_precombat_snapshot, defense_start_remaining)
 		Constants.SCREEN_MONSTER:
 			management_scene.build_monster_ui()
 		Constants.SCREEN_COMBAT:
-			_build_update4_multifloor_hud()
-			combat_scene.build_combat_ui()
+			if not start_flow.restore_battle_view(): combat_scene.build_combat_ui()
 			if story_combat_overlay_open and story_director.is_active():
 				story_presenter.build_combat_overlay()
 		Constants.SCREEN_RESULT:
@@ -4163,8 +4524,8 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 			_build_outpost_management_ui()
 		Constants.SCREEN_OUTPOST_BATTLE:
 			_build_outpost_battle_ui()
-		Constants.SCREEN_UPPER_FLOOR:
-			_build_upper_floor_ui()
+		Constants.SCREEN_EXPANSION:
+			_build_expansion_ui()
 		Constants.SCREEN_FRONT_SELECTION:
 			_build_front_selection_ui()
 		Constants.SCREEN_HEART_SELECTION:
@@ -4202,6 +4563,13 @@ func _set_screen(screen_name: String, allow_autosave: bool = true) -> void:
 	if pause_menu_open and current_screen == pause_menu_source_screen:
 		call_deferred("_build_pause_menu_overlay")
 	call_deferred("_wire_ui_audio_tree")
+	if current_screen not in ["prologue", Constants.SCREEN_TITLE, Constants.SCREEN_NAME_ENTRY, Constants.SCREEN_SETTINGS, Constants.SCREEN_DIALOGUE, Constants.SCREEN_COMBAT]:
+		var menu_parent: Panel = hud.panel(Rect2(1730, 14, 160, 50), Color.TRANSPARENT, Color.TRANSPARENT, "CommonMenuHolder", "flat")
+		menu_parent.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		menu_parent.z_index = 600
+		var menu_button: Button = hud.icon_button(menu_parent, "menu", Rect2(112, 0, 48, 48), Callable(self, "_open_pause_menu"), "CommonGameMenuButton")
+		menu_button.z_index = 600
+	continuity.update_open = false
 	if allow_autosave and not leaving_build_preview and not build_pick_mode:
 		_schedule_campaign_autosave(current_screen)
 	queue_redraw()
@@ -4212,6 +4580,8 @@ func _wire_ui_audio_tree() -> void:
 	if ui_layer == null or not is_instance_valid(ui_layer):
 		return
 	_wire_ui_audio_node(ui_layer)
+	preload("res://scripts/ui/UIStandard.gd").complete_tooltips(ui_layer)
+	preload("res://scripts/ui/UIStandard.gd").fit_screen_labels(ui_layer)
 
 
 func _wire_ui_audio_node(node: Node) -> void:
@@ -4223,6 +4593,7 @@ func _wire_ui_audio_node(node: Node) -> void:
 
 
 func _on_ui_button_audio(button: BaseButton) -> void:
+	if audio_quit_pending: return
 	if button == null or not is_instance_valid(button):
 		return
 	if bool(button.get_meta("ui_audio_silent", false)):
@@ -4270,7 +4641,14 @@ func _show_combat_command_feedback(accepted: bool, title: String, recovery: Stri
 		if existing_toast != null:
 			existing_toast.queue_free()
 		var viewport_size := get_viewport().get_visible_rect().size
-		var toast_size := Vector2(360.0, 70.0 if recovery != "" else 42.0)
+		var title_text := continuity.localized("수락 · ", "Accepted · ", "接受 · ") if accepted else continuity.localized("거절 · ", "Rejected · ", "拒绝 · ")
+		title_text += LanguageSettings.ui_text(title)
+		var recovery_text := LanguageSettings.ui_text(recovery)
+		var title_font: Font = UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS)
+		var body_font: Font = UIFontScript.font_for_role(UIFontScript.ROLE_BODY)
+		var title_height := maxf(36, ceilf(title_font.get_multiline_string_size(title_text, HORIZONTAL_ALIGNMENT_LEFT, 616, 20).y))
+		var recovery_height := ceilf(body_font.get_multiline_string_size(recovery_text, HORIZONTAL_ALIGNMENT_LEFT, 616, 18).y) if recovery_text != "" else 0.0
+		var toast_size := Vector2(640.0, title_height + recovery_height + 18.0)
 		var toast_position := Vector2((viewport_size.x - toast_size.x) * 0.5, 88.0)
 		if world_anchor != Vector2.INF:
 			var screen_anchor := _combat_world_to_screen(world_anchor)
@@ -4295,23 +4673,24 @@ func _show_combat_command_feedback(accepted: bool, title: String, recovery: Stri
 		toast.add_theme_stylebox_override("panel", toast_style)
 		ui_layer.add_child(toast)
 		var title_label := Label.new()
-		title_label.text = ("수락 · " if accepted else "거절 · ") + title
+		title_label.text = title_text
 		title_label.position = Vector2(12, 5)
-		title_label.size = Vector2(toast_size.x - 24.0, 28.0)
+		title_label.size = Vector2(toast_size.x - 24.0, title_height)
+		title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		title_label.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
-		title_label.add_theme_font_size_override("font_size", 16)
+		title_label.add_theme_font_size_override("font_size", 20)
 		title_label.add_theme_color_override("font_color", accent)
 		toast.add_child(title_label)
 		if recovery != "":
 			var recovery_label := Label.new()
-			recovery_label.text = recovery
-			recovery_label.position = Vector2(12, 32)
-			recovery_label.size = Vector2(toast_size.x - 24.0, 30.0)
+			recovery_label.text = recovery_text
+			recovery_label.position = Vector2(12, title_height + 8)
+			recovery_label.size = Vector2(toast_size.x - 24.0, recovery_height)
 			recovery_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			recovery_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			recovery_label.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
-			recovery_label.add_theme_font_size_override("font_size", 13)
+			recovery_label.add_theme_font_size_override("font_size", 18)
 			recovery_label.add_theme_color_override("font_color", Color("#f4eee6"))
 			toast.add_child(recovery_label)
 		var toast_tween := toast.create_tween()
@@ -4427,24 +4806,60 @@ func _stage_ambience_stream(event_id: String = STAGE01_AMBIENCE_EVENT_ID) -> Aud
 	if ResourceLoader.exists(runtime_path):
 		stream = load(runtime_path) as AudioStream
 	if stream == null and runtime_path.begins_with("res://"):
-		stream = AudioStreamWAV.load_from_file(ProjectSettings.globalize_path(runtime_path))
+		stream = AudioStreamOggVorbis.load_from_file(ProjectSettings.globalize_path(runtime_path))
 	if stream == null:
 		return null
 	var loop_stream := stream.duplicate(true)
-	if loop_stream is AudioStreamWAV:
-		loop_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	if loop_stream is AudioStreamOggVorbis:
+		loop_stream.loop = true
 	return loop_stream
 
 func _update_combat_music(_previous_screen: String, next_screen: String) -> void:
-	if combat_music_player == null:
-		return
-	if next_screen == Constants.SCREEN_SETTINGS:
-		return
-	var next_music := _music_for_screen(next_screen)
-	if next_music == null:
+	if combat_music_player == null or next_screen == Constants.SCREEN_SETTINGS: return
+	var state := MusicStateResolverScript.resolve(_music_state_context(next_screen))
+	var scene := _music_rotation_scene_for(next_screen,state)
+	if state == MusicStateResolverScript.STATE_NONE:
+		music_rotation_state = ""; music_rotation_scene = ""
 		_stop_combat_music()
 		return
-	_start_combat_music(next_music)
+	if state == music_rotation_state and scene == music_rotation_scene and combat_music_active: return
+	music_rotation_state = state; music_rotation_scene = scene
+	_play_rotation_event(music_rotation.next_event(scene,MusicStateResolverScript.event_for_state(state)),"state")
+
+func _music_rotation_scene_for(screen_name: String, state: String) -> String:
+	if state == MusicStateResolverScript.STATE_FINAL_ENDING: return "final_ending"
+	if screen_name == Constants.SCREEN_RESULT: return "result"
+	if state.begins_with("combat_"): return "combat"
+	return "title" if state == MusicStateResolverScript.STATE_TITLE else "management"
+
+func _play_rotation_event(event_id: String, reason: String) -> void:
+	if event_id == "": return
+	var key := "rotation:"+event_id
+	var stream: AudioStream = music_stream_cache.get(key)
+	if stream == null:
+		var path := str(AudioCatalogApiScript.resolve_event(event_id).get("runtime_path",""))
+		stream = load(path) as AudioStream
+		if stream == null: return
+		stream = stream.duplicate(true)
+		if stream is AudioStreamOggVorbis:
+			stream.loop = music_rotation.candidates(music_rotation_scene).size() == 1
+		music_stream_cache[key] = stream
+	var previous := music_rotation_event
+	music_rotation_event = event_id
+	_start_combat_music(stream)
+	if music_rotation_timer != null:
+		music_rotation_timer.stop()
+		if music_rotation.candidates(music_rotation_scene).size()>1:
+			music_rotation_timer.start(maxf(0.1,stream.get_length()-COMBAT_MUSIC_FADE_IN_SECONDS))
+	music_rotation_log.append({"scene":music_rotation_scene,"from":previous,"to":event_id,"reason":reason,"crossfade_seconds":COMBAT_MUSIC_FADE_IN_SECONDS})
+	if music_rotation_log.size()>64: music_rotation_log.pop_front()
+
+func _advance_music_rotation() -> void:
+	if not combat_music_active or music_rotation_scene == "": return
+	_play_rotation_event(music_rotation.next_event(music_rotation_scene),"track_end")
+
+func _on_rotation_player_finished(player: AudioStreamPlayer) -> void:
+	if player == combat_music_player and combat_music_active: _advance_music_rotation()
 
 func _music_for_screen(screen_name: String) -> AudioStream:
 	var state_id := MusicStateResolverScript.resolve(_music_state_context(screen_name))
@@ -4495,9 +4910,9 @@ func _music_stream_for_state(state_id: String) -> AudioStream:
 	var stream := load(runtime_path) as AudioStream
 	if stream == null:
 		return fallback
-	if stream is AudioStreamWAV:
-		var loop_stream := stream.duplicate(true) as AudioStreamWAV
-		loop_stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	if stream is AudioStreamOggVorbis:
+		var loop_stream := stream.duplicate(true) as AudioStreamOggVorbis
+		loop_stream.loop = true
 		music_stream_cache[event_id] = loop_stream
 		return loop_stream
 	music_stream_cache[event_id] = stream
@@ -4542,16 +4957,18 @@ func _combat_music_has_boss() -> bool:
 	return false
 
 func _refresh_combat_music_variant() -> void:
-	if current_screen not in [Constants.SCREEN_COMBAT, Constants.SCREEN_OUTPOST_BATTLE, Constants.SCREEN_RAID]:
-		return
-	var desired := _music_for_screen(current_screen)
-	if desired != null and combat_music_player != null and combat_music_player.stream != desired:
-		_start_combat_music(desired)
+	if current_screen not in [Constants.SCREEN_COMBAT, Constants.SCREEN_OUTPOST_BATTLE, Constants.SCREEN_RAID]: return
+	_update_combat_music(current_screen,current_screen)
 
 func _start_combat_music(stream: AudioStream = null) -> void:
 	if combat_music_player == null or stream == null:
 		return
+	var resuming := not combat_music_active
 	combat_music_active = true
+	if resuming and combat_music_player.stream == stream and combat_music_player.playing:
+		_kill_combat_music_tween()
+		_fade_in_combat_music(combat_music_player)
+		return
 	# 같은 상태를 다시 요청하면 현재 플레이어를 건드리지 않는다. 이 경로가
 	# 화면 재구성 때 중복 재생과 불필요한 페이드인을 막는 idempotent 계약이다.
 	if combat_music_player.stream == stream:
@@ -4600,6 +5017,7 @@ func _new_music_player(player_name: String, stream: AudioStream = null) -> Audio
 	if OS.has_feature("web"):
 		player.playback_type = AudioServer.PLAYBACK_TYPE_STREAM
 	player.stream = stream
+	player.finished.connect(_on_rotation_player_finished.bind(player))
 	return player
 
 
@@ -4626,6 +5044,7 @@ func _finish_combat_music_crossfade(outgoing: AudioStreamPlayer, incoming: Audio
 	combat_music_tween = null
 
 func _stop_combat_music() -> void:
+	if music_rotation_timer != null: music_rotation_timer.stop()
 	_kill_combat_music_tween()
 	combat_music_active = false
 	var playing_players: Array[AudioStreamPlayer] = []
@@ -4642,7 +5061,7 @@ func _stop_combat_music() -> void:
 	combat_music_tween.tween_callback(_finish_combat_music_stop)
 
 func _finish_combat_music_stop() -> void:
-	if current_screen != Constants.SCREEN_COMBAT and combat_music_player != null:
+	if not combat_music_active and combat_music_player != null:
 		combat_music_active = false
 		for player in [combat_music_player, combat_music_secondary_player]:
 			if player != null:
@@ -4658,7 +5077,7 @@ func _kill_combat_music_tween() -> void:
 
 
 func _preview_music() -> void:
-	if combat_music_preview_player == null or combat_music_preview_player.playing:
+	if combat_music_preview_player == null or combat_music_preview_player.playing or (combat_music_player != null and combat_music_player.playing):
 		return
 	_kill_music_preview_tween()
 	combat_music_preview_player.stream = MANAGEMENT_MUSIC
@@ -4688,6 +5107,7 @@ func _kill_music_preview_tween() -> void:
 
 func _onboarding_screen_blocks_map_input() -> bool:
 	return current_screen in [
+		"prologue",
 		Constants.SCREEN_TITLE,
 		Constants.SCREEN_NAME_ENTRY,
 		Constants.SCREEN_DIALOGUE,
@@ -4737,35 +5157,13 @@ func _open_campaign_mode_from_title() -> void:
 		_campaign_next_cycle_from_ending()
 
 func _build_title_reset_confirmation() -> void:
-	var is_quick := pending_title_reset_mode == "quick"
-	var backdrop = hud.panel(Rect2(0, 0, 1920, 1080), Color("#000000b8"), Color("#00000000"), "TitleResetConfirmation", "flat")
-	backdrop.name = "TitleResetConfirmation"
-	backdrop.z_index = 500
-	backdrop.mouse_filter = Control.MOUSE_FILTER_STOP
-	var modal = hud.child_panel(backdrop, Rect2(590, 340, 740, 400), Color("#0b0910fa"), Color("#d8b867"), 2)
-	modal.mouse_filter = Control.MOUSE_FILTER_STOP
-	hud.label(modal, "저장 기록을 삭제할까요?", Vector2(36, 34), Vector2(668, 48), 30, Color("#fff4dc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	var summary_text := "DAY %02d · %s\n%s의 진행 기록은 삭제 후 복구할 수 없습니다." % [
-		int(campaign_save_summary.get("day", 1)),
-		str(campaign_save_summary.get("castle_name", "마왕성")),
-		str(campaign_save_summary.get("player_name", "신입 마왕"))
-	]
-	hud.label(modal, summary_text, Vector2(54, 112), Vector2(632, 104), 20, Color("#d8cfdf"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	var confirm_text := "삭제하고 빠른 시작" if is_quick else "삭제하고 새 게임"
-	var confirm_callback := Callable(self, "_onboarding_start_quick_game") if is_quick else Callable(self, "_onboarding_start_new_game")
-	var confirm_button = hud.button(modal, confirm_text, Rect2(54, 258, 300, 72), confirm_callback, 20, "TitleResetConfirmButton")
-	var cancel_button = hud.button(modal, "취소", Rect2(386, 258, 300, 72), Callable(self, "_cancel_title_reset_confirmation"), 20, "TitleResetCancelButton")
-	confirm_button.focus_next = confirm_button.get_path_to(cancel_button)
-	confirm_button.focus_previous = confirm_button.get_path_to(cancel_button)
-	cancel_button.focus_next = cancel_button.get_path_to(confirm_button)
-	cancel_button.focus_previous = cancel_button.get_path_to(confirm_button)
-	cancel_button.call_deferred("grab_focus")
+	start_flow.build_reset_confirmation()
 
 func _title_reset_confirmation_required(mode: String) -> bool:
 	if pending_title_reset_mode == mode:
 		pending_title_reset_mode = ""
 		return false
-	if campaign_save_status != CampaignSaveStoreScript.STATUS_VALID:
+	if campaign_save_status == CampaignSaveStoreScript.STATUS_MISSING:
 		return false
 	pending_title_reset_mode = mode
 	_set_screen(Constants.SCREEN_TITLE)
@@ -4789,7 +5187,7 @@ func _campaign_title_save_status_text() -> String:
 				int(campaign_save_summary.get("cycle_index", 1)),
 				int(campaign_save_summary.get("ending_archive_count", 0)),
 				_ending_catalog_ids().size(),
-				str(campaign_save_summary.get("checkpoint_label", "성 관리"))
+				str(campaign_save_summary.get("checkpoint_label", "성 관리")) + " · " + str(campaign_save_summary.get("saved_at_text", ""))
 			]
 		CampaignSaveStoreScript.STATUS_CORRUPT:
 			return "저장 파일이 손상되어 이어할 수 없습니다.\n새 게임을 시작하면 손상 기록을 안전하게 지웁니다."
@@ -4805,97 +5203,42 @@ func _open_settings_screen(from_pause_menu: bool = false) -> void:
 		"audio": AudioSettings.snapshot(),
 		"interface": UISettings.snapshot(),
 		"language": LanguageSettings.snapshot(),
+		"start_flow": start_flow.snapshot(),
 		"tutorial_history": TutorialGuidanceHistory.snapshot(),
-		"controls": InputSettings.snapshot()
+		"controls": InputSettings.snapshot(),
+		"accessibility": CouncilChronicleScript.normalize_accessibility(update4_profile.get("chronicle_update4", {}).get("accessibility", {}))
 	}
+	settings_profile_envelope.clear()
+	settings_accessibility_persistable = settings_return_screen != Constants.SCREEN_TITLE
+	if settings_return_screen == Constants.SCREEN_TITLE:
+		var inspection := CampaignSaveV6StoreScript.inspect(campaign_save_v6_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs) if campaign_save_v6_enabled else CampaignSaveV5StoreScript.inspect(campaign_save_v5_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+		if str(inspection.get("status","")) == CampaignSaveV5StoreScript.STATUS_VALID:
+			settings_profile_envelope = inspection.get("envelope",{}).duplicate(true)
+			settings_open_snapshot.accessibility = CouncilChronicleScript.normalize_accessibility(settings_profile_envelope.get("profile",{}).get("chronicle_update4",{}).get("accessibility",{}))
+			settings_accessibility_persistable = true
+	settings_accessibility_draft = settings_open_snapshot.accessibility.duplicate(true)
+	settings_write_failed = false
 	settings_category = "display"
 	_set_screen(Constants.SCREEN_SETTINGS)
 
 func _open_pause_menu() -> void:
+	if combat_scene != null: combat_scene.skill_actions.interrupt("menu")
 	if current_screen == Constants.SCREEN_MANAGEMENT and _management_action_mode_active():
 		_cancel_management_action_mode()
-	if current_screen not in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT]:
+	if current_screen in [Constants.SCREEN_TITLE, Constants.SCREEN_SETTINGS, Constants.SCREEN_NAME_ENTRY]:
 		return
 	if pause_menu_open:
 		return
 	pause_menu_open = true
+	continuity.menu_feedback = ""
 	pause_menu_source_screen = current_screen
-	pause_menu_combat_was_paused = combat_paused
-	if current_screen == Constants.SCREEN_COMBAT and not combat_paused:
-		combat_scene.toggle_pause()
+	pause_menu_combat_was_paused = combat_scene.requested_pause if current_screen == Constants.SCREEN_COMBAT else combat_paused
+	if current_screen == Constants.SCREEN_COMBAT:
+		combat_scene.set_pause_state(true, false)
 	_build_pause_menu_overlay()
 
 func _build_pause_menu_overlay() -> void:
-	if (
-		not pause_menu_open
-		or current_screen not in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT]
-		or ui_layer == null
-		or hud == null
-		or ui_layer.find_child("PauseMenuOverlay", true, false) != null
-	):
-		return
-	var touch_ui := UISettings.is_touch_ui()
-	var overlay = hud.panel(
-		Rect2(0, 0, 1920, 1080),
-		Color("#020104c7"),
-		Color("#00000000"),
-		"PauseMenuOverlay",
-		"flat"
-	)
-	overlay.name = "PauseMenuOverlay"
-	overlay.z_index = 700
-	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	var modal_rect := Rect2(430, 190, 1060, 700) if touch_ui else Rect2(610, 274, 700, 532)
-	var modal = hud.child_panel(overlay, modal_rect, Color("#0b0910fa"), Color("#6e5d73"), 2)
-	modal.name = "PauseMenuPanel"
-	modal.mouse_filter = Control.MOUSE_FILTER_STOP
-	var combat_menu := current_screen == Constants.SCREEN_COMBAT
-	hud.label(
-		modal,
-		LanguageSettings.text("settings.pause.combat_title" if combat_menu else "settings.pause.management_title"),
-		Vector2(48, 46),
-		Vector2(modal_rect.size.x - 96, 64),
-		34 if touch_ui else 30,
-		Color("#f7efe1"),
-		HORIZONTAL_ALIGNMENT_CENTER,
-		"",
-		UIFontScript.ROLE_EMPHASIS
-	)
-	hud.label(
-		modal,
-		LanguageSettings.text("settings.pause.combat_body" if combat_menu else "settings.pause.management_body"),
-		Vector2(72, 132),
-		Vector2(modal_rect.size.x - 144, 96),
-		21 if touch_ui else 17,
-		Color("#bfb7cc"),
-		HORIZONTAL_ALIGNMENT_CENTER,
-		"",
-		UIFontScript.ROLE_BODY,
-		VERTICAL_ALIGNMENT_CENTER,
-		TextServer.AUTOWRAP_WORD_SMART,
-		3
-	)
-	var button_width := modal_rect.size.x - 160.0
-	var continue_button = hud.button(
-		modal,
-		LanguageSettings.text("settings.pause.continue"),
-		Rect2(80, modal_rect.size.y - 238, button_width, 72 if touch_ui else 62),
-		Callable(self, "_close_pause_menu"),
-		23 if touch_ui else 20,
-		"PauseResumeButton",
-		HUDControllerScript.BUTTON_GRADE_PRIMARY
-	)
-	var settings_button = hud.button(
-		modal,
-		LanguageSettings.text("settings.pause.open_settings"),
-		Rect2(80, modal_rect.size.y - 142, button_width, 72 if touch_ui else 58),
-		Callable(self, "_open_settings_screen").bind(true),
-		21 if touch_ui else 18,
-		"PauseSettingsButton",
-		HUDControllerScript.BUTTON_GRADE_UTILITY
-	)
-	continue_button.name = "PauseResumeButton"
-	settings_button.name = "PauseSettingsButton"
+	continuity.build_menu()
 
 func _close_pause_menu() -> void:
 	if not pause_menu_open:
@@ -4910,16 +5253,48 @@ func _close_pause_menu() -> void:
 	pause_menu_open = false
 	pause_menu_source_screen = ""
 	pause_menu_combat_was_paused = false
-	if (
-		source_screen == Constants.SCREEN_COMBAT
-		and current_screen == Constants.SCREEN_COMBAT
-		and combat_paused
-		and not restore_combat_pause
-	):
-		combat_scene.toggle_pause()
+	if source_screen == Constants.SCREEN_COMBAT and current_screen == Constants.SCREEN_COMBAT:
+		combat_scene.set_pause_state(restore_combat_pause, false)
 
 func _open_chronicle() -> void:
+	if current_screen not in [Constants.SCREEN_CHRONICLE,Constants.SCREEN_ENDING_ARCHIVE,Constants.SCREEN_MONSTER]: records_return_screen = current_screen
 	_set_screen(Constants.SCREEN_CHRONICLE)
+
+func _remember_chronicle_position() -> void:
+	var screen = ui_layer.find_child("ChronicleScreen",true,false)
+	if screen != null:
+		records_chronicle_tab = screen.active_tab
+		records_chronicle_sections = screen.section_by_tab.duplicate(true)
+		screen.remember_scroll()
+		records_chronicle_scrolls = screen.scroll_by_tab.duplicate(true)
+
+func _open_record_settings() -> void:
+	_remember_chronicle_position()
+	_open_settings_screen()
+	settings_category = "accessibility"
+	_rebuild_settings_screen()
+
+func _open_record_companion(id: String, codex: bool) -> void:
+	_remember_chronicle_position()
+	records_companion_return = true
+	var workspace = management_scene.monster_ui
+	workspace.list_mode = "codex" if codex else "owned"
+	workspace.active_tab = "memory"
+	if id != "":
+		workspace.inspected_id = id
+		workspace.codex_id = id
+		if monster_roster.has(id): selected_monster_id = id
+	_set_screen(Constants.SCREEN_MONSTER)
+
+func _return_from_monster_records() -> void:
+	if records_companion_return:
+		records_companion_return = false
+		_open_chronicle()
+	else: _set_screen(Constants.SCREEN_MANAGEMENT)
+
+func _return_from_records() -> void:
+	_remember_chronicle_position()
+	_set_screen(records_return_screen)
 
 func _build_chronicle_ui() -> void:
 	var screen = ChronicleScreenScene.instantiate()
@@ -4935,20 +5310,43 @@ func _build_chronicle_ui() -> void:
 		"crown_evolutions": DataRegistry.update4_crown_evolutions,
 		"council_endings": DataRegistry.update4_council_endings,
 		"outpost_types": DataRegistry.update4_outpost_types,
-		"upper_floor_layouts": DataRegistry.update4_upper_floor_layouts
+		"expansion_modules": DataRegistry.update4_expansion_modules
 	})
-	screen.accessibility_changed.connect(_set_update4_accessibility)
-	screen.canceled.connect(_set_screen.bind(Constants.SCREEN_MANAGEMENT))
+	screen.active_tab = records_chronicle_tab
+	screen.section_by_tab = records_chronicle_sections.duplicate(true)
+	screen.scroll_by_tab = records_chronicle_scrolls.duplicate(true)
+	screen.companions = monster_roster.keys()
+	screen.selected_companion = selected_monster_id
+	screen.settings_requested.connect(_open_record_settings)
+	screen.ending_requested.connect(_open_ending_archive)
+	screen.companion_requested.connect(_open_record_companion)
+	screen.canceled.connect(_return_from_records)
 	ui_layer.add_child(screen)
 
 
-func _set_update4_accessibility(settings: Dictionary) -> void:
-	var state := CouncilChronicleScript.normalize_state(update4_profile.get("chronicle_update4", {}))
+func _set_update4_accessibility(settings: Dictionary) -> bool:
+	if settings_return_screen == Constants.SCREEN_TITLE:
+		# Edit only the saved profile, never overwrite a running checkpoint with title defaults.
+		if settings_profile_envelope.is_empty(): return false
+		var envelope := settings_profile_envelope.duplicate(true)
+		var saved_state := CouncilChronicleScript.normalize_state(envelope.profile.get("chronicle_update4",{}))
+		saved_state.accessibility = CouncilChronicleScript.normalize_accessibility(settings)
+		envelope.profile["chronicle_update4"] = saved_state
+		var result := CampaignSaveV6StoreScript.write(envelope,campaign_save_v6_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs) if int(envelope.get("version",5)) == 6 else CampaignSaveV5StoreScript.write(envelope,campaign_save_v5_path,DataRegistry.monster_instances,DataRegistry.run_metric_definitions,_update3_save_catalogs(),DataRegistry.update4_catalogs)
+		if not bool(result.get("ok",false)): return false
+		update4_profile["chronicle_update4"] = saved_state
+		return true
+	var original: Dictionary = update4_profile.get("chronicle_update4", {}).duplicate(true)
+	var state := CouncilChronicleScript.normalize_state(original)
 	state["accessibility"] = CouncilChronicleScript.normalize_accessibility(settings)
 	update4_profile["chronicle_update4"] = state
-	_write_campaign_v2_snapshot()
+	if _write_campaign_v2_snapshot(): return true
+	update4_profile["chronicle_update4"] = original
+	return false
 
 func _open_ending_archive() -> void:
+	if current_screen not in [Constants.SCREEN_CHRONICLE,Constants.SCREEN_ENDING_ARCHIVE]: records_return_screen = current_screen
+	_remember_chronicle_position()
 	_set_screen(Constants.SCREEN_ENDING_ARCHIVE)
 
 func _open_selected_monster_memories() -> void:
@@ -4978,52 +5376,24 @@ func _build_ending_archive_ui() -> void:
 
 func _build_settings_ui() -> void:
 	settings_text_preview_label = null
-	var screen = _onboarding_screen_panel(Color("#050407ff"))
-	_onboarding_add_scene_illustration(screen, Rect2(0, 0, 1920, 1080), ONBOARDING_START_SCENE)
-	var shade = hud.child_panel(screen, Rect2(92, 64, 1736, 952), Color("#08070de8"), Color("#5f536a"), 1)
-	hud.label(shade, LanguageSettings.text("settings.title"), Vector2(48, 24), Vector2(700, 58), 34, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(shade, LanguageSettings.text("settings.subtitle"), Vector2(50, 80), Vector2(700, 30), 20, Color("#9e94a8"))
-
-	var navigation = hud.child_panel(shade, Rect2(42, 132, 292, 686), Color("#0d0b12e8"), Color("#403747"), 1)
-	_build_settings_navigation(navigation)
-
-	var content = hud.child_panel(shade, Rect2(358, 132, 930, 686), Color("#100e16ee"), Color("#514658"), 1)
-	match settings_category:
-		"audio":
-			_build_settings_audio_category(content)
-		"display":
-			_build_settings_display_category(content)
-		_:
-			_build_settings_general_category(content)
-
-	var preview = hud.child_panel(shade, Rect2(1312, 132, 382, 686), Color("#0d0b12e8"), Color("#403747"), 1)
-	_build_settings_preview(preview)
-
-	var reset_button = hud.button(shade, LanguageSettings.text("settings.action.reset_category"), Rect2(358, 850, 250, 58), Callable(self, "_reset_settings_category"), 17, "", HUDController.BUTTON_GRADE_UTILITY)
-	reset_button.name = "ResetSettingsCategoryButton"
-	var cancel_button = hud.button(shade, LanguageSettings.text("settings.action.cancel"), Rect2(1182, 850, 230, 58), Callable(self, "_cancel_settings_changes"), 18, "", HUDController.BUTTON_GRADE_UTILITY)
-	cancel_button.name = "CancelSettingsButton"
-	var apply_button = hud.button(shade, LanguageSettings.text("settings.action.apply"), Rect2(1434, 850, 260, 58), Callable(self, "_apply_settings_changes"), 19, "", HUDController.BUTTON_GRADE_PRIMARY)
-	apply_button.name = "ApplySettingsButton"
+	settings_workspace = load("res://scripts/ui/SettingsWorkspaceUI.gd").new()
+	settings_workspace.setup(self,hud)
+	settings_workspace.build_settings()
 
 func _build_settings_navigation(parent: Control) -> void:
-	hud.label(parent, LanguageSettings.text("settings.nav.title"), Vector2(24, 20), Vector2(244, 34), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.general"), "general", 76.0)
-	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.display"), "display", 142.0)
-	_settings_navigation_button(parent, LanguageSettings.text("settings.nav.audio"), "audio", 208.0)
+	var entries := [
+		["display",continuity.localized("화면","Display","画面"),"settings"],
+		["audio",continuity.localized("소리","Audio","声音"),"mana"],
+		["accessibility",continuity.localized("조작·접근성","Controls","操作·辅助"),"info"],
+		["general",continuity.localized("대화·안내","Dialogue","对话·引导"),"log"],
+		["combat",continuity.localized("전투 연출","Effects","战斗演出"),"tactics"]]
+	for index in entries.size():
+		settings_workspace.category(parent,entries[index][1],entries[index][0],index,entries[index][2])
 
-func _settings_navigation_button(parent: Control, label_text: String, category_id: String, y: float) -> void:
-	var selected := settings_category == category_id
-	var grade := HUDController.BUTTON_GRADE_TACTICAL if selected else HUDController.BUTTON_GRADE_UTILITY
-	var button = hud.button(parent, label_text, Rect2(18, y, 256, 52), Callable(self, "_select_settings_category").bind(category_id), 17, "", grade)
-	button.name = "SettingsCategory_%s" % category_id
-	if not selected:
-		return
-	hud.apply_button_state(button, HUDController.UI_STATE_SELECTED)
-	button.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 
 func _select_settings_category(category_id: String) -> void:
-	if category_id not in ["general", "display", "audio"] or settings_category == category_id:
+	if category_id not in ["general", "display", "audio", "accessibility", "combat"] or settings_category == category_id:
 		return
 	settings_category = category_id
 	_rebuild_settings_screen()
@@ -5033,14 +5403,123 @@ func _build_settings_general_category(parent: Control) -> void:
 	hud.label(parent, LanguageSettings.text("settings.general.description"), Vector2(40, 76), Vector2(850, 48), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 	_build_language_setting_row(parent, 156.0)
 	_build_tutorial_guidance_setting_row(parent, 310.0)
-	_build_tutorial_practice_setting_row(parent, 466.0)
+	start_flow.button(parent,start_flow.text("replay"),Rect2(40,458,842,60),Callable(start_flow,"replay_guide"),"ReplayStartGuideButton")
 	_build_tutorial_history_setting_row(parent, 574.0)
+	_build_settings_access_toggle(parent,684,"QuickDialogueToggle",continuity.localized("빠른 대사 옵션","Quick dialogue","快速对话"),"quick_dialogue")
+	for entry in [[156,"language"],[310,"info"],[466,"resume"],[574,"log"],[684,"skip"]]: settings_workspace.field_card(parent,entry[0],132 if entry[0] in [156,310] else 98,entry[1])
 
 func _build_settings_display_category(parent: Control) -> void:
 	hud.label(parent, LanguageSettings.text("settings.display.title"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	hud.label(parent, LanguageSettings.text("settings.display.description"), Vector2(40, 76), Vector2(850, 34), 20, Color("#bdb3c6"))
 	_build_ui_setting_row(parent, 148.0)
 	_build_layout_setting_row(parent, 284.0)
+	if UISettings.supports_window_mode():
+		_build_window_mode_setting_row(parent, 420.0)
+
+
+	for entry in [[148,"info"],[284,"settings"],[420,"encyclopedia"]]: settings_workspace.field_card(parent,entry[0],124,entry[1])
+
+func _build_settings_combat_category(parent: Control) -> void:
+	hud.label(parent, continuity.localized("전투 연출", "Combat effects", "战斗演出"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	hud.label(parent, continuity.localized("캐릭터 액션이 약 1초 동안 전투를 멈춥니다. 표시 방식을 언제든 바꿀 수 있습니다.", "Character actions briefly hold battle for about one second. Change the viewing policy anytime.", "角色动作会让战斗短暂停顿约一秒，可随时更改观看方式。"), Vector2(40, 82), Vector2(842, 70), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
+	hud.label(parent, continuity.localized("스킬 컷씬", "Skill cutscenes", "技能动画"), Vector2(40, 170), Vector2(450, 36), 22, Color("#f3eadc"))
+	hud.option_button(parent, Rect2(520, 164, 362, 54), [
+		{"label": continuity.localized("한번만 보기", "Watch once", "仅观看一次"), "value": "once"},
+		{"label": continuity.localized("계속 보기", "Watch every time", "每次观看"), "value": "always"},
+		{"label": continuity.localized("스킬컷씬 끄기", "Turn cutscenes off", "关闭技能动画"), "value": "off"}
+	], UISettings.skill_cutscene_policy, Callable(self, "_on_skill_cutscene_policy_preview_changed"), 20, "SkillCutscenePolicyOption")
+	hud.label(parent, continuity.localized("한번만: 첫 완료 기억 · 계속: 매번 표시\n끄기: 숫자와 기본 타격 효과 유지", "Once: remembers first completion. Every time: each activation.\nOff: keeps damage numbers and basic hit effects.", "一次：记住首次完成 · 每次：每次发动都显示\n关闭：保留伤害数字和基本打击效果"), Vector2(40, 240), Vector2(842, 95), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
+	hud.button(parent, continuity.localized("본 기록 초기화", "Reset viewed history", "重置观看记录"), Rect2(40, 340, 350, 46), Callable(self, "_reset_skill_cutscene_history_preview"), 20, "SkillCutsceneHistoryResetButton")
+	hud.label(parent, continuity.localized("기억한 스킬: ", "Remembered actions: ", "已记住动作：") + str(UISettings.skill_cutscene_seen.size()), Vector2(435, 344), Vector2(390, 36), 18, Color("#a99fba"))
+	hud.label(parent, continuity.localized("효과 줄이기", "Reduced effects", "减少效果"), Vector2(40, 394), Vector2(450, 36), 22, Color("#f3eadc"))
+	hud.option_button(parent, Rect2(520, 388, 362, 54), [
+		{"label": continuity.localized("기본", "Normal", "默认"), "value": "normal"},
+		{"label": continuity.localized("줄이기", "Reduced", "减少"), "value": "reduced"}
+	], "reduced" if UISettings.reduce_combat_effects else "normal", Callable(self, "_on_combat_effects_preview_changed"), 20, "CombatReducedEffectsOption")
+	hud.label(parent, continuity.localized("캐릭터 액션은 유지하면서 번쩍임과 화면 흔들림을 줄입니다. 숫자와 기본 전투 효과도 유지합니다.", "Keeps character actions while reducing flashes and camera shake. Damage numbers and basic effects remain.", "保留角色动作，同时减少闪光和画面震动，伤害数字及基本效果也会保留。"), Vector2(40, 466), Vector2(842, 116), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
+
+	_build_combat_speed_setting_row(parent,604.0)
+	hud.label(parent,continuity.localized("관전 자동 카메라","Automatic spectator camera","观战自动镜头"),Vector2(40,820),Vector2(460,40),22)
+	hud.option_button(parent,Rect2(520,814,362,54),[{"label":continuity.localized("켜기","On","开启"),"value":"on"},{"label":continuity.localized("끄기","Off","关闭"),"value":"off"}],"on" if UISettings.spectator_auto_camera else "off",func(value): UISettings.set_spectator_auto_camera(value=="on",false),20,"SpectatorAutoCameraOption")
+	hud.label(parent,continuity.localized("비전투 유닛 HP바 숨김","Hide idle unit HP bars","隐藏非战斗单位血条"),Vector2(40,922),Vector2(460,40),22)
+	hud.option_button(parent,Rect2(520,916,362,54),[{"label":continuity.localized("끄기","Off","关闭"),"value":"off"},{"label":continuity.localized("켜기","On","开启"),"value":"on"}],"on" if UISettings.hide_noncombat_hp_bars else "off",func(value): UISettings.set_hide_noncombat_hp_bars(value=="on",false),20,"HideNoncombatHPBarsOption")
+	settings_workspace.field_card(parent,922,76,"hp")
+	for entry in [[170,"tactics"],[394,"hp"],[604,"speed"],[820,"auto_play"]]: settings_workspace.field_card(parent,entry[0],200 if entry[0]==170 else (76 if entry[0]==820 else 184),entry[1])
+
+func _build_settings_access_toggle(parent: Control, y: float, id: String, caption: String, key: String) -> void:
+	var toggle := CheckBox.new()
+	toggle.name = id; toggle.text = caption
+	toggle.position = Vector2(40,y); toggle.size = Vector2(842,66)
+	toggle.button_pressed = bool(settings_accessibility_draft.get(key,false))
+	toggle.disabled = not settings_accessibility_persistable
+	toggle.tooltip_text = caption
+	toggle.theme = settings_workspace.kit_theme()
+	toggle.add_theme_font_size_override("font_size",26)
+	toggle.toggled.connect(func(value: bool): _preview_settings_accessibility(key,value))
+	parent.add_child(toggle)
+
+func _preview_settings_accessibility(key: String, value) -> void:
+	settings_accessibility_draft[key] = value
+	settings_accessibility_draft = CouncilChronicleScript.normalize_accessibility(settings_accessibility_draft)
+
+func _build_settings_accessibility_category(parent: Control) -> void:
+	hud.label(parent,continuity.localized("조작·접근성","Controls & accessibility","操作·辅助"),Vector2(40,28),Vector2(850,44),26,Color("#f3eadc"))
+	hud.label(parent,continuity.localized("입력 방식: 터치" if UISettings.is_touch_ui() else "입력 방식: 키보드·마우스","Input: touch" if UISettings.is_touch_ui() else "Input: keyboard & mouse","输入：触控" if UISettings.is_touch_ui() else "输入：键盘·鼠标"),Vector2(40,80),Vector2(850,44),20,Color("#bdb3c6"))
+	var fields := [
+		["HighContrastIconsToggle",continuity.localized("고대비 위험 아이콘","High contrast danger icons","高对比危险图标"),"high_contrast_icons"],
+		["ObjectiveSummaryToggle",continuity.localized("화면 밖 목표 경보 요약","Offscreen objective alert summary","画面外目标警报摘要"),"objective_summary"],
+		["RegionDetailsToggle",continuity.localized("지역 추가 정보","Extra region information","地区附加信息"),"show_region_details"],
+		["ReduceRegionMotionToggle",continuity.localized("지도 움직임 감소","Reduce map motion","减少地图动态"),"reduce_region_motion"]]
+	for index in fields.size():
+		var y := 144.0+index*82
+		_build_settings_access_toggle(parent,y,fields[index][0],fields[index][1],fields[index][2])
+		settings_workspace.field_card(parent,y,76,["warning","throne","info","pause"][index])
+	var bindings: Array[String] = []
+	for id in InputSettings.USER_ACTIONS:
+		var keys: Array[String] = []
+		for event in InputSettings.binding_events(id): keys.append(event.as_text())
+		bindings.append("%s: %s" % [str(id)," / ".join(keys)])
+	hud.label(parent,continuity.localized("현재 키 배치 · ","Current bindings · ","当前按键 · ")+" · ".join(bindings),Vector2(40,694),Vector2(842,110),20,Color("#bdb3c6"),HORIZONTAL_ALIGNMENT_LEFT,"SettingsInputBindings",UIFontScript.ROLE_BODY,VERTICAL_ALIGNMENT_TOP,TextServer.AUTOWRAP_WORD_SMART,4)
+
+func _on_skill_cutscene_policy_preview_changed(value: String) -> void:
+	UISettings.set_skill_cutscene_policy(value, false)
+	_rebuild_settings_screen()
+
+func _reset_skill_cutscene_history_preview() -> void:
+	UISettings.reset_skill_cutscene_history(false)
+	_rebuild_settings_screen()
+
+func _on_combat_effects_preview_changed(value: String) -> void:
+	UISettings.set_reduce_combat_effects(value == "reduced", false)
+	_rebuild_settings_screen()
+
+func _build_combat_speed_setting_row(parent: Control, y: float) -> void:
+	hud.label(parent, LanguageSettings.text("settings.display.remember_speed"), Vector2(40, y), Vector2(450, 34), 20, Color("#f3eadc"))
+	hud.option_button(parent, Rect2(520, y - 8, 362, 52), [
+		{"label": LanguageSettings.text("settings.display.speed_reset"), "value": "reset"},
+		{"label": LanguageSettings.text("settings.display.speed_remember"), "value": "remember"}
+	], "remember" if UISettings.remember_combat_speed else "reset", Callable(self, "_on_combat_speed_preview_changed"), 20, "RememberCombatSpeedOption")
+	hud.label(parent, LanguageSettings.text("settings.display.remember_speed_help"), Vector2(40, y + 54), Vector2(842, 60), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+	hud.label(parent,continuity.localized("기본 전투 속도","Default battle speed","默认战斗速度"),Vector2(40,y+125),Vector2(450,38),22)
+	hud.option_button(parent,Rect2(520,y+119,362,52),[{"label":"1×","value":"1.0"},{"label":"1.5×","value":"1.5"},{"label":"2×","value":"2.0"},{"label":"3×","value":"3.0"}],String.num(UISettings.preferred_combat_speed,1),func(value):
+		UISettings.set_preferred_combat_speed(float(value),false)
+		UISettings.set_remember_combat_speed(true,false),20,"DefaultCombatSpeedOption")
+
+func _on_combat_speed_preview_changed(value: String) -> void:
+	UISettings.set_remember_combat_speed(value == "remember", false)
+	_rebuild_settings_screen()
+
+func _build_window_mode_setting_row(parent: Control, y: float) -> void:
+	hud.label(parent, LanguageSettings.text("settings.display.window_mode"), Vector2(40, y), Vector2(360, 34), 20, Color("#f3eadc"))
+	hud.option_button(parent, Rect2(520, y - 8, 362, 52), [
+		{"label": LanguageSettings.text("settings.display.windowed"), "value": UISettings.WINDOWED},
+		{"label": LanguageSettings.text("settings.display.fullscreen"), "value": UISettings.FULLSCREEN}
+	], UISettings.window_mode, Callable(self, "_on_window_mode_preview_changed"), 20, "WindowModeOption")
+	hud.label(parent, LanguageSettings.text("settings.display.window_mode_help"), Vector2(40, y + 54), Vector2(842, 42), 20, Color("#a99fba"))
+
+func _on_window_mode_preview_changed(value: String) -> void:
+	UISettings.set_window_mode(value, false)
+	_rebuild_settings_screen()
 
 func _build_settings_audio_category(parent: Control) -> void:
 	hud.label(parent, LanguageSettings.text("settings.audio.title"), Vector2(40, 28), Vector2(850, 44), 26, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -5048,33 +5527,40 @@ func _build_settings_audio_category(parent: Control) -> void:
 	_build_audio_setting_row(parent, 130.0, LanguageSettings.text("settings.audio.master"), AudioSettings.master_volume, "master")
 	_build_audio_setting_row(parent, 274.0, LanguageSettings.text("settings.audio.music"), AudioSettings.music_volume, "music")
 	_build_audio_setting_row(parent, 418.0, LanguageSettings.text("settings.audio.sfx"), AudioSettings.sfx_volume, "sfx")
+	_build_audio_setting_row(parent,562.0,continuity.localized("목표 경보 소리","Objective alert volume","目标警报音量"),float(settings_accessibility_draft.get("objective_alert_volume",0.8)),"objective_alert_volume")
+	for entry in [[130,"settings"],[274,"auto_play"],[418,"battle_start"],[562,"warning"]]: settings_workspace.field_card(parent,entry[0],124,entry[1])
 
 func _build_settings_preview(parent: Control) -> void:
-	hud.label(parent, LanguageSettings.text("settings.preview.title"), Vector2(26, 24), Vector2(330, 36), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var sample = hud.child_panel(parent, Rect2(24, 82, 334, 310 if settings_category == "general" else 262), Color("#17131fe8"), Color("#5f536a"), 1)
+	settings_workspace.kit_copy(parent,LanguageSettings.text("settings.preview.title"),Rect2(26,24,parent.size.x-52,46),26,Color("#bdb3c6"))
+	var column: VBoxContainer = settings_workspace.card(parent,"SettingsPreviewCard",22)
+	var pane: PanelContainer = column.get_parent()
+	pane.position = Vector2(24,82); pane.size = Vector2(parent.size.x-48,310)
+	var title: String = LanguageSettings.text("settings.preview.tutorial") if settings_category == "general" else continuity.localized("변경 미리보기","Changes preview","更改预览")
+	settings_workspace.kit_line(column,title,"",Color("#f3eadc"))
+	var message: String = _tutorial_guidance_preview_text() if settings_category == "general" else continuity.localized("적용하면 변경한 값을 저장합니다. 취소하면 열기 전의 값으로 돌아갑니다.","Apply saves your changes. Cancel restores the values from when this screen opened.","应用会保存更改。取消会恢复打开此画面前的设置。")
+	if not settings_accessibility_persistable and settings_category in ["accessibility","audio","general"]:
+		settings_workspace.kit_copy(parent,continuity.localized("새 게임 후 캠페인 접근성을 조절할 수 있습니다.","Start a new game to edit campaign accessibility.","开始新游戏后可调整战役辅助设置。"),Rect2(26,502,368,130),24,Color("#bdb3c6"),"SettingsCampaignAccessNotice")
+	if settings_category == "display": message = LanguageSettings.text("settings.preview.room_body")
+	settings_text_preview_label = settings_workspace.kit_line(column,message,"SettingsPreviewText",Color("#c0b2c6"))
+	settings_text_preview_label.add_theme_font_size_override("font_size",preload("res://scripts/ui/UIStandard.gd").text_size(24))
 	if settings_category == "general":
-		hud.label(sample, LanguageSettings.text("settings.preview.tutorial"), Vector2(22, 18), Vector2(290, 40), 23, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-		hud.label(sample, _tutorial_guidance_preview_text(), Vector2(22, 70), Vector2(290, 202), 20, Color("#fff7e6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 8)
-		hud.label(parent, LanguageSettings.text("settings.preview.current_guidance", {"level": _tutorial_guidance_display_name(UISettings.tutorial_guidance_level)}), Vector2(26, 416), Vector2(330, 54), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
-		hud.label(parent, LanguageSettings.text("settings.preview.current_language", {"language": LanguageSettings.display_name(LanguageSettings.locale)}), Vector2(26, 482), Vector2(330, 54), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
-		return
-	hud.label(sample, LanguageSettings.text("settings.preview.room_title"), Vector2(22, 18), Vector2(290, 40), 23, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	settings_text_preview_label = hud.label(sample, LanguageSettings.text("settings.preview.room_body"), Vector2(22, 70), Vector2(290, 110), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	hud.label(sample, LanguageSettings.text("settings.preview.selected"), Vector2(22, 200), Vector2(120, 34), 20, HUDController.COLOR_ROUTE_PURPLE, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(parent, LanguageSettings.text("settings.preview.current_text_size", {"percent": int(round(UISettings.text_scale * 100.0))}), Vector2(26, 340), Vector2(330, 34), 20, Color("#bdb3c6"))
-	var layout_label := "Compact · 1366/1280" if UISettings.is_compact_layout() else "Standard · 1920"
-	hud.label(parent, LanguageSettings.text("settings.preview.current_layout", {"layout": LanguageSettings.ui_text(layout_label)}), Vector2(26, 382), Vector2(330, 54), 20, Color("#bdb3c6"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
+		settings_workspace.kit_copy(parent,LanguageSettings.text("settings.preview.current_guidance",{"level":_tutorial_guidance_display_name(UISettings.tutorial_guidance_level)}),Rect2(26,422,parent.size.x-52,60),24,Color("#bdb3c6"))
+	else:
+		settings_workspace.kit_copy(parent,LanguageSettings.text("settings.preview.current_text_size",{"percent":int(round(UISettings.text_scale*100))}),Rect2(26,422,parent.size.x-52,60),24,Color("#bdb3c6"))
 
 func _build_audio_setting_row(parent: Control, y: float, title: String, current_value: float, setting_id: String) -> void:
 	hud.label(parent, title, Vector2(78, y), Vector2(430, 34), 22, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	var value_label = hud.label(parent, "%d%%" % int(round(current_value * 100.0)), Vector2(590, y), Vector2(112, 34), 20, HUDController.COLOR_INFORMATION, HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.slider(parent, Rect2(78, y + 50, 624, 36), current_value * 100.0, Callable(self, "_on_audio_slider_changed").bind(setting_id, value_label))
+	var slider: HSlider = hud.slider(parent, Rect2(78, y + 50, 624, 36), current_value * 100.0, Callable(self, "_on_audio_slider_changed").bind(setting_id, value_label))
+	if setting_id == "objective_alert_volume": slider.editable = settings_accessibility_persistable
 
 func _on_audio_slider_changed(value: float, setting_id: String, value_label: Label) -> void:
 	var linear_value = value / 100.0
 	match setting_id:
 		"master":
 			AudioSettings.set_master_volume(linear_value, false)
+		"objective_alert_volume":
+			_preview_settings_accessibility(setting_id,linear_value)
 		"music":
 			AudioSettings.set_music_volume(linear_value, false)
 			_preview_music()
@@ -5089,21 +5575,16 @@ func _build_ui_setting_row(parent: Control, y: float) -> void:
 	hud.slider(parent, Rect2(40, y + 50, 842, 36), UISettings.text_scale * 100.0, Callable(self, "_on_ui_scale_changed").bind(value_label), UISettings.MIN_TEXT_SCALE * 100.0, UISettings.MAX_TEXT_SCALE * 100.0, 5.0)
 
 func _build_language_setting_row(parent: Control, y: float) -> void:
-	hud.label(parent, LanguageSettings.text("settings.language.label"), Vector2(40, y), Vector2(360, 34), 20, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var language_option = hud.option_button(
-		parent,
-		Rect2(520, y - 8, 362, 52),
-		[
-			{"label": LanguageSettings.display_name(LanguageSettings.LOCALE_KOREAN), "value": LanguageSettings.LOCALE_KOREAN},
-			{"label": LanguageSettings.display_name(LanguageSettings.LOCALE_ENGLISH), "value": LanguageSettings.LOCALE_ENGLISH},
-			{"label": LanguageSettings.display_name(LanguageSettings.LOCALE_CHINESE), "value": LanguageSettings.LOCALE_CHINESE}
-		],
-		LanguageSettings.locale,
-		Callable(self, "_on_language_preview_changed"),
-		20,
-		"LanguageOption"
-	)
-	language_option.name = "LanguageOption"
+	hud.label(parent, LanguageSettings.text("settings.language.label"), Vector2(40, y), Vector2(240, 34), 20, Color("#f3eadc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+	var locales := [LanguageSettings.LOCALE_KOREAN,LanguageSettings.LOCALE_ENGLISH,LanguageSettings.LOCALE_CHINESE]
+	for index in locales.size():
+		var locale_id: String = locales[index]
+		var button: Button = hud.button(parent,LanguageSettings.display_name(locale_id),Rect2(326+index*188,y-12,180,64),Callable(self,"_on_language_preview_changed").bind(locale_id),20,"SettingsLanguage_"+locale_id,HUDController.BUTTON_GRADE_PRIMARY if LanguageSettings.locale==locale_id else HUDController.BUTTON_GRADE_UTILITY)
+		button.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+		button.toggle_mode = true
+		button.set_pressed_no_signal(LanguageSettings.locale==locale_id)
+		button.tooltip_text = continuity.localized("언어 선택\n화면과 대사의 언어를 미리 봅니다. 적용을 눌러 저장합니다.","Language\nPreview UI and dialogue language. Press Apply to save.","语言\n预览界面和对话语言，点击应用保存。")
+
 	hud.label(parent, LanguageSettings.text("settings.language.help"), Vector2(40, y + 58), Vector2(842, 58), 20, Color("#a99fba"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func _on_language_preview_changed(value: String) -> void:
@@ -5243,16 +5724,28 @@ func _on_ui_scale_changed(value: float, value_label: Label) -> void:
 	if value_label != null and is_instance_valid(value_label):
 		value_label.text = "%d%%" % int(round(value))
 	if settings_text_preview_label != null and is_instance_valid(settings_text_preview_label):
-		settings_text_preview_label.add_theme_font_size_override("font_size", UISettings.scaled_font_size(17))
+		settings_text_preview_label.add_theme_font_size_override("font_size", preload("res://scripts/ui/UIStandard.gd").text_size(20))
 
 func _reset_settings_category() -> void:
 	match settings_category:
+		"combat":
+			UISettings.set_skill_cutscene_policy(UISettings.DEFAULT_SKILL_CUTSCENE_POLICY, false)
+			UISettings.set_reduce_combat_effects(false, false)
+			UISettings.set_hide_noncombat_hp_bars(false, false)
+			UISettings.set_remember_combat_speed(false, false)
+			UISettings.set_preferred_combat_speed(1.0,false)
 		"audio":
 			AudioSettings.reset_defaults(false)
+			settings_accessibility_draft.objective_alert_volume = CouncilChronicleScript.default_accessibility().objective_alert_volume
 		"display":
 			UISettings.set_text_scale(UISettings.DEFAULT_TEXT_SCALE, false)
 			UISettings.set_layout_mode(UISettings.DEFAULT_LAYOUT_MODE, false)
+			UISettings.set_window_mode(UISettings.DEFAULT_WINDOW_MODE, false)
+		"accessibility":
+			var defaults := CouncilChronicleScript.default_accessibility()
+			for key in ["objective_summary","high_contrast_icons","reduce_region_motion","show_region_details"]: settings_accessibility_draft[key] = defaults[key]
 		_:
+			settings_accessibility_draft.quick_dialogue = false
 			LanguageSettings.reset_default(false)
 			UISettings.set_tutorial_guidance_level(UISettings.DEFAULT_TUTORIAL_GUIDANCE_LEVEL, false)
 	_rebuild_settings_screen()
@@ -5266,21 +5759,50 @@ func _rebuild_settings_screen() -> void:
 	_build_settings_ui()
 
 func _apply_settings_changes() -> void:
-	AudioSettings.save()
-	UISettings.save()
-	LanguageSettings.save()
-	TutorialGuidanceHistory.save()
-	InputSettings.save()
+	# Keep each established writer and schema; undo partial writes if a later writer fails.
+	var backups := _settings_file_backups()
+	var ok := UISettings.save()
+	if ok: ok = AudioSettings.save()
+	if ok: ok = LanguageSettings.save()
+	if ok: ok = TutorialGuidanceHistory.save()
+	if ok: ok = InputSettings.save()
+	if ok and settings_accessibility_draft != settings_open_snapshot.get("accessibility",{}):
+		ok = _set_update4_accessibility(settings_accessibility_draft)
+	if not ok:
+		_restore_settings_files(backups)
+		settings_write_failed = true
+		_rebuild_settings_screen()
+		return
+	settings_write_failed = false
 	settings_open_snapshot.clear()
 	_return_from_settings()
 
+func _settings_file_backups() -> Dictionary:
+	var result: Dictionary = {}
+	for path in ["user://settings.cfg",campaign_save_v2_path,campaign_save_v3_path,campaign_save_v4_path,campaign_save_v5_path,campaign_save_v6_path]:
+		result[path] = FileAccess.get_file_as_bytes(path) if FileAccess.file_exists(path) else null
+	return result
+
+func _restore_settings_files(backups: Dictionary) -> void:
+	for path in backups:
+		var bytes = backups[path]
+		if bytes == null:
+			if FileAccess.file_exists(path): DirAccess.remove_absolute(path)
+		elif FileAccess.get_file_as_bytes(path) != bytes:
+			var file := FileAccess.open(path,FileAccess.WRITE)
+			if file != null: file.store_buffer(bytes); file.close()
+			else: push_warning("Settings rollback failed: "+str(path))
+
 func _cancel_settings_changes() -> void:
+	if settings_open_snapshot.has("start_flow"): start_flow.restore(settings_open_snapshot.start_flow)
 	if not settings_open_snapshot.is_empty():
 		AudioSettings.apply_snapshot(settings_open_snapshot.get("audio", {}), false)
 		UISettings.apply_snapshot(settings_open_snapshot.get("interface", {}), false)
 		LanguageSettings.apply_snapshot(settings_open_snapshot.get("language", {}), false)
 		TutorialGuidanceHistory.apply_snapshot(settings_open_snapshot.get("tutorial_history", {}), false)
 		InputSettings.apply_snapshot(settings_open_snapshot.get("controls", {}), false)
+	settings_accessibility_draft.clear()
+	settings_write_failed = false
 	settings_open_snapshot.clear()
 	_return_from_settings()
 
@@ -5293,7 +5815,7 @@ func _return_from_settings() -> void:
 	if destination == "" or destination == Constants.SCREEN_SETTINGS:
 		destination = Constants.SCREEN_TITLE
 	_set_screen(destination)
-	if reopen_pause_menu and destination in [Constants.SCREEN_MANAGEMENT, Constants.SCREEN_COMBAT]:
+	if reopen_pause_menu and destination == pause_menu_source_screen:
 		pause_menu_open = true
 		call_deferred("_build_pause_menu_overlay")
 
@@ -5420,16 +5942,19 @@ func _close_tutorial_practice() -> void:
 	_set_screen(Constants.SCREEN_SETTINGS)
 
 func _build_onboarding_name_entry_ui() -> void:
+	if start_flow.naming and start_flow.naming_turn<2:
+		start_flow.build_naming_talk()
+		return
 	var view = preload("res://scripts/ui/NameEntryUI.gd").new()
 	view.setup(self,hud)
 	view.build_form()
 
 func _onboarding_name_changed(value: String) -> void:
 	var hint := ui_layer.find_child("NameLengthHint",true,false) as Label
-	if hint == null: return
-	var length := value.strip_edges().length()
-	hint.text = "마왕명 · %d/12자%s" % [length, " · 12자 이내로 줄여 주세요." if length>12 else ""]
-	hint.add_theme_color_override("font_color", Color("#f1a0a7") if length>12 else Color("#c0b2c6"))
+	if hint==null: return
+	hint.text = start_flow.text("name_rules")+" · %d/12" % value.strip_edges().length()
+	hint.add_theme_color_override("font_color", Color("#c0b2c6") if start_flow.valid_name(value) else Color("#f1a0a7"))
+	if is_instance_valid(onboarding_name_confirm_button): onboarding_name_confirm_button.disabled = not start_flow.valid_name(value)
 
 func _onboarding_add_name_entry_tip(parent: Control, panel_rect: Rect2, input_rect: Rect2) -> void:
 	var touch_ui := UISettings.is_touch_ui()
@@ -5497,70 +6022,11 @@ func _focus_onboarding_name_input() -> void:
 		onboarding_name_input.grab_focus()
 
 func _build_onboarding_dialogue_ui() -> void:
-	var touch_ui := UISettings.is_touch_ui()
-	var screen = _onboarding_screen_panel(Color("#050407d8"))
-	if onboarding_dialogue_queue.is_empty():
-		_onboarding_add_scene_illustration(screen, _onboarding_rect("S02_DIALOGUE", "SceneIllustration", Rect2(0, 0, 1920, 1080)), _onboarding_dialogue_scene_path({}))
-		hud.label(screen, "튜토리얼", Vector2(72, 50), Vector2(360, 42), 24, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-		hud.rich_label(screen, "표시할 대사가 없습니다.", Vector2(560, 766), Vector2(1040, 150), 24, Color("#f7efe1"), UIFontScript.ROLE_DIALOGUE, TextServer.AUTOWRAP_ARBITRARY, VERTICAL_ALIGNMENT_CENTER)
-		hud.button(screen, "닫기", Rect2(1430, 850, 360, 128) if touch_ui else Rect2(1600, 920, 190, 48), Callable(self, "_onboarding_advance_dialogue"), 28 if touch_ui else 18)
-		return
-	var line: Dictionary = onboarding_dialogue_queue[clampi(onboarding_dialogue_index, 0, onboarding_dialogue_queue.size() - 1)]
-	_onboarding_add_scene_illustration(screen, _onboarding_rect("S02_DIALOGUE", "SceneIllustration", Rect2(0, 0, 1920, 1080)), _onboarding_dialogue_scene_path(line))
-	var dialogue_header := str(line.get("dialogue_header", "튜토리얼"))
-	hud.label(screen, dialogue_header, Vector2(72, 50), Vector2(720, 42), 24, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var speaker_id = str(line.get("speaker", ""))
-	var speaker_name = str(line.get("speaker_name", _onboarding_speaker_name(speaker_id)))
-	var dialogue_text := _onboarding_line_text(line)
-	var dialogue_layout := _onboarding_dialogue_layout(dialogue_text, touch_ui)
-	var portrait_rect = Rect2(72, 510, 328, 510)
-	var portrait_panel = _onboarding_add_portrait(screen, portrait_rect, speaker_id, speaker_name, str(line.get("emotion", "")), false)
-	portrait_panel.name = "DialoguePortraitPanel"
-	var box_rect: Rect2 = dialogue_layout.get("box_rect", Rect2(392, 660, 1454, 326))
-	var dialogue_panel = _onboarding_child_panel(screen, box_rect, Color("#100d14f4"), Color("#9b6a27"))
-	dialogue_panel.name = "DialogueTextPanel"
-	var speaker_rect: Rect2 = dialogue_layout.get("speaker_rect", Rect2(432, 696, 760, 46))
-	var speaker_label: Label = hud.label(screen, speaker_name, speaker_rect.position, speaker_rect.size, 29, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	if speaker_id == "CHR_DARKLORD_PLAYER":
-		speaker_label.text = LanguageSettings.player_display_name(speaker_name)
-		speaker_label.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	var text_rect: Rect2 = dialogue_layout.get("text_rect", Rect2(432, 756, 1180, 134))
-	var dialogue_label = hud.dialogue_text(screen, dialogue_text, text_rect)
-	dialogue_label.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	dialogue_label.add_theme_constant_override("line_separation", 4)
-	var next_button_rect: Rect2 = dialogue_layout.get("next_rect", Rect2(1542, 908, 246, 56))
-	var progress_rect: Rect2 = dialogue_layout.get("progress_rect", Rect2(1402, 920, 116, 28))
-	hud.label(screen, "%d / %d" % [onboarding_dialogue_index + 1, onboarding_dialogue_queue.size()], progress_rect.position, progress_rect.size, 20 if touch_ui else 16, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_RIGHT, "", UIFontScript.ROLE_BODY)
-	var next_label := str(line.get("next_label", "다음"))
-	hud.button(screen, next_label, next_button_rect, Callable(self, "_onboarding_advance_dialogue"), 30 if touch_ui else 21)
-	if (campaign_cycle_index >= 2 or bool(update4_profile.get("chronicle_update4", {}).get("accessibility", {}).get("quick_dialogue", false))) and onboarding_dialogue_queue.size() > 1:
-		var skip_rect: Rect2 = dialogue_layout.get("skip_rect", Rect2(1184, 908, 200, 56))
-		hud.button(screen, "빠른 대사 건너뛰기", skip_rect, Callable(self, "_onboarding_skip_dialogue"), 22 if touch_ui else 16)
-
+	story_presenter.build_legacy()
 
 func _onboarding_dialogue_layout(text: String, touch_ui: bool) -> Dictionary:
-	if touch_ui:
-		return {
-			"box_rect": Rect2(392, 660, 1454, 326),
-			"speaker_rect": Rect2(432, 696, 760, 46),
-			"text_rect": Rect2(432, 756, 1000, 180),
-			"next_rect": Rect2(1460, 820, 328, 144),
-			"progress_rect": Rect2(1300, 934, 136, 28),
-			"skip_rect": Rect2(1110, 820, 320, 144)
-		}
-	var font := UIFontScript.font_for_role(UIFontScript.ROLE_DIALOGUE)
-	var measured := font.get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, 1328.0, UISettings.scaled_font_size(26))
-	var text_height := clampf(measured.y + 24.0, 144.0, 432.0)
-	var box_height := text_height + 180.0
-	var box_y := 1020.0 - box_height
-	return {
-		"box_rect": Rect2(424, box_y, 1424, box_height),
-		"speaker_rect": Rect2(456, box_y + 20, 1296, 50),
-		"text_rect": Rect2(456, box_y + 80, 1328, text_height),
-		"next_rect": Rect2(1516, 940, 292, 60),
-		"progress_rect": Rect2(456, 946, 256, 44),
-		"skip_rect": Rect2(876, 940, 280, 60)
-	}
+	return story_presenter.dialogue_layout(text, touch_ui)
+
 
 func _update3_front_profile_context() -> Dictionary:
 	var result := update3_profile.duplicate(true)
@@ -5589,6 +6055,7 @@ func _select_campaign_mode(mode_id: String) -> void:
 	update4_profile = result.get("profile", update4_profile).duplicate(true)
 	update4_active_run = result.get("active_run", update4_active_run).duplicate(true)
 	GameState.day = CampaignModeServiceScript.start_day(mode_id, DataRegistry.update4_campaign_modes)
+	preload("res://scripts/map_builder/ApprovedGradeProgression.gd").reset_campaign_map(self)
 	if mode_id == CampaignModeServiceScript.FRONT_MODE_ID:
 		_log("%d회차 모드 확정: 전선 연대기. 기존 전선 선택 흐름을 이어갑니다." % campaign_cycle_index)
 		_set_screen(Constants.SCREEN_FRONT_SELECTION)
@@ -5596,7 +6063,7 @@ func _select_campaign_mode(mode_id: String) -> void:
 		_ensure_update4_council_roster()
 		_onboarding_set_stage("COUNCIL_CYCLE_%d_DAY_01" % campaign_cycle_index)
 		_log("%d회차 모드 확정: 마왕 의회. 실키·포포를 포함한 5인 의회 편성으로 DAY 1을 시작합니다." % campaign_cycle_index)
-		_set_screen(Constants.SCREEN_MANAGEMENT)
+		_enter_campaign_management_day(true)
 	if not _write_campaign_v2_snapshot():
 		campaign_save_notice = "회차 모드는 선택했지만 v5 저장에 실패했습니다."
 		_show_campaign_save_notice_overlay()
@@ -5645,6 +6112,11 @@ func _cancel_update4_region_selection() -> void:
 
 
 func _ensure_update4_council_roster() -> void:
+	var had_council_roster:bool=monster_roster.has("spider_tailor") and monster_roster.has("bat_courier")
+	var prior_deployed:Array=deployed_instance_ids.duplicate()
+	for contract_id in campaign_profile.get("unlocked_contract_ids",[]):
+		if DataRegistry.update2_contracts.has(str(contract_id)):_add_contract_monster_to_roster(str(contract_id))
+	_sync_update3_reward_monsters()
 	for instance_id in ["MON_SILKY", "MON_POPO"]:
 		var instance: Dictionary = DataRegistry.monster_instances.get(instance_id, {})
 		var species_id := str(instance.get("species_id", ""))
@@ -5665,6 +6137,15 @@ func _ensure_update4_council_roster() -> void:
 			"room": room_id
 		}
 	deployed_instance_ids.clear()
+	var owned:Array=_contract_owned_instance_ids(true)
+	if had_council_roster:
+		for id in prior_deployed:
+			if owned.has(id) and not deployed_instance_ids.has(id):deployed_instance_ids.append(id)
+		if prior_deployed.is_empty():
+			_sync_contract_reserves();return
+	if not deployed_instance_ids.is_empty():
+		_sync_contract_reserves();return
+	# Initial or entirely invalid saved selections recover only the original five.
 	for species_id in ["slime", "goblin", "imp", "spider_tailor", "bat_courier"]:
 		if not monster_roster.has(species_id):
 			continue
@@ -5793,89 +6274,42 @@ func _close_update4_outpost_management() -> void:
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 
 
-func _open_update4_upper_floor() -> void:
-	if _update4_council_mode_active() and bool(update4_active_run.get("upper_floor", {}).get("unlocked", false)):
-		_set_screen(Constants.SCREEN_UPPER_FLOOR)
+func _open_update4_expansion() -> void:
+	if _update4_council_mode_active() and bool(update4_active_run.get("expansion", {}).get("unlocked", false)):
+		_set_screen(Constants.SCREEN_EXPANSION)
 
 
-func _build_upper_floor_ui() -> void:
-	var screen = UpperFloorScreenScene.instantiate()
-	screen.name = "UpperFloorScreen"
+func _build_expansion_ui() -> void:
+	var screen = ExpansionScreenScene.instantiate()
+	screen.name = "ExpansionObjectivesScreen"
 	ui_layer.add_child(screen)
-	screen.setup(update4_active_run.get("upper_floor", {}), DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules)
-	screen.layout_selected.connect(_select_update4_upper_layout)
+	screen.setup(update4_active_run.get("expansion", {}), DataRegistry.update4_expansion_modules)
 	screen.closed.connect(func(): _set_screen(Constants.SCREEN_MANAGEMENT))
+	screen.move_requested.connect(func(id: String):
+		selected_room = id
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		build_placement.plot.begin_move())
 
 
-func _select_update4_upper_layout(layout_id: String) -> void:
-	var selected := UpperFloorObjectiveServiceScript.select_layout(update4_active_run, layout_id, DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules, _castle_stage_index())
-	if not bool(selected.get("ok", false)):
-		campaign_save_notice = str(selected.get("error", "상층 레이아웃을 확정하지 못했습니다."))
-		_show_campaign_save_notice_overlay()
+func _prepare_update4_council_battle() -> void:
+	if not _update4_council_mode_active(): return
+	var assignments := {}
+	if combat_scene.has_method("activate_v130r_duo"):
+		var expansion: Dictionary = update4_active_run.get("expansion",{}).duplicate(true)
+		if bool(expansion.get("unlocked",false)):
+			expansion["rooms"] = {"crown_sanctum":"recovery_nest","seal_vault":"vault"}
+			expansion["temporary"] = true
+			expansion["eligible"] = false
+		for unit in monster_units: assignments[str(unit.get_instance_id())] = "original"
+		expansion["assignments"] = assignments
+		update4_active_run["expansion"] = expansion
 		return
-	update4_active_run = selected.get("active_run", update4_active_run).duplicate(true)
-	_log("상층 레이아웃 확정: %s" % str(DataRegistry.update4_upper_floor_layouts.get(layout_id, {}).get("display_name", layout_id)))
-	_set_screen(Constants.SCREEN_UPPER_FLOOR)
-	_write_campaign_v2_snapshot()
-
-
-func _build_update4_multifloor_hud() -> void:
-	if not _update4_council_mode_active() or not bool(update4_active_run.get("upper_floor", {}).get("unlocked", false)):
-		return
-	var floor_hud = MultiFloorHUDScene.instantiate()
-	floor_hud.name = "MultiFloorHUD"
-	ui_layer.add_child(floor_hud)
-	floor_hud.setup(
-		update4_active_run.get("upper_floor", {}),
-		DataRegistry.update4_upper_floor_layouts,
-		DataRegistry.update4_upper_floor_modules,
-		update4_profile.get("chronicle_update4", {}).get("accessibility", {}),
-		false,
-		audio_director
-	)
-	floor_hud.floor_selected.connect(_select_update4_visible_floor)
-	floor_hud.auto_camera_changed.connect(_set_update4_auto_camera)
-
-
-func _prepare_update4_multifloor_battle() -> void:
-	if not _update4_council_mode_active() or not bool(update4_active_run.get("upper_floor", {}).get("unlocked", false)):
-		return
-	var upper: Dictionary = update4_active_run.get("upper_floor", {}).duplicate(true)
-	var runtime: Dictionary = upper.get("graph_runtime", MultiFloorGraphServiceScript.new_runtime()).duplicate(true)
-	var layout: Dictionary = DataRegistry.update4_upper_floor_layouts.get(str(upper.get("layout_id", "")), {})
-	var upper_room_id := "crown_sanctum"
-	for placement_value in layout.get("placed_modules", []):
-		if placement_value is Dictionary:
-			upper_room_id = str(placement_value.get("instance_id", upper_room_id))
-			break
-	var upper_species := ["spider_tailor", "bat_courier"]
+	var state := _plot_save_state()
 	for monster in monster_units:
-		if not is_instance_valid(monster):
-			continue
-		var species_id := str(monster.unit_id)
-		var floor_id := MultiFloorGraphServiceScript.FLOOR_2 if species_id in upper_species else MultiFloorGraphServiceScript.FLOOR_1
-		var room_id := upper_room_id if floor_id == MultiFloorGraphServiceScript.FLOOR_2 else str(monster.current_room)
-		runtime = MultiFloorGraphServiceScript.register_entity(runtime, species_id, "monster", floor_id, room_id)
-	upper["graph_runtime"] = runtime
-	update4_active_run["upper_floor"] = upper
-
-
-func _select_update4_visible_floor(floor_id: String) -> void:
-	var upper: Dictionary = update4_active_run.get("upper_floor", {}).duplicate(true)
-	var runtime: Dictionary = upper.get("graph_runtime", {}).duplicate(true)
-	runtime["visible_floor"] = floor_id
-	upper["graph_runtime"] = runtime
-	update4_active_run["upper_floor"] = upper
-	var floor_hud = ui_layer.get_node_or_null("MultiFloorHUD")
-	if floor_hud != null and str(floor_hud.visible_floor) != floor_id:
-		floor_hud.select_floor(floor_id)
-
-
-func _set_update4_auto_camera(enabled: bool) -> void:
-	var upper: Dictionary = update4_active_run.get("upper_floor", {}).duplicate(true)
-	upper["auto_camera_switch"] = enabled
-	update4_active_run["upper_floor"] = upper
-	_write_campaign_v2_snapshot()
+		if not is_instance_valid(monster): continue
+		var cell := preload("res://scripts/dungeon_quarter/IsoMath.gd").iso_world_to_cell(monster.global_position, graph.tile_world_origin, graph.tile_size.x * graph.tile_visual_scale, graph.tile_size.y * graph.tile_visual_scale)
+		assignments[str(monster.get_instance_id())] = "expansion" if PlotSaveStateScript.region_for_cell(state, cell) > 0 else "original"
+	update4_active_run["expansion"]["assignments"] = assignments
 
 
 func _start_update4_outpost_battle() -> void:
@@ -6058,6 +6492,9 @@ func _build_update3_heart_combat_hud() -> void:
 func _build_duo_link_loadout_ui() -> void:
 	var screen = DuoLinkLoadoutScreenScene.instantiate()
 	screen.name = "DuoLinkLoadoutScreen"
+	screen.member_progress = _update3_duo_member_progress()
+	for member in screen.member_progress:
+		screen.member_progress[member]["owned"] = monster_roster.has(str(DataRegistry.monster_instance(member).get("species_id","")))
 	ui_layer.add_child(screen)
 	screen.setup(update3_profile, update3_active_run, DataRegistry.update3_duo_links, deployed_instance_ids)
 	screen.link_toggled.connect(_toggle_update3_duo_link)
@@ -6083,6 +6520,10 @@ func _toggle_update3_duo_link(link_id: String) -> void:
 
 func _confirm_update3_duo_link_loadout() -> void:
 	update3_active_run["duo_link_loadout_confirmed"] = true
+	if get_meta("v130r_duo_loadout",false):
+		remove_meta("v130r_duo_loadout")
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
 	var warnings := DuoLinkServiceScript.deployment_warnings(update3_active_run, deployed_instance_ids, DataRegistry.update3_duo_links)
 	for warning in warnings:
 		_log(str(warning))
@@ -6155,6 +6596,10 @@ func _update3_equip_link_candidates(candidate_ids: Array) -> void:
 
 
 func _cancel_update3_duo_link_loadout() -> void:
+	if get_meta("v130r_duo_loadout",false):
+		remove_meta("v130r_duo_loadout")
+		_set_screen(Constants.SCREEN_MANAGEMENT)
+		return
 	if bool(update3_active_run.get("duo_link_loadout_confirmed", false)):
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 	else:
@@ -6187,13 +6632,15 @@ func _build_update3_duo_link_combat_hud() -> void:
 
 
 func _build_contract_board_ui() -> void:
-	_ensure_contract_board_offer()
-	var selection_open := selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT
+	var council:bool=_update4_council_mode_active()
+	if not council:_ensure_contract_board_offer()
+	var selection_open := not council and selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT
 	if selection_open and contract_board_pending_ids.is_empty():
 		contract_board_pending_ids = selected_contract_ids.duplicate()
 	secondary_workspace = load("res://scripts/ui/CampaignWorkspaceUI.gd").new()
 	secondary_workspace.setup(self,hud)
 	secondary_workspace.build_contract(selection_open)
+	if bool(ProjectSettings.get_setting("debug/approved_map_step6",false)): preload("res://scripts/ui/ApprovedBattleUI.gd").prepare_result_controls(ui_layer)
 
 
 
@@ -6363,6 +6810,12 @@ func _confirm_contract_selection() -> void:
 	var errors := ContractRosterServiceScript.validate_contract_selection(contract_board_pending_ids, _available_update2_contracts())
 	if not errors.is_empty() or selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
 		return
+	if bool(ProjectSettings.get_setting("debug/approved_map_step6",false)):
+		selected_contract_ids = contract_board_pending_ids.duplicate()
+		var ids: Array = []
+		for contract_id in selected_contract_ids: ids.append(str(DataRegistry.update2_contract(contract_id).instance_id))
+		load("res://scripts/map_builder/ApprovedRecruitment.gd").begin(self,ids)
+		return
 	selected_contract_ids = contract_board_pending_ids.duplicate()
 	for contract_id in selected_contract_ids:
 		_add_contract_monster_to_roster(contract_id)
@@ -6515,13 +6968,16 @@ func _sanitize_unready_contract_combat_assets() -> void:
 		deployed_instance_ids.erase(instance_id)
 
 
+func _current_contract_deployment_limit()->int:
+	return maxi(5,_current_stage_deployment_limit()) if _update4_council_mode_active() else _current_stage_deployment_limit()
+
 func _sync_contract_reserves() -> void:
-	if selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
+	if not _update4_council_mode_active() and selected_contract_ids.size() != ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT:
 		return
 	var owned_ids := _contract_owned_instance_ids(false)
 	var valid_deployed: Array[String] = []
 	var defense_owned := _contract_owned_instance_ids(true)
-	var limit := _current_stage_deployment_limit()
+	var limit := _current_contract_deployment_limit()
 	for instance_id in deployed_instance_ids:
 		if defense_owned.has(instance_id) and not valid_deployed.has(instance_id) and valid_deployed.size() < limit:
 			valid_deployed.append(instance_id)
@@ -6537,7 +6993,7 @@ func _toggle_contract_deployment(instance_id: String) -> void:
 		return
 	if deployed_instance_ids.has(instance_id):
 		deployed_instance_ids.erase(instance_id)
-	elif deployed_instance_ids.size() < _current_stage_deployment_limit():
+	elif deployed_instance_ids.size() < _current_contract_deployment_limit():
 		deployed_instance_ids.append(instance_id)
 	else:
 		_log("현재 성 단계의 출전 상한에 도달했습니다.")
@@ -6548,7 +7004,7 @@ func _toggle_contract_deployment(instance_id: String) -> void:
 func _confirm_contract_roster() -> void:
 	if current_screen != Constants.SCREEN_CONTRACT_BOARD:
 		return
-	var errors := ContractRosterServiceScript.validate_deployment(deployed_instance_ids, _contract_owned_instance_ids(true), castle_art_stage, _current_stage_deployment_limit() - ContractRosterServiceScript.stage_deployment_limit(castle_art_stage))
+	var errors := ContractRosterServiceScript.validate_deployment(deployed_instance_ids, _contract_owned_instance_ids(true), castle_art_stage, _current_contract_deployment_limit() - ContractRosterServiceScript.stage_deployment_limit(castle_art_stage))
 	if not errors.is_empty():
 		_log(str(errors[0]))
 		return
@@ -6560,7 +7016,7 @@ func _confirm_contract_roster() -> void:
 
 
 func _contract_roster_available() -> bool:
-	return campaign_cycle_index >= 2 and selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT
+	return _update4_council_mode_active() or (campaign_cycle_index >= 2 and selected_contract_ids.size() == ContractRosterServiceScript.REQUIRED_CONTRACT_COUNT)
 
 
 func _open_contract_roster() -> void:
@@ -6572,7 +7028,7 @@ func _open_contract_roster() -> void:
 
 func _monster_deployed_for_defense(monster_id: String) -> bool:
 	if deployed_instance_ids.is_empty():
-		return true
+		return not _update4_council_mode_active()
 	var instance_id := ContractRosterServiceScript.instance_id_for_species(monster_id, DataRegistry.monster_instances)
 	return instance_id != "" and deployed_instance_ids.has(instance_id)
 
@@ -6675,6 +7131,34 @@ func _onboarding_add_scene_illustration(parent: Control, rect: Rect2, path: Stri
 	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(shade)
 
+func _connect_dialogue_click(panel: Control, text: Control, advance: Callable) -> void:
+	for control in [panel, text]:
+		control.mouse_filter = Control.MOUSE_FILTER_STOP
+		control.gui_input.connect(_on_dialogue_panel_input.bind(control, advance))
+
+func _on_dialogue_panel_input(event: InputEvent, control: Control, advance: Callable) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed and not event.double_click:
+		control.accept_event()
+		advance.call()
+
+func _onboarding_portrait_texture(path: String) -> Texture2D:
+	if onboarding_portrait_texture_cache.has(path):
+		return onboarding_portrait_texture_cache[path]
+	var texture := _load_png(path)
+	if texture != null and path.contains("/portraits/uiux3d/"):
+		var image := texture.get_image()
+		if image != null:
+			if image.is_compressed():
+				image.decompress()
+			var bounds := image.get_used_rect()
+			if bounds.has_area():
+				var cropped := AtlasTexture.new()
+				cropped.atlas = texture
+				cropped.region = Rect2(bounds)
+				texture = cropped
+	onboarding_portrait_texture_cache[path] = texture
+	return texture
+
 func _onboarding_add_portrait(parent: Control, rect: Rect2, speaker_id: String, speaker_name: String, emotion: String = "", show_name: bool = true) -> Panel:
 	var portrait = _onboarding_child_panel(parent, rect, Color("#050407fa"), _onboarding_speaker_accent(speaker_id))
 	var portrait_path := _onboarding_speaker_portrait_path(speaker_id, emotion)
@@ -6690,8 +7174,21 @@ func _onboarding_add_portrait(parent: Control, rect: Rect2, speaker_id: String, 
 	image_back.color = Color("#020203")
 	image_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait.add_child(image_back)
-	var portrait_image = hud.texture(portrait, portrait_path, image_rect)
-	if portrait_path.contains("/portraits/uiux3d/"):
+	var texture := _onboarding_portrait_texture(portrait_path)
+	var display_rect: Rect2 = image_rect
+	var character_scale := 1.0 if speaker_id == "CHR_DARKLORD_PLAYER" else 0.8
+	var fit_character := portrait_path.contains("/portraits/uiux3d/") or portrait_path.contains("/portraits/uiux_evolution/") or portrait_path.contains("/portraits/uiux_crowns/") or portrait_path.contains("/portraits/update4/crowns/")
+	if texture != null and fit_character:
+		var texture_size := texture.get_size()
+		var fit_scale := minf(image_rect.size.x / texture_size.x, image_rect.size.y / texture_size.y)
+		display_rect.size = texture_size * fit_scale * character_scale
+	else:
+		display_rect.size *= character_scale
+	display_rect.position = image_rect.position + Vector2((image_rect.size.x - display_rect.size.x) * 0.5, image_rect.size.y - display_rect.size.y)
+	var portrait_image = hud.texture(portrait, "", display_rect)
+	portrait_image.name = "CharacterPortraitImage"
+	portrait_image.texture = texture
+	if fit_character:
 		portrait_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		image_back.color = Color.TRANSPARENT
 	else:
@@ -6728,8 +7225,7 @@ func _onboarding_start_new_game() -> void:
 		return
 	_onboarding_reset_game()
 	_start_first_play_observation("new")
-	_onboarding_set_stage("LV01_NAME_ENTRY")
-	_set_screen(Constants.SCREEN_NAME_ENTRY)
+	start_flow.start_prologue()
 
 func _onboarding_start_quick_game() -> void:
 	if _title_reset_confirmation_required("quick"):
@@ -6749,9 +7245,12 @@ func _onboarding_start_quick_game() -> void:
 	_onboarding_enter_management_day(1, false)
 
 func _onboarding_reset_game(preserve_story_read_state: bool = false) -> void:
+	AchievementService.fresh_campaign()
 	var preserved_story_cues: Array[String] = story_director.seen_cue_ids.duplicate()
 	var preserved_story_auto: bool = bool(story_director.auto_enabled)
 	GameState.reset()
+	if has_meta(preload("res://scripts/map_builder/ApprovedGradeProgression.gd").SESSION):
+		remove_meta(preload("res://scripts/map_builder/ApprovedGradeProgression.gd").SESSION)
 	_reset_run_metrics()
 	campaign_profile = NewCycleServiceScript.default_profile()
 	campaign_cycle_index = 1
@@ -6769,10 +7268,16 @@ func _onboarding_reset_game(preserve_story_read_state: bool = false) -> void:
 	leon_adaptation = LeonAdaptationServiceScript.default_adaptation()
 	update3_profile = FrontCampaignServiceScript.default_update3_profile()
 	update3_active_run = FrontCampaignServiceScript.default_legacy_active_run()
+	if not preserve_story_read_state:
+		update4_profile = CampaignModeServiceScript.default_profile()
+	update4_active_run = CampaignModeServiceScript.default_active_run()
+	campaign_save_v5_envelope.clear()
 	logs.clear()
 	_clear_units()
 	_reset_raid_state()
 	quarter_layout_id = DataRegistry.quarter_default_layout_id
+	runtime_plot_layout.clear()
+	plot_unlock_history.clear()
 	map_editor_active = false
 	map_editor_layout.clear()
 	map_editor_status = ""
@@ -6870,17 +7375,18 @@ func _reset_raid_state() -> void:
 func _onboarding_random_name() -> void:
 	if onboarding_name_input == null:
 		return
-	var names = [
-		LanguageSettings.text("name.random.1"),
-		LanguageSettings.text("name.random.2"),
-		LanguageSettings.text("name.random.3"),
-		LanguageSettings.text("name.random.4"),
-		LanguageSettings.text("name.random.5")
-	]
+	var names := _onboarding_random_name_candidates()
+	names.erase(onboarding_name_input.text)
 	onboarding_name_input.text = names[randi() % names.size()]
 	_onboarding_name_changed(onboarding_name_input.text)
 	if UISettings.is_touch_ui():
 		_close_onboarding_name_keyboard()
+
+func _onboarding_random_name_candidates() -> Array[String]:
+	var names: Array[String] = []
+	for index in range(1, 41):
+		names.append(LanguageSettings.text("name.random.%d" % index))
+	return names
 
 func _onboarding_name_submitted(_text: String) -> void:
 	_onboarding_confirm_name()
@@ -6889,6 +7395,9 @@ func _onboarding_confirm_name() -> void:
 	if current_screen != Constants.SCREEN_NAME_ENTRY or onboarding_name_input == null:
 		return
 	var player_name = onboarding_name_input.text.strip_edges()
+	if not start_flow.valid_name(player_name):
+		if is_instance_valid(onboarding_bati_comment_label): onboarding_bati_comment_label.text = start_flow.text("name_rules")
+		return
 	if player_name == "":
 		_onboarding_show_name_comment("invalid_empty")
 		return
@@ -6902,13 +7411,12 @@ func _onboarding_confirm_name() -> void:
 	_onboarding_finish_name_entry()
 
 func _onboarding_finish_name_entry() -> void:
-	_onboarding_set_stage("LV02_OPENING_CUTSCENE")
-	_onboarding_begin_dialogue(_onboarding_essential_opening_entries(), Constants.SCREEN_MANAGEMENT, ONBOARDING_ACTION_DAY1_MANAGEMENT)
+	start_flow.confirm_name()
 
 func _close_onboarding_name_keyboard() -> void:
 	if onboarding_name_input != null and is_instance_valid(onboarding_name_input):
 		onboarding_name_input.release_focus()
-	DisplayServer.virtual_keyboard_hide()
+	if DisplayServer.has_feature(DisplayServer.FEATURE_VIRTUAL_KEYBOARD): DisplayServer.virtual_keyboard_hide()
 
 func _onboarding_essential_opening_entries() -> Array:
 	var allowed_ids: Dictionary = {}
@@ -6927,6 +7435,7 @@ func _onboarding_show_name_comment(trigger_id: String) -> void:
 	onboarding_bati_comment_label.text = _onboarding_line_text(entries[0])
 
 func _onboarding_begin_dialogue(entries: Array, return_screen: String, complete_action: String = ONBOARDING_ACTION_NONE) -> void:
+	set_meta("ach_dialogue_skipped",false)
 	if entries.is_empty():
 		_onboarding_complete_dialogue_action(complete_action, return_screen)
 		return
@@ -6934,29 +7443,41 @@ func _onboarding_begin_dialogue(entries: Array, return_screen: String, complete_
 	onboarding_dialogue_index = 0
 	onboarding_dialogue_return_screen = return_screen
 	onboarding_dialogue_complete_action = complete_action
+	story_presenter.reset_legacy_auto()
 	_set_screen(Constants.SCREEN_DIALOGUE)
 
-func _onboarding_advance_dialogue() -> void:
+func _onboarding_advance_dialogue(manual: bool = true) -> void:
+	if continuity.backlog_open or pause_menu_open or current_screen == Constants.SCREEN_SETTINGS: return
+	if onboarding_dialogue_queue.is_empty(): return
+	if story_presenter.advance_page(manual): return
+	var ach_line: Dictionary = onboarding_dialogue_queue[onboarding_dialogue_index]
+	preload("res://scripts/achievements/AchievementGameplay.gd").read_line(str(ach_line.get("id","")),str(ach_line.get("speaker","")))
+	if manual: story_presenter.legacy_auto_enabled = false
 	if onboarding_dialogue_index + 1 < onboarding_dialogue_queue.size():
 		onboarding_dialogue_index += 1
-		_set_screen(Constants.SCREEN_DIALOGUE)
+		story_presenter.reset_legacy_timer()
+		_story_refresh_dialogue_ui()
 		return
 	var return_screen = onboarding_dialogue_return_screen
 	var complete_action = onboarding_dialogue_complete_action
+	if str(complete_action).begins_with("v130r_"): v130r_story.restore_pending(self)
 	onboarding_dialogue_queue.clear()
 	onboarding_dialogue_index = 0
 	onboarding_dialogue_complete_action = ONBOARDING_ACTION_NONE
+	story_presenter.reset_legacy_auto()
 	_tutorial_emit_action("dialogue_closed", {"stage": onboarding_stage_id})
 	_onboarding_complete_dialogue_action(complete_action, return_screen)
 
 func _onboarding_skip_dialogue() -> void:
-	if campaign_cycle_index < 2:
+	if campaign_cycle_index < 2 or onboarding_dialogue_queue.is_empty() or continuity.backlog_open or pause_menu_open:
 		return
+	set_meta("ach_dialogue_skipped",true)
 	var return_screen := onboarding_dialogue_return_screen
 	var complete_action := onboarding_dialogue_complete_action
 	onboarding_dialogue_queue.clear()
 	onboarding_dialogue_index = 0
 	onboarding_dialogue_complete_action = ONBOARDING_ACTION_NONE
+	story_presenter.reset_legacy_auto()
 	_tutorial_emit_action("dialogue_closed", {"stage": onboarding_stage_id, "skipped": true})
 	_onboarding_complete_dialogue_action(complete_action, return_screen)
 
@@ -7029,6 +7550,7 @@ func _clear_story_raid_scope() -> void:
 
 
 func _story_begin_trigger(trigger: String, facts: Dictionary = {}, return_screen: String = "", action: String = "", force_replay: bool = false, day: int = 0) -> bool:
+	if _update4_council_mode_active(): return false
 	if not story_feature_enabled or story_director.is_active():
 		return false
 	var story_day := GameState.day if day <= 0 else day
@@ -7042,13 +7564,14 @@ func _story_begin_trigger(trigger: String, facts: Dictionary = {}, return_screen
 func _story_show_active_scene() -> void:
 	if not story_director.is_active():
 		return
+	story_presenter.auto_at_end = false
 	_story_reset_auto_timer()
 	var scene := story_director.current_scene()
 	var delivery := str(scene.get("delivery", "fullscreen"))
 	var trigger := str(scene.get("trigger", ""))
 	if delivery in ["combat_overlay", "combat_bark"] or trigger in ["combat_started", "combat_time", "combat_boss_hp"]:
 		if not story_combat_overlay_open:
-			story_combat_previous_paused = combat_paused
+			story_combat_previous_paused = combat_scene.requested_pause
 		story_combat_overlay_open = true
 		if combat_scene.has_method("set_pause_state"):
 			combat_scene.set_pause_state(true, false)
@@ -7063,7 +7586,14 @@ func _story_show_active_scene() -> void:
 
 
 func _story_advance_dialogue(manual: bool = true) -> void:
+	if continuity.backlog_open or pause_menu_open or current_screen == Constants.SCREEN_SETTINGS: return
 	if not story_director.is_active():
+		return
+	if story_presenter.advance_page(manual): return
+	if not manual and story_director.cursor + 1 >= story_director.cue_count():
+		story_director.set_auto(false)
+		story_presenter.auto_at_end = true
+		_story_refresh_dialogue_ui()
 		return
 	var result := story_director.advance(manual)
 	if bool(result.get("completed", false)):
@@ -7074,6 +7604,7 @@ func _story_advance_dialogue(manual: bool = true) -> void:
 
 
 func _story_skip_dialogue() -> void:
+	if continuity.backlog_open or pause_menu_open or current_screen == Constants.SCREEN_SETTINGS: return
 	if not story_director.skip_allowed():
 		return
 	var result := story_director.skip()
@@ -7082,14 +7613,22 @@ func _story_skip_dialogue() -> void:
 
 
 func _story_toggle_auto() -> void:
-	if not story_director.is_active():
+	if not story_director.is_active() or not story_presenter.auto_allowed(false):
 		return
 	story_director.set_auto(not story_director.auto_enabled)
+	story_presenter.auto_at_end = false
 	_story_reset_auto_timer()
 	_story_refresh_dialogue_ui()
 
 
 func _story_tick_auto(delta: float) -> void:
+	if continuity.backlog_open or pause_menu_open or current_screen == Constants.SCREEN_SETTINGS:
+		return
+	if current_screen != Constants.SCREEN_DIALOGUE and not story_combat_overlay_open:
+		return
+	if not story_director.is_active():
+		story_presenter.tick_legacy_auto(delta)
+		return
 	if not story_director.is_active() or not story_director.auto_enabled:
 		return
 	story_auto_remaining -= delta
@@ -7098,13 +7637,15 @@ func _story_tick_auto(delta: float) -> void:
 
 
 func _story_reset_auto_timer() -> void:
+	story_presenter.reset_legacy_timer()
 	var cue := story_director.current_cue()
 	var text_length := LanguageSettings.story_text(cue, _onboarding_player_name()).length()
 	story_auto_remaining = clampf(1.4 + float(text_length) * 0.045, 2.2, 7.0)
 
 
 func _story_refresh_dialogue_ui() -> void:
-	if story_combat_overlay_open:
+	if story_presenter.refresh_current(): return
+	if story_combat_overlay_open and current_screen == Constants.SCREEN_COMBAT:
 		story_presenter.build_combat_overlay()
 	elif current_screen == Constants.SCREEN_DIALOGUE:
 		_set_screen(Constants.SCREEN_DIALOGUE)
@@ -7157,8 +7698,13 @@ func _story_close_combat_overlay() -> void:
 
 func _story_run_completion_action(action: String, return_screen: String) -> void:
 	match action:
+		"start_guide":
+			_set_screen(Constants.SCREEN_MANAGEMENT,false)
+			start_flow.after_intro.call_deferred()
+		"start_map_battle":
+			start_flow.resume_battle()
 		"open_intrusion_brief":
-			_set_screen(Constants.SCREEN_INTRUSION_BRIEF)
+			_open_intrusion_brief()
 		"request_combat_start":
 			_set_screen(Constants.SCREEN_MANAGEMENT)
 			call_deferred("_request_combat_start")
@@ -7173,7 +7719,9 @@ func _story_run_completion_action(action: String, return_screen: String) -> void
 		"finish_day29_declaration_story":
 			_finish_day29_declaration_story()
 		_:
-			_set_screen(return_screen if return_screen != "" else Constants.SCREEN_MANAGEMENT)
+			# Closing an overlay only releases its pause/input ownership.
+			if return_screen != Constants.SCREEN_COMBAT or current_screen != Constants.SCREEN_COMBAT:
+				_set_screen(return_screen if return_screen != "" else Constants.SCREEN_MANAGEMENT)
 
 
 func _story_queue_combat_trigger(trigger: String, facts: Dictionary = {}) -> bool:
@@ -7189,7 +7737,7 @@ func _story_queue_combat_trigger(trigger: String, facts: Dictionary = {}) -> boo
 		var scene_id := str(candidate.get("id", ""))
 		if scene_id == "" or scene_id == current_scene_id or story_director.scene_consumed(candidate, context):
 			continue
-		if bool(candidate.get("metadata", {}).get("nonblocking", false)):
+		if bool(candidate.get("metadata", {}).get("nonblocking", false)) and not bool(candidate.get("metadata", {}).get("important", false)):
 			combat_story_feed.enqueue(self, candidate, context)
 			continue
 		var already_queued := false
@@ -7393,8 +7941,12 @@ func _update2_cycle_effect_value(key: String, fallback: float) -> float:
 func _current_stage_deployment_limit() -> int:
 	return ContractRosterServiceScript.stage_deployment_limit(castle_art_stage) + int(round(_update2_cycle_effect_value("deployment_limit_bonus", 0.0)))
 
-func _current_skill_mana_cost(skill: Dictionary) -> int:
-	return maxi(0, int(ceil(float(skill.get("cost_mana", 0)) * _update2_cycle_effect_value("skill_mana_cost_multiplier", 1.0))))
+func _current_skill_mana_cost(skill: Dictionary,caster:Node=null) -> int:
+	var cost:int=maxi(0,ceili(float(skill.get("cost_mana",0))*_update2_cycle_effect_value("skill_mana_cost_multiplier",1.0)))
+	if cost>0 and is_instance_valid(caster) and not caster.is_queued_for_deletion() and caster.is_alive() and combat_scene._active_crown_id(caster)=="crown_pynn_castle_flame_sage":
+		var efficiency:float=maxf(1.0,float(DataRegistry.update4_crown_evolutions.crown_pynn_castle_flame_sage.stat_multipliers.get("mana_efficiency",1.0)))
+		cost=maxi(1,roundi(float(cost)/efficiency))
+	return cost
 func _update2_soft_counter_strength(base_strength: float) -> float:
 	var resistance := clampf(_update2_cycle_effect_value("soft_counter_resistance", 0.0), 0.0, 0.50)
 	return minf(0.35, maxf(0.0, base_strength * (1.0 - resistance)))
@@ -7461,14 +8013,29 @@ func _update2_challenge_seal_condition_met(seal: Dictionary) -> bool:
 
 func _onboarding_complete_dialogue_action(action: String, return_screen: String) -> void:
 	match action:
+		"start_day1":
+			start_flow.enter_day1()
+		"v130r_story":
+			v130r_story.finish(self)
+			_set_screen(Constants.SCREEN_MANAGEMENT)
+			if start_flow.fresh and not start_flow.intro_complete: start_flow.after_intro.call_deferred()
+		"v130r_first_battle":
+			v130r_story.finish(self)
+			_set_screen(Constants.SCREEN_MANAGEMENT)
+			var map_view = ui_layer.find_child("ApprovedMapManagement",true,false)
+			if map_view!=null: map_view.start_battle.call_deferred()
+		"v130r_join":
+			load("res://scripts/map_builder/ApprovedRecruitment.gd").finish(self)
 		ONBOARDING_ACTION_DAY1_MANAGEMENT:
 			_onboarding_enter_management_day(1, true)
 		_:
-			_set_screen(return_screen)
+			if return_screen == Constants.SCREEN_INTRUSION_BRIEF: _open_intrusion_brief()
+			else: _set_screen(return_screen)
 
 func _onboarding_enter_management_day(day: int, show_dialogue: bool) -> void:
 	GameState.day = day
 	_onboarding_set_stage(_onboarding_management_stage_for_day(day))
+	preload("res://scripts/map_builder/ApprovedGradeProgression.gd").sync_campaign_day(self)
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 	if show_dialogue:
 		call_deferred("_onboarding_emit_management_intro", day)
@@ -7476,6 +8043,9 @@ func _onboarding_enter_management_day(day: int, show_dialogue: bool) -> void:
 		call_deferred("_open_intrusion_brief")
 
 func _onboarding_emit_management_intro(day: int) -> void:
+	if day==1 and start_flow.fresh:
+		start_flow.management_intro()
+		return
 	if not onboarding_enabled:
 		return
 	if _story_begin_trigger("management_entered", {}, Constants.SCREEN_INTRUSION_BRIEF, "open_intrusion_brief", false, day):
@@ -7537,6 +8107,7 @@ func _onboarding_collect_unseen_entries(entries: Array) -> Array:
 	return result
 
 func _onboarding_line_text(line: Dictionary) -> String:
+	if line.get("v130r_text",false): return str(line.get("text",""))
 	match str(line.get("id", "")):
 		"TUT_030_SELECT_SLIME":
 			return _mobile_instruction_text(LanguageSettings.text("tutorial.instruction.TUT_030_SELECT_SLIME"))
@@ -7589,11 +8160,26 @@ func _onboarding_speaker_name(speaker_id: String) -> String:
 		return str(character.get("display_name", speaker_id))
 	return speaker_id
 
-func _onboarding_speaker_portrait_path(speaker_id: String, emotion: String = "") -> String:
+func _onboarding_speaker_portrait_path(speaker_id: String, emotion: String = "", compact: bool = false) -> String:
+	# Reply portraits follow the same active form as management and combat units.
+	# Only enter the management resolver for an active form: its base fallback
+	# calls this function, so unpromoted characters must stay on the path below.
+	for instance in DataRegistry.monster_instances.values():
+		if str(instance.get("character_id", "")) != speaker_id:
+			continue
+		var species_id := str(instance.get("species_id", ""))
+		if not monster_roster.has(species_id):
+			continue
+		var stats: Dictionary = _scaled_monster_stats(species_id)
+		var crown: Dictionary = DataRegistry.update4_crown_evolutions.get(str(stats.get("crown_form_id", "")), {})
+		if not crown.is_empty() or not _monster_promotion_rule(species_id).is_empty():
+			return management_scene.monster_portrait_path(species_id, emotion)
 	var portrait = _onboarding_speaker_portrait_data(speaker_id)
 	if portrait.is_empty():
 		return ""
 	var selected_emotion = _onboarding_portrait_emotion_key(portrait, emotion)
+	if compact and portrait.has("compact_variants"):
+		return str(portrait.compact_variants.get(selected_emotion, portrait.get("compact_base", portrait.get("base", ""))))
 	var variants: Dictionary = portrait.get("variants", {})
 	if selected_emotion != "" and variants.has(selected_emotion):
 		return str(variants[selected_emotion])
@@ -7625,8 +8211,7 @@ func _onboarding_portrait_emotion_key(portrait: Dictionary, emotion: String) -> 
 	return str(aliases.get(emotion, emotion))
 
 func _onboarding_dialogue_scene_path(line: Dictionary) -> String:
-	var stage_id = str(line.get("stage", onboarding_stage_id))
-	return str(ONBOARDING_SCENE_ILLUSTRATIONS.get(stage_id, ONBOARDING_SCENE_ILLUSTRATIONS["default"]))
+	return story_presenter.background_path(line)
 
 func _onboarding_player_name() -> String:
 	if GameState.player_name.strip_edges() == "":
@@ -7684,6 +8269,7 @@ func _campaign_day_info(day: int = 0) -> Dictionary:
 		council_info["management_only_start_label"] = "일정 확정"
 		council_info["management_only_prompt"] = "오늘은 전투 없이 의회 준비를 확정합니다."
 		council_info["final_battle"] = target_day == CouncilSeasonServiceScript.FINAL_DAY
+		if target_day == 12 and str(update4_active_run.get("outpost",{}).get("type_id","")) != "outpost_watch_nest": council_info["management_dialogue"] = []
 		return council_info
 	if DataRegistry.has_method("campaign_day"):
 		var base_info: Dictionary = DataRegistry.campaign_day(target_day).duplicate(true)
@@ -7703,13 +8289,6 @@ func _update4_region_selection_pending() -> bool:
 
 func _update4_outpost_setup_pending() -> bool:
 	return _update4_council_mode_active() and OutpostServiceScript.setup_pending(update4_active_run, GameState.day)
-
-
-func _update4_upper_layout_pending() -> bool:
-	if not _update4_council_mode_active() or GameState.day < 16:
-		return false
-	var upper: Dictionary = update4_active_run.get("upper_floor", {})
-	return bool(upper.get("unlocked", false)) and str(upper.get("layout_id", "")) == ""
 
 
 func _update4_required_choice_id() -> String:
@@ -7916,10 +8495,6 @@ func _begin_update4_council_combat() -> bool:
 		_log("전투 전에 DAY 4 전초기지를 건설하세요.")
 		_set_screen(Constants.SCREEN_OUTPOST_MANAGEMENT)
 		return false
-	if _update4_upper_layout_pending():
-		_log("DAY %d 전투 전에 상층 레이아웃을 확정하세요." % GameState.day)
-		_set_screen(Constants.SCREEN_UPPER_FLOOR)
-		return false
 	if not _ensure_update4_representative_locked():
 		return false
 	var required_choice := _update4_required_choice_id()
@@ -8107,7 +8682,7 @@ func _apply_castle_stage_room_upgrades() -> void:
 		var room_id := str(room_id_value)
 		var room: Dictionary = rooms[room_id]
 		var facility_id := str(room.get("facility_role", ""))
-		if facility_id in ["", "entry", "trap", "corridor", "core", "build_slot", "heart_chamber"]:
+		if facility_id in ["", "entry", "trap", "corridor", "core", "build_slot", "heart_chamber", "crown_sanctum", "seal_vault"]:
 			room["castle_stage_level"] = _castle_stage_index()
 			continue
 		var applied_hp_bonus := int(room.get("castle_stage_hp_bonus", 0))
@@ -8153,10 +8728,21 @@ func _apply_castle_evolution_for_day(day: int) -> bool:
 	last_castle_evolution_from_stage = castle_art_stage
 	castle_art_stage = stage_id
 	last_castle_evolution_day = day
+	if _update4_council_mode_active(): last_castle_evolution_day = GameState.day
 	if not castle_evolution_history.has(stage_id):
 		castle_evolution_history.append(stage_id)
 	_sync_castle_stage_content()
 	_setup_dungeon_graph()
+	if MapBuildServiceScript.is_plot(graph):
+		var next_index := maxi(0,_castle_stage_index()-1)
+		if plot_unlock_history.is_empty(): plot_unlock_history = PlotSaveStateScript.history(next_index-1,0,"new_game")
+		while plot_unlock_history.size() <= next_index:
+			var i := plot_unlock_history.size()
+			plot_unlock_history.append({"grade_index":i,"stage_id":PlotSaveStateScript.STAGES[i],"size":[30+6*i,20],"day":GameState.day if _update4_council_mode_active() else day,"reason":"grade_up"})
+		runtime_plot_layout = _plot_source_from_graph()
+		var expansion_notice: String = continuity.localized("성장으로 부지가 넓어졌습니다 · 가로 +6칸 (%d×20)","Castle growth unlocked more land · width +6 cells (%d×20)","城堡成长解锁新地块 · 宽度增加6格（%d×20）") % (30+6*next_index)
+		_set_management_feedback(true,expansion_notice)
+		_log(expansion_notice)
 	_relocate_invalid_monsters()
 	if quarter_renderer != null and quarter_renderer.has_method("refresh_layout"):
 		quarter_renderer.refresh_layout()
@@ -8304,7 +8890,7 @@ func _campaign_notice_monster_line(day: int = 0) -> String:
 	return "몬스터: %s" % ", ".join(names)
 
 func _campaign_speaker_portrait_path(character_id: String, emotion: String = "") -> String:
-	return _onboarding_speaker_portrait_path(character_id, emotion)
+	return _onboarding_speaker_portrait_path(character_id, emotion, true)
 
 func _campaign_speaker_accent(character_id: String) -> Color:
 	return _onboarding_speaker_accent(character_id)
@@ -8533,7 +9119,7 @@ func _apply_update3_event_resource_effects(effects_value) -> void:
 	var effects: Dictionary = effects_value
 	GameState.gold = maxi(0, GameState.gold + int(effects.get("gold", 0)))
 	GameState.mana = maxi(0, GameState.mana + int(effects.get("mana", 0)))
-	GameState.food = maxi(0, GameState.food + int(effects.get("food", 0)))
+	GameState.food = clampi(GameState.food+int(effects.get("food",0)),0,GameState.Food.capacity(GameState.day))
 	GameState.infamy = maxi(0, GameState.infamy + int(effects.get("infamy", 0)))
 	SignalBus.resources_changed.emit()
 
@@ -8588,7 +9174,7 @@ func _campaign_result_lines(win: bool) -> Array:
 		if _stage_two_upgrade_budget_ready():
 			lines.append("Stage 02 해금: 비용 심사와 셀렌 점검을 통과해 다음 성 단계 적용 준비가 끝났다. (stage_two_unlock_ready)")
 		else:
-			lines.append("Stage 02 해금 보류: 심사 비용을 다시 확보해야 한다. 필요: %s. (stage_two_unlock_blocked)" % _cost_label(cost))
+			lines.append("Stage 02 해금 보류: 심사 필요 보유 자원을 다시 확보해야 한다. 필요: %s. (stage_two_unlock_blocked)" % _cost_label(cost))
 	var castle_evolution_line := _castle_evolution_result_line(GameState.day)
 	if castle_evolution_line != "":
 		lines.append(castle_evolution_line)
@@ -8660,14 +9246,30 @@ func _apply_campaign_result_flags(win: bool) -> void:
 	_apply_castle_evolution_for_day(GameState.day)
 
 
+func _apply_council_plot_progression(win: bool) -> void:
+	if not win: return
+	# Reuse the authored grade milestones and resource qualification, without
+	# importing the main campaign's combat/story gates into the council calendar.
+	var info: Dictionary = DataRegistry.campaign_day(GameState.day)
+	if bool(info.get("chapter_two_started",false)): campaign_chapter_two_started = true
+	if bool(info.get("stage_two_prepared",false)): campaign_stage_two_prepared = true
+	if GameState.day >= 14 and GameState.can_pay(_stage_two_upgrade_cost()): campaign_stage_two_upgrade_funded = true
+	if GameState.day >= 15 and campaign_stage_two_upgrade_funded and GameState.can_pay(_stage_two_upgrade_cost()): campaign_stage_two_unlock_ready = true
+	if bool(info.get("chapter_three_clear",false)): campaign_chapter_three_clear = true
+	if bool(info.get("final_upgrade_ready",false)): campaign_final_upgrade_ready = true
+	for id in DataRegistry.castle_evolution_stage_ids():
+		var day := int(DataRegistry.castle_evolution_stage(id).get("unlock_after_victory_day",0))
+		if day > 0 and day <= GameState.day: _apply_castle_evolution_for_day(day)
+
 func _apply_update4_campaign_result_flags(win: bool) -> void:
+	_apply_council_plot_progression(win)
 	_record_update4_battle_metrics()
 	if GameState.day in Update4CampaignRuntimeScript.RIVAL_BATTLE_DAYS:
 		var boss_result := Update4CampaignRuntimeScript.resolve_rival_battle(update4_active_run, GameState.day, win, DataRegistry.update4_rival_lords, {
 			"facility_damage": facility_disables_this_battle,
 			"walls_destroyed": 0,
-			"seal_channels_completed": int(update4_active_run.get("upper_floor", {}).get("seal_theft_count", 0)),
-			"floor_transitions": 0,
+			"seal_channels_completed": int(update4_active_run.get("expansion", {}).get("seal_theft_count", 0)),
+			"passage_transitions": 0,
 			"gardens_cleansed": 0,
 			"roots_destroyed": 0
 		})
@@ -8688,7 +9290,7 @@ func _apply_update4_campaign_result_flags(win: bool) -> void:
 
 
 func _finalize_update4_council_ending() -> void:
-	var upper: Dictionary = update4_active_run.get("upper_floor", {})
+	var upper: Dictionary = update4_active_run.get("expansion", {})
 	var crown: Dictionary = update4_active_run.get("crown", {})
 	var crown_instance_id := str(crown.get("selected_instance_id", ""))
 	var crown_species_id := str(DataRegistry.monster_instances.get(crown_instance_id, {}).get("species_id", ""))
@@ -8709,27 +9311,9 @@ func _finalize_update4_council_ending() -> void:
 			var value := float(stats.get("damage_dealt", 0)) + float(stats.get("damage_absorbed", 0)) + float(stats.get("facility_value", 0))
 			if value / total_contribution >= 0.08:
 				other_contributors += 1
-	var lower_survivors := 0
-	var upper_survivors := 0
-	var entities: Dictionary = upper.get("graph_runtime", {}).get("entities", {})
-	var alive_by_species := {}
-	for monster in monster_units:
-		if is_instance_valid(monster):
-			alive_by_species[str(monster.unit_id)] = monster.is_alive()
-	for entity_id_value in entities.keys():
-		var entity_value = entities.get(entity_id_value)
-		if not (entity_value is Dictionary) or str(entity_value.get("faction", "")) != "monster" or not bool(alive_by_species.get(str(entity_id_value), false)):
-			continue
-		if str(entity_value.get("floor_id", "1F")) == "2F":
-			upper_survivors += 1
-		else:
-			lower_survivors += 1
-	if entities.is_empty():
-		for monster in monster_units:
-			if is_instance_valid(monster) and monster.is_alive():
-				lower_survivors += 1
-	var crown_max_hp := UpperFloorObjectiveServiceScript.crown_max_hp(DataRegistry.update4_upper_floor_modules, _castle_stage_index())
-	var upper_integrity := 100.0 * float(upper.get("objective_hp", {}).get("crown_sanctum", 0)) / float(maxi(1, crown_max_hp))
+	var counts := CouncilExpansionScript.survivors(update4_active_run.get("expansion", {}), monster_units)
+	var crown_max_hp := CouncilObjectiveServiceScript.crown_max_hp(DataRegistry.update4_expansion_modules, _castle_stage_index())
+	var upper_integrity := 100.0 * float(upper.get("objective_hp", {}).get("crown_sanctum", 0)) / float(maxi(1, crown_max_hp)) if bool(upper.get("eligible", false)) and bool(upper.get("record_complete", false)) else 0.0
 	var crown_survived := false
 	for monster in monster_units:
 		if is_instance_valid(monster) and str(monster.unit_id) == crown_species_id and monster.is_alive():
@@ -8739,10 +9323,12 @@ func _finalize_update4_council_ending() -> void:
 		"final_battle_won": true,
 		"cycle_index": campaign_cycle_index,
 		"completed_region_ids": RegionRouteServiceScript.selected_region_ids(update4_active_run),
-		"upper_floor_integrity": upper_integrity,
-		"day30_upper_floor_contribution_ratio": float(upper_survivors) / float(maxi(1, lower_survivors + upper_survivors)),
-		"day30_lower_survivor_count": lower_survivors,
-		"day30_upper_survivor_count": upper_survivors,
+		"expansion_facility_integrity": upper_integrity,
+		"day30_expansion_survivor_ratio": float(counts.expansion) / float(maxi(1, counts.original + counts.expansion)),
+		"day30_original_zone_survivor_count": counts.original,
+		"day30_expansion_zone_survivor_count": counts.expansion,
+		"crown_room_disable_count_since_day16": int(upper.get("disable_count_since_day16", 0)),
+		"seal_theft_completed": int(upper.get("seal_theft_count", 0)),
 		"crown_evolution_used": str(crown.get("crown_form_id", "")) != "",
 		"crown_monster_bond": float(monster_roster.get(crown_species_id, {}).get("bond", 0)),
 		"day30_crown_monster_survived": crown_survived,
@@ -8869,7 +9455,7 @@ func _record_update4_battle_metrics() -> void:
 	update4_active_run = Update4CampaignRuntimeScript.record_battle_metrics(update4_active_run, GameState.day, {
 		"facility_disables": facility_disables_this_battle,
 		"treasure_loss": treasure_gold_stolen_this_battle,
-		"seal_thefts": int(update4_active_run.get("upper_floor", {}).get("seal_theft_count", 0)),
+		"seal_thefts": int(update4_active_run.get("expansion", {}).get("seal_theft_count", 0)),
 		"down_count": down_count,
 		"distinct_duo_links": update3_active_run.get("run_metrics_update3", {}).get("link_skills_used_campaign", []).size(),
 		"security_grade": _current_security_grade()
@@ -8888,11 +9474,17 @@ func _settle_update4_region_chapter(slot: int) -> void:
 	_log("지역 헌장 정산 · %s · %s" % [str(DataRegistry.update4_regions.get(region_id, {}).get("display_name", region_id)), "의회 인장 획득" if bool(result.get("charter_completed", false)) else "헌장 미달 · 대체 인장 획득"])
 
 func _enter_campaign_management_day(show_intro: bool = true) -> void:
+	_sync_update4_council_day_state()
 	if _update4_council_mode_active():
 		update4_active_run = OutpostEncounterServiceScript.apply_day_start_recovery(update4_active_run, GameState.day)
-		update4_active_run = MultiFloorGraphServiceScript.unlock_if_due(update4_active_run, GameState.day)
-		update4_active_run = UpperFloorObjectiveServiceScript.repair_next_day(update4_active_run, DataRegistry.update4_upper_floor_modules, _castle_stage_index())
+		update4_active_run = CouncilExpansionScript.unlock_if_due(update4_active_run, GameState.day, DataRegistry.update4_expansion_modules, _castle_stage_index())
+		update4_active_run = CouncilObjectiveServiceScript.repair_next_day(update4_active_run, DataRegistry.update4_expansion_modules, _castle_stage_index())
+		var repair_cost := int(update4_active_run.expansion.get("repair_cost_gold", 0))
+		if repair_cost > 0:
+			GameState.gold = maxi(0, GameState.gold - repair_cost)
+			update4_active_run.expansion["repair_cost_gold"] = 0
 		_ensure_update4_representative_locked()
+		_setup_dungeon_graph()
 	_sync_update3_heart_awaken()
 	_apply_update3_daily_heart_upkeep()
 	var info := _campaign_day_info()
@@ -8900,6 +9492,7 @@ func _enter_campaign_management_day(show_intro: bool = true) -> void:
 	var management_dialogue: Array = info.get("management_dialogue", [])
 	if show_intro:
 		_apply_campaign_day_entry(GameState.day)
+	preload("res://scripts/map_builder/ApprovedGradeProgression.gd").sync_campaign_day(self)
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 	var dialogue_started := false
 	if _campaign_final_declaration_required():
@@ -9006,7 +9599,7 @@ func _confirm_management_only_day() -> void:
 	if map_editor_active:
 		_log("맵 편집을 저장하거나 취소한 뒤 최종 준비를 확정하세요.")
 		return
-	if bool(info.get("requires_final_upgrade", false)) and not campaign_final_upgrade_ready:
+	if not preload("res://scripts/map_builder/ApprovedGradeProgression.gd").enabled() and bool(info.get("requires_final_upgrade", false)) and not campaign_final_upgrade_ready:
 		_log("최종 준비는 Stage 04 대마왕성 강화를 완료한 뒤 확정할 수 있습니다.")
 		return
 	if not _ensure_required_main_route_for_current_layout("최종 준비 확정"):
@@ -9533,6 +10126,7 @@ func _campaign_next_cycle_from_ending() -> void:
 	_sync_update3_reward_monsters()
 	_onboarding_set_stage("CAMPAIGN_CYCLE_%d_DAY_04" % campaign_cycle_index)
 	_apply_campaign_day_entry(4)
+	preload("res://scripts/map_builder/ApprovedGradeProgression.gd").reset_campaign_map(self)
 	_log("%d회차를 DAY 04부터 시작합니다. %s의 승리 기억 1개를 계승했습니다." % [campaign_cycle_index, str(next_legacy.get("display_name", "몬스터"))])
 	update2_cycle_seed = maxi(1, campaign_cycle_index * 1009 + int(Time.get_unix_time_from_system()) % 1000003)
 	leon_adaptation = LeonAdaptationServiceScript.default_adaptation()
@@ -9553,6 +10147,24 @@ func _campaign_next_cycle_from_ending() -> void:
 
 
 func _write_campaign_v2_snapshot() -> bool:
+	if not campaign_save_enabled: return true
+	var guard = preload("res://scripts/core/CampaignSaveBundleGuard.gd")
+	var paths: Array = []
+	if campaign_auxiliary_save_enabled: paths.append_array([campaign_save_v2_path,campaign_save_v3_path])
+	if campaign_save_v4_enabled: paths.append(campaign_save_v4_path)
+	if campaign_save_v5_enabled: paths.append(campaign_save_v5_path)
+	if campaign_save_v6_enabled: paths.append(campaign_save_v6_path)
+	for path in paths.duplicate(): paths.append_array([path+".tmp",path+".bak",path+".corrupt"])
+	var before: Dictionary = guard.snapshot(paths)
+	if not before.ok: campaign_save_error = before.error; return false
+	var old_envelope := campaign_save_v5_envelope.duplicate(true)
+	if _write_campaign_legacy_snapshots() and _write_campaign_v6_snapshot(): return true
+	var restored: bool = guard.restore(before)
+	campaign_save_v5_envelope = old_envelope
+	if not restored: campaign_save_error += " · save bundle restore failed"
+	return false
+
+func _write_campaign_legacy_snapshots() -> bool:
 	if not campaign_save_enabled or not campaign_auxiliary_save_enabled:
 		return true
 	_sync_update4_council_day_state()
@@ -9898,7 +10510,7 @@ func _build_raid_detail_panel(parent: Control) -> void:
 	hud.rich_label(parent, str(mission.get("summary", "")), Vector2(54, 146), Vector2(452, 84), 18, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER)
 	_build_raid_stat_row(parent, "비용", _raid_cost_label(mission), 258)
 	_build_raid_stat_row(parent, "보상", _raid_expected_reward_label(mission), 310)
-	_build_raid_stat_row(parent, "위험", "%s / %s" % [mission.get("difficulty", ""), mission.get("risk", "")], 362)
+	_build_raid_stat_row(parent, "위험", "%s / %s" % [mission.get("difficulty", ""), _raid_risk_label(mission)], 362)
 	var modifier: Dictionary = mission.get("next_defense_modifier", {})
 	hud.label(parent, "다음 방어 영향", Vector2(54, 430), Vector2(452, 24), 17, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 	hud.rich_label(parent, str(modifier.get("description", "영향 없음")), Vector2(54, 462), Vector2(452, 66), 16, Color("#cfc7d9"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP)
@@ -10041,6 +10653,7 @@ func _commit_selected_raid() -> void:
 	for key in before:
 		delta[key] = int(after[key]) - int(before[key])
 	completed_raids[raid_selected_mission_id] = true
+	if _raid_fixed_captain_id(mission) == KOBOLD_SCOUT_ID: AchievementService.count("STAT_ROLO_RAID")
 	if DataRegistry.update3_front_operations.has(raid_selected_mission_id):
 		var operation_result := FrontCampaignServiceScript.select_operation(update3_active_run, raid_selected_mission_id, GameState.day, DataRegistry.update3_front_operations)
 		if bool(operation_result.get("ok", false)):
@@ -10065,6 +10678,7 @@ func _commit_selected_raid() -> void:
 	var success_lines: Array = mission.get("success_lines", [])
 	last_raid_result = {
 		"mission_id": raid_selected_mission_id,
+		"risk_level": _raid_risk_level(mission),
 		"cost": cost.duplicate(true),
 		"reward": reward,
 		"resource_balance": {"before": before, "after": after, "delta": delta},
@@ -10092,7 +10706,8 @@ func _raid_reward_with_bonus(mission: Dictionary) -> Dictionary:
 	var reward: Dictionary = mission.get("reward", {}).duplicate(true)
 	var base_infamy = int(reward.get("infamy", 0))
 	if _raid_fixed_captain_id(mission) == KOBOLD_SCOUT_ID and base_infamy > 0:
-		var bonus = int(ceil(float(base_infamy) * 0.10))
+		var extra := float(preload("res://scripts/systems/SpecializationEffects.gd").flag(_monster_specialization(KOBOLD_SCOUT_ID),"raid_infamy_bonus",0.0))
+		var bonus = int(ceil(float(base_infamy) * (0.10+extra)))
 		reward["infamy"] = base_infamy + bonus
 	return reward
 
@@ -10223,7 +10838,19 @@ func _raid_roster_hint() -> String:
 	]
 
 func _onboarding_quit_requested() -> void:
-	get_tree().quit()
+	if current_screen == Constants.SCREEN_TITLE:
+		_queue_audio_safe_quit()
+		return
+	if current_screen == Constants.SCREEN_SETTINGS: continuity.settings_menu()
+	_open_pause_menu()
+	continuity.confirm("quit")
+
+func _queue_audio_safe_quit() -> void:
+	if audio_quit_pending: return
+	audio_quit_pending = true
+	_shutdown_audio_for_exit()
+	# Let the audio transport release stream voices before the process exits.
+	get_tree().create_timer(0.05).timeout.connect(get_tree().quit)
 
 func _onboarding_finish_raid_preview() -> void:
 	_unlock_kobold_scout_commander()
@@ -10312,30 +10939,56 @@ func _tutorial_guidance_visible_for_step(step: Dictionary) -> bool:
 			return true
 
 func _tutorial_build_overlay() -> void:
-	_tutorial_clear_overlay()
+	if preload("res://scripts/map_builder/ApprovedPlacement.gd").enabled():
+		_tutorial_clear_overlay()
+		return
+	preload("res://scripts/map_builder/PlotTutorialTargets.gd").register_map_targets(self)
 	if not onboarding_enabled or not tutorial_manager.is_active_for_stage(onboarding_stage_id):
+		_tutorial_clear_overlay()
 		return
 	if current_screen == Constants.SCREEN_NAME_ENTRY:
+		_tutorial_clear_overlay()
 		return
 	if current_screen == Constants.SCREEN_DIALOGUE:
+		_tutorial_clear_overlay()
 		return
 	if current_screen == Constants.SCREEN_INTRUSION_BRIEF:
+		_tutorial_clear_overlay()
 		return
 	if current_screen == Constants.SCREEN_TUTORIAL_PRACTICE:
+		_tutorial_clear_overlay()
 		return
 	var step = tutorial_manager.current_step()
 	if step.is_empty():
+		_tutorial_clear_overlay()
 		return
 	if not _tutorial_guidance_visible_for_step(step):
+		_tutorial_clear_overlay()
 		return
 	if UISettings.is_touch_ui():
 		_tutorial_prepare_touch_selection(step)
 	var focus_id := _tutorial_effective_focus_id(step)
 	var focus_rect := _tutorial_focus_rect(focus_id)
 	if _tutorial_requires_live_control(focus_id) and not focus_rect.has_area():
+		_tutorial_clear_overlay()
 		return
+	var message_rect = _tutorial_message_rect(focus_rect)
+	# Panning often leaves a HUD target in exactly the same place. Keep its
+	# panels, fitted text and pulse tweens instead of recreating them per input.
+	# Room targets still rebuild whenever their rendered geometry changes.
+	var presentation_state := [
+		current_screen, onboarding_stage_id, step, focus_rect, message_rect,
+		_onboarding_line_text(step), _tutorial_action_heading(step),
+		_management_action_mode_active(), UISettings.is_touch_ui(),
+		UISettings.text_scale, UISettings.tutorial_guidance_level, LanguageSettings.locale
+	]
+	var existing := ui_layer.get_node_or_null("TutorialOverlay")
+	if existing != null and existing.get_meta("tutorial_presentation_state", []) == presentation_state:
+		return
+	_tutorial_clear_overlay()
 	var overlay = Panel.new()
 	overlay.name = "TutorialOverlay"
+	overlay.set_meta("tutorial_presentation_state", presentation_state.duplicate(true))
 	overlay.z_index = 900
 	overlay.position = Vector2.ZERO
 	overlay.size = Vector2(1920, 1080)
@@ -10350,26 +11003,27 @@ func _tutorial_build_overlay() -> void:
 	)
 	if not suppress_focus_highlight and focus_rect.size.x > 0.0 and focus_rect.size.y > 0.0:
 		_tutorial_add_spotlight(overlay, focus_rect)
-		var focus_glow = Panel.new()
-		focus_glow.name = "TutorialFocusOuter"
-		focus_glow.position = focus_rect.position - Vector2(14, 14)
-		focus_glow.size = focus_rect.size + Vector2(28, 28)
-		focus_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		focus_glow.add_theme_stylebox_override("panel", hud.style(Color("#ffd43a18"), Color("#ffcf3a"), 6))
-		overlay.add_child(focus_glow)
-		var highlight = Panel.new()
-		highlight.name = "TutorialFocusRing"
-		highlight.position = focus_rect.position - Vector2(3, 3)
-		highlight.size = focus_rect.size + Vector2(6, 6)
-		highlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		highlight.add_theme_stylebox_override("panel", hud.style(Color("#fff2a62e"), Color("#fff7c2"), 4))
-		overlay.add_child(highlight)
-		var pulse = focus_glow.create_tween().set_loops()
-		pulse.set_trans(Tween.TRANS_SINE)
-		pulse.tween_property(focus_glow, "modulate:a", 0.45, 0.55)
-		pulse.tween_property(focus_glow, "modulate:a", 1.0, 0.55)
-	var message_rect = _tutorial_message_rect(focus_rect)
+		for ring_rect in preload("res://scripts/map_builder/PlotTutorialTargets.gd").highlight_rects(self,focus_id,focus_rect):
+			var focus_glow = Panel.new()
+			focus_glow.name = "TutorialFocusOuter"
+			focus_glow.position = ring_rect.position - Vector2(14, 14)
+			focus_glow.size = ring_rect.size + Vector2(28, 28)
+			focus_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			focus_glow.add_theme_stylebox_override("panel", hud.style(Color("#ffd43a18"), Color("#ffcf3a"), 6))
+			overlay.add_child(focus_glow)
+			var highlight = Panel.new()
+			highlight.name = "TutorialFocusRing"
+			highlight.position = ring_rect.position - Vector2(3, 3)
+			highlight.size = ring_rect.size + Vector2(6, 6)
+			highlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			highlight.add_theme_stylebox_override("panel", hud.style(Color("#fff2a62e"), Color("#fff7c2"), 4))
+			overlay.add_child(highlight)
+			var pulse = focus_glow.create_tween().set_loops()
+			pulse.set_trans(Tween.TRANS_SINE)
+			pulse.tween_property(focus_glow, "modulate:a", 0.45, 0.55)
+			pulse.tween_property(focus_glow, "modulate:a", 1.0, 0.55)
 	var shadow_panel = Panel.new()
+	shadow_panel.name = "TutorialMessageShadow"
 	shadow_panel.position = message_rect.position + Vector2(8, 10)
 	shadow_panel.size = message_rect.size
 	shadow_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -10386,6 +11040,7 @@ func _tutorial_build_overlay() -> void:
 	hud.rich_label(message_panel, _onboarding_line_text(step), Vector2(24, 48 if observation_step else 52), Vector2(message_rect.size.x - 48, message_rect.size.y - 58 if observation_step else message_rect.size.y - 64), 17 if observation_step else 22, Color("#fffdf4"), UIFontScript.ROLE_BODY if observation_step else UIFontScript.ROLE_EMPHASIS, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 15 if observation_step else 17)
 	if not suppress_focus_highlight and _tutorial_step_uses_click_badge(step) and focus_rect.size.x > 0.0 and focus_rect.size.y > 0.0:
 		_tutorial_add_click_badge(overlay, step, focus_rect, message_rect)
+	preload("res://scripts/map_builder/PlotTutorialTargets.gd").decorate_overlay(self,overlay,step,message_rect)
 
 func _tutorial_effective_focus_id(step: Dictionary) -> String:
 	if str(step.get("id", "")) == "TUT_090_RESULT_GROWTH" and _result_growth_choice_required() and not result_growth_choice_applied:
@@ -10606,6 +11261,8 @@ func _tutorial_click_badge_placement(focus_rect: Rect2, message_rect: Rect2) -> 
 			"text": "%s  ↗" % call_to_action
 		})
 	candidates.append_array([
+		{"rect": Rect2(Vector2(focus_rect.get_center().x - badge_size.x * 0.5, message_rect.position.y - badge_size.y - 18.0), badge_size), "text": "%s  ▼" % call_to_action},
+		{"rect": Rect2(Vector2(edge_x, message_rect.position.y - badge_size.y - 18.0), badge_size), "text": "%s  ▼" % call_to_action},
 		{"rect": Rect2(Vector2(focus_rect.get_center().x - badge_size.x * 0.5, focus_rect.position.y - badge_size.y - 18.0), badge_size), "text": "%s  ▼" % call_to_action},
 		{"rect": Rect2(Vector2(edge_x, focus_rect.position.y - badge_size.y - 18.0), badge_size), "text": "%s  ▼" % call_to_action},
 		{"rect": Rect2(Vector2(focus_rect.get_center().x - badge_size.x * 0.5, focus_rect.end.y + 18.0), badge_size), "text": "%s  ▲" % call_to_action},
@@ -10618,10 +11275,12 @@ func _tutorial_click_badge_placement(focus_rect: Rect2, message_rect: Rect2) -> 
 		rect.position.x = clampf(rect.position.x, screen_bounds.position.x, screen_bounds.end.x - rect.size.x)
 		rect.position.y = clampf(rect.position.y, screen_bounds.position.y, screen_bounds.end.y - rect.size.y)
 		candidate["rect"] = rect
+		candidate["text"] = _tutorial_badge_direction_text(call_to_action, rect, focus_rect)
 		if (
 			not rect.intersects(message_rect.grow(10.0))
 			and not rect.intersects(focus_rect.grow(8.0))
 			and (not drawer_rect.has_area() or not rect.intersects(drawer_rect))
+			and not _tutorial_badge_overlaps_management_ui(rect)
 		):
 			return candidate
 	var fallback: Dictionary = candidates[0]
@@ -10629,7 +11288,25 @@ func _tutorial_click_badge_placement(focus_rect: Rect2, message_rect: Rect2) -> 
 	fallback_rect.position.x = clampf(fallback_rect.position.x, screen_bounds.position.x, screen_bounds.end.x - fallback_rect.size.x)
 	fallback_rect.position.y = clampf(fallback_rect.position.y, screen_bounds.position.y, screen_bounds.end.y - fallback_rect.size.y)
 	fallback["rect"] = fallback_rect
+	fallback["text"] = _tutorial_badge_direction_text(call_to_action, fallback_rect, focus_rect)
 	return fallback
+
+func _tutorial_badge_overlaps_management_ui(rect: Rect2, parent: Node = null) -> bool:
+	if current_screen != Constants.SCREEN_MANAGEMENT: return false
+	for child in (ui_layer if parent == null else parent).get_children():
+		if not child is Control or not child.is_visible_in_tree(): continue
+		var bounds: Rect2 = child.get_global_rect()
+		if child.clip_contents and not bounds.intersects(rect): continue
+		if child.mouse_filter != Control.MOUSE_FILTER_IGNORE and bounds.intersects(rect): return true
+		var child_rect := rect.intersection(bounds) if child.clip_contents else rect
+		if _tutorial_badge_overlaps_management_ui(child_rect, child): return true
+	return false
+
+func _tutorial_badge_direction_text(text: String, badge_rect: Rect2, focus_rect: Rect2) -> String:
+	var direction := focus_rect.get_center() - badge_rect.get_center()
+	if absf(direction.x) > absf(direction.y):
+		return "%s  →" % text if direction.x > 0 else "←  %s" % text
+	return "%s  ▼" % text if direction.y > 0 else "%s  ▲" % text
 
 func _tutorial_clear_overlay() -> void:
 	if ui_layer == null:
@@ -10741,8 +11418,9 @@ func _tutorial_focus_rect(focus_id: String) -> Rect2:
 		"ROOM_RECOVERY_NEST":
 			return _tutorial_room_rect("recovery")
 		"DAY1_GOBLIN_FORMATION":
-			var front_rect := _tutorial_room_rect("barracks")
-			var rear_rect := _tutorial_room_rect("recovery")
+			var targets := _day1_goblin_tutorial_target_rooms()
+			var front_rect := _tutorial_room_rect(targets[0])
+			var rear_rect := _tutorial_room_rect(targets[1])
 			if not front_rect.has_area():
 				return rear_rect
 			if not rear_rect.has_area():
@@ -10795,8 +11473,8 @@ func _tutorial_room_rect(room_id: String) -> Rect2:
 		var center = _combat_world_to_screen(graph.center(room_id))
 		return Rect2(center - Vector2(70, 50), Vector2(140, 100))
 	if room_id == "spike_corridor":
-		return _tutorial_room_marker_rect(room_id).grow(12.0)
-	return graph.rect(room_id).grow(12)
+		return get_global_transform_with_canvas() * _tutorial_room_marker_rect(room_id).grow(12.0)
+	return get_global_transform_with_canvas() * graph.rect(room_id).grow(12)
 
 
 func _tutorial_room_marker_rect(room_id: String) -> Rect2:
@@ -10805,8 +11483,31 @@ func _tutorial_room_marker_rect(room_id: String) -> Rect2:
 	return Rect2(graph.center(room_id) - Vector2(82, 52), Vector2(164, 104))
 
 
+func _tutorial_room_focus_at(screen_point: Vector2) -> String:
+	# Only the currently displayed room-selection guidance expands the hit area.
+	# Construction, drops and ordinary room clicks retain exact floor geometry.
+	if current_screen != Constants.SCREEN_MANAGEMENT or not onboarding_enabled or not tutorial_gate_enabled:
+		return ""
+	if pause_menu_open or map_editor_active or _management_action_mode_active() or build_placement.panning:
+		return ""
+	if not tutorial_manager.is_active_for_stage(onboarding_stage_id) or tutorial_manager.expected_action() != "room_selected":
+		return ""
+	var room_id := ""
+	match tutorial_manager.current_focus():
+		"ROOM_SPIKE_CORRIDOR": room_id = "spike_corridor"
+		"ROOM_RECOVERY_NEST": room_id = "recovery"
+	if room_id == "" or _management_ui_at(screen_point): return ""
+	var overlay := ui_layer.get_node_or_null("TutorialOverlay")
+	if overlay == null: return ""
+	for target_name in ["TutorialFocusOuter", "TutorialClickBadge"]:
+		var target := overlay.get_node_or_null(target_name) as Control
+		if target != null and target.is_visible_in_tree() and target.get_global_rect().has_point(screen_point):
+			return room_id
+	return ""
+
+
 func _day1_goblin_tutorial_target_rooms() -> Array[String]:
-	return ["barracks", "recovery"]
+	return preload("res://scripts/map_builder/PlotTutorialTargets.gd").formation_rooms(self)
 
 
 func _day1_goblin_choice_active() -> bool:
@@ -10820,7 +11521,7 @@ func _day1_goblin_choice_active() -> bool:
 
 
 func _day1_goblin_formation_label(room_id: String) -> String:
-	return "전열 봉쇄" if room_id == "barracks" else "후열 화력"
+	return "전열 · 푸딩 합류" if room_id == _day1_goblin_tutorial_target_rooms()[0] else "후열 · 핀 합류"
 
 
 func _day1_tutorial_placement_rules_active() -> bool:
@@ -10907,7 +11608,7 @@ func _on_tutorial_action(action_id: String, payload: Dictionary) -> void:
 		deploy_pick_monster_id = "goblin"
 		build_pick_mode = false
 		facility_change_panel_open = false
-		_set_management_feedback(true, "곱의 합류 위치를 선택하세요.", "전열 봉쇄 또는 후열 화력")
+		_set_management_feedback(true, "곱의 합류 위치를 선택하세요.", "전열은 푸딩 곁, 후열은 핀 곁에서 시작합니다.")
 		queue_world_overlay_redraw()
 	if advanced and step_after == "TUT_120_TRAP_LURE" and rooms.has("spike_corridor"):
 		selected_room = "spike_corridor"
@@ -10971,6 +11672,7 @@ func _reset_combat_view() -> void:
 	combat_camera.position = COMBAT_CAMERA_HOME
 	combat_camera.zoom = Vector2.ONE
 	combat_camera.offset = Vector2.ZERO
+	spectator_camera.reset()
 
 func _update_combat_camera_enabled() -> void:
 	if combat_camera == null:
@@ -10985,6 +11687,7 @@ func _adjust_combat_zoom(direction: int, screen_point: Vector2) -> void:
 		return
 	if _combat_ui_at(screen_point):
 		return
+	spectator_camera.manual()
 	var focus_world = _combat_screen_to_world(screen_point)
 	var next_zoom = combat_view_zoom * (COMBAT_ZOOM_STEP if direction > 0 else 1.0 / COMBAT_ZOOM_STEP)
 	combat_view_zoom = clamp(next_zoom, COMBAT_ZOOM_MIN, COMBAT_ZOOM_MAX)
@@ -11127,7 +11830,7 @@ func _handle_left_click(point: Vector2, screen_point: Vector2 = Vector2(-99999, 
 		return
 	if screen_point.x > -90000 and _management_ui_at(screen_point):
 		return
-	var room_id = build_placement.exact_room(point)
+	var room_id = build_placement.target_room(point) if build_pick_mode else build_placement.exact_room(point)
 	if room_id == "" and build_pick_mode:
 		build_placement.select_candidate("")
 		return
@@ -11223,7 +11926,7 @@ func _handle_key(event: InputEventKey) -> void:
 			_toggle_quarter_debug_overlay("path")
 
 func _is_dialogue_advance_event(event: InputEventKey) -> bool:
-	return InputSettings.event_matches(event, InputSettings.ACTION_DIALOGUE_ADVANCE) or event.keycode == KEY_KP_ENTER
+	return InputSettings.event_matches(event, InputSettings.ACTION_DIALOGUE_ADVANCE) or event.keycode == KEY_KP_ENTER or (start_flow.fresh and event.keycode in [KEY_SPACE,KEY_ENTER])
 
 func _toggle_quarter_debug_overlay(overlay_id: String) -> void:
 	match overlay_id:
@@ -11256,8 +11959,14 @@ func _toggle_quarter_debug_overlay(overlay_id: String) -> void:
 			_log("경로 라인 표시 %s." % ("ON" if debug_show_path_overlay else "OFF"))
 	queue_redraw()
 
-func _open_intrusion_brief() -> void:
-	if bool(_campaign_day_info().get("management_only", false)) or not _has_defense_wave_for_day(GameState.day):
+func _open_intrusion_brief(detailed: bool = false) -> void:
+	# A deferred daily forecast must not replace a newly started recruitment or
+	# management dialogue before its completion action grants the companion.
+	if not detailed and (story_director.is_active() or not onboarding_dialogue_queue.is_empty()):
+		return
+	# Automatic entry joins today's forecast to management. The old state remains
+	# available from the enemy chip for the complete read-only schedule.
+	if not detailed or bool(_campaign_day_info().get("management_only", false)) or not _has_defense_wave_for_day(GameState.day):
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 		return
 	_set_screen(Constants.SCREEN_INTRUSION_BRIEF)
@@ -11398,6 +12107,7 @@ func _build_v122_defender_connector() -> bool:
 func _capture_management_undo(label: String) -> void:
 	management_undo = {
 		"label": label,
+		"runtime_plot_layout": runtime_plot_layout.duplicate(true),
 		"rooms": rooms.duplicate(true),
 		"monster_roster": monster_roster.duplicate(true),
 		"selected_room": selected_room,
@@ -11417,6 +12127,7 @@ func _undo_last_management_placement() -> bool:
 		_set_screen(Constants.SCREEN_MANAGEMENT)
 		return false
 	rooms = management_undo.get("rooms", {}).duplicate(true)
+	runtime_plot_layout = management_undo.get("runtime_plot_layout",runtime_plot_layout).duplicate(true)
 	monster_roster = management_undo.get("monster_roster", {}).duplicate(true)
 	selected_room = str(management_undo.get("selected_room", selected_room))
 	selected_monster_id = str(management_undo.get("selected_monster_id", selected_monster_id))
@@ -11436,7 +12147,7 @@ func _undo_last_management_placement() -> bool:
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 	return true
 
-func _management_start_state() -> Dictionary:
+func _management_start_state(approved_map: bool = false) -> Dictionary:
 	var result := {
 		"can_start": false,
 		"blocked_reason": "",
@@ -11447,13 +12158,13 @@ func _management_start_state() -> Dictionary:
 		result.merge({"blocked_reason": "성 구조 편집을 저장하거나 취소하세요.", "reason_code": "map_editor"}, true)
 		return result
 	if _management_action_mode_active():
-		result.merge({"blocked_reason": "현재 배치 선택을 확정하거나 취소하세요.", "reason_code": "placement_pending"}, true)
+		result.merge({"blocked_reason": "설치할 위치를 클릭하거나 끌어다 놓으세요 · ESC 취소" if build_pick_mode else "배치할 위치를 클릭하거나 끌어다 놓으세요 · ESC 취소", "reason_code": "placement_pending"}, true)
 		return result
 	var campaign_info := _campaign_day_info()
 	if bool(campaign_info.get("management_only", false)):
 		result.merge({"blocked_reason": "오늘은 전투 없이 준비를 확정하는 날입니다.", "reason_code": "management_only"}, true)
 		return result
-	if bool(campaign_info.get("requires_final_upgrade", false)) and not campaign_final_upgrade_ready:
+	if not approved_map and bool(campaign_info.get("requires_final_upgrade", false)) and not campaign_final_upgrade_ready:
 		result.merge({"blocked_reason": "Stage 04 대마왕성 강화를 먼저 완료하세요.", "reason_code": "final_upgrade"}, true)
 		return result
 	var preparation_flag := str(campaign_info.get("requires_final_preparation_flag", ""))
@@ -11467,13 +12178,13 @@ func _management_start_state() -> Dictionary:
 		result.merge({"blocked_reason": _campaign_required_raid_choice_prompt(), "reason_code": "raid_choice", "required_action_id": "raid_choice"}, true)
 		return result
 	if _early_specialization_required_for_current_day():
-		result.merge({"blocked_reason": "몬스터 한 명의 전술 특화를 먼저 선택하세요.", "reason_code": "specialization", "required_action_id": "specialization"}, true)
+		result.merge({"blocked_reason": LanguageSettings.text("feedback.specialization_required"), "reason_code": "specialization", "required_action_id": "specialization"}, true)
 		return result
 	if (not onboarding_enabled or GameState.onboarding_complete) and _first_promotion_required_for_current_day() and not _first_promotion_ready():
 		result.merge({"blocked_reason": "첫 승급을 먼저 완료하세요.", "reason_code": "first_promotion", "required_action_id": "monsters"}, true)
 		return result
 	if (not onboarding_enabled or GameState.onboarding_complete) and _stage_two_upgrade_required_for_current_day() and not _stage_two_upgrade_budget_ready():
-		result.merge({"blocked_reason": "Stage 02 심사 비용을 먼저 마련하세요.", "reason_code": "stage_two_budget"}, true)
+		result.merge({"blocked_reason": "Stage 02 심사에 필요한 금화 720·악명 720을 보유하세요. 심사 시 차감되지 않습니다.", "reason_code": "stage_two_budget"}, true)
 		return result
 	if (not onboarding_enabled or GameState.onboarding_complete) and not _has_defense_wave_for_day(GameState.day):
 		result.merge({"blocked_reason": "오늘 진행할 방어 일정이 없습니다.", "reason_code": "no_wave"}, true)
@@ -11501,6 +12212,10 @@ func _update4_outpost_battle_day() -> bool:
 func _request_combat_start() -> void:
 	if campaign_postgame_active:
 		_show_campaign_ending()
+		return
+	var approved: Node = ui_layer.get_node_or_null("ApprovedMapManagement")
+	if approved!=null and approved.get("battle")==null and not _update4_outpost_battle_day():
+		approved.start_battle()
 		return
 	if _update4_outpost_battle_day():
 		_start_update4_outpost_battle()
@@ -11535,7 +12250,7 @@ func _request_combat_start() -> void:
 	_set_screen(Constants.SCREEN_DEFENSE_START)
 
 func _tick_defense_start_countdown(delta: float, automatic: bool = false) -> void:
-	if current_screen != Constants.SCREEN_DEFENSE_START or pending_precombat_snapshot.is_empty():
+	if current_screen != Constants.SCREEN_DEFENSE_START or pending_precombat_snapshot.is_empty() or pause_menu_open:
 		return
 	if automatic and defense_start_auto_hold_frames > 0:
 		defense_start_auto_hold_frames -= 1
@@ -11631,7 +12346,7 @@ func _start_combat() -> void:
 		_open_monster_screen()
 		return
 	if (not onboarding_enabled or GameState.onboarding_complete) and _stage_two_upgrade_required_for_current_day() and not _stage_two_upgrade_budget_ready():
-		_log("DAY %d 전투는 Stage 02 심사 비용을 마련한 뒤 시작할 수 있습니다." % GameState.day)
+		_log("DAY %d 전투는 Stage 02 심사에 필요한 금화 720·악명 720을 보유한 뒤 시작할 수 있습니다. 심사 시 차감되지 않습니다." % GameState.day)
 		return
 	if not _ensure_required_main_route_for_current_layout("전투 시작"):
 		return
@@ -11673,10 +12388,25 @@ func _create_unit(source_id: String, stats: Dictionary, faction: String, room_id
 	if faction == Constants.FACTION_MONSTER and monster_roster.has(source_id):
 		unit.display_name = _monster_companion_name(source_id)
 		unit.name_label.text = unit.display_name
+	_connect_combat_unit(unit)
+	return unit
+
+func _connect_combat_unit(unit: Node) -> void:
 	unit.downed.connect(_on_unit_downed)
+	unit.hp_changed.connect(_on_unit_crown_hp_changed)
+	unit.damage_redirected.connect(_on_unit_damage_redirected.bind(unit))
 	unit.effective_healed.connect(_on_update3_unit_effective_healed)
 	unit.first_heart_control_applied.connect(_on_update3_first_control_applied)
-	return unit
+
+func _on_unit_crown_hp_changed(unit: Node) -> void:
+	if current_screen == Constants.SCREEN_COMBAT and unit.faction == Constants.FACTION_MONSTER:
+		combat_scene._update_defined_crown_support(unit)
+
+func _on_unit_damage_redirected(protector: Node, amount: int, receiver: Node) -> void:
+	if current_screen != Constants.SCREEN_COMBAT or not is_instance_valid(receiver):
+		return
+	combat_scene._show_combat_hit_feedback(receiver.global_position, str(receiver.unit_id), protector, amount, false, "redirect", receiver)
+	if is_instance_valid(protector):_record_monster_contribution(str(protector.unit_id),"redirect_actual_hp_taken",int(receiver.get_meta("redirect_actual_hp_loss",0)))
 
 
 func _update3_unit_instance_id(unit: Node) -> String:
@@ -11728,35 +12458,88 @@ func _record_update3_duo_link_action(member_instance_id: String, source_id: Stri
 
 
 func _activate_update3_duo_link(requested_link_id: String = "") -> void:
-	var activation_order: Array = update3_active_run.get("equipped_duo_links", []).duplicate()
-	if requested_link_id != "" and activation_order.has(requested_link_id):
-		activation_order.erase(requested_link_id)
-		activation_order.push_front(requested_link_id)
-	for link_id_value in activation_order:
-		var link_id := str(link_id_value)
-		if requested_link_id != "" and link_id != requested_link_id:
-			continue
+	if combat_scene.has_method("activate_v130r_duo"):
+		for id in update3_active_run.get("equipped_duo_links",[]):
+			if requested_link_id=="" or requested_link_id==id:
+				if combat_scene.activate_v130r_duo(str(id)): return
+		return
+	var order: Array = update3_active_run.get("equipped_duo_links", []).duplicate()
+	if requested_link_id != "" and order.has(requested_link_id):
+		order.erase(requested_link_id)
+		order.push_front(requested_link_id)
+	for value in order:
+		var link_id := str(value)
+		if requested_link_id != "" and link_id != requested_link_id: continue
 		var state: Dictionary = update3_active_run.get("duo_link_states", {}).get(link_id, {})
-		if int(state.get("charge", 0)) < 100 or not bool(state.get("active", false)) or bool(state.get("used_this_battle", false)):
-			continue
-		var result := DuoLinkServiceScript.activate(update3_active_run, link_id, DataRegistry.update3_duo_links)
-		if not bool(result.get("ok", false)):
-			_log(str(result.get("error", "합동기를 발동하지 못했습니다.")))
-			return
-		update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
-		_record_update3_duo_link_use(link_id)
-		match str(result.get("effect_handler", "")):
-			"ghostly_evacuate": _apply_ghostly_evacuate(link_id)
-			"moon_scent_hunt": _apply_moon_scent_hunt(link_id)
-			"molten_carapace": _apply_molten_carapace(link_id)
-			"stone_march": _apply_stone_march(link_id)
-			"false_beacon_vault": _apply_false_beacon_vault(link_id)
-			_: _apply_spore_jelly_shelter(link_id)
-		_spawn_update3_duo_link_art(link_id)
-		if combat_scene != null and combat_scene.has_method("trigger_leon_duo_response"):
-			combat_scene.trigger_leon_duo_response(link_id)
+		if int(state.get("charge", 0)) < 100 or not bool(state.get("active", false)) or bool(state.get("used_this_battle", false)): continue
+		var key := "duo:" + link_id
+		if combat_scene.skill_actions.has_key(key): return
+		var definition: Dictionary = DataRegistry.update3_duo_links.get(link_id, {})
+		var members: Array = []
+		for instance_id in definition.get("member_instance_ids", []):
+			var actor = _update3_duo_member_unit(str(instance_id))
+			if not is_instance_valid(actor) or not actor.is_alive(): return
+			members.append(actor)
+		var target = _prepared_duo_action_target(link_id, members)
+		if str(definition.get("effect_handler", "")) in ["moon_scent_hunt", "molten_carapace"] and target == null: return
+		var support := str(definition.get("effect_handler", "")) in ["ghostly_evacuate", "spore_jelly_shelter", "false_beacon_vault"]
+		var packet := {"key": key, "kind": "duo", "name": str(definition.get("display_name", link_id)), "actors": members, "target": target, "animation": "skill_down" if support else "attack_down"}
+		combat_scene.skill_actions.request(packet, Callable(self, "_commit_prepared_duo").bind(link_id, members, target, target.get_instance_id() if target != null else 0))
 		return
 	_log("지금 발동할 수 있는 합동기가 없습니다.")
+
+func _prepared_duo_action_target(link_id: String, members: Array):
+	if link_id == "link_spore_jelly_shelter": return null # Area support around the two members.
+	if link_id == "link_ghostly_evacuate":
+		var selected = null
+		var lowest_ratio := INF
+		for ally in monster_units:
+			if not is_instance_valid(ally) or not ally.is_alive() or members.has(ally): continue
+			var ratio := float(ally.hp) / float(maxi(1, ally.max_hp))
+			if ratio < lowest_ratio:
+				lowest_ratio = ratio
+				selected = ally
+		return selected if selected != null else members[-1]
+	var candidates: Array = []
+	for enemy in enemy_units:
+		if not is_instance_valid(enemy) or not enemy.is_alive(): continue
+		if not _duo_enemy_targetable(enemy,members):continue
+		if link_id == "link_moon_scent_hunt" and float(enemy.duo_mark_timer) <= 0.0 and float(enemy.scent_mark_timer) <= 0.0: continue
+		candidates.append(enemy)
+	if candidates.is_empty(): return null
+	if link_id == "link_moon_scent_hunt": candidates.sort_custom(func(a, b): return int(a.atk) > int(b.atk))
+	else:
+		var center: Vector2 = members[-1].global_position if not members.is_empty() else Vector2.ZERO
+		candidates.sort_custom(func(a, b): return a.global_position.distance_squared_to(center) < b.global_position.distance_squared_to(center))
+	return candidates[0]
+
+func _duo_enemy_targetable(target,members:Array)->bool:
+	for actor in members:
+		if is_instance_valid(actor) and actor.is_alive() and target.is_targetable_by(actor):return true
+	return false
+
+func _commit_prepared_duo(link_id: String, members: Array, target, target_id: int) -> bool:
+	for actor in members:
+		if not is_instance_valid(actor) or not actor.is_alive() or actor.is_queued_for_deletion(): return false
+	if target_id != 0 and (not is_instance_valid(target) or not target.is_alive() or target.is_queued_for_deletion()): return false
+	if target_id != 0 and enemy_units.has(target) and not _duo_enemy_targetable(target,members):return false
+	var result := DuoLinkServiceScript.activate(update3_active_run, link_id, DataRegistry.update3_duo_links)
+	if not bool(result.get("ok", false)): return false
+	update3_active_run = result.get("active_run", update3_active_run).duplicate(true)
+	_record_update3_duo_link_use(link_id)
+	growth_feedback.record_duo(members)
+	match str(result.get("effect_handler", "")):
+		"ghostly_evacuate": _apply_ghostly_evacuate(link_id, target)
+		"moon_scent_hunt": _apply_moon_scent_hunt(link_id, target)
+		"molten_carapace": _apply_molten_carapace(link_id, target)
+		"stone_march": _apply_stone_march(link_id)
+		"false_beacon_vault": _apply_false_beacon_vault(link_id)
+		"spore_jelly_shelter": _apply_spore_jelly_shelter(link_id)
+		_:
+			if str(result.get("effect_handler", "")).begins_with("v130r_"): combat_scene.duos.apply(link_id,members)
+	_spawn_update3_duo_link_art(link_id)
+	combat_scene.trigger_leon_duo_response(link_id)
+	return true
 
 
 func _spawn_update3_duo_link_art(link_id: String) -> void:
@@ -11767,40 +12550,8 @@ func _spawn_update3_duo_link_art(link_id: String) -> void:
 	if index < 0:
 		return
 	_play_update3_sfx(["duo_spore", "duo_ghost", "duo_moon", "duo_molten", "duo_stone", "duo_beacon"][index], -7.5)
-	var members: Array[Node] = []
-	var member_ids: Array = DataRegistry.update3_duo_links.get(link_id, {}).get("member_instance_ids", [])
-	for unit in monster_units:
-		if is_instance_valid(unit) and unit.is_alive() and _update3_unit_instance_id(unit) in member_ids:
-			members.append(unit)
-	var center := Vector2(960, 540)
-	if not members.is_empty():
-		center = Vector2.ZERO
-		for member in members:
-			center += member.global_position
-		center /= float(members.size())
-	var sheet := load("res://assets/ui/duo/duo_badges_vfx_sheet.png") as Texture2D
-	if sheet == null:
-		return
-	var cell_size := Vector2(sheet.get_width() / 3.0, sheet.get_height() / 2.0)
-	var atlas := AtlasTexture.new()
-	atlas.atlas = sheet
-	atlas.region = Rect2(Vector2(index % 3, index / 3) * cell_size, cell_size)
-	var sprite := Sprite2D.new()
-	sprite.name = "DuoLinkVfx_%s" % link_id
-	sprite.texture = atlas
-	sprite.position = center
-	sprite.scale = Vector2.ONE * 0.28
-	var shader := Shader.new()
-	shader.code = "shader_type canvas_item; void fragment(){ vec4 c=texture(TEXTURE,UV); float m=min(c.r,c.b)-c.g; float balance=1.0-smoothstep(0.10,0.32,abs(c.r-c.b)); float k=smoothstep(0.10,0.34,m)*balance; c.a*=1.0-k; COLOR=c; }"
-	var material := ShaderMaterial.new()
-	material.shader = shader
-	sprite.material = material
-	effect_root.add_child(sprite)
-	var tween := sprite.create_tween()
-	tween.set_parallel(true)
-	tween.tween_property(sprite, "scale", Vector2.ONE * 0.58, 0.62).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	tween.tween_property(sprite, "modulate:a", 0.0, 0.72).set_delay(0.34)
-	tween.chain().tween_callback(sprite.queue_free)
+	# The old screen-sized emblem obscured the cast. Basic impact VFX remain;
+	# character actions now carry the identity instead.
 
 
 func _record_update3_duo_link_use(link_id: String) -> void:
@@ -11842,13 +12593,18 @@ func _apply_spore_jelly_shelter(link_id: String) -> void:
 
 func _apply_spore_jelly_shelter_tick(center: Vector2, effect: Dictionary, first_tick: bool) -> int:
 	var affected := 0
+	var mori:Node=null
+	for unit in monster_units:
+		if is_instance_valid(unit) and not unit.is_queued_for_deletion() and unit.is_alive() and _update3_unit_instance_id(unit)=="mon_contract_mori":mori=unit;break
 	for ally in monster_units:
 		if not is_instance_valid(ally) or not ally.is_alive() or ally.global_position.distance_to(center) > float(effect.get("radius", 190.0)):
 			continue
 		if first_tick:
 			ally.grant_duo_barrier(int(effect.get("shield", 40)))
 			ally.cleanse_one_negative_status()
-		ally.heal(int(effect.get("heal_per_second", 3)), "duo_spore_jelly", first_tick and bool(effect.get("first_heal_ignores_fatigue", true)))
+		var ignore_fatigue:bool=first_tick and bool(effect.get("first_heal_ignores_fatigue",true))
+		if mori!=null:combat_scene.royal_support.heal_from(mori,ally,int(effect.get("heal_per_second",3)),"duo_spore_jelly",ignore_fatigue)
+		else:ally.heal(int(effect.get("heal_per_second",3)),"duo_spore_jelly",ignore_fatigue)
 		affected += 1
 	return affected
 
@@ -11860,15 +12616,16 @@ func _update3_duo_member_unit(instance_id: String) -> Node:
 	return null
 
 
-func _apply_ghostly_evacuate(link_id: String) -> void:
+func _apply_ghostly_evacuate(link_id: String, prepared_target: Node = null) -> void:
 	var effect: Dictionary = DataRegistry.update3_duo_links.get(link_id, {}).get("effect", {})
 	var pudding = _update3_duo_member_unit("mon_core_pudding")
 	var bebe = _update3_duo_member_unit("monster_bebe")
 	if pudding == null or bebe == null or not pudding.is_alive() or not bebe.is_alive():
 		return
-	var target: Node = null
+	var target: Node = prepared_target
 	var lowest_ratio := INF
 	for ally in monster_units:
+		if prepared_target != null: break
 		if not is_instance_valid(ally) or not ally.is_alive() or ally == pudding or ally == bebe:
 			continue
 		var ratio := float(ally.hp) / float(maxi(1, ally.max_hp))
@@ -11888,7 +12645,7 @@ func _apply_ghostly_evacuate(link_id: String) -> void:
 	_log("유령 이사 대작전 발동 · %s을 푸딩 뒤로 옮기고 4초 동안 피해를 나눠 받습니다." % target.display_name)
 
 
-func _apply_moon_scent_hunt(link_id: String) -> void:
+func _apply_moon_scent_hunt(link_id: String, prepared_target: Node = null) -> void:
 	var effect: Dictionary = DataRegistry.update3_duo_links.get(link_id, {}).get("effect", {})
 	var gob = _update3_duo_member_unit("mon_core_gob")
 	var koko = _update3_duo_member_unit("monster_koko")
@@ -11901,7 +12658,7 @@ func _apply_moon_scent_hunt(link_id: String) -> void:
 	if candidates.is_empty():
 		return
 	candidates.sort_custom(func(a: Node, b: Node): return int(a.atk) > int(b.atk))
-	var target: Node = candidates[0]
+	var target: Node = prepared_target if prepared_target != null else candidates[0]
 	for member in [gob, koko]:
 		var offset: Vector2 = target.global_position - member.global_position
 		var travel := minf(float(effect.get("approach_distance", 140.0)), maxf(0.0, offset.length() - 34.0))
@@ -11912,8 +12669,10 @@ func _apply_moon_scent_hunt(link_id: String) -> void:
 	var per_hit_cap := maxi(1, total_cap / 2)
 	var first := mini(per_hit_cap, DamageService.compute(gob, target, 1.0))
 	var dealt_first: int = target.receive_damage(first)
+	combat_scene._apply_combat_hit_feedback(gob, target, dealt_first, false, "skill_melee")
 	var second := mini(maxi(0, total_cap - dealt_first), DamageService.compute(koko, target, 1.0))
 	var dealt_second: int = target.receive_damage(second) if second > 0 and target.is_alive() else 0
+	combat_scene._apply_combat_hit_feedback(koko, target, dealt_second, false, "skill_melee")
 	target.apply_armor_break(int(effect.get("boss_def_reduction", 1)) if _update3_enemy_is_boss(target) else int(effect.get("normal_def_reduction", 2)), float(effect.get("def_reduction_seconds", 5.0)), link_id)
 	for member in [gob, koko]:
 		member.apply_duo_penalty(float(effect.get("member_vulnerable_seconds", 3.0)), 1.0, float(effect.get("member_damage_taken_multiplier", 1.10)))
@@ -11921,15 +12680,16 @@ func _apply_moon_scent_hunt(link_id: String) -> void:
 	_log("달빛 냄새 추격 발동 · 표식 대상에게 합계 %d 피해를 주고 방어를 낮췄습니다." % [dealt_first + dealt_second])
 
 
-func _apply_molten_carapace(link_id: String) -> void:
+func _apply_molten_carapace(link_id: String, prepared_target: Node = null) -> void:
 	var effect: Dictionary = DataRegistry.update3_duo_links.get(link_id, {}).get("effect", {})
 	var pynn = _update3_duo_member_unit("mon_core_pynn")
 	var toktok = _update3_duo_member_unit("monster_toktok")
 	if pynn == null or toktok == null or not pynn.is_alive() or not toktok.is_alive() or enemy_units.is_empty():
 		return
-	var target: Node = null
+	var target: Node = prepared_target
 	var nearest := INF
 	for enemy in enemy_units:
+		if prepared_target != null: break
 		if not is_instance_valid(enemy) or not enemy.is_alive():
 			continue
 		var distance: float = toktok.global_position.distance_to(enemy.global_position)
@@ -11946,6 +12706,7 @@ func _apply_molten_carapace(link_id: String) -> void:
 		if not is_instance_valid(enemy) or not enemy.is_alive() or enemy.global_position.distance_to(toktok.global_position) > float(effect.get("radius", 90.0)):
 			continue
 		var dealt: int = enemy.receive_damage(int(effect.get("impact_damage", 26)))
+		combat_scene._apply_combat_hit_feedback(toktok, enemy, dealt, false, "area")
 		enemy.apply_armor_break(int(effect.get("def_reduction", 1)), float(effect.get("def_reduction_seconds", 5.0)), link_id)
 		targets.append({"node_id": enemy.get_instance_id(), "remaining": float(effect.get("burn_seconds", 5.0)), "tick_accumulator": 0.0, "damage_done": dealt})
 	toktok.skill_cooldowns["patch_plates"] = float(toktok.skill_cooldowns.get("patch_plates", 0.0)) + float(effect.get("repair_cooldown_penalty", 3.0))
@@ -11969,6 +12730,7 @@ func _apply_stone_march(link_id: String) -> void:
 			continue
 		var hp_before := int(enemy.hp)
 		var dealt: int = enemy.receive_damage(int(effect.get("damage", 12)))
+		combat_scene._apply_combat_hit_feedback(dolkong, enemy, dealt, false, "area")
 		combat_scene._record_damage_contribution(dolkong, enemy, int(effect.get("damage", 12)), dealt, hp_before, "", "stone_march:%d:%d" % [dolkong.get_instance_id(), enemy.get_instance_id()])
 		morale_total += enemy.receive_morale_damage(int(effect.get("morale_damage", 30)))
 		hit_count += 1
@@ -12051,7 +12813,9 @@ func _update_molten_carapace_burn(effect_state: Dictionary, delta_scaled: float,
 			accumulator -= 1.0
 			if target != null and is_instance_valid(target) and target.is_alive():
 				var tick_damage := mini(int(effect.get("burn_damage_per_second", 3)), int(effect.get("direct_damage_cap", 41)) - damage_done)
-				damage_done += int(target.receive_magic_damage(tick_damage))
+				var dealt := int(target.receive_magic_damage(tick_damage))
+				damage_done += dealt
+				combat_scene._show_combat_hit_feedback(target.global_position, "molten_carapace_burn", target, dealt, false, "area_dot")
 		target_state["tick_accumulator"] = accumulator
 		target_state["damage_done"] = damage_done
 		targets.append(target_state)
@@ -12123,6 +12887,16 @@ func _scaled_monster_stats(monster_id: String, preview_level: int = -1) -> Dicti
 	return stats
 
 
+func _monster_combat_stats(monster_id: String) -> Dictionary:
+	# Both spatial adapters use the same ordered growth/cycle/crown layers.
+	var stats := _scaled_monster_stats(monster_id)
+	if monster_id=="curse_doll" and _monster_available_for_defense("spider_tailor") and _monster_deployed_for_defense("spider_tailor"):
+		stats.max_hp = roundi(float(stats.max_hp)*1.1)
+	if GameState.is_hungry(monster_id):
+		stats.atk = maxi(1, roundi(float(stats.atk) * .8))
+	return stats
+
+
 func _apply_update4_crown_stats(monster_id: String, stats: Dictionary) -> void:
 	if not _update4_council_mode_active():
 		return
@@ -12132,13 +12906,25 @@ func _apply_update4_crown_stats(monster_id: String, stats: Dictionary) -> void:
 	if crown_id == "" or str(DataRegistry.monster_instances.get(instance_id, {}).get("species_id", "")) != monster_id:
 		return
 	var crown: Dictionary = DataRegistry.update4_crown_evolutions.get(crown_id, {})
-	if bool(update4_active_run.get("upper_floor", {}).get("crown_suppressed", false)):
+	# Keep the exact fully-grown pre-crown layer, including all earlier rounding.
+	# Actors can remove/restore this one layer without dividing cached stats.
+	stats["crown_base_body"]={"max_hp":int(stats.get("max_hp",1)),"atk":int(stats.get("atk",1)),"def":int(stats.get("def",0)),"move_speed":float(stats.get("move_speed",100.0)),"outgoing_healing_multiplier":float(stats.get("outgoing_healing_multiplier",1.0))}
+	stats["crown_body_descriptor"]={"form_id":crown_id,"multipliers":Dictionary(crown.get("stat_multipliers",{})).duplicate(true),"base_sprite":str(stats.get("sprite",stats.get("sprite_sheet",""))),"crown_sprite":str(crown.get("combat_sprite",stats.get("sprite","")))}
+	stats["crown_applied_at_setup"]=false
+	if bool(update4_active_run.get("expansion", {}).get("crown_suppressed", false)):
 		return
 	for stat_id_value in crown.get("stat_multipliers", {}).keys():
 		var stat_id := str(stat_id_value)
+		if stat_id == "healing":
+			stats["outgoing_healing_multiplier"] = float(crown.get("stat_multipliers", {}).get(stat_id_value,1.0))
+			continue
+		# There is no mana-capacity resource; never manufacture a fake 0 stat.
+		# Resistance is resolved at actual hostile-status application below.
+		if stat_id in ["max_mana","mana_efficiency","status_resistance"]:continue
 		stats[stat_id] = float(stats.get(stat_id, 0.0)) * float(crown.get("stat_multipliers", {}).get(stat_id_value, 1.0))
 		if stat_id not in ["move_speed", "attack_range", "attack_interval"]:
 			stats[stat_id] = int(round(float(stats[stat_id])))
+	stats["crown_applied_at_setup"]=true
 	stats["sprite"] = str(crown.get("combat_sprite", stats.get("sprite", "")))
 	stats["crown_form_id"] = crown_id
 
@@ -12186,18 +12972,7 @@ func _apply_specialization_stats(monster_id: String, stats: Dictionary) -> void:
 	var rule = _monster_specialization(monster_id)
 	if rule.is_empty():
 		return
-	for stat_name in rule.get("stat_multipliers", {}).keys():
-		var key = str(stat_name)
-		var scaled_value = float(stats.get(key, 0)) * float(rule["stat_multipliers"][stat_name])
-		if key in ["move_speed", "attack_range", "attack_interval"]:
-			stats[key] = scaled_value
-		else:
-			stats[key] = int(round(scaled_value))
-	for stat_name in rule.get("stat_bonuses", {}).keys():
-		var key = str(stat_name)
-		stats[key] = float(stats.get(key, 0)) + float(rule["stat_bonuses"][stat_name])
-		if key not in ["move_speed", "attack_range", "attack_interval"]:
-			stats[key] = int(round(float(stats[key])))
+	preload("res://scripts/systems/SpecializationEffects.gd").apply_stats(rule,stats)
 	var role_tag = str(rule.get("role_tag", stats.get("role", "")))
 	stats["role_tag"] = role_tag
 	stats["role"] = role_tag
@@ -12227,7 +13002,7 @@ func _early_specialization_unlocked() -> bool:
 
 func _early_specialization_count() -> int:
 	var count := 0
-	for monster_id in _defense_monster_ids():
+	for monster_id in monster_roster:
 		if str(monster_roster[monster_id].get("specialization_id", "")) != "":
 			count += 1
 	return count
@@ -12237,14 +13012,14 @@ func _early_specialization_limit() -> int:
 		return 0
 	if GameState.day <= 3:
 		return 1
-	return _defense_monster_ids().size()
+	return monster_roster.size()
 
 func _early_specialization_required_for_current_day() -> bool:
 	return GameState.day in [2, 3] and _early_specialization_unlocked() and _early_specialization_count() == 0
 
 func _specialization_block_reason(monster_id: String, specialization_id: String = "") -> String:
-	if not _monster_available_for_defense(monster_id):
-		return "지원 전용"
+	if not monster_roster.has(monster_id):
+		return "미합류"
 	if not _early_specialization_unlocked():
 		return "DAY 2 해금"
 	if str(monster_roster[monster_id].get("specialization_id", "")) != "":
@@ -12268,11 +13043,11 @@ func _specialization_block_reason(monster_id: String, specialization_id: String 
 func _can_choose_early_specialization(monster_id: String, specialization_id: String) -> bool:
 	return monster_roster.has(monster_id) and _specialization_block_reason(monster_id, specialization_id) == ""
 
-func _choose_early_specialization(monster_id: String, specialization_id: String) -> bool:
+func _choose_early_specialization(monster_id: String, specialization_id: String, refresh_screen: bool = true) -> bool:
 	var reason = _specialization_block_reason(monster_id, specialization_id)
 	if reason != "":
 		_log("전술 특화를 선택할 수 없습니다: %s." % reason)
-		_set_screen(Constants.SCREEN_MONSTER)
+		if refresh_screen: _set_screen(Constants.SCREEN_MONSTER)
 		return false
 	var rule = DataRegistry.specialization(specialization_id)
 	monster_roster[monster_id]["specialization_id"] = specialization_id
@@ -12281,7 +13056,7 @@ func _choose_early_specialization(monster_id: String, specialization_id: String)
 	first_play_observation.record_choice("specialization", specialization_id, GameState.day, {"monster_id": monster_id, "specialization_id": specialization_id})
 	first_play_observation.save_snapshot(GameState.day, false)
 	_log("%s 전술 특화 확정: %s." % [_monster_display_name(monster_id), str(rule.get("display_name", specialization_id))])
-	_set_screen(Constants.SCREEN_MONSTER)
+	if refresh_screen: _set_screen(Constants.SCREEN_MONSTER)
 	return true
 
 func _monster_ai_behavior(monster_id: String) -> String:
@@ -12338,6 +13113,8 @@ func _monster_roster_status(monster_id: String) -> Dictionary:
 	var location := display_name_for_instance(room_id) if rooms.has(room_id) else "미배치"
 	if _is_prepared_maze() and maze_deployments.has(monster_id):
 		location = _maze_zone_name(str(maze_deployments[monster_id].defense_zone_id))
+	if _day1_tutorial_placement_rules_active() and monster_id == "goblin" and room_id in _day1_goblin_tutorial_target_rooms():
+		location = _day1_goblin_formation_label(room_id)
 	var state := "deployed"
 	var label := "출전 · " + location
 	if not _monster_available_for_defense(monster_id):
@@ -12549,9 +13326,7 @@ func _specialization_skill_upgrade(monster_id: String, skill_id: String) -> Dict
 
 func _combat_skill_float(monster_id: String, skill_id: String, key: String, fallback: float = 0.0) -> float:
 	var value = fallback
-	var specialization_upgrade = _specialization_skill_upgrade(monster_id, skill_id)
-	if not specialization_upgrade.is_empty():
-		value += float(specialization_upgrade.get(key, 0.0))
+	value += preload("res://scripts/systems/SpecializationEffects.gd").delta(_monster_specialization(monster_id),skill_id,key)
 	var promotion_upgrade = _promotion_skill_upgrade(monster_id, skill_id)
 	if not promotion_upgrade.is_empty():
 		value += float(promotion_upgrade.get(key, 0.0))
@@ -12651,6 +13426,7 @@ func _apply_battle_activity_exp() -> void:
 		monster_roster[monster_id]["exp"] = int(monster_roster[monster_id].get("exp", 0)) + activity_exp
 
 func _capture_battle_growth_start() -> void:
+	support_mastery.begin_battle()
 	battle_growth_start.clear()
 	battle_resource_start = {
 		"gold": GameState.gold,
@@ -12680,8 +13456,11 @@ func _capture_battle_growth_start() -> void:
 func _commit_or_rollback_battle_progress(win: bool) -> Array:
 	if win:
 		var summary := _finalize_battle_growth(true)
+		support_mastery.settle(true)
+		for row in summary:row["support_mastery"]=support_mastery.summary(str(row.get("monster_id","")))
 		GameState.add_rewards(rewards_pending)
 		return summary
+	support_mastery.discard()
 	for resource_key in ["gold", "mana", "food", "infamy"]:
 		if battle_resource_start.has(resource_key):
 			GameState.set(resource_key, int(battle_resource_start.get(resource_key, GameState.get(resource_key))))
@@ -12767,7 +13546,8 @@ func _finalize_battle_growth(win: bool = false) -> Array:
 			"bond_after": bond_after,
 			"bond_gain": bond_after - bond_before,
 			"bond_rank": rank_after,
-			"unlocked_memory_id": unlocked_memory_id
+			"unlocked_memory_id": unlocked_memory_id,
+			"support_contribution": growth_feedback.snapshot(str(monster_id))
 		})
 	last_growth_summary = summary
 	return summary
@@ -12841,6 +13621,10 @@ func _choose_result_growth(monster_id: String) -> bool:
 	result_growth_choice_monster_id = monster_id
 	result_growth_choice_applied = true
 	selected_monster_id = monster_id
+	# UI-only context; no new save keys or early training transaction.
+	management_scene.monster_ui.inspected_id = monster_id
+	management_scene.monster_ui.list_mode = "owned"
+	management_scene.monster_ui.active_tab = "training"
 	first_play_observation.record_choice("growth_focus", monster_id, GameState.day, {
 		"monster_id": monster_id,
 		"preparation_id": str(preparation.get("id", "")),
@@ -12873,6 +13657,8 @@ func _growth_row_index(monster_id: String) -> int:
 	return -1
 
 func _review_growth_from_result() -> void:
+	if current_screen != Constants.SCREEN_RESULT or not bool(result_summary.get("win", false)):
+		return
 	if not _tutorial_allows("growth_reviewed", {"day": GameState.day}):
 		return
 	if _result_growth_choice_required() and not result_growth_choice_applied:
@@ -12885,6 +13671,7 @@ func _review_growth_from_result() -> void:
 	_set_screen(Constants.SCREEN_RESULT)
 
 func _clear_units() -> void:
+	support_mastery.discard()
 	for unit in monster_units + enemy_units:
 		if is_instance_valid(unit):
 			unit.queue_free()
@@ -12953,6 +13740,12 @@ func _advance_after_result() -> void:
 		else:
 			_prepare_finale_retry()
 		return
+	if result_growth_choice_applied and monster_roster.has(result_growth_choice_monster_id):
+		selected_monster_id = result_growth_choice_monster_id
+		management_scene.monster_ui.inspected_id = result_growth_choice_monster_id
+		management_scene.monster_ui.list_mode = "owned"
+		management_scene.monster_ui.active_tab = "training"
+	_settle_monster_food()
 	GameState.advance_day()
 	_tutorial_emit_action("day_advanced", {"day": GameState.day})
 	if onboarding_enabled and not GameState.onboarding_complete and GameState.day <= GameState.max_day:
@@ -12964,6 +13757,8 @@ func _continue_from_result() -> void:
 	if current_screen != Constants.SCREEN_RESULT:
 		return
 	if _result_growth_choice_required() and not result_growth_choice_applied:
+		return
+	if _result_growth_choice_required() and not result_growth_reviewed:
 		return
 	if bool(result_summary.get("outpost_battle", false)):
 		_advance_after_result()
@@ -13059,6 +13854,7 @@ func _advance_day_from_management() -> void:
 		return
 	if not _ensure_required_main_route_for_current_layout("날짜 진행"):
 		return
+	_settle_monster_food()
 	GameState.advance_day()
 	_tutorial_emit_action("day_advanced", {"day": GameState.day})
 	_log("하루를 넘겼습니다. DAY %d." % GameState.day)
@@ -13081,7 +13877,7 @@ func _select_monster(monster_id: String) -> void:
 		_ensure_selected_monster_available_for_defense()
 		_set_screen(Constants.SCREEN_MONSTER)
 		return
-	if _day1_tutorial_monster_is_fixed(monster_id):
+	if current_screen == Constants.SCREEN_MANAGEMENT and _day1_tutorial_monster_is_fixed(monster_id):
 		_show_day1_fixed_monster_feedback(monster_id)
 		return
 	if not _tutorial_allows("unit_selected", {"monster_id": monster_id, "unit_id": monster_id}):
@@ -13262,7 +14058,10 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 		var existing_zone_id := _sync_monster_defense_zone_from_room(monster_id)
 		selected_monster_id = monster_id
 		selected_room = room_id
-		_set_management_feedback(true, "이미 %s에 배치되어 있습니다." % display_name_for_instance(room_id))
+		if _day1_tutorial_placement_rules_active() and monster_id == "goblin":
+			_set_management_feedback(true, "곱 · 전열 선택 완료" if room_id == "barracks" else "곱 · 후열 선택 완료", _day1_goblin_formation_label(room_id))
+		else:
+			_set_management_feedback(true, "이미 %s에 배치되어 있습니다." % display_name_for_instance(room_id))
 		_tutorial_emit_action("unit_deployed", {"monster_id": monster_id, "unit_id": monster_id, "room_id": room_id, "defense_zone_id": existing_zone_id})
 		return true
 	if rooms[room_id].get("type", "") == "build_slot":
@@ -13296,7 +14095,10 @@ func _assign_monster_to_room(monster_id: String, room_id: String) -> bool:
 		_onboarding_emit_trigger("unit_deployed")
 	if GameState.day == 1 and monster_id == "goblin":
 		call_deferred("_story_day1_goblin_placement_reaction", room_id)
-	_set_management_feedback(true, "%s 배치 완료" % str(DataRegistry.monster(monster_id).get("display_name", monster_id)), "%s · %d/%d" % [display_name_for_instance(room_id), placed_count, max_count])
+	if _day1_tutorial_placement_rules_active() and monster_id == "goblin":
+		_set_management_feedback(true, "곱 · 전열 선택 완료" if room_id == _day1_goblin_tutorial_target_rooms()[0] else "곱 · 후열 선택 완료", _day1_goblin_formation_label(room_id))
+	else:
+		_set_management_feedback(true, "%s 배치 완료" % str(DataRegistry.monster(monster_id).get("display_name", monster_id)), "%s · %d/%d" % [display_name_for_instance(room_id), placed_count, max_count])
 	return true
 
 
@@ -13307,7 +14109,7 @@ func _story_day1_goblin_placement_reaction(room_id: String) -> void:
 	_story_begin_trigger("placement_confirmed", {
 		"monster_id": "goblin",
 		"room_id": room_id,
-		"gob_formation": "front" if room_id == "barracks" else "rear"
+		"gob_formation": "front" if room_id == _day1_goblin_tutorial_target_rooms()[0] else "rear"
 	}, Constants.SCREEN_MANAGEMENT)
 
 
@@ -13514,10 +14316,15 @@ func _close_facility_change_panel() -> void:
 func _cancel_management_action_mode() -> void:
 	if not _management_action_mode_active() and not facility_change_panel_open:
 		return
+	var focused := get_viewport().gui_get_focus_owner()
+	var focus_name := str(focused.name) if is_instance_valid(focused) else ""
 	facility_change_panel_open = false
 	_clear_management_action_mode(false)
 	_set_management_feedback(true, "배치를 취소했습니다. 비용은 사용하지 않았습니다.")
 	_set_screen(Constants.SCREEN_MANAGEMENT, false)
+	var restored: Control = ui_layer.find_child(focus_name, true, false) as Control if focus_name != "" else null
+	if restored == null: restored = ui_layer.find_child("ManagementTab_" + management_tool_tab, true, false) as Control
+	management_scene.workspace_ui.call_deferred("focus_if_visible", restored)
 
 func _clear_management_action_mode(redraw: bool = true) -> void:
 	build_placement.reset()
@@ -13537,7 +14344,7 @@ func _clear_management_action_mode(redraw: bool = true) -> void:
 		queue_world_overlay_redraw()
 
 func _management_action_mode_active() -> bool:
-	return build_pick_mode or deploy_pick_monster_id != "" or dragging_monster_id != ""
+	return build_pick_mode or build_placement.decor.active() or deploy_pick_monster_id != "" or dragging_monster_id != ""
 
 func _management_action_mode_title() -> String:
 	if build_pick_mode:
@@ -13701,11 +14508,12 @@ func _change_room_facility(room_id: String, facility_id: String) -> bool:
 	_set_screen(Constants.SCREEN_MANAGEMENT)
 	return true
 
-func _facility_upgrade_cost() -> Dictionary:
+func _facility_upgrade_cost(room_id: String = "") -> Dictionary:
+	if room_id == "": room_id = selected_room
 	var info = _campaign_day_info(7)
 	var cost = info.get("facility_upgrade_cost", {})
 	var base: Dictionary = cost if cost is Dictionary and not cost.is_empty() else {"gold": 90, "mana": 30}
-	var multiplier: int = maxi(1, _facility_upgrade_level(selected_room))
+	var multiplier: int = maxi(1, _facility_upgrade_level(room_id))
 	var scaled: Dictionary = {}
 	for resource_id in base.keys():
 		scaled[resource_id] = int(base[resource_id]) * multiplier
@@ -13729,13 +14537,22 @@ func _can_upgrade_selected_facility() -> bool:
 	return _can_upgrade_room_facility(selected_room)
 
 func _can_upgrade_room_facility(room_id: String) -> bool:
-	if not _facility_upgrade_unlocked() or not rooms.has(room_id):
-		return false
-	if not _can_change_room_facility(room_id):
-		return false
+	return _facility_upgrade_block_reason(room_id) == ""
+
+func _facility_upgrade_block_reason(room_id: String) -> String:
+	if map_editor_active:
+		return continuity.localized("성 구조 편집 중", "Castle layout is being edited", "正在编辑城堡布局")
+	if not rooms.has(room_id) or not _can_change_room_facility(room_id):
+		return continuity.localized("강화할 수 없는 고정 건물", "This fixed building cannot be upgraded", "固定建筑无法强化")
 	if str(rooms[room_id].get("type", "")) == "build_slot":
-		return false
-	return _facility_upgrade_level(room_id) < _facility_upgrade_level_cap()
+		return continuity.localized("먼저 건물을 설치하세요", "Build a facility first", "请先建造设施")
+	if not _facility_upgrade_unlocked():
+		return continuity.localized("DAY 07부터 강화 가능", "Upgrades unlock on DAY 07", "第07天解锁强化")
+	if _facility_upgrade_level(room_id) >= _facility_upgrade_level_cap():
+		return continuity.localized("최대 레벨입니다", "Maximum level reached", "已达最高等级")
+	if not GameState.can_pay(_facility_upgrade_cost(room_id)):
+		return continuity.localized("재료 부족 · 필요: %s", "Insufficient resources · Required: %s", "材料不足 · 需要：%s") % LanguageSettings.ui_text(_cost_label(_facility_upgrade_cost(room_id)))
+	return ""
 
 func _upgrade_selected_facility() -> bool:
 	if map_editor_active:
@@ -13810,14 +14627,14 @@ func _facility_base_definition(facility_id: String) -> Dictionary:
 				"role_summary": "몬스터를 가장 많이 세워 한 방에서 버티는 전투 거점입니다.",
 				"effect_summary": "체력 %d / 몬스터 %d명 배치. 이 방에 배치된 아군은 인접 방 방어 중에도 공격 +%d%%, 받는 피해 -%d%%." % [_facility_stage_preview_hp(450), _facility_stage_preview_capacity(4), _barracks_stage_attack_bonus_percent(), _barracks_stage_damage_reduction_percent()],
 				"recommend_summary": "입구와 왕좌 사이의 필수 길목, 또는 여러 길이 합쳐지는 방에 적합합니다.",
-				"caution_summary": "식량을 쓰기 때문에 초반에 많이 늘리면 몬스터 운용 여유가 줄어듭니다.",
+				"caution_summary": "배치된 몬스터는 정산 때 유지비를 사용합니다. 대기 중에는 식량을 쓰지 않습니다.",
 				"type": "support",
 				"hp": 450,
 				"max_monsters": 4,
 				"icon": "res://assets/ui/room_v2/room_v2_barracks.png",
 				"icon_offset": [0, -8],
 				"icon_size": 54,
-				"cost": {"gold": 100, "food": 2}
+				"cost": {"gold": 100}
 			}
 		"treasure":
 			return {
@@ -14062,6 +14879,7 @@ func _select_unit(unit: Node) -> void:
 	SignalBus.unit_selected.emit(unit)
 	_tutorial_emit_action("unit_selected", {"unit_id": unit.unit_id, "room_id": unit.current_room, "faction": unit.faction})
 	if current_screen == Constants.SCREEN_COMBAT:
+		spectator_camera.follow(unit)
 		_set_screen(Constants.SCREEN_COMBAT)
 
 
@@ -14347,7 +15165,7 @@ func _unit_at(point: Vector2) -> Node:
 	var best: Node = null
 	var best_distance = 96.0 if UISettings.is_touch_ui() else 36.0
 	for unit in monster_units + enemy_units:
-		if not unit.is_alive():
+		if not is_instance_valid(unit) or not unit.is_alive() or not unit.is_targetable_by():
 			continue
 		var distance = unit.global_position.distance_to(point)
 		if distance < best_distance:
@@ -14359,7 +15177,7 @@ func _enemy_at(point: Vector2) -> Node:
 	var best: Node = null
 	var best_distance = INF
 	for unit in enemy_units:
-		if not unit.is_alive():
+		if not is_instance_valid(unit) or not unit.is_alive() or not unit.is_targetable_by():
 			continue
 		var pick_half_size := Vector2(96, 110) if UISettings.is_touch_ui() else Vector2(52, 70)
 		var pick_rect := Rect2(unit.global_position - pick_half_size, pick_half_size * 2.0)
@@ -14377,24 +15195,12 @@ func _combat_ui_at(point: Vector2) -> bool:
 	# The pause overlay owns the whole viewport; a map press would rebuild its buttons before GUI delivery.
 	if pause_menu_open:
 		return true
-	var touch_ui := UISettings.is_touch_ui()
-	var layout := V122CombatViewModelScript.design_layout_contract(UISettings.is_compact_layout(), touch_ui)
-	var rects = [
-		layout.get("throne_status", Rect2()),
-		layout.get("threat", Rect2()),
-		layout.get("commands", Rect2()),
-		layout.get("speed_pause", Rect2())
-	]
-	if not touch_ui:
-		rects.append(layout.get("tactics", Rect2()))
-		if ui_layer != null and ui_layer.get_node_or_null("CombatSpecialActions") != null:
-			rects.append(layout.get("special_actions", Rect2()))
-	if combat_scene.pending_v122_command_id == "" and selected_unit != null and is_instance_valid(selected_unit):
-		rects.append(layout.get("unit_inspector", Rect2()))
-	for rect in rects:
-		if rect.has_point(point):
+	# New HUD panels own their actual geometry, including scroll clipping and touch.
+	for child in ui_layer.get_children():
+		if child is Control and _management_control_blocks_pointer(child, point):
 			return true
 	return false
+
 
 func _management_ui_at(point: Vector2) -> bool:
 	if current_screen != Constants.SCREEN_MANAGEMENT:
@@ -14460,6 +15266,18 @@ func _start_management_monster_drag(point: Vector2) -> bool:
 	_tutorial_emit_action("unit_selected", {"monster_id": monster_id, "unit_id": monster_id, "room_id": current_room})
 	queue_world_overlay_redraw()
 	return true
+
+
+func _tutorial_room_selection_precedes_drag(point: Vector2) -> bool:
+	if not onboarding_enabled or not tutorial_gate_enabled or map_editor_active or build_pick_mode or deploy_pick_monster_id != "":
+		return false
+	if not tutorial_manager.is_active_for_stage(onboarding_stage_id) or tutorial_manager.expected_action() != "room_selected":
+		return false
+	var target_room := ""
+	match tutorial_manager.current_focus():
+		"ROOM_SPIKE_CORRIDOR": target_room = "spike_corridor"
+		"ROOM_RECOVERY_NEST": target_room = "recovery"
+	return target_room != "" and build_placement.exact_room(point) == target_room
 
 
 func _begin_management_roster_drag(monster_id: String) -> void:
@@ -14643,56 +15461,26 @@ func _draw_room_selection_and_directive_feedback() -> void:
 var management_name_label_rects: Array[Rect2] = []
 
 func _management_label_layout(point: Vector2, text: String, base_size: int = 18, above: bool = false) -> Dictionary:
-	text = LanguageSettings.ui_text(text)
-	var font_size := UISettings.scaled_font_size(base_size)
-	var limit := minf(440.0,get_viewport().get_visible_rect().size.x - 40.0)
-	var lines: Array[String] = []
-	var line := ""
-	for word in text.replace("\n"," ").split(" ",false):
-		var candidate := word if line == "" else line + " " + word
-		if line != "" and UI_FONT.get_string_size(candidate,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x > limit-24.0:
-			lines.append(line)
-			line = word
-		else:
-			line = candidate
-	if line != "": lines.append(line)
-	var width := 0.0
-	for value in lines:
-		width = maxf(width,UI_FONT.get_string_size(value,HORIZONTAL_ALIGNMENT_LEFT,-1,font_size).x)
-	var line_height := UI_FONT.get_height(font_size)
-	var size := Vector2(maxf(64.0,width+24.0),line_height*lines.size()+12.0)
-	var rect := Rect2(point-Vector2(size.x*0.5,size.y+6.0 if above else -6.0),size)
-	# Keep text inside the viewport without changing its world anchor or hit region.
-	rect.position.x = clampf(rect.position.x,12.0,maxf(12.0,get_viewport().get_visible_rect().size.x-size.x-12.0))
-	return {"rect":rect,"font_size":font_size,"lines":lines,"line_height":line_height}
+	var font_size := preload("res://scripts/ui/kit/UIKitTokens.gd").font_size(maxi(24,base_size),UISettings.text_scale,UISettings.is_touch_ui())
+	var layout := MapStatusLabel.management_layout(point,text,UI_FONT,font_size,get_viewport().get_visible_rect().size,above)
+	var obstacles: Array[Rect2] = []
+	for child in ui_layer.get_children():
+		if child is Control and child.is_visible_in_tree() and child.get_meta("u5b_occluder",false): obstacles.append(child.get_global_rect())
+	layout.rect = MapStatusLabel.place(layout.rect,get_viewport_rect().grow(-12),obstacles)
+	return layout
 
 func _draw_management_screen_label(target: CanvasItem, anchor: Vector2, text: String, color: Color, base_size: int = 18, above: bool = false, separate_name: bool = false) -> void:
-	if text == "":
-		return
-	var transform := target.get_global_transform_with_canvas()
-	var point := transform * anchor
+	if text == "": return
+	var point := target.get_global_transform_with_canvas()*anchor
 	var layout := _management_label_layout(point,text,base_size,above)
-	var rect: Rect2 = layout.rect
 	if separate_name:
-		# Stable draw order: move a crowded name below earlier names, never shrink it.
-		for _attempt in range(management_name_label_rects.size()+1):
-			var collided := false
-			for earlier in management_name_label_rects:
-				if rect.grow(3.0).intersects(earlier):
-					rect.position.y = earlier.end.y + 6.0
-					collided = true
-			if not collided: break
-		management_name_label_rects.append(rect)
-	target.draw_set_transform_matrix(transform.affine_inverse())
-	if separate_name and rect.position != layout.rect.position:
-		target.draw_line(point,Vector2(rect.get_center().x,rect.position.y),Color(color,0.6),1.0,true)
-	target.draw_style_box(WorldBadgeTheme.world_badge(color),rect)
-	target.draw_line(rect.position+Vector2(7,rect.size.y*0.5-4),rect.position+Vector2(7,rect.size.y*0.5+4),color,2.0,true)
-	var baseline := rect.position.y + 6.0 + UI_FONT.get_ascent(layout.font_size)
-	for line in layout.lines:
-		target.draw_string(UI_FONT,Vector2(rect.position.x+12.0,baseline),line,HORIZONTAL_ALIGNMENT_CENTER,rect.size.x-24.0,layout.font_size,Color("#fff6d6"))
-		baseline += float(layout.line_height)
-	target.draw_set_transform_matrix(Transform2D.IDENTITY)
+		var obstacles: Array[Rect2] = management_name_label_rects.duplicate()
+		for child in ui_layer.get_children():
+			if child is Control and child.is_visible_in_tree() and child.get_meta("u5b_occluder",false): obstacles.append(child.get_global_rect())
+		layout.rect = MapStatusLabel.place(layout.rect,get_viewport_rect().grow(-12),obstacles)
+		management_name_label_rects.append(layout.rect)
+	MapStatusLabel.draw_management(target,point,layout,color,UI_FONT)
+
 
 func _draw_world_room_badge(room_id: String, text: String, color: Color, font_size: int) -> void:
 	if not rooms.has(room_id):
@@ -14731,6 +15519,10 @@ func _draw_map_editor_path_drag_feedback() -> void:
 	_draw_management_screen_label(_world_overlay_draw_target,line_end+Vector2(45,-8),label_text,line_color,18,true)
 
 func _draw_management_action_mode_feedback() -> void:
+	build_placement.plot.draw(_world_overlay_draw_target)
+	build_placement.decor.draw_preview(_world_overlay_draw_target)
+	preload("res://scripts/map_builder/PlotTutorialTargets.gd").draw(self,_world_overlay_draw_target)
+	if build_placement.plot.active(): return
 	if graph == null or not _management_action_mode_active() or dragging_monster_id != "":
 		return
 	if deploy_pick_monster_id == "goblin" and _day1_goblin_choice_active():
@@ -14750,8 +15542,7 @@ func _draw_management_action_mode_feedback() -> void:
 			var build_color = Color("#8f72a8") if can_build else Color("#a95f68")
 			_draw_management_target_overlay(room_id, build_color, can_build)
 			if can_build:
-				var build_label = "✓ 건설 구역"
-				_draw_management_target_label(rect, build_label, build_color)
+				build_placement.draw_candidate_label(room_id, build_color)
 		elif deploy_pick_monster_id != "":
 			var can_drop = _can_drop_monster_in_room(deploy_pick_monster_id, room_id)
 			var deploy_color = Color("#ffd36a") if can_drop else Color("#ff5d6c")
@@ -14773,7 +15564,7 @@ func _draw_build_preview_feedback() -> void:
 	var valid := bool(assessment.get("ok", false))
 	var color := Color("#a6e4c4") if valid else Color("#ff9299")
 	_draw_management_target_overlay(target_id, color, valid, true)
-	var copy := "검토 중 · 하단에서 확정" if build_preview_room_id != "" else ("✓ 놓아서 검토" if valid else "× " + str(assessment.get("reason", "건설 불가")))
+	var copy := "검토 중 · 하단에서 확정" if build_preview_room_id != "" else ("✓ 놓으면 설치" if valid else "× " + str(assessment.get("reason", "건설 불가")))
 	_draw_management_target_label(graph.rect(target_id), copy, color)
 	if build_preview_room_id != "":
 		_draw_build_preview_main_route()
@@ -14895,6 +15686,9 @@ func _management_diamond(rect: Rect2) -> PackedVector2Array:
 		Vector2(center.x, rect.end.y),
 		Vector2(rect.position.x, center.y)
 	])
+
+func _building_area_label() -> String:
+	return continuity.localized("✓ 건설 구역", "✓ Build area", "✓ 建设区域")
 
 func _draw_management_target_label(rect: Rect2, text: String, color: Color) -> void:
 	if text == "":
@@ -15025,6 +15819,11 @@ func _draw_v122_target_brackets(rect: Rect2, color: Color) -> void:
 func _draw_combat_map_label(anchor: Vector2, text: String, color: Color) -> void:
 	var info:=MapStatusLabel.layout(_world_overlay_draw_target,anchor,text,UI_FONT)
 	var obstacles: Array[Rect2]=combat_map_label_blockers.duplicate()
+	for unit in monster_units + enemy_units:
+		if is_instance_valid(unit):
+			var bar: Rect2 = unit.map_hp_bar_screen_rect()
+			if bar.has_area() and info.rect.grow(64).intersects(bar):
+				obstacles.append(bar)
 	for earlier in combat_map_label_layouts: obstacles.append(earlier.rect)
 	info.rect=MapStatusLabel.place(info.rect,get_viewport_rect().grow(-8),obstacles)
 	combat_map_label_layouts.append(info)
@@ -15214,13 +16013,20 @@ func _facility_combat_overlay_text(facility_id: String) -> String:
 			return "회복 +%.1f/초" % (8.0 * _castle_facility_scale("recovery_power_scale"))
 	return facility_id
 
-func _placement_capacity_label(room_id: String, ignore_monster_id: String = "") -> String:
+func _management_room_occupancy(room_id: String) -> Dictionary:
+	var zone := _maze_zone_for_room(room_id)
+	if not zone.is_empty():
+		return {"count": _maze_zone_occupancy(str(zone.zone_id)), "capacity": int(zone.capacity)}
+	return {"count": _placement_count(room_id), "capacity": int(rooms.get(room_id, {}).get("max_monsters", 0))}
+
+func _placement_capacity_label(room_id: String, _ignore_monster_id: String = "") -> String:
 	if not rooms.has(room_id):
 		return ""
 	if rooms[room_id].get("type", "") == "build_slot":
 		return "건설 필요"
-	var max_count = int(rooms[room_id].get("max_monsters", 1))
-	var placed_count = _placement_count(room_id, ignore_monster_id)
+	var occupancy := _management_room_occupancy(room_id)
+	var max_count = int(occupancy.capacity)
+	var placed_count = int(occupancy.count)
 	if placed_count >= max_count:
 		return "%d/%d 가득" % [placed_count, max_count]
 	return "%d/%d 여유 %d" % [placed_count, max_count, max_count - placed_count]
@@ -15592,7 +16398,7 @@ func _style(color: Color, border: Color, width: int) -> StyleBoxFlat:
 
 
 func _set_management_tool_tab(tab_id: String) -> void:
-	if map_editor_active or tab_id not in ["build", "roster", "tactics"]:
+	if map_editor_active or tab_id not in ["build", "roster", "tactics", "decor"]:
 		return
 	var had_preview := build_pick_mode
 	_clear_management_action_mode(false)
@@ -15608,6 +16414,8 @@ func _focus_build_confirmation() -> void:
 		button.grab_focus()
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST and is_inside_tree():
+		_onboarding_quit_requested()
 	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and is_inside_tree() and current_screen == Constants.SCREEN_MANAGEMENT:
 		build_placement.end_navigation()
 		if _management_action_mode_active() or build_placement.pointer_active or dragging_monster_id != "":
@@ -15782,8 +16590,8 @@ func _draw_maze_deployment_targets() -> void:
 	if monster_id == "" or _day1_tutorial_monster_is_fixed(monster_id) or _day1_tutorial_placement_rules_active(): return
 	for zone in graph.layout.get("combat_topology", {}).get("defense_zones", []):
 		var room_id := str(zone.anchor_room_id)
-		var used := _maze_zone_occupancy(str(zone.zone_id), monster_id)
-		var allowed := used < int(zone.capacity)
+		var used := _maze_zone_occupancy(str(zone.zone_id))
+		var allowed := _maze_zone_occupancy(str(zone.zone_id), monster_id) < int(zone.capacity)
 		var color := Color("#a6dfd0") if allowed else Color("#e697a3")
 		_draw_management_target_overlay(room_id,color,allowed)
 		_draw_management_target_label(graph.rect(room_id), "%s %d/%d" % [_maze_zone_name(str(zone.zone_id)),used,int(zone.capacity)],color)
@@ -15825,3 +16633,24 @@ func _story_live_combat_events() -> Dictionary:
 		"oath_active": int(combat_scene.final_oath_activations) > 0 and leon_alive and leon_shield,
 		"oath_ended": int(combat_scene.final_oath_activations) > 0 and leon_alive and not leon_shield
 	}
+
+func _settle_monster_food() -> Dictionary:
+	var deployed: Array = []
+	if current_screen==Constants.SCREEN_COMBAT:
+		for unit in monster_units:
+			if is_instance_valid(unit) and str(unit.unit_id) not in deployed: deployed.append(str(unit.unit_id))
+	if deployed.is_empty():
+		for species in monster_roster:
+			if _monster_available_for_defense(species) and _monster_deployed_for_defense(species): deployed.append(species)
+	var ledger := GameState.settle_food(deployed)
+	return ledger
+
+func _raid_risk_level(mission: Dictionary) -> int:
+	var base := int(mission.get("risk_level",1 if str(mission.get("risk",""))=="낮음" else 2))
+	var reduction := 0
+	if _raid_fixed_captain_id(mission)==KOBOLD_SCOUT_ID:
+		reduction = int(preload("res://scripts/systems/SpecializationEffects.gd").flag(_monster_specialization(KOBOLD_SCOUT_ID),"raid_risk_reduction",0))
+	return maxi(0,base-reduction)
+
+func _raid_risk_label(mission: Dictionary) -> String:
+	return "%s · 위험 단계 %d" % [str(mission.get("risk","")),_raid_risk_level(mission)]

@@ -12,7 +12,7 @@ static func build_metrics(active_run_value, profile_value = {}, day30_context_va
 	var profile: Dictionary = profile_value if profile_value is Dictionary else {}
 	var context: Dictionary = day30_context_value if day30_context_value is Dictionary else {}
 	var council: Dictionary = active_run.get("council_season", {})
-	var upper: Dictionary = active_run.get("upper_floor", {})
+	var upper: Dictionary = active_run.get("expansion", {})
 	var crown: Dictionary = active_run.get("crown", {})
 	var stored_root: Dictionary = active_run.get("run_metrics_update4", {})
 	var stored: Dictionary = stored_root.get("ending", stored_root)
@@ -37,12 +37,12 @@ static func build_metrics(active_run_value, profile_value = {}, day30_context_va
 		"update4.rival_relation_min": int(_pick(context, stored, "rival_relation_min", relation_min)),
 		"update4.agenda_promise_violations": int(_pick(context, stored, "agenda_promise_violations", promise_count)),
 		"update4.outpost_day20_survived": bool(_pick(context, stored, "outpost_day20_survived", _day20_survived(active_run.get("outpost", {})))),
-		"update4.upper_floor_integrity": float(_pick(context, stored, "upper_floor_integrity", upper.get("integrity", 0.0))),
-		"update4.crown_room_disable_count_since_day16": int(_pick(context, stored, "crown_room_disable_count_since_day16", 0)),
+		"update4.expansion_facility_integrity": float(_pick(context, stored, "expansion_facility_integrity", 0.0)),
+		"update4.crown_room_disable_count_since_day16": int(_pick(context, stored, "crown_room_disable_count_since_day16", upper.get("disable_count_since_day16", 0))),
 		"update4.seal_theft_completed": int(_pick(context, stored, "seal_theft_completed", upper.get("seal_theft_count", 0))),
-		"update4.day30_upper_floor_contribution_ratio": float(_pick(context, stored, "day30_upper_floor_contribution_ratio", 0.0)),
-		"update4.day30_lower_survivor_count": int(_pick(context, stored, "day30_lower_survivor_count", 0)),
-		"update4.day30_upper_survivor_count": int(_pick(context, stored, "day30_upper_survivor_count", 0)),
+		"update4.day30_expansion_survivor_ratio": float(_pick(context, stored, "day30_expansion_survivor_ratio", 0.0)),
+		"update4.day30_original_zone_survivor_count": int(_pick(context, stored, "day30_original_zone_survivor_count", 0)),
+		"update4.day30_expansion_zone_survivor_count": int(_pick(context, stored, "day30_expansion_zone_survivor_count", 0)),
 		"update4.crown_evolution_used": bool(_pick(context, stored, "crown_evolution_used", str(crown.get("crown_form_id", "")) != "")),
 		"update4.crown_monster_bond": float(_pick(context, stored, "crown_monster_bond", 0.0)),
 		"update4.day30_crown_monster_survived": bool(_pick(context, stored, "day30_crown_monster_survived", false)),
@@ -109,7 +109,7 @@ static func apply_rewards(profile_value, active_run_value, ending_id: String, en
 			_append_unique(cosmetics, "upper_floor_epilogue_layout")
 			profile["cosmetic_ids"] = cosmetics
 			var chronicle: Dictionary = profile.get("chronicle", {}).duplicate(true)
-			chronicle["floor_detail_unlocked"] = true
+			chronicle["zone_detail_unlocked"] = true
 			profile["chronicle"] = chronicle
 		"ending_minion_wears_the_crown":
 			var crown_profile: Dictionary = profile.get("crown_evolution", {}).duplicate(true)

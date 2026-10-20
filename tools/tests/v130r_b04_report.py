@@ -1,0 +1,353 @@
+"""Summarize real uninterrupted campaigns, including honest unreachable rows."""
+import argparse
+import csv
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+ROOT = Path(__file__).resolve().parents[2]
+OUT = ROOT / "tmp/v130r_b04/v9_report"
+TMP = ROOT / "tmp/v130r_b04"
+SEEDS = list(range(130401, 130411))
+BASE = "0a90971c970ac2a65ed6c6661b5c9d66a3e07704"
+REPRESENTATIVE_DAYS = [1, 5, 10, 15, 20, 24, 27, 30]
+WAVE_INPUTS = {'data/waves.json', 'data/v122/dual_front_day01_05_waves.json'}
+
+def combat_hp_record(row, entry, stages):
+    """Undo only a verified post-victory castle upgrade, never combat damage."""
+    result=dict(row)
+    initial=entry['payload']['game_state']
+    result['entry_hp']=initial['demon_lord_hp']
+    result['entry_max_hp']=initial['demon_lord_max_hp']
+    if row['max_hp']==result['entry_max_hp']:
+        return result
+    stage=stages[entry['payload']['world']['castle_art_stage']]
+    following=[s for s in stages.values() if s['index']==stage['index']+1]
+    assert len(following)==1, 'An HP change must have an actual next castle stage'
+    next_stage=following[0]
+    delta=row['max_hp']-result['entry_max_hp']
+    assert stage['throne_max_hp']==result['entry_max_hp'] and next_stage['throne_max_hp']==row['max_hp'], 'Unexplained maximum HP change'
+    assert row['win'] and delta>0 and row['hp']>delta, 'Only a positive victory upgrade can be removed'
+    assert row['settlement']['metrics']['demon_lord_hp']==row['hp'], 'Upgrade correction must match the recorded settlement'
+    token=f"castle_evolution_stage_{next_stage['index']:02d}"
+    assert any(token in line for line in row['settlement']['lines']), 'Castle upgrade requires the actual result event'
+    result.update(recorded_hp=row['hp'],recorded_max_hp=row['max_hp'],settlement_upgrade_delta=delta,hp=row['hp']-delta,max_hp=result['entry_max_hp'])
+    return result
+
+
+def read(label):
+    folder=TMP/label
+    rows=json.loads((folder/'days.json').read_text(encoding='utf-8'))
+    checks=json.loads((folder/'checks.json').read_text(encoding='utf-8'))
+    source=checks.get('source',label)
+    stages=json.loads((ROOT/'data/castle_evolution_stages.json').read_text(encoding='utf-8'))
+    normalized=[]
+    for row in rows:
+        if row.get('preparation_only') or 'error' in row:
+            normalized.append(row); continue
+        entry=json.loads((TMP/source/'checkpoints'/f"{row['seed']}_{row['day']}.json").read_text(encoding='utf-8'))
+        result=combat_hp_record(row,entry,stages)
+        if 'retry' in row:
+            result['retry']=combat_hp_record(row['retry'],entry,stages)
+        normalized.append(result)
+    return normalized
+
+def coefficient_fields(value, path=()):
+    if isinstance(value,dict):
+        for key,item in value.items():
+            if key.endswith('_scale'): yield path+(key,),item
+            else: yield from coefficient_fields(item,path+(key,))
+    elif isinstance(value,list):
+        for index,item in enumerate(value): yield from coefficient_fields(item,path+(index,))
+
+def protected_stats_report():
+    result={'base':BASE,'checks':{}}
+    for path in ['data/waves.json','data/v122/dual_front_day01_05_waves.json']:
+        old=json.loads(subprocess.check_output(['git','show',BASE+':'+path]))
+        raw=(ROOT/path).read_bytes();new=json.loads(raw)
+        a,b=dict(coefficient_fields(old)),dict(coefficient_fields(new))
+        assert a==b, 'Monster coefficients must remain unchanged: '+path
+        result['checks'][path]={'unchanged_hp_atk_coefficients':sum(p[-1] in ['hp_scale','atk_scale'] for p in a),'unchanged_all_scale_fields':len(a),'sha256':hashlib.sha256(raw).hexdigest()}
+        if path=='data/waves.json': assert old['day_29']==new['day_29']==[]
+    result['day29_unchanged_empty']=True
+    (OUT/'protected_stats.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
+
+def actual_members():
+    members={}
+    for path in ['data/monster_instances.json','data/regular_version/update4/monster_instances.json','data/v130r/monster_instances_new.json']:
+        members.update(json.loads((ROOT/path).read_text(encoding='utf-8')))
+    return members
+
+def validate_actual_records(rows, label):
+    members=actual_members()
+    deployments=0
+    attempts=0
+    for row in rows:
+        if row.get('preparation_only'): continue
+        for attempt in [row]+([row['retry']] if 'retry' in row else []):
+            assert attempt['directive']=='defense', 'Campaign must retain the default defense directive'
+            attempts+=1
+            for instance in attempt['assignments']:
+                assert members[instance]['species_id'] in attempt['roster_before'], 'Deployment must not invent an unowned companion'
+                assert attempt['roster_before'][members[instance]['species_id']].get('defense_enabled',True), 'Raid-only companions must not defend'
+                deployments+=1
+    for seed in SEEDS:
+        entry=json.loads((TMP/label/'checkpoints'/f'{seed}_1.json').read_text(encoding='utf-8'))
+        payload=entry['payload']
+        assert payload['game_state']['day']==1 and payload['game_state']['demon_lord_hp']==1500
+        roster=payload['world']['monster_roster']
+        assert set(roster)=={'slime','goblin','imp'} and all(m['level']==1 and m['exp']==0 for m in roster.values())
+        legacy=payload['legacy_expansion']
+        assert legacy['cycle_index']==1 and not legacy['legacy_monster']
+        profile=legacy['profile']
+        assert profile['completed_cycles']==0 and not profile['legacy_monster'] and not profile['active_decree_id'] and not profile['active_doctrine_id']
+    return {'fresh_first_cycle_profiles':len(SEEDS),'owned_deployments_checked':deployments,'default_directive_battles':attempts,'retry_attempts_checked':sum('retry' in r for r in rows)}
+
+def verify_run(label, current=True):
+    folder=TMP/label
+    info=json.loads((folder/'run.json').read_text(encoding='utf-8'))
+    checks=json.loads((folder/'checks.json').read_text(encoding='utf-8'))
+    hashes=json.loads((folder/'input_hashes.json').read_text(encoding='utf-8'))
+    assert info['exit_code']==0 and info['inputs_unchanged'] and not info['godot_after']
+    assert info['peak_godot']==1 and not checks['failures'] and not info['stderr'].strip()
+    if current:
+        assert all(hashlib.sha256((ROOT/p).read_bytes()).hexdigest()==h for p,h in hashes.items()), f'Stale source evidence: {label}'
+    return info,checks,hashes
+
+def target(day):
+    if day <= 4: return 100, 100, 85, 95
+    if day <= 14: return 90, 100, 60, 85
+    if day <= 23: return 80, 95, 45, 75
+    if day <= 26: return 80, 95, 45 if day == 26 else 50, 65 if day == 26 else 75
+    return 70, 90, 35 if day == 30 else 40, 55 if day == 30 else 65
+
+def first_life_rows(rows):
+    alive=set(SEEDS)
+    result=[]
+    for row in rows:
+        if row['seed'] not in alive: continue
+        item={k:v for k,v in row.items() if k!='retry'}
+        result.append(item)
+        if not row.get('win') and not row.get('preparation_only'): alive.remove(row['seed'])
+    return result
+
+def summarize(rows, seeds=SEEDS, denominator="reached"):
+    lookup = {(r["seed"], r["day"]): r for r in rows if "day" in r}
+    assert len(lookup)==len(rows), 'Duplicate seed/day records must not overwrite evidence'
+    daily = {}
+    for day in range(1, 31):
+        reached = [lookup[(seed, day)] for seed in seeds if (seed, day) in lookup and "error" not in lookup[(seed, day)]]
+        battles = [r for r in reached if not r.get("preparation_only")]
+        wins = sum(bool(r.get("win")) for r in battles)
+        hp = [100 * r["hp"] / r["max_hp"] for r in battles]
+        observed_rate = 100 * wins / len(battles) if battles else None
+        observed_hp = sum(hp) / len(hp) if hp else None
+        cohort_rate,cohort_hp=100*wins/len(seeds),sum(hp)/len(seeds)
+        rate,mean=(cohort_rate,cohort_hp) if denominator=='cohort' else (observed_rate,observed_hp)
+        lo, hi, hlo, hhi = target(day)
+        daily[day] = dict(reached=len(reached), wins=wins, rate=rate, hp=mean, total_rate=cohort_rate, cohort_hp=cohort_hp, conditional_rate=observed_rate,conditional_hp=observed_hp, passed=(rate is not None and lo<=rate<=hi and hlo<=mean<=hhi) if day!=29 else bool(reached))
+    return lookup, daily
+
+def paired_report(labels, lookup, selected_days, source):
+    modes=["recommended","anchor_cluster","final_line","first_line"]
+    pairs={}
+    members=actual_members()
+    current_waves=json.loads((ROOT/'data/waves.json').read_text(encoding='utf-8'))
+    current_early=json.loads((ROOT/'data/v122/dual_front_day01_05_waves.json').read_text(encoding='utf-8'))
+    for label in labels:
+        info,checks,pair_hashes=verify_run(label,current=False)
+        assert all(hashlib.sha256((ROOT/p).read_bytes()).hexdigest()==h for p,h in pair_hashes.items() if p not in WAVE_INPUTS), f'Stale comparison code or base inputs: {label}'
+        assert 'stack_source='+source in info['command'] and checks['source']==source, 'Pairs must restore this exact primary campaign'
+        recorded_waves=json.loads((TMP/label/'input_waves.json').read_text(encoding='utf-8'))
+        recorded_early=json.loads((TMP/label/'input_early_waves.json').read_text(encoding='utf-8'))
+        label_pairs={}
+        for r in read(label):
+            assert r['day'] in selected_days, 'Unexpected comparison date'
+            recorded,current=(recorded_early,current_early) if r['day']<=5 else (recorded_waves,current_waves)
+            if recorded[f"day_{r['day']}"]!=current[f"day_{r['day']}"]:
+                continue # A changed date must be replaced by its one allowed recheck.
+            key=(r["seed"],r["day"])
+            group=label_pairs.setdefault(key,{})
+            assert r["layout"] not in group, f"Duplicate pair {key} {r['layout']}"
+            group[r["layout"]]=r
+        assert all(len(group)==4 for group in label_pairs.values()), f'Incomplete comparison batch: {label}'
+        pairs.update(label_pairs)
+    for key,group in pairs.items():
+        assert set(group)==set(modes), f"Incomplete pair {key}"
+        assert len({r["entry_sha256"] for r in group.values()})==1, f"Unequal entry {key}"
+        entry_path=TMP/source/'checkpoints'/f'{key[0]}_{key[1]}.json'
+        assert {r['entry_file_sha256'] for r in group.values()}=={hashlib.sha256(entry_path.read_bytes()).hexdigest()}, f'Pair must identify the original entry bytes: {key}'
+        assert len({json.dumps(r["wallet_before"],sort_keys=True) for r in group.values()})==1, f"Unequal wallet {key}"
+        primary=lookup[key]
+        assert group['recommended']['assignments']==primary['assignments'], f'Restored recommendation must reproduce the real deployment: {key}'
+        for row in group.values():
+            assert row['hp_start']==primary['hp_start'] and row['max_hp']==primary['max_hp'] and row['wallet_before']==primary['wallet_before'], f'Pair must retain the real entry state: {key}'
+            assert row['roster_before']==primary['roster_before'], f'Pair must retain the complete real growth and eligibility state: {key}'
+            assert all(members[id]['species_id'] in row['roster_before'] for id in row['assignments']), f'Pair must deploy actual owned companions: {key}'
+            assert all(row['roster_before'][members[id]['species_id']].get('defense_enabled',True) for id in row['assignments']), f'Pair must exclude raid-only companions: {key}'
+    text=["# 실제 캠페인 진입 상태의 배치 비교", "", "완주·난이도 곡선은 새 게임 연속 10회만 사용한다. 이 표는 각 실제 DAY 진입 사본에서 레벨·EXP·유대·특화·전직·HP·자원·건물·이전 선택을 동일하게 복원한 비교다. 인위적인 날짜별 성장/예산을 주입하지 않는다. 각 쌍은 seed+DAY×1000의 공통 실험 RNG로 첫 전투만 비교한다.", "", "집중① 병영·결계핵·옥좌, 집중② 최종선, 집중③ 1차선. 실제 합류·고유 수비 칸·건물 정원·당일 식량 한도를 검사한다. 미도달 회차는 해당 날짜 비교에 포함하지 않는다. 집중 영역의 실제 정원 때문에 배치 가능한 인원이 달라질 수 있어 평균 배치 수도 표시한다.", "", "| DAY | 등급 | 짝 표본 | 배치 | 평균배치 | 승률% | 평균HP% (패배0) | 추천≥집중 |", "|---:|---|---:|---|---:|---:|---:|---|"]
+    failures,missing=[],[]
+    text[6:6] = [f'진입 원본 캠페인: `{source}`. 최종 완주 측정과 별도로, 앞서 실제 진행한 후보 캠페인의 진입 상태를 고정하고 최종 채택 웨이브로 네 배치를 비교한다. 최종 캠페인의 성장 경로와 같다고 가정하지 않는다.', '비교 날짜: '+', '.join(map(str,selected_days))+'. 사용자 지정 대표 날짜의 실제 도달 진입본만 비교한다. 미도달 상태는 가상 전투로 채우지 않는다.', 'HP는 전투 종료 기준이다. 일부 기록에 섞인 정산 후 성 진화 보너스만 실제 진화 이벤트·정산 HP·진입 최대HP로 검증해 분리하며 원본을 보존한다.', '']
+    for day in selected_days:
+        if day==29: continue
+        expected={(s,day) for s in SEEDS if (s,day) in lookup}
+        available={key for key in pairs if key[1]==day}
+        missing.extend(sorted(expected-available))
+        groups=[pairs[key] for key in sorted(available)]
+        if not groups:
+            text.append(f"| {day} | — | 0 | {'미실행' if expected else '미도달'} | — | — | — | NOT_TESTED |")
+            continue
+        stats={mode:(100*sum(bool(g[mode].get('win')) for g in groups)/len(groups),sum(100*g[mode]['hp']/g[mode]['max_hp'] for g in groups)/len(groups)) for mode in modes}
+        rw,rh=stats['recommended']
+        grades={g['recommended']['grade'] for g in groups}
+        assert len(grades)==1, f'Mixed map grades on DAY{day}'
+        grade=next(iter(grades))
+        for mode,(win,hp) in stats.items():
+            passed=rw>=win and rh+.001>=hp
+            if mode!='recommended' and not passed: failures.append([day,mode])
+            result='기준' if mode=='recommended' else 'PASS' if passed else 'FAIL'
+            deployed=sum(len(g[mode].get('assignments',{})) for g in groups)/len(groups)
+            text.append(f"| {day} | {grade} | {len(groups)} | {mode} | {deployed:.2f} | {win:.2f} | {hp:.2f} | {result} |")
+    text += ['', '모든 지정 대표 날짜에서 추천 승률과 평균HP가 각 합법 집중 배치 이상인지 판정한다. 실제 등급은 진입본을 따르며 DAY10은 현재 제품에서 F다.', '', '| 등급 | 전투 진입 표본 | 배치 | 승률% | 평균HP% | 추천≥집중 |', '|---|---:|---|---:|---:|---|']
+    for grade,days in [('F',range(1,15)),('E',range(15,20)),('D',range(20,27)),('C',[27,28,30])]:
+        groups=[g for (seed,day),g in pairs.items() if day in selected_days and g['recommended']['grade']==grade]
+        if not groups: continue
+        stats={mode:(100*sum(bool(g[mode].get('win')) for g in groups)/len(groups),sum(100*g[mode]['hp']/g[mode]['max_hp'] for g in groups)/len(groups)) for mode in modes}
+        rw,rh=stats['recommended']
+        for mode,(win,hp) in stats.items():
+            passed=rw>=win and rh+.001>=hp
+            if mode!='recommended' and not passed: failures.append([grade,mode])
+            result='기준' if mode=='recommended' else 'PASS' if passed else 'FAIL'
+            text.append(f'| {grade} | {len(groups)} | {mode} | {win:.2f} | {hp:.2f} | {result} |')
+    text += ["",f"미측정 실제 진입 상태: {len(missing)}개. 추천 우위 미달: {failures or '없음'}."]
+    (OUT/'stacking_compare.md').write_text('\n'.join(text)+'\n',encoding='utf-8')
+    return failures,missing
+
+def changed_report():
+    text=["# B04 변경 값", "", "몬스터 종족·레벨 성장·건물 기본 수치와 웨이브 HP/ATK 계수 변경 없음. 웨이브의 수량·등장 간격·경유·목표 우선만 조정한다. 탐색 중 DAY30 ATK -20% 후보는 지도 강화 상태가 누락된 비교에 근거한 것으로 확인해 원복하고 채택하지 않았다.", ""]
+    def table(title,a,b):
+        text.extend([title,"","| DAY | 행(1부터) | 필드 | 이전 | 이후 |","|---|---:|---|---|---|"])
+        def walk(x,y,path):
+            if isinstance(x,dict) and isinstance(y,dict):
+                for k in sorted(x.keys()|y.keys(),key=lambda k:(0,int(k[4:])) if not path and k.startswith('day_') else (1,k)): walk(x.get(k),y.get(k),path+[str(k)])
+            elif isinstance(x,list) and isinstance(y,list) and len(x)==len(y):
+                for i,(xx,yy) in enumerate(zip(x,y)):walk(xx,yy,path+[str(i)])
+            elif x!=y:
+                text.append('| '+' | '.join([path[0],str(int(path[1])+1) if len(path)>1 else '—','.'.join(path[2:]) or 'rows',json.dumps(x,ensure_ascii=False),json.dumps(y,ensure_ascii=False)])+' |')
+        walk(a,b,[])
+        text.append('')
+    head=json.loads(subprocess.check_output(['git','show',BASE+':data/waves.json']))
+    table('`data/waves.json` — 이번 B04 (0118 커밋 대비)',head,json.loads((ROOT/'data/waves.json').read_text(encoding='utf-8')))
+    table('`data/v122/dual_front_day01_05_waves.json` — 실제 DAY1~5 선택 파일',json.loads(subprocess.check_output(['git','show',BASE+':data/v122/dual_front_day01_05_waves.json'])),json.loads((ROOT/'data/v122/dual_front_day01_05_waves.json').read_text(encoding='utf-8')))
+    table('중지된 0115 미커밋 보정→0118 복원 (원문 보존)',json.loads((ROOT/'_mockup/game_step15_rebalance/superseded_0115_waves.json').read_text(encoding='utf-8')),head)
+    text += ['코드 변경:','','- `GameRoot._open_intrusion_brief`: 진행 중인 본편/합류 대사를 예약된 관리 복귀가 덮어쓰지 않도록 보호.','- `ApprovedBattleController.spawn_enemy`: 명시적 옥좌 우선 공격·경유를 F/E에서도 지정 웨이브에 적용. 공병·도둑의 최종 목표 정책은 유지.','- `ApprovedMonsterPlacement.auto_place`: E/D부터 실제 가용 탱커 2명과 원거리·지원 동료로 옥좌 정원 4칸을 활용한다. C는 다리 트롤을 서쪽, 성장한 슬라임을 남쪽 옥좌 입구에 배치해 양쪽을 막는다. D/C의 같은 종류 건물은 배치 인원 기준으로 분산해 새 후방 감시탑에도 수비를 둔다.','','웨이브 SHA-256: `'+hashlib.sha256((ROOT/'data/waves.json').read_bytes()).hexdigest()+'`.']
+    text.insert(-2,'- `ApprovedMonsterPlacementUI.unlocked`: 실제 캠페인에서는 기존 본편의 보유·방어 자격 판정을 적용해 미보유 동료와 원정 전용 로로를 추천에서 제외한다. 명시적 전체 해금 시험 모드는 유지한다. 종족 능력치·합류 조건은 변경하지 않는다.')
+    text.insert(-2,'- F등급 DAY5 이후 지도·쥐 조합의 옥좌 정원을 우선 활용한다. E등급 개구리·쥐 조합은 병영을 우선한다. 자동 건설·강화 점수도 같은 등급·날짜별 배치 선호를 사용한다. C등급 개구리의 후방 감시탑·결계핵 우선 후보는 개선되지 않아 채택하지 않았다.')
+    (OUT/'changed_values.md').write_text('\n'.join(text)+'\n',encoding='utf-8')
+    protected_stats_report()
+
+def main():
+    global OUT
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--recommended", default="final_recommended")
+    parser.add_argument("--paired", nargs="*", default=[])
+    parser.add_argument('--paired-source',default='',help='Actual campaign whose frozen entries were compared before the final run')
+    parser.add_argument('--curve-denominator',choices=['cohort','reached'],default='reached')
+    parser.add_argument('--completion-policy',choices=['no_retry','one_retry'],default='one_retry')
+    parser.add_argument('--stack-days',default=','.join(map(str,REPRESENTATIVE_DAYS)))
+    parser.add_argument('--output',default='tmp/v130r_b04/v9_report')
+    args = parser.parse_args()
+    OUT=ROOT/args.output
+    assert OUT.resolve().is_relative_to(TMP.resolve()), 'Progress reports must remain in the B04 test directory'
+    OUT.mkdir(parents=True, exist_ok=True)
+    rows = read(args.recommended)
+    actual_seeds={r.get("seed") for r in rows}
+    assert set(SEEDS)==actual_seeds, f"Unexpected seed set: {actual_seeds}"
+    info,checks,hashes=verify_run(args.recommended)
+    assert not any(a.startswith(("checkpoint=","stack_source=")) for a in info["command"]), "Primary evidence must start fresh"
+    if args.completion_policy=='no_retry':
+        assert 'retries=0' in info['command'], 'Final no-retry evidence must actually stop at its first defeat'
+    else:
+        assert 'retries=1' in info['command'], 'Normal retry completion must use the real one-retry route'
+    record_validation=validate_actual_records(rows,args.recommended)
+    lookup, daily = summarize(rows,denominator=args.curve_denominator)
+    progression=[]
+    for r in rows:
+        if r.get('preparation_only'): continue
+        item={k:r[k] for k in ['seed','day','grade','hp_start','hp','max_hp','assignments','wallet_before','wallet_after'] if k in r}
+        for stage,roster in [('before',r.get('roster_before',{})),('after_first',r.get('roster_after',{})),('after_retry',r.get('retry',{}).get('roster_after',{}))]:
+            item[stage]={id:{k:m[k] for k in ['species_id','level','exp','defense_enabled','raid_support','bond','bond_rank','promotion_id','promotion_stage','specialization_id','growth_preparation_id','growth_preparation_day','unlocked_memory_ids'] if k in m} for id,m in roster.items()}
+        progression.append(item)
+    (OUT/'progression.json').write_text(json.dumps(progression,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    (OUT/'construction_log.json').write_bytes((TMP/args.recommended/'purchases.json').read_bytes())
+    with (OUT / "campaign_10runs.csv").open("w", newline="", encoding="utf-8-sig") as f:
+        fields = ["seed", "day", "status", "win", "throne_hp_entered", "throne_hp", "throne_max_hp", "throne_hp_pct", "recorded_hp", "recorded_max_hp", "settlement_upgrade_delta", "grade", "owned", "deployed", "level_before", "max_level", "gold", "mana", "food", "duration_s", "retry_win", "retry_hp", "retry_max_hp"]
+        writer = csv.DictWriter(f, fieldnames=fields); writer.writeheader()
+        for seed in SEEDS:
+            for day in range(1, 31):
+                r = lookup.get((seed, day), {})
+                settled = r.get('retry',r)
+                status = "NOT_REACHED" if not r else "HARNESS_ERROR" if "error" in r else "PREPARATION_ONLY" if r.get("preparation_only") else "WIN" if r.get("win") else "RETRY_WIN" if r.get("retry", {}).get("win") else "LOSS"
+                writer.writerow(dict(seed=seed, day=day, status=status, win=int(r["win"]) if "win" in r else "", throne_hp_entered=r.get('entry_hp',''), throne_hp=r.get("hp", ""), throne_max_hp=r.get("max_hp", ""), throne_hp_pct=round(100*r["hp"]/r["max_hp"], 3) if "hp" in r else "", recorded_hp=r.get('recorded_hp',r.get('hp','')),recorded_max_hp=r.get('recorded_max_hp',r.get('max_hp','')),settlement_upgrade_delta=r.get('settlement_upgrade_delta',0) if r else '',grade=r.get("grade", ""), owned=len(r['roster_before']) if 'roster_before' in r else '', deployed=len(r["assignments"]) if "assignments" in r else "", level_before=max((m.get('level',1) for m in r.get('roster_before',{}).values()),default=''), max_level=max((m.get("level", 1) for m in settled.get("roster_after", {}).values()), default=""), gold=settled.get("wallet_after", {}).get("gold", ""), mana=settled.get("wallet_after", {}).get("mana", ""), food=settled.get('wallet_after',{}).get('food',''), duration_s=round(r["duration"], 3) if "duration" in r else "", retry_win=int(r["retry"]["win"]) if "win" in r.get("retry", {}) else "", retry_hp=r.get("retry", {}).get("hp", ""), retry_max_hp=r.get("retry", {}).get("max_hp", "")))
+    completed = sum(bool(lookup.get((seed, 30), {}).get("win") or lookup.get((seed, 30), {}).get("retry", {}).get("win")) for seed in SEEDS)
+    endings=[]
+    for seed in SEEDS:
+        ending=TMP/args.recommended/('ending_'+str(seed)+'.json')
+        if ending.exists():
+            assert json.loads(ending.read_text(encoding='utf-8'))['completed']
+            endings.append(seed)
+    assert len(endings)==completed, 'DAY30 victory must reach the normal ending'
+    assert all(not r.get('timeout',False) and 'error' not in r and 'error' not in r.get('retry',{}) and not r.get('retry',{}).get('timeout',False) for r in rows)
+    no_retry_completed=sum(seed in endings and all(r.get('win') or r.get('preparation_only') for r in rows if r['seed']==seed) for seed in SEEDS)
+    completion_count=no_retry_completed if args.completion_policy=='no_retry' else completed
+    text = [f"# B04 실제 연속 캠페인 — {completed}/10 완주", "", "고정 시드 130401~130410, 새 게임부터 자연 정산·레벨/집중 성장·필수 선택·정상 비용 도면 건설/강화·제품 추천 배치·기본 수비 지침을 이어간다. 첫 3일 x1, 정상 해금 후 x3. 같은 날 정상 재도전 1회(0112 기준 승계), 2연패 시 회차 종료. HP·성장·자원을 직접 보충하지 않는다. 재도전 HP 복구는 제품 기존 버튼 경로만 사용한다. DAY29 무전투.", "", f"주판정 분모: `{args.curve_denominator}`. `cohort`는 시작한 10회에 대해 중도 종료를 이후 생존 실패·HP 0인 흡수 상태로 집계한다. `reached`는 그날 실제 도달한 표본만 사용한다. 패배 HP는 두 방식 모두 0이다. CSV의 미도달 전투값은 빈칸으로 남기므로 가상의 전투 관측을 만들지 않는다. 두 집계를 모두 표시하며, 재도전은 첫 시도 곡선에 섞지 않는다. 재도전 없는 완주는 {no_retry_completed}/10이다.", "", "| DAY | 도달 | 첫 승수 | 시작10회 승률%/HP% | 도달회차 승률%/HP% | 목표 승률/HP | 주판정 |", "|---:|---:|---:|---:|---:|---|---|"]
+    if args.completion_policy=='no_retry':
+        text[2]=text[2].replace('같은 날 정상 재도전 1회(0112 기준 승계), 2연패 시 회차 종료.','재도전 없이 첫 패배에서 회차 종료.').replace('재도전 HP 복구는 제품 기존 버튼 경로만 사용한다. ','')
+    for day, r in daily.items():
+        if day==29:
+            text.append(f"| 29 | {r['reached']} | — | — | — | 무전투 준비 | {'PASS' if r['reached'] else 'NOT_REACHED'} |")
+            continue
+        lo, hi, hlo, hhi = target(day)
+        hp = f"{r['conditional_hp']:.2f}" if r['conditional_hp'] is not None else "—"
+        rate=f"{r['conditional_rate']:.2f}" if r['conditional_rate'] is not None else "—"
+        text.append(f"| {day} | {r['reached']} | {r['wins']} | {r['total_rate']:.2f}/{r['cohort_hp']:.2f} | {rate}/{hp} | {lo}~{hi}/{hlo}~{hhi} | {'PASS' if r['passed'] else 'FAIL'} |")
+    text += ["", f"완주 정책: `{args.completion_policy}`. 재도전 없는 완주 {no_retry_completed}/10, 정상 재도전 포함 실제 엔딩 {completed}/10. 주 완주 목표(≥7/10): {'PASS' if completion_count>=7 else 'FAIL'}. 날짜 곡선 범위 밖: "+", ".join(str(d) for d,r in daily.items() if d!=29 and not r['passed'])+".", "", "건설 자동화 가정: 제품에 별도 건설 추천 서비스가 없어 승인 도면의 빈 부지를 결계핵·병영·회복 둥지·감시탑·미끼 금고 순으로 구매한다. 실제 추천 배치의 배치 인원 또는 선호 시설 점수가 좋아지는 강화만 낮은 레벨 순으로 구매한다. 모든 구매 뒤 마나 60을 남겨 필수 승급 비용을 보존하며, 실제 구매 API의 해금·부지·수량·가격·잔액 검사를 사용한다. 필수 특화·승급·원정은 선택 가능한 첫 정상 선택지를 사용하고, DAY29 선언은 성 수호(castle_oath)로 고정한다.", "", "저장 증빙 범위: 격리 프로필의 새 게임 런타임을 연속 진행한다. 테스트 씬의 기존 저장 비활성 규칙을 유지하므로 정식 저장/이어하기 게이트 G01 통과 근거가 아니다."]
+    (OUT / "day_curve.md").write_text("\n".join(text)+"\n", encoding="utf-8")
+    with (OUT/'day_curve.md').open('a',encoding='utf-8') as f:
+        f.write('\nHP는 전투 종료 기준이다. 정산 후 성 진화가 기록 시점에 먼저 반영된 경우, 실제 진화 이벤트·정산 HP·진입 최대HP를 모두 검증해 보너스만 분리한다. 원본 HP/최대HP와 분리값은 CSV 및 원본 로그에 보존한다.\n')
+    selected_days=sorted(set(map(int,args.stack_days.split(','))))
+    assert set(REPRESENTATIVE_DAYS)==set(selected_days), 'Comparisons must cover the eight user-selected dates'
+    paired_source=args.paired_source or args.recommended
+    paired_lookup=lookup
+    if paired_source!=args.recommended:
+        _,_,paired_source_hashes=verify_run(paired_source,current=False)
+        # The requested order compares frozen real entries before the final run.
+        # Wave tuning may differ; all code, base stats and preparation policy must match.
+        assert paired_source_hashes.keys()==hashes.keys()
+        assert all(h==hashes[p] for p,h in paired_source_hashes.items() if p not in WAVE_INPUTS), 'Frozen entry campaign must retain identical code, base stats and preparation inputs'
+        validate_actual_records(read(paired_source),paired_source)
+        paired_lookup=summarize(read(paired_source),denominator=args.curve_denominator)[0]
+    stack_failures, missing = paired_report(args.paired, paired_lookup,selected_days,paired_source)
+    changed_report()
+    result=dict(completed=completed,completed_without_retry=no_retry_completed,curve_failures=[d for d,r in daily.items() if d!=29 and not r['passed']],stack_failures=stack_failures,unmeasured_paired_entries=len(missing))
+    result['curve_denominator']=args.curve_denominator
+    result['curve_failures_by_denominator']={mode:[d for d,r in summarize(rows,denominator=mode)[1].items() if d!=29 and not r['passed']] for mode in ['cohort','reached']}
+    result['completion_policy']=args.completion_policy
+    prefix=first_life_rows(rows)
+    result['first_life_completed']=sum(r['day']==30 and bool(r.get('win')) for r in prefix)
+    first_life=summarize(prefix,denominator='cohort')[1]
+    result['first_life_curve_failures']=[d for d,r in first_life.items() if d!=29 and not r['passed']]
+    (OUT/'first_life_curve.json').write_text(json.dumps(first_life,indent=2)+'\n',encoding='utf-8')
+    result['accepted']=completion_count>=7 and not result['curve_failures'] and not stack_failures and not missing
+    evidence=dict(primary=args.recommended,paired=args.paired,paired_source=paired_source,paired_days=selected_days,input_hashes=hashes,checks=checks,record_validation=record_validation,completed_seeds=endings,raw_sha256={name:hashlib.sha256((TMP/args.recommended/name).read_bytes()).hexdigest() for name in ['days.json','purchases.json','checks.json','run.json']})
+    evidence['paired_raw_sha256']={label:{name:hashlib.sha256((TMP/label/name).read_bytes()).hexdigest() for name in ['days.json','checks.json','run.json','input_hashes.json']} for label in args.paired}
+    evidence['entry_raw_sha256']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((TMP/paired_source/'checkpoints').glob('*.json'))}
+    evidence['ending_raw_sha256']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted((TMP/args.recommended).glob('ending_*.json'))}
+    evidence['hp_normalizations']={label:[{k:r[k] for k in ['seed','day','layout','recorded_hp','recorded_max_hp','settlement_upgrade_delta','hp','max_hp']} for r in read(label) if 'settlement_upgrade_delta' in r] for label in [args.recommended]+args.paired}
+    evidence['report_sha256']=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    (OUT/'evidence_manifest.json').write_text(json.dumps(evidence,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    (OUT/'verification.json').write_text(json.dumps(result,indent=2),encoding='utf-8')
+    print(json.dumps(result))
+
+if __name__ == "__main__": main()

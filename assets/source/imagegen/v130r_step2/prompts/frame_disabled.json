@@ -1,0 +1,9 @@
+{
+  "id": "frame_disabled",
+  "prompt": "Edit the supplied NORMAL circular game UI frame into its DISABLED/UNAVAILABLE state. Keep the exact same circular geometry, size, placement, four rivets, segmented cave stone, dark opaque slate empty interior, outline and painterly upper-left lighting. Desaturate rim and rivets to muted cool grey and darken slightly. Add a small but clearly recognizable chunky closed grey padlock attached to the bottom rim centered at 6 o'clock, completely within the same overall canvas and compact silhouette. This small lock is the state cue, the center must remain EMPTY to receive a symbol. No slash across center. No text, letters, digits, logos. Preserve genuine transparent background outside the circle; no square background. One square image, one circular frame.",
+  "generated_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a141b1-72da-7ac1-8549-11dd400e7eb4\\exec-ef539ee9-921a-4ca6-97f3-ca39d285e1e4.png",
+  "references": [
+    "C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/ui_icons_v1/source/frame_normal.png"
+  ],
+  "source": "source/frame_disabled.png"
+}

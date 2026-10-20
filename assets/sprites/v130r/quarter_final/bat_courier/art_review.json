@@ -1,0 +1,1563 @@
+{
+  "species_id": "bat_courier",
+  "status": "ACCEPTED_NOT_INTEGRATED",
+  "selection": {
+    "status": "ACCEPTED_NOT_INTEGRATED",
+    "sources": [
+      {
+        "file": "attempt_1.png"
+      }
+    ],
+    "repairs": [
+      {
+        "file": "attempt_2.png",
+        "cols": 3,
+        "rows": 2,
+        "mapping": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              "sw",
+              1,
+              2
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              "sw",
+              1,
+              3
+            ]
+          ],
+          [
+            [
+              0,
+              2
+            ],
+            [
+              "sw",
+              2,
+              1
+            ]
+          ],
+          [
+            [
+              1,
+              0
+            ],
+            [
+              "sw",
+              2,
+              2
+            ]
+          ],
+          [
+            [
+              1,
+              1
+            ],
+            [
+              "sw",
+              3,
+              2
+            ]
+          ],
+          [
+            [
+              1,
+              2
+            ],
+            [
+              "sw",
+              3,
+              3
+            ]
+          ]
+        ]
+      }
+    ],
+    "criteria": {
+      "T": true,
+      "F": true,
+      "H": true,
+      "E": true,
+      "S": true
+    },
+    "evidence": "모자·정수리 윗면·낮은 왼쪽 얼굴·단축 몸·타원. NE는 등/날개.",
+    "notes": [
+      "Attempt1 four SW attack/skill rectangular crops intersect neighbors; replaced by six coherent SW movement/attack/skill poses in attempt2. Move4 lying pose also replaced by low hop.",
+      "Mailbag and envelopes, letter, plum cape, crescent pendant, jeweled cap retained."
+    ]
+  },
+  "uniform_scale": 0.93780062467628,
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "logical_anchor": [
+    192,
+    345
+  ],
+  "atlas_anchor": [
+    156.5,
+    289
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "integrated": false,
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "visual_evidence": "모자·정수리 윗면·낮은 왼쪽 얼굴·단축 몸·타원. NE는 등/날개.",
+  "directions": {
+    "sw": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/bat_courier/bat_courier_sheet.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              39,
+              31,
+              212,
+              217
+            ],
+            "source_bbox": [
+              0,
+              0,
+              173,
+              186
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 16,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              74,
+              124,
+              162,
+              174
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.78637849772832,
+            "contact_y": 289,
+            "sha256": "3fa7d5774081c8c98131f211f2875cc6ab73542a0dac6e7cf832291d538856a4"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              231,
+              29,
+              402,
+              214
+            ],
+            "source_bbox": [
+              0,
+              0,
+              171,
+              185
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 16,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              391,
+              122,
+              160,
+              173
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.07513395031663,
+            "contact_y": 289,
+            "sha256": "42a9dad8c44cebbcf59892bb3b6a53ae148da093744ba0fd1d93ecfc2dc02351"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              402,
+              58,
+              587,
+              216
+            ],
+            "source_bbox": [
+              0,
+              0,
+              185,
+              158
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 17,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              682,
+              149,
+              173,
+              148
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.69388648678233,
+            "contact_y": 289,
+            "sha256": "47098d4430a7635c173515ce1262237937ea90f3bc7531aabf0fb2983f97abb7"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              591,
+              111,
+              755,
+              216
+            ],
+            "source_bbox": [
+              0,
+              0,
+              164,
+              105
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 12,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1037,
+              200,
+              154,
+              98
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.97487422226192,
+            "contact_y": 289,
+            "sha256": "a59acbd60421c45b4862d1d3371b7f2128edc12aec95f0fd9a08eb5ab2deb4b3"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              30,
+              233,
+              218,
+              414
+            ],
+            "source_bbox": [
+              0,
+              0,
+              188,
+              181
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 15,
+            "foreign_major_components": [],
+            "index": 4,
+            "rect": [
+              85,
+              445,
+              176,
+              170
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.8961620075653,
+            "contact_y": 289,
+            "sha256": "ccab1d2c50d1c530a38168f06243a0caad0ba839d73885f14f37272d5eb4490c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              222,
+              246,
+              413,
+              414
+            ],
+            "source_bbox": [
+              0,
+              0,
+              191,
+              168
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 13,
+            "foreign_major_components": [],
+            "index": 5,
+            "rect": [
+              396,
+              453,
+              179,
+              158
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.52469160445526,
+            "contact_y": 289,
+            "sha256": "0efc62ca993c28d7c46e6accdade9632a7e128fd58720f64cf713121101562c6"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_2.png",
+            "source_slice": [
+              79,
+              78,
+              500,
+              445
+            ],
+            "source_bbox": [
+              0,
+              0,
+              421,
+              367
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 28,
+            "foreign_major_components": [],
+            "relative_scale": 0.4134078212290503,
+            "normalization": "Uniform repair source size matched to replaced pose body height, no warping.",
+            "index": 6,
+            "rect": [
+              716,
+              463,
+              163,
+              142
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.24795113894862,
+            "contact_y": 289,
+            "sha256": "8b67a5b7e12f2d88ae1e87b99d575267d5981f1f86936ca06961bd51120ee74a"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_2.png",
+            "source_slice": [
+              580,
+              113,
+              970,
+              450
+            ],
+            "source_bbox": [
+              0,
+              0,
+              390,
+              337
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 13,
+            "foreign_major_components": [],
+            "relative_scale": 0.3252279635258359,
+            "normalization": "Uniform repair source size matched to replaced pose body height, no warping.",
+            "index": 7,
+            "rect": [
+              1045,
+              501,
+              119,
+              103
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.2408564231738,
+            "contact_y": 289,
+            "sha256": "cbd3840b51f73aeb90658dac8eebdefa53791ba188c8c7998c1c93332bd25b9f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              40,
+              426,
+              218,
+              595
+            ],
+            "source_bbox": [
+              0,
+              0,
+              178,
+              169
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 15,
+            "foreign_major_components": [],
+            "index": 8,
+            "rect": [
+              78,
+              767,
+              167,
+              158
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.4277676399027,
+            "contact_y": 289,
+            "sha256": "c31d8b6472d448974a70fde9b40819fefd23c329efbf9158f4741dd5725fcf29"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_2.png",
+            "source_slice": [
+              1055,
+              136,
+              1486,
+              441
+            ],
+            "source_bbox": [
+              0,
+              0,
+              431,
+              305
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 23,
+            "foreign_major_components": [],
+            "relative_scale": 0.5555555555555556,
+            "normalization": "Uniform repair source size matched to replaced pose body height, no warping.",
+            "index": 9,
+            "rect": [
+              331,
+              764,
+              225,
+              159
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.96055348122118,
+            "contact_y": 289,
+            "sha256": "854767890f60a7bcd811bb027fa73c8ba060a1b71b4ab596eb3bd272c56829ab"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_2.png",
+            "source_slice": [
+              96,
+              597,
+              526,
+              907
+            ],
+            "source_bbox": [
+              0,
+              0,
+              430,
+              310
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 13,
+            "foreign_major_components": [],
+            "relative_scale": 0.49,
+            "normalization": "Uniform repair source size matched to replaced pose body height, no warping.",
+            "index": 10,
+            "rect": [
+              682,
+              778,
+              198,
+              142
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.15149359886203,
+            "contact_y": 289,
+            "sha256": "35ccc33ba7c820f162d2c1da203a1f946f354d1c33926b93fc8035ab128931fe"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              595,
+              440,
+              767,
+              597
+            ],
+            "source_bbox": [
+              0,
+              0,
+              172,
+              157
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 12,
+            "foreign_major_components": [],
+            "index": 11,
+            "rect": [
+              995,
+              780,
+              161,
+              147
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.99070557665402,
+            "contact_y": 289,
+            "sha256": "9d1f356923ea5422ea59c3bbbb3aa69d29cdca07441ac42496cad1f09a441e05"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              42,
+              608,
+              215,
+              786
+            ],
+            "source_bbox": [
+              0,
+              0,
+              173,
+              178
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 13,
+            "foreign_major_components": [],
+            "index": 12,
+            "rect": [
+              82,
+              1074,
+              162,
+              167
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.4061117104423,
+            "contact_y": 289,
+            "sha256": "3035971151c17c3dd32e99e31dd33195d38a090c26189919a48cfb632d225d1e"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              222,
+              635,
+              401,
+              783
+            ],
+            "source_bbox": [
+              0,
+              0,
+              179,
+              148
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 30,
+            "foreign_major_components": [],
+            "index": 13,
+            "rect": [
+              390,
+              1103,
+              168,
+              139
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.17462678637838,
+            "contact_y": 289,
+            "sha256": "7892df6a9603990e275a2924e92478bc62a4d67d013165c35a0e1f8743092c36"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_2.png",
+            "source_slice": [
+              583,
+              578,
+              983,
+              915
+            ],
+            "source_bbox": [
+              0,
+              0,
+              400,
+              337
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 24,
+            "foreign_major_components": [],
+            "relative_scale": 0.48125,
+            "normalization": "Uniform repair source size matched to replaced pose body height, no warping.",
+            "index": 14,
+            "rect": [
+              689,
+              1084,
+              181,
+              152
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.54490211174658,
+            "contact_y": 289,
+            "sha256": "b360c18a2f91ee053428be2a9fcdbcd423f2538bfeea60cd0d2fc00d1ed09b20"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_2.png",
+            "source_slice": [
+              1105,
+              577,
+              1460,
+              921
+            ],
+            "source_bbox": [
+              0,
+              0,
+              355,
+              344
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 19,
+            "foreign_major_components": [],
+            "relative_scale": 0.41566265060240964,
+            "normalization": "Uniform repair source size matched to replaced pose body height, no warping.",
+            "index": 15,
+            "rect": [
+              1016,
+              1099,
+              138,
+              134
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.5560775559997,
+            "contact_y": 289,
+            "sha256": "ead28f4b52a826d0d97218f744495f228f35039a71e783dff3349da872027177"
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/bat_courier/bat_courier_hurt_sw.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              27,
+              803,
+              223,
+              979
+            ],
+            "source_bbox": [
+              0,
+              0,
+              196,
+              176
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 14,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              56,
+              133,
+              184,
+              165
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.94718632339473,
+            "contact_y": 289,
+            "sha256": "0b0ad62bf9a6c57adf2b38301c219f0ed50689425b639daa8e427137d0a7fc43"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              226,
+              806,
+              397,
+              977
+            ],
+            "source_bbox": [
+              0,
+              0,
+              171,
+              171
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 13,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              373,
+              140,
+              160,
+              160
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.72176265542896,
+            "contact_y": 289,
+            "sha256": "3cdb8366ae7ad63e7dc49683d6beb52303a7b26241b05e47ea9ac39d22d3cf73"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              421,
+              839,
+              573,
+              974
+            ],
+            "source_bbox": [
+              0,
+              0,
+              152,
+              135
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 12,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              696,
+              172,
+              143,
+              127
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.04081572597258,
+            "contact_y": 289,
+            "sha256": "49a7e8182e8eeebeb3c8e61751b5ba01462815cf812a424de5389755476d0c3b"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              589,
+              813,
+              769,
+              977
+            ],
+            "source_bbox": [
+              0,
+              0,
+              180,
+              164
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 139,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1020,
+              144,
+              169,
+              154
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.30382245330253,
+            "contact_y": 289,
+            "sha256": "1618668b4e89e4b876ce767bb574a3f1904dbd0dbe3f3503b77058308efdd289"
+          }
+        ]
+      }
+    },
+    "ne": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/bat_courier/bat_courier_sheet_ne.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              796,
+              41,
+              963,
+              223
+            ],
+            "source_bbox": [
+              0,
+              0,
+              167,
+              182
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 13,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              66,
+              129,
+              157,
+              171
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.29979058403785,
+            "contact_y": 289,
+            "sha256": "f669f186a227070a4868d1960797ccadcfbbf8de405d64faa1d266edf5fc56d2"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              981,
+              40,
+              1143,
+              225
+            ],
+            "source_bbox": [
+              0,
+              0,
+              162,
+              185
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 8,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              383,
+              125,
+              152,
+              173
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.8670492587279,
+            "contact_y": 289,
+            "sha256": "8cbdbcbe6fd6945abbe666e9ca1b63dca36bfd28fa57ee349e4df2319ca5a107"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              1181,
+              52,
+              1329,
+              222
+            ],
+            "source_bbox": [
+              0,
+              0,
+              148,
+              170
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 16,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              708,
+              139,
+              139,
+              159
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.10054588149188,
+            "contact_y": 289,
+            "sha256": "d9bbd2ee459e7698fcb190af3a33211514956e81b6850a25560b962d6952a25e"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              1365,
+              60,
+              1510,
+              221
+            ],
+            "source_bbox": [
+              0,
+              0,
+              145,
+              161
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 15,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1025,
+              145,
+              136,
+              151
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.02072406293973,
+            "contact_y": 289,
+            "sha256": "82a17879a6ec6432963b7cc2cb059e9f21288100caddb9af464ccd3f6261e60b"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              796,
+              239,
+              960,
+              418
+            ],
+            "source_bbox": [
+              0,
+              0,
+              164,
+              179
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 12,
+            "foreign_major_components": [],
+            "index": 4,
+            "rect": [
+              81,
+              443,
+              154,
+              168
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.34899295065458,
+            "contact_y": 289,
+            "sha256": "51f4b94ffada746036ed330bd07a4dc443e03040b66da3d065978cd51297b782"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              977,
+              253,
+              1158,
+              419
+            ],
+            "source_bbox": [
+              0,
+              0,
+              181,
+              166
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 13,
+            "foreign_major_components": [],
+            "index": 5,
+            "rect": [
+              377,
+              453,
+              170,
+              156
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.75415777529383,
+            "contact_y": 289,
+            "sha256": "4b58e47d53e49e462ba17168421cf719f506da00915786679b86dd17ee6e8f1b"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              1161,
+              260,
+              1343,
+              419
+            ],
+            "source_bbox": [
+              0,
+              0,
+              182,
+              159
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 10,
+            "foreign_major_components": [],
+            "index": 6,
+            "rect": [
+              720,
+              462,
+              171,
+              149
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.62462914581766,
+            "contact_y": 289,
+            "sha256": "a22e5f6c8193bd3fd0d8067cbf1cfde1e3758f0e0d73577dd620f43579ee2c0f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              1344,
+              247,
+              1522,
+              419
+            ],
+            "source_bbox": [
+              0,
+              0,
+              178,
+              172
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 10,
+            "foreign_major_components": [],
+            "index": 7,
+            "rect": [
+              1020,
+              453,
+              167,
+              161
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.38370343349595,
+            "contact_y": 289,
+            "sha256": "ac2de19f30a0653c45997fb62cf521836a3d07c35ac99a38b4c0316934b4e5cf"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              788,
+              429,
+              962,
+              603
+            ],
+            "source_bbox": [
+              0,
+              0,
+              174,
+              174
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 16,
+            "foreign_major_components": [],
+            "index": 8,
+            "rect": [
+              74,
+              763,
+              163,
+              163
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.03955091773037,
+            "contact_y": 289,
+            "sha256": "54c2f4726fcce345b27c605cd7c2ac8ee82a64f58d2d8b6efb15002531c89a4c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              978,
+              432,
+              1146,
+              605
+            ],
+            "source_bbox": [
+              0,
+              0,
+              168,
+              173
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 15,
+            "foreign_major_components": [],
+            "index": 9,
+            "rect": [
+              392,
+              763,
+              158,
+              162
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.85630471223692,
+            "contact_y": 289,
+            "sha256": "59c1ecdec61563308222d007a48b6813dbf4fccc51eefac301a4f0809ef5d685"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              1164,
+              452,
+              1337,
+              608
+            ],
+            "source_bbox": [
+              0,
+              0,
+              173,
+              156
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 13,
+            "foreign_major_components": [],
+            "index": 10,
+            "rect": [
+              681,
+              782,
+              162,
+              146
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.70641260824112,
+            "contact_y": 289,
+            "sha256": "264edf5b32fbf29c19f94a2548325f35eccfbcd74cb9d1a0328ae7174d366472"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              1342,
+              447,
+              1520,
+              607
+            ],
+            "source_bbox": [
+              0,
+              0,
+              178,
+              160
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 10,
+            "foreign_major_components": [],
+            "index": 11,
+            "rect": [
+              1010,
+              777,
+              167,
+              150
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.20280023878007,
+            "contact_y": 289,
+            "sha256": "86c3b20fa2283ae6a1e7d878edb1f4c29d4c2282aab54e19d9b44ad95435c48f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              797,
+              626,
+              989,
+              790
+            ],
+            "source_bbox": [
+              0,
+              0,
+              192,
+              164
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 29,
+            "foreign_major_components": [],
+            "index": 12,
+            "rect": [
+              68,
+              1085,
+              180,
+              154
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.29774744298962,
+            "contact_y": 289,
+            "sha256": "fae7433213d3a9a56fca64a7069cef7c2448933867b2e2ede00bff16b1c6bf74"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              986,
+              633,
+              1184,
+              791
+            ],
+            "source_bbox": [
+              0,
+              0,
+              198,
+              158
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 18,
+            "foreign_major_components": [],
+            "index": 13,
+            "rect": [
+              376,
+              1088,
+              186,
+              148
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.9775512782715,
+            "contact_y": 289,
+            "sha256": "9d82029ecdaa198b3f3b191f105b2c6ba93897f71a78dd03c95be2e6490ba794"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              1184,
+              633,
+              1346,
+              792
+            ],
+            "source_bbox": [
+              0,
+              0,
+              162,
+              159
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 19,
+            "foreign_major_components": [],
+            "index": 14,
+            "rect": [
+              711,
+              1086,
+              152,
+              149
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.8797288776797,
+            "contact_y": 289,
+            "sha256": "e8e956923977318a4f2f8a99822c4c3728960949f28706f06b3007bdd88001e0"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              1357,
+              632,
+              1516,
+              792
+            ],
+            "source_bbox": [
+              0,
+              0,
+              159,
+              160
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 18,
+            "foreign_major_components": [],
+            "index": 15,
+            "rect": [
+              1022,
+              1086,
+              149,
+              150
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.4352182486809,
+            "contact_y": 289,
+            "sha256": "b2dc3019da677789b014c12bfc413f562dfd65bcae8da53684353386e9cc78a1"
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/bat_courier/bat_courier_hurt_ne.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              797,
+              808,
+              970,
+              978
+            ],
+            "source_bbox": [
+              0,
+              0,
+              173,
+              170
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 12,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              56,
+              139,
+              162,
+              159
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.57484564660422,
+            "contact_y": 289,
+            "sha256": "f05b3fb9f8ca3440fdddc11b80b38a71ca444251c6a4a6f5580a9b69b82122d1"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              989,
+              809,
+              1163,
+              979
+            ],
+            "source_bbox": [
+              0,
+              0,
+              174,
+              170
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 14,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              364,
+              140,
+              163,
+              159
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.57181571815718,
+            "contact_y": 289,
+            "sha256": "8bc1b5bbc90a24532a089f9333cec4adc7e222f14c1ffac30fe19d1218c52b41"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              1175,
+              838,
+              1340,
+              979
+            ],
+            "source_bbox": [
+              0,
+              0,
+              165,
+              141
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 13,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              686,
+              165,
+              155,
+              132
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.6988994122059,
+            "contact_y": 289,
+            "sha256": "5e93e2651095ad895303f5c1962330bfcdbba5a84c54cc5dc03af553ade91cfa"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/bat_courier/attempt_1.png",
+            "source_slice": [
+              1351,
+              816,
+              1507,
+              979
+            ],
+            "source_bbox": [
+              0,
+              0,
+              156,
+              163
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 7,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1006,
+              144,
+              146,
+              153
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.9595254085516,
+            "contact_y": 289,
+            "sha256": "fb814f4e8e7e1c03d4314ee76441b52d96542f7bc5c3cdc3fd8bf43b816317ac"
+          }
+        ]
+      }
+    }
+  },
+  "processing": "Whole rectangular crop, uniform LANCZOS resizing, contact translation and assembly only. Native alpha retained. Contact is alpha>=192 bottom8px weighted center, not anatomical foot tracking."
+}

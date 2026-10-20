@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 import struct
-import wave
+from audio.vorbis import write_pcm16
 from pathlib import Path
 
 from PIL import Image, ImageDraw
@@ -87,11 +87,7 @@ def write_motif(path: Path, tones: list[float]) -> None:
         sample = int(max(-1.0, min(1.0, value * envelope * 0.38)) * 32767)
         samples.extend(struct.pack("<h", sample))
     path.parent.mkdir(parents=True, exist_ok=True)
-    with wave.open(str(path), "wb") as wav:
-        wav.setnchannels(1)
-        wav.setsampwidth(2)
-        wav.setframerate(sample_rate)
-        wav.writeframes(samples)
+    write_pcm16(path, samples, sample_rate=sample_rate)
 
 
 def write_preview(entries: list[tuple[str, Image.Image, list[Image.Image]]]) -> None:
@@ -142,7 +138,7 @@ def main() -> None:
             portrait.save(PORTRAIT_ROOT / f"portrait_{rival_id}_{variant}.png", optimize=True)
         for index, box in enumerate(_grid_row(941, 1254)):
             extract_effect(sheet, _entry(box), index).save(EFFECT_ROOT / f"fx_{rival_id}_boss_{index:02d}.png", optimize=True)
-        write_motif(MOTIF_ROOT / f"boss_{rival_id}_motif.wav", list(config["tones"]))
+        write_motif(MOTIF_ROOT / f"boss_{rival_id}_motif.ogg", list(config["tones"]))
         previews.append((rival_id, atlas, portraits))
         print(f"prepared {rival_id}: 16 frames, 4 portraits, 4 VFX, 1 motif")
     write_preview(previews)

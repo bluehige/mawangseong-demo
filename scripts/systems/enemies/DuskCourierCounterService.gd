@@ -6,10 +6,11 @@ static func can_spawn(active_count: int, enemy_definition: Dictionary) -> bool:
 	return active_count >= 0 and active_count < maxi(1, int(enemy_definition.get("max_simultaneous", 2)))
 
 
-static func air_shortcut_path(from_floor: String, target_id: String, outpost_battle: bool = false) -> Array[Dictionary]:
-	var to_floor := "1F" if outpost_battle else "2F"
-	var path: Array[Dictionary] = [{"floor_id": from_floor, "node": "vent_entry"}, {"floor_id": to_floor, "node": "vent_exit"}]
-	path.append({"floor_id": to_floor, "node": "outpost_cache" if outpost_battle else target_id})
+static func air_shortcut_path(from_room: String, target_id: String, connected_rooms: Array) -> Array[Dictionary]:
+	var path: Array[Dictionary] = []
+	if from_room == target_id or target_id == "throne" or connected_rooms.size() < 2: return path
+	if str(connected_rooms[0]) != from_room or str(connected_rooms[-1]) != target_id: return path
+	for room_id in connected_rooms: path.append({"room_id":str(room_id),"node":str(room_id)})
 	return path
 
 

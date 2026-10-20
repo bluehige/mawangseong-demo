@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tools/tests/V130RStep10DCTest.gd" id="1"]
+
+[node name="Step10DC" type="Node"]
+script = ExtResource("1")

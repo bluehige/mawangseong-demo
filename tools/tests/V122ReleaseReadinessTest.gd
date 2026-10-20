@@ -1,7 +1,7 @@
 extends Node
 
-const TARGET_VERSION := "1.2.6"
-const WINDOWS_VERSION := "1.2.6.0"
+const TARGET_VERSION := "1.3.0"
+const WINDOWS_VERSION := "1.3.0.0"
 const TARGET_GODOT_VERSION := "4.6.3"
 const READINESS_BASELINE_VERSION := "1.2.3"
 const READINESS_BASELINE_WINDOWS_VERSION := "1.2.3.0"
@@ -147,7 +147,7 @@ func _audit_steam_contract() -> void:
 	_expect(str(build.get("architecture", "")) == "x86_64", "Steam architecture contract")
 	_expect(product.get("supported_os", []).has("windows"), "Steam supported OS contract")
 	_expect(str(cloud.get("subdirectory", "")) == LEGACY_USER_DIR, "Steam Cloud preserves legacy save directory")
-	_expect(int(product.get("app_id", -1)) == 0 and int(product.get("windows_depot_id", -1)) == 0, "unassigned Steam IDs remain explicit owner gates")
+	_expect(int(product.get("app_id", -1)) == 5267750 and int(product.get("windows_depot_id", -1)) == 5267751, "assigned Steam app and Windows depot IDs are preserved")
 	var external_gate_count := 0
 	for value in steam.get("release_gates", {}).values():
 		if value is bool and not value:

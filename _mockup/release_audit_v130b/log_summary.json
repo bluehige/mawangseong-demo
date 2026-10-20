@@ -1,0 +1,379 @@
+{
+  "only_this_audit": true,
+  "categories": {
+    "current": {
+      "runs": 12,
+      "failed_runs": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "current_corrected_input": {
+      "runs": 2,
+      "failed_runs": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "superseded_diagnostic": {
+      "runs": 3,
+      "failed_runs": 3,
+      "errors": 4,
+      "warnings": 1
+    },
+    "incomplete_fixture_not_gameplay_pass": {
+      "runs": 5,
+      "failed_runs": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "confirmed_save_failure": {
+      "runs": 6,
+      "failed_runs": 6,
+      "errors": 36,
+      "warnings": 8940
+    },
+    "regression": {
+      "runs": 27,
+      "failed_runs": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "legacy_or_fixture_failure_requires_triage": {
+      "runs": 30,
+      "failed_runs": 29,
+      "errors": 74,
+      "warnings": 0
+    },
+    "compatibility_unfinished_battle": {
+      "runs": 3,
+      "failed_runs": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "data_current": {
+      "runs": 2,
+      "failed_runs": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "export_with_logged_errors": {
+      "runs": 2,
+      "failed_runs": 0,
+      "errors": 7,
+      "warnings": 0
+    },
+    "performance_fixture_corrected": {
+      "runs": 1,
+      "failed_runs": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "performance_fixture": {
+      "runs": 2,
+      "failed_runs": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "corrected_test_input": {
+      "runs": 1,
+      "failed_runs": 0,
+      "errors": 0,
+      "warnings": 0
+    },
+    "missing_day29_prerequisite_fixture": {
+      "runs": 3,
+      "failed_runs": 3,
+      "errors": 2,
+      "warnings": 0
+    }
+  },
+  "types": [
+    {
+      "category": "confirmed_save_failure",
+      "type": "WARNING: Campaign auxiliary v2 migration failed: 저장 v1에 변환 규칙이 없는 몬스터가 있습니다: rat_union",
+      "count": 4473,
+      "example": "_mockup\\release_audit_v130b\\logs\\campaign_130401.stderr.log"
+    },
+    {
+      "category": "confirmed_save_failure",
+      "type": "WARNING: Campaign v5 autosave failed: 저장 v1에 변환 규칙이 없는 몬스터가 있습니다: rat_union",
+      "count": 4467,
+      "example": "_mockup\\release_audit_v130b\\logs\\campaign_130401.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "SCRIPT ERROR: Invalid access to property or key 'battle' on a base object of type 'Control (ApprovedMapView.gd)'.",
+      "count": 18,
+      "example": "_mockup\\release_audit_v130b\\logs\\V130RStep1MapTest.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "SCRIPT ERROR: Invalid access to property or key 'level' on a base object of type 'Dictionary'.",
+      "count": 16,
+      "example": "_mockup\\release_audit_v130b\\logs\\V130RStep7MonstersTest.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "SCRIPT ERROR: Invalid access to property or key 'placement' on a base object of type 'Control (ApprovedMapView.gd)'.",
+      "count": 6,
+      "example": "_mockup\\release_audit_v130b\\logs\\V130RStep1MapTest.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "SCRIPT ERROR: Invalid call. Nonexistent function '_clear_active_combat_tweens' in base 'Nil'.",
+      "count": 6,
+      "example": "_mockup\\release_audit_v130b\\logs\\V130RStep7MonstersTest.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "SCRIPT ERROR: Invalid access to property or key 'map' on a base object of type 'Nil'.",
+      "count": 6,
+      "example": "_mockup\\release_audit_v130b\\logs\\V130RStep7MonstersTest.stderr.log"
+    },
+    {
+      "category": "export_with_logged_errors",
+      "type": "ERROR: No loader found for resource: res:// (expected type: unknown)",
+      "count": 4,
+      "example": "_mockup\\release_audit_v130b\\logs\\export_computer_use.stderr.log"
+    },
+    {
+      "category": "confirmed_save_failure",
+      "type": "ERROR: B04 postgame save written: 저장 v1에 변환 규칙이 없는 몬스터가 있습니다: rat_union",
+      "count": 3,
+      "example": "_mockup\\release_audit_v130b\\logs\\campaign_130401.stderr.log"
+    },
+    {
+      "category": "confirmed_save_failure",
+      "type": "ERROR: B04 process restart postgame preserves day",
+      "count": 3,
+      "example": "_mockup\\release_audit_v130b\\logs\\postgame_restart_130401.stderr.log"
+    },
+    {
+      "category": "confirmed_save_failure",
+      "type": "ERROR: B04 process restart postgame preserves hp",
+      "count": 3,
+      "example": "_mockup\\release_audit_v130b\\logs\\postgame_restart_130401.stderr.log"
+    },
+    {
+      "category": "confirmed_save_failure",
+      "type": "ERROR: B04 process restart postgame preserves gold",
+      "count": 3,
+      "example": "_mockup\\release_audit_v130b\\logs\\postgame_restart_130401.stderr.log"
+    },
+    {
+      "category": "confirmed_save_failure",
+      "type": "ERROR: B04 process restart postgame preserves mana",
+      "count": 3,
+      "example": "_mockup\\release_audit_v130b\\logs\\postgame_restart_130401.stderr.log"
+    },
+    {
+      "category": "confirmed_save_failure",
+      "type": "ERROR: B04 process restart postgame preserves food",
+      "count": 3,
+      "example": "_mockup\\release_audit_v130b\\logs\\postgame_restart_130401.stderr.log"
+    },
+    {
+      "category": "confirmed_save_failure",
+      "type": "ERROR: B04 process restart postgame preserves completed",
+      "count": 3,
+      "example": "_mockup\\release_audit_v130b\\logs\\postgame_restart_130401.stderr.log"
+    },
+    {
+      "category": "confirmed_save_failure",
+      "type": "ERROR: B04 process restart postgame preserves postgame",
+      "count": 3,
+      "example": "_mockup\\release_audit_v130b\\logs\\postgame_restart_130401.stderr.log"
+    },
+    {
+      "category": "confirmed_save_failure",
+      "type": "ERROR: B04 process restart postgame preserves ending",
+      "count": 3,
+      "example": "_mockup\\release_audit_v130b\\logs\\postgame_restart_130401.stderr.log"
+    },
+    {
+      "category": "confirmed_save_failure",
+      "type": "ERROR: B04 process restart postgame preserves roster",
+      "count": 3,
+      "example": "_mockup\\release_audit_v130b\\logs\\postgame_restart_130401.stderr.log"
+    },
+    {
+      "category": "confirmed_save_failure",
+      "type": "ERROR: B04 process restart postgame preserves layout",
+      "count": 3,
+      "example": "_mockup\\release_audit_v130b\\logs\\postgame_restart_130401.stderr.log"
+    },
+    {
+      "category": "confirmed_save_failure",
+      "type": "ERROR: B04 process restart resumes DAY30 postgame management",
+      "count": 3,
+      "example": "_mockup\\release_audit_v130b\\logs\\postgame_restart_130401.stderr.log"
+    },
+    {
+      "category": "export_with_logged_errors",
+      "type": "ERROR: Condition \"bucket_table_size == 0\" is true.",
+      "count": 3,
+      "example": "_mockup\\release_audit_v130b\\logs\\windows_export.stderr.log"
+    },
+    {
+      "category": "superseded_diagnostic",
+      "type": "ERROR: [B01] DAY2 battle finishes",
+      "count": 2,
+      "example": "_mockup\\release_audit_v130b\\logs\\b01_replay_13011.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "SCRIPT ERROR: Invalid call. Nonexistent function 'set_pause_state' in base 'Nil'.",
+      "count": 2,
+      "example": "_mockup\\release_audit_v130b\\logs\\V130RStep7MonstersTest.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: [ChroniclePhase26] FAIL: 합동 기억 6종·후일담 카드 3종 구성",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\ChroniclePhase26Test.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: [DuoLinkPhase9] FAIL: 자동 사용 토글 UI 기본 OFF",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\DuoLinkPhase9Test.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: [DuoLinksPhase10] FAIL: Phase 24 누적 6개 카탈로그에서 기존 L01·L05·L06 유지",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\DuoLinksPhase10Test.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: [DuoLinksPhase10] FAIL: 실제 전투에서 L06만 먼저 발동",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\DuoLinksPhase10Test.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: [DuoLinksPhase10] FAIL: 가짜 등대는 일반 적 최대 2명만 유인",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\DuoLinksPhase10Test.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: [DuoLinksPhase10] FAIL: 감정가는 즉시 루미 표식",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\DuoLinksPhase10Test.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "SCRIPT ERROR: Out of bounds get index '0' (on base: 'Array')",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\DuoLinksPhase10Test.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: [DuoLinksPhase24] FAIL: L01~L06 합동기 총 6개 카탈로그",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\DuoLinksPhase24Test.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: [DuoLinksPhase24] FAIL: 한 회차에 조건을 쌓아 여섯 합동 기억 모두 해금 후보 가능",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\DuoLinksPhase24Test.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: [GuildRepossessionPhase21] FAIL: DAY 15 기존 인원 예산 10명 유지",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\GuildRepossessionPhase21Test.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: [HeroOathPhase23] FAIL: DAY 15 현재 10명 예산 유지·도둑을 심장 조사관으로 교체",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\HeroOathPhase23Test.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: [HolyPurificationPhase19] FAIL: 레온 전선 DAY 15 현재 10명 셀렌 웨이브 회귀 방지",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\HolyPurificationPhase19Test.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: 1.2.10 acknowledgement does not suppress first 1.3.0 notes",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\PlayerContinuityTest.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: startup update owns focus without manual focus injection",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\PlayerContinuityTest.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: unacknowledged update returns when title is revisited",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\PlayerContinuityTest.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "SCRIPT ERROR: Invalid access to property or key 'text' on a base object of type 'null instance'.",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\PlayerContinuityTest.stderr.log"
+    },
+    {
+      "category": "superseded_diagnostic",
+      "type": "ERROR: PlayerFeedbackHotfixTest timed out",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\SkillActionDuoTest.stderr.log"
+    },
+    {
+      "category": "superseded_diagnostic",
+      "type": "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\SkillActionDuoTest.stderr.log"
+    },
+    {
+      "category": "superseded_diagnostic",
+      "type": "ERROR: 1 resources still in use at exit (run with --verbose for details).",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\SkillActionDuoTest.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "ERROR: [Update3DataContract] FAIL: DataRegistry는 Phase 24 누적 전선·심장·합동기 6종·신규 몬스터·신규 적을 로드",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\Update3DataContractTest.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "SCRIPT ERROR: Cannot call method 'get_children' on a null value.",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\V130DecorationTest.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "SCRIPT ERROR: Invalid assignment of property or key 'text' with value of type 'String' on a base object of type 'Nil'.",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\V130PlacementTest.stderr.log"
+    },
+    {
+      "category": "missing_day29_prerequisite_fixture",
+      "type": "ERROR: [B01] DAY29 preparation confirms",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\V130RFixB01Test.stderr.log"
+    },
+    {
+      "category": "missing_day29_prerequisite_fixture",
+      "type": "ERROR: [B01] DAY29 advances without battle",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\V130RFixB01Test.stderr.log"
+    },
+    {
+      "category": "legacy_or_fixture_failure_requires_triage",
+      "type": "SCRIPT ERROR: Invalid access to property or key '퐁당' on a base object of type 'Dictionary'.",
+      "count": 1,
+      "example": "_mockup\\release_audit_v130b\\logs\\V130RStep3PlacementTest.stderr.log"
+    }
+  ]
+}

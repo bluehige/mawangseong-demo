@@ -53,6 +53,10 @@ static func build(
 		cell_data,
 		socket_states
 	)
+	for edge in boundary_edges:
+		var data: Dictionary = cell_data.get(edge["cell"], {})
+		if str(data.get("wall_profile", "")) == "cutaway":
+			edge["wall_profile"] = "none" if edge["is_corridor"] else ("normal" if edge["side"] in ["N","W"] else "low_rim")
 	var wall_graph := _build_wall_graph(boundary_edges)
 	var portals := _build_portals(floor_cells, open_edges)
 
@@ -92,6 +96,8 @@ static func _apply_visual_patches(
 				continue
 			var cell: Vector2i = cell_value
 			patch_cells[cell] = true
+			if floor_cells.has(cell) and bool(patch.get("preserve_existing",false)):
+				continue
 			floor_cells[cell] = true
 			var data: Dictionary = patch.get("cell_data", {}).duplicate(true)
 			data["visual_only"] = true

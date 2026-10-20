@@ -36,12 +36,12 @@ jobs:
           git lfs fsck
           if ($LASTEXITCODE -ne 0) { throw 'Git LFS object verification failed.' }
 
-          $runtimeWavs = @(
-            'assets/audio/bgm/combat_boss_council.wav',
-            'assets/audio/bgm/combat_dungeon_pressure.wav',
-            'assets/audio/bgm/management_castle_bustle.wav'
+          $runtimeOggs = @(
+            'assets/audio/bgm/combat_boss_council.ogg',
+            'assets/audio/bgm/combat_dungeon_pressure.ogg',
+            'assets/audio/bgm/management_castle_bustle.ogg'
           )
-          foreach ($relative in $runtimeWavs) {
+          foreach ($relative in $runtimeOggs) {
             if (-not (Test-Path -LiteralPath $relative -PathType Leaf)) {
               throw "Required runtime audio is missing: $relative"
             }
@@ -55,10 +55,9 @@ jobs:
             } finally {
               $stream.Dispose()
             }
-            $riff = [System.Text.Encoding]::ASCII.GetString($header, 0, 4)
-            $wave = [System.Text.Encoding]::ASCII.GetString($header, 8, 4)
-            if ($riff -ne 'RIFF' -or $wave -ne 'WAVE') {
-              throw "Required runtime audio is not a materialized WAV file: $relative"
+            $ogg = [System.Text.Encoding]::ASCII.GetString($header, 0, 4)
+            if ($ogg -ne 'OggS') {
+              throw "Required runtime audio is not a materialized OGG file: $relative"
             }
           }
 

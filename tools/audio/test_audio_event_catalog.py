@@ -1,4 +1,4 @@
-"""Contract checks for the v1.2.2 audio asset/event catalog."""
+"""Contract checks for the current audio asset/event catalog."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 CATALOG_PATH = ROOT / "data" / "audio" / "audio_event_catalog.json"
-MANIFEST_PATH = ROOT / "tools" / "audio" / "lyria_v122_manifest.json"
+MANIFEST_PATH = ROOT / "tools" / "audio" / "lyria_v130_runtime_manifest.json"
 ID_RE = re.compile(r"^[a-z0-9_.]+$")
 
 
@@ -26,8 +26,8 @@ class AudioEventCatalogContractTest(unittest.TestCase):
         cls.event_by_id = {event["id"]: event for event in cls.events}
 
     def test_catalog_is_manifest_backed_and_covers_all_runtime_wav(self) -> None:
-        self.assertEqual(self.catalog["target_version"], "v1.2.2")
-        self.assertEqual(self.catalog["manifest"], "tools/audio/lyria_v122_manifest.json")
+        self.assertEqual(self.catalog["target_version"], "v1.3.0")
+        self.assertEqual(self.catalog["manifest"], "tools/audio/lyria_v130_runtime_manifest.json")
         manifest_assets = [
             asset
             for asset in self.manifest["assets"]
@@ -68,15 +68,15 @@ class AudioEventCatalogContractTest(unittest.TestCase):
 
     def test_current_connection_snapshot_is_explicit(self) -> None:
         connection_counts = Counter(asset["runtime_connection"] for asset in self.assets)
-        self.assertEqual(connection_counts["actual_runtime"], 106)
+        self.assertEqual(connection_counts["actual_runtime"], 121)
         self.assertEqual(connection_counts["data_only"], 0)
         self.assertEqual(connection_counts["unconnected"], 10)
-        self.assertEqual(len(self.events), 108)
-        self.assertEqual(self.catalog["summary"]["event_count"], 108)
+        self.assertEqual(len(self.events), 123)
+        self.assertEqual(self.catalog["summary"]["event_count"], 123)
 
     def test_stage02_ambience_has_runtime_event_after_connection(self) -> None:
         asset = self.asset_by_id["ambience_stage02_indoor"]
-        self.assertEqual(asset["runtime_path"], "assets/audio/ambience/stage02_indoor.wav")
+        self.assertEqual(asset["runtime_path"], "assets/audio/ambience/stage02_indoor.ogg")
         self.assertEqual(asset["kind"], "ambience_loop")
         self.assertEqual(asset["bus"], "SFX")
         self.assertEqual(asset["provenance"], "lyria")
@@ -94,7 +94,7 @@ class AudioEventCatalogContractTest(unittest.TestCase):
 
     def test_stage03_ambience_has_runtime_event_after_connection(self) -> None:
         asset = self.asset_by_id["ambience_stage03_keep"]
-        self.assertEqual(asset["runtime_path"], "assets/audio/ambience/stage03_keep.wav")
+        self.assertEqual(asset["runtime_path"], "assets/audio/ambience/stage03_keep.ogg")
         self.assertEqual(asset["kind"], "ambience_loop")
         self.assertEqual(asset["bus"], "SFX")
         self.assertEqual(asset["provenance"], "lyria")
@@ -113,7 +113,7 @@ class AudioEventCatalogContractTest(unittest.TestCase):
 
     def test_stage04_ambience_has_runtime_event_after_connection(self) -> None:
         asset = self.asset_by_id["ambience_stage04_citadel"]
-        self.assertEqual(asset["runtime_path"], "assets/audio/ambience/stage04_citadel.wav")
+        self.assertEqual(asset["runtime_path"], "assets/audio/ambience/stage04_citadel.ogg")
         self.assertEqual(asset["kind"], "ambience_loop")
         self.assertEqual(asset["bus"], "SFX")
         self.assertEqual(asset["provenance"], "lyria")

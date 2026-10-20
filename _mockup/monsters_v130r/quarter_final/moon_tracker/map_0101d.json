@@ -1,0 +1,205 @@
+[
+  {
+    "species_id": "moon_tracker",
+    "map_source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+    "map_sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+    "crop": [
+      240,
+      205,
+      720,
+      505
+    ],
+    "capture_contact": [
+      472,
+      342
+    ],
+    "capture_tile_width": 96,
+    "target_body_height": 72,
+    "body_to_tile": 0.75,
+    "scale": 0.375,
+    "manual_body_span_in_runtime_idle": [
+      3,
+      195
+    ],
+    "rounded_body_height": 72,
+    "sprite_origin": [
+      198,
+      65
+    ],
+    "note": "Same 0088 recorded defense cell, separate panel per species; original map pixels retained. Body spans exclude weapons/lantern/flame/broom/shadows; manual visual uncertainty about2px in runtime crop."
+  },
+  {
+    "species_id": "mimic_porter",
+    "map_source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+    "map_sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+    "crop": [
+      240,
+      205,
+      720,
+      505
+    ],
+    "capture_contact": [
+      472,
+      342
+    ],
+    "capture_tile_width": 96,
+    "target_body_height": 72,
+    "body_to_tile": 0.75,
+    "scale": 0.47058823529411764,
+    "manual_body_span_in_runtime_idle": [
+      5,
+      158
+    ],
+    "rounded_body_height": 72,
+    "sprite_origin": [
+      208,
+      62
+    ],
+    "note": "Same 0088 recorded defense cell, separate panel per species; original map pixels retained. Body spans exclude weapons/lantern/flame/broom/shadows; manual visual uncertainty about2px in runtime crop."
+  },
+  {
+    "species_id": "ghost_housemaid",
+    "map_source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+    "map_sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+    "crop": [
+      240,
+      205,
+      720,
+      505
+    ],
+    "capture_contact": [
+      472,
+      342
+    ],
+    "capture_tile_width": 96,
+    "target_body_height": 72,
+    "body_to_tile": 0.75,
+    "scale": 0.6605504587155964,
+    "manual_body_span_in_runtime_idle": [
+      5,
+      114
+    ],
+    "rounded_body_height": 72,
+    "sprite_origin": [
+      194,
+      50
+    ],
+    "note": "Same 0088 recorded defense cell, separate panel per species; original map pixels retained. Body spans exclude weapons/lantern/flame/broom/shadows; manual visual uncertainty about2px in runtime crop."
+  },
+  {
+    "species_id": "graveyard_hound",
+    "map_source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+    "map_sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+    "crop": [
+      240,
+      205,
+      720,
+      505
+    ],
+    "capture_contact": [
+      472,
+      342
+    ],
+    "capture_tile_width": 96,
+    "target_body_height": 72,
+    "body_to_tile": 0.75,
+    "scale": 0.42857142857142855,
+    "manual_body_span_in_runtime_idle": [
+      42,
+      210
+    ],
+    "rounded_body_height": 72,
+    "sprite_origin": [
+      195,
+      47
+    ],
+    "note": "Same 0088 recorded defense cell, separate panel per species; original map pixels retained. Body spans exclude weapons/lantern/flame/broom/shadows; manual visual uncertainty about2px in runtime crop."
+  },
+  {
+    "species_id": "armored_beetle",
+    "map_source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+    "map_sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+    "crop": [
+      240,
+      205,
+      720,
+      505
+    ],
+    "capture_contact": [
+      472,
+      342
+    ],
+    "capture_tile_width": 96,
+    "target_body_height": 72,
+    "body_to_tile": 0.75,
+    "scale": 0.5294117647058824,
+    "manual_body_span_in_runtime_idle": [
+      4,
+      140
+    ],
+    "rounded_body_height": 72,
+    "sprite_origin": [
+      182,
+      62
+    ],
+    "note": "Same 0088 recorded defense cell, separate panel per species; original map pixels retained. Body spans exclude weapons/lantern/flame/broom/shadows; manual visual uncertainty about2px in runtime crop."
+  },
+  {
+    "species_id": "spider_tailor",
+    "map_source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+    "map_sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+    "crop": [
+      240,
+      205,
+      720,
+      505
+    ],
+    "capture_contact": [
+      472,
+      342
+    ],
+    "capture_tile_width": 96,
+    "target_body_height": 72,
+    "body_to_tile": 0.75,
+    "scale": 0.5853658536585366,
+    "manual_body_span_in_runtime_idle": [
+      10,
+      133
+    ],
+    "rounded_body_height": 72,
+    "sprite_origin": [
+      174,
+      60
+    ],
+    "note": "Same 0088 recorded defense cell, separate panel per species; original map pixels retained. Body spans exclude weapons/lantern/flame/broom/shadows; manual visual uncertainty about2px in runtime crop."
+  },
+  {
+    "species_id": "bat_courier",
+    "map_source": "C:\\Users\\blueh\\Desktop\\진행중인프로젝트\\_mockup\\game_step2e\\radial_barracks.png",
+    "map_sha256": "830b11090ee6c53f3c4c750ee9987384df06f7a447e389787c0930562f01cc1e",
+    "crop": [
+      240,
+      205,
+      720,
+      505
+    ],
+    "capture_contact": [
+      472,
+      342
+    ],
+    "capture_tile_width": 96,
+    "target_body_height": 72,
+    "body_to_tile": 0.75,
+    "scale": 0.43902439024390244,
+    "manual_body_span_in_runtime_idle": [
+      4,
+      168
+    ],
+    "rounded_body_height": 72,
+    "sprite_origin": [
+      195,
+      65
+    ],
+    "note": "Same 0088 recorded defense cell, separate panel per species; original map pixels retained. Body spans exclude weapons/lantern/flame/broom/shadows; manual visual uncertainty about2px in runtime crop."
+  }
+]

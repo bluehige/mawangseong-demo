@@ -1,4 +1,4 @@
-﻿extends Node
+extends Node
 class_name Constants
 
 const SCREEN_MANAGEMENT = "management"
@@ -19,7 +19,7 @@ const SCREEN_CAMPAIGN_MODE = "campaign_mode_selection"
 const SCREEN_REGION_SELECTION = "region_selection"
 const SCREEN_OUTPOST_MANAGEMENT = "outpost_management"
 const SCREEN_OUTPOST_BATTLE = "outpost_battle"
-const SCREEN_UPPER_FLOOR = "upper_floor"
+const SCREEN_EXPANSION := "expansion"
 const SCREEN_HEART_SELECTION = "heart_selection"
 const SCREEN_DUO_LINK_LOADOUT = "duo_link_loadout"
 const SCREEN_CHRONICLE = "chronicle"

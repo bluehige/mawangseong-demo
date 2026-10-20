@@ -4,15 +4,25 @@ param(
     [ValidatePattern('^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$')]
     [string]$Version,
 
-    [string]$GodotPath = 'godot',
+    [string]$GodotPath = '',
 
     [string]$OutputRoot = '',
+
+    [switch]$SameVersionHotfix,
 
     [switch]$Clean
 )
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../..')).Path
+if ([string]::IsNullOrWhiteSpace($GodotPath)) {
+    # Prefer this workspace's verified engine over a shared legacy godot.cmd.
+    # Other machines can pass -GodotPath; the exact version gate below remains.
+    $workspaceEngine = Join-Path $repoRoot '../runtime/Godot_v4.6.3-stable_win64_console.exe'
+    $GodotPath = if (Test-Path -LiteralPath $workspaceEngine -PathType Leaf) {
+        [System.IO.Path]::GetFullPath($workspaceEngine)
+    } else { 'godot' }
+}
 $workingTreeChanges = @(git -C $repoRoot status --porcelain --untracked-files=all)
 if ($LASTEXITCODE -ne 0) {
     throw 'Could not inspect the Git working tree.'
@@ -119,7 +129,8 @@ Get-ChildItem -LiteralPath $outputFull -File -Recurse |
 $manifest = [ordered]@{
     schema_version = 1
     version = $Version
-    tag = "v$Version"
+    tag = $(if ($SameVersionHotfix) { $null } else { "v$Version" })
+    build_kind = $(if ($SameVersionHotfix) { 'same_version_hotfix' } else { 'tagged_release' })
     source_commit = $sourceCommit
     godot_version = $actualGodotVersion
     built_at_utc = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')

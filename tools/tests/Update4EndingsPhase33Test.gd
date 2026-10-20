@@ -190,8 +190,8 @@ func _apply_e22_state(active_run: Dictionary, profile: Dictionary, context: Dict
 
 
 func _apply_e18_state(active_run: Dictionary, context: Dictionary) -> void:
-	active_run.upper_floor.seal_theft_count = 0
-	context.merge({"final_battle_won": true, "upper_floor_integrity": 80, "crown_room_disable_count_since_day16": 0, "day30_upper_floor_contribution_ratio": 0.25, "day30_lower_survivor_count": 1, "day30_upper_survivor_count": 1}, true)
+	active_run.expansion.seal_theft_count = 0
+	context.merge({"final_battle_won": true, "expansion_facility_integrity": 80, "crown_room_disable_count_since_day16": 0, "day30_expansion_survivor_ratio": 0.25, "day30_original_zone_survivor_count": 1, "day30_expansion_zone_survivor_count": 1}, true)
 
 
 func _resolved(active_run: Dictionary, profile: Dictionary, context: Dictionary) -> String:

@@ -1,0 +1,1512 @@
+{
+  "species_id": "glue_snail",
+  "status": "ACCEPTED_OFFLINE_NOT_INTEGRATED",
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "logical_frame_size": [
+    384,
+    384
+  ],
+  "logical_anchor": [
+    192,
+    345
+  ],
+  "atlas_anchor": [
+    156.5,
+    289
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "uniform_scale": 0.6890464638317725,
+  "directions": {
+    "sw": {
+      "combat": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\glue_snail\\glue_snail_sheet.png",
+        "frames": [
+          {
+            "source_slice": [
+              0,
+              0,
+              199,
+              223
+            ],
+            "source_bbox": [
+              34,
+              32,
+              199,
+              219
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 0,
+            "rect": [
+              105,
+              167,
+              114,
+              129
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.3093,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              199,
+              0,
+              396,
+              223
+            ],
+            "source_bbox": [
+              27,
+              37,
+              196,
+              217
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 9,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 1,
+            "rect": [
+              417,
+              171,
+              116,
+              124
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.3774,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              396,
+              0,
+              595,
+              223
+            ],
+            "source_bbox": [
+              26,
+              38,
+              193,
+              221
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 2,
+            "rect": [
+              733,
+              170,
+              115,
+              126
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.8885,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              595,
+              0,
+              793,
+              223
+            ],
+            "source_bbox": [
+              8,
+              100,
+              190,
+              223
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 3,
+            "rect": [
+              1040,
+              210,
+              125,
+              85
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.3679,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              223,
+              201,
+              407
+            ],
+            "source_bbox": [
+              26,
+              0,
+              201,
+              179
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 4,
+            "rect": [
+              103,
+              486,
+              121,
+              123
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.6837,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              201,
+              223,
+              398,
+              407
+            ],
+            "source_bbox": [
+              8,
+              0,
+              197,
+              179
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 19,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 5,
+            "rect": [
+              408,
+              486,
+              130,
+              123
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.586,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              398,
+              223,
+              595,
+              407
+            ],
+            "source_bbox": [
+              0,
+              1,
+              196,
+              180
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 6,
+            "rect": [
+              723,
+              486,
+              135,
+              123
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.8074,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              595,
+              223,
+              793,
+              407
+            ],
+            "source_bbox": [
+              10,
+              7,
+              184,
+              182
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 7,
+            "rect": [
+              1042,
+              487,
+              120,
+              121
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.7038,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              0,
+              512,
+              512
+            ],
+            "source_bbox": [
+              117,
+              106,
+              454,
+              442
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "source_normalization": 0.6261398176291794,
+            "index": 8,
+            "rect": [
+              85,
+              774,
+              145,
+              145
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.6148,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              512,
+              0,
+              1024,
+              512
+            ],
+            "source_bbox": [
+              48,
+              108,
+              439,
+              452
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "source_normalization": 0.5176470588235295,
+            "index": 9,
+            "rect": [
+              432,
+              795,
+              139,
+              123
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.8682,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1024,
+              0,
+              1536,
+              512
+            ],
+            "source_bbox": [
+              76,
+              113,
+              403,
+              473
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "source_normalization": 0.5653409090909091,
+            "index": 10,
+            "rect": [
+              754,
+              779,
+              127,
+              140
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.0647,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              597,
+              407,
+              793,
+              615
+            ],
+            "source_bbox": [
+              11,
+              21,
+              173,
+              184
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 26,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 11,
+            "rect": [
+              1043,
+              809,
+              112,
+              112
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.9924,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              512,
+              512,
+              1024
+            ],
+            "source_bbox": [
+              116,
+              66,
+              458,
+              419
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "source_normalization": 0.45821325648414984,
+            "index": 12,
+            "rect": [
+              109,
+              1121,
+              108,
+              111
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.9656,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              512,
+              512,
+              1024,
+              1024
+            ],
+            "source_bbox": [
+              93,
+              64,
+              446,
+              416
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "source_normalization": 0.4753623188405797,
+            "index": 13,
+            "rect": [
+              409,
+              1117,
+              116,
+              115
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.2065,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1024,
+              512,
+              1536,
+              1024
+            ],
+            "source_bbox": [
+              60,
+              66,
+              442,
+              423
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 16,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_3.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "source_normalization": 0.47988505747126436,
+            "index": 14,
+            "rect": [
+              724,
+              1115,
+              126,
+              118
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.045,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              595,
+              615,
+              793,
+              787
+            ],
+            "source_bbox": [
+              9,
+              0,
+              198,
+              169
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 15,
+            "rect": [
+              1048,
+              1120,
+              130,
+              116
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.2668,
+            "support_y": 289
+          }
+        ],
+        "sha256": "f4c90768fb21ed7f6d4ab7759f7588c5b82f4c8d7267695d6e0bda9ac9e4f47c"
+      },
+      "hurt": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\glue_snail\\glue_snail_hurt_sw.png",
+        "frames": [
+          {
+            "source_slice": [
+              0,
+              787,
+              198,
+              992
+            ],
+            "source_bbox": [
+              19,
+              0,
+              198,
+              171
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 0,
+            "rect": [
+              93,
+              177,
+              123,
+              118
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.0431,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              198,
+              787,
+              396,
+              992
+            ],
+            "source_bbox": [
+              25,
+              0,
+              190,
+              173
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 1,
+            "rect": [
+              421,
+              177,
+              114,
+              119
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.6147,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              396,
+              787,
+              595,
+              992
+            ],
+            "source_bbox": [
+              3,
+              13,
+              196,
+              171
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 2,
+            "rect": [
+              719,
+              185,
+              133,
+              109
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.6115,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              595,
+              787,
+              793,
+              992
+            ],
+            "source_bbox": [
+              15,
+              0,
+              187,
+              172
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 3,
+            "rect": [
+              1048,
+              177,
+              119,
+              119
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.2032,
+            "support_y": 289
+          }
+        ],
+        "sha256": "52d5d3b14dbd67082ca92377774022996d8540f697af6427ee6392bafeca60e1"
+      }
+    },
+    "ne": {
+      "combat": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\glue_snail\\glue_snail_sheet_ne.png",
+        "frames": [
+          {
+            "source_slice": [
+              0,
+              0,
+              280,
+              280
+            ],
+            "source_bbox": [
+              41,
+              44,
+              259,
+              262
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 0,
+            "rect": [
+              108,
+              166,
+              128,
+              128
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.9767,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              280,
+              0,
+              561,
+              280
+            ],
+            "source_bbox": [
+              27,
+              45,
+              259,
+              261
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 1,
+            "rect": [
+              420,
+              167,
+              136,
+              127
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.5915,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              561,
+              0,
+              841,
+              280
+            ],
+            "source_bbox": [
+              16,
+              85,
+              246,
+              262
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 2,
+            "rect": [
+              735,
+              189,
+              135,
+              104
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.5581,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              841,
+              0,
+              1122,
+              280
+            ],
+            "source_bbox": [
+              3,
+              126,
+              250,
+              265
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 3,
+            "rect": [
+              1049,
+              211,
+              145,
+              82
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.8575,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              280,
+              280,
+              549
+            ],
+            "source_bbox": [
+              58,
+              19,
+              274,
+              241
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 4,
+            "rect": [
+              132,
+              477,
+              127,
+              130
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.0746,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              280,
+              280,
+              561,
+              549
+            ],
+            "source_bbox": [
+              17,
+              17,
+              271,
+              233
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 5,
+            "rect": [
+              418,
+              481,
+              149,
+              127
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.9762,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              561,
+              280,
+              841,
+              549
+            ],
+            "source_bbox": [
+              32,
+              43,
+              263,
+              239
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 11,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 6,
+            "rect": [
+              751,
+              492,
+              136,
+              115
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.0587,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              841,
+              280,
+              1122,
+              549
+            ],
+            "source_bbox": [
+              19,
+              41,
+              259,
+              239
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 7,
+            "rect": [
+              1055,
+              491,
+              141,
+              116
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.9566,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              549,
+              280,
+              819
+            ],
+            "source_bbox": [
+              35,
+              24,
+              279,
+              233
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 8,
+            "rect": [
+              104,
+              799,
+              143,
+              123
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.9279,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              280,
+              549,
+              594,
+              819
+            ],
+            "source_bbox": [
+              34,
+              0,
+              314,
+              248
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 9,
+            "rect": [
+              439,
+              776,
+              165,
+              146
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.1953,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              594,
+              549,
+              867,
+              819
+            ],
+            "source_bbox": [
+              12,
+              9,
+              273,
+              244
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 95,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 10,
+            "rect": [
+              752,
+              783,
+              153,
+              138
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.1854,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              867,
+              549,
+              1122,
+              819
+            ],
+            "source_bbox": [
+              20,
+              31,
+              244,
+              233
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 11,
+            "rect": [
+              1059,
+              803,
+              132,
+              119
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.8175,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              819,
+              280,
+              1104
+            ],
+            "source_bbox": [
+              33,
+              19,
+              265,
+              245
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 12,
+            "rect": [
+              100,
+              1103,
+              136,
+              133
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.3936,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              280,
+              819,
+              561,
+              1104
+            ],
+            "source_bbox": [
+              24,
+              11,
+              270,
+              247
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 13,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 13,
+            "rect": [
+              409,
+              1096,
+              145,
+              139
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.7234,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              561,
+              819,
+              849,
+              1104
+            ],
+            "source_bbox": [
+              14,
+              0,
+              288,
+              250
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 14,
+            "rect": [
+              720,
+              1087,
+              161,
+              147
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.8509,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              849,
+              819,
+              1122,
+              1104
+            ],
+            "source_bbox": [
+              26,
+              17,
+              256,
+              245
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 43,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 15,
+            "rect": [
+              1037,
+              1102,
+              135,
+              134
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.0485,
+            "support_y": 289
+          }
+        ],
+        "sha256": "26deab64c0badbde40aa9fce3080591af2594af65df37d6f32a577b5eb32b50d"
+      },
+      "hurt": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\glue_snail\\glue_snail_hurt_ne.png",
+        "frames": [
+          {
+            "source_slice": [
+              0,
+              1104,
+              280,
+              1402
+            ],
+            "source_bbox": [
+              51,
+              0,
+              272,
+              242
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 0,
+            "rect": [
+              126,
+              153,
+              130,
+              142
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.4191,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              280,
+              1104,
+              561,
+              1402
+            ],
+            "source_bbox": [
+              60,
+              40,
+              269,
+              237
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 1,
+            "rect": [
+              435,
+              178,
+              123,
+              116
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.765,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              561,
+              1104,
+              841,
+              1402
+            ],
+            "source_bbox": [
+              37,
+              73,
+              261,
+              238
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 2,
+            "rect": [
+              739,
+              196,
+              132,
+              97
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.257,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              841,
+              1104,
+              1122,
+              1402
+            ],
+            "source_bbox": [
+              53,
+              19,
+              259,
+              231
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\glue_snail\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "source_normalization": 0.8530805687203792,
+            "index": 3,
+            "rect": [
+              1051,
+              170,
+              121,
+              125
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.5828,
+            "support_y": 289
+          }
+        ],
+        "sha256": "68fde2c17610e0b3be273c471e108a3be24fd067bb430ae0fd85f4913bb970d0"
+      }
+    }
+  },
+  "camera_reference": "0098 approved C; requested42deg; visual evaluation only",
+  "measurement_note": "Contact is alpha>=192 bottom8px weighted center; not anatomical foot tracking. Original generated alpha retained. No background removal/painting/warp/mirroring."
+}

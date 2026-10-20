@@ -1,0 +1,299 @@
+{
+  "achievement_ui_rendered": {
+    "category": "current"
+  },
+  "ach_offline": {
+    "category": "current"
+  },
+  "b01_current_13011": {
+    "category": "current_corrected_input"
+  },
+  "b01_current_13012": {
+    "category": "current_corrected_input"
+  },
+  "b01_replay_13011": {
+    "category": "superseded_diagnostic"
+  },
+  "b01_replay_13012": {
+    "category": "superseded_diagnostic"
+  },
+  "b05_rendered": {
+    "category": "current"
+  },
+  "boundaries": {
+    "category": "incomplete_fixture_not_gameplay_pass"
+  },
+  "CampaignModePhase3Test": {
+    "category": "regression"
+  },
+  "campaign_130401": {
+    "category": "confirmed_save_failure"
+  },
+  "campaign_130402": {
+    "category": "confirmed_save_failure"
+  },
+  "campaign_130403": {
+    "category": "confirmed_save_failure"
+  },
+  "capture_en": {
+    "category": "current"
+  },
+  "capture_ko": {
+    "category": "current"
+  },
+  "capture_zh_CN": {
+    "category": "current"
+  },
+  "ChineseLocalizationTest": {
+    "category": "regression"
+  },
+  "ChroniclePhase26Test": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "commands_unit": {
+    "category": "current"
+  },
+  "compat_residual_v1": {
+    "category": "compatibility_unfinished_battle"
+  },
+  "compat_residual_v4": {
+    "category": "compatibility_unfinished_battle"
+  },
+  "compat_residual_v5": {
+    "category": "compatibility_unfinished_battle"
+  },
+  "compat_v1": {
+    "category": "incomplete_fixture_not_gameplay_pass"
+  },
+  "compat_v4": {
+    "category": "incomplete_fixture_not_gameplay_pass"
+  },
+  "compat_v5": {
+    "category": "incomplete_fixture_not_gameplay_pass"
+  },
+  "CouncilAgendaPhase21Test": {
+    "category": "regression"
+  },
+  "CouncilSeasonPhase4Test": {
+    "category": "regression"
+  },
+  "data_monsters": {
+    "category": "data_current"
+  },
+  "data_story": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "data_story_validator": {
+    "category": "data_current"
+  },
+  "DuoLinkPhase9Test": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "DuoLinksPhase10Test": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "DuoLinksPhase24Test": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "EnglishTranslationTest": {
+    "category": "regression"
+  },
+  "export_computer_use": {
+    "category": "export_with_logged_errors"
+  },
+  "FrontSelectionPhase3Test": {
+    "category": "regression"
+  },
+  "GuildRepossessionPhase21Test": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "HeroOathPhase23Test": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "HolyPurificationPhase19Test": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "legacy_chinese": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "legacy_story_english": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "legacy_uiux_compat": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "legacy_ui_english": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "localization": {
+    "category": "current"
+  },
+  "perf_current_day30": {
+    "category": "performance_fixture_corrected"
+  },
+  "perf_day19": {
+    "category": "performance_fixture"
+  },
+  "perf_day25": {
+    "category": "performance_fixture"
+  },
+  "perf_day30": {
+    "category": "incomplete_fixture_not_gameplay_pass"
+  },
+  "PlayerContinuityTest": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "postgame_restart_130401": {
+    "category": "confirmed_save_failure"
+  },
+  "postgame_restart_130402": {
+    "category": "confirmed_save_failure"
+  },
+  "postgame_restart_130403": {
+    "category": "confirmed_save_failure"
+  },
+  "SaveV4MigrationTest": {
+    "category": "regression"
+  },
+  "SaveV5MigrationTest": {
+    "category": "regression"
+  },
+  "SkillActionDuoTest": {
+    "category": "superseded_diagnostic"
+  },
+  "SkillActionDuoTest_corrected_input": {
+    "category": "corrected_test_input"
+  },
+  "Update3DataContractTest": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "Update4DataContractTest": {
+    "category": "regression"
+  },
+  "Update4EndingsPhase32Test": {
+    "category": "regression"
+  },
+  "Update4EndingsPhase33Test": {
+    "category": "regression"
+  },
+  "ux": {
+    "category": "current"
+  },
+  "V130AutoRoadTest": {
+    "category": "regression"
+  },
+  "V130CombatMapTest": {
+    "category": "regression"
+  },
+  "V130Council1FTest": {
+    "category": "regression"
+  },
+  "V130DecorationTest": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130MapIntegrationTest": {
+    "category": "regression"
+  },
+  "V130PlacementTest": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130PlotProjectionTest": {
+    "category": "regression"
+  },
+  "V130RDefenseLayoutTest": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130RFixB01Test": {
+    "category": "missing_day29_prerequisite_fixture"
+  },
+  "V130RFixB02B03Test": {
+    "category": "current"
+  },
+  "V130RFixB05Test": {
+    "category": "current"
+  },
+  "V130RGraybox2Test": {
+    "category": "regression"
+  },
+  "V130RouteTimingTest": {
+    "category": "regression"
+  },
+  "V130RStep10DCTest": {
+    "category": "missing_day29_prerequisite_fixture"
+  },
+  "V130RStep10DCTest_corrected_input": {
+    "category": "missing_day29_prerequisite_fixture"
+  },
+  "V130RStep11StoryTest": {
+    "category": "regression"
+  },
+  "V130RStep12HPBarTest": {
+    "category": "regression"
+  },
+  "V130RStep13AchievementTest": {
+    "category": "current"
+  },
+  "V130RStep1MapTest": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130RStep1MapTest_corrected_input": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130RStep2CTest": {
+    "category": "regression"
+  },
+  "V130RStep2DTest": {
+    "category": "regression"
+  },
+  "V130RStep2ETest": {
+    "category": "regression"
+  },
+  "V130RStep2PlacementTest": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130RStep2PlacementTest_corrected_input": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130RStep3PlacementTest": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130RStep4BattleTest": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130RStep4BScaleTest": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130RStep4CScaleTest": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130RStep4DLabelsTest": {
+    "category": "regression"
+  },
+  "V130RStep4ESilhouetteTest": {
+    "category": "regression"
+  },
+  "V130RStep5GradeFTest": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130RStep6FoodTest": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130RStep6FoodTest_corrected_input": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130RStep7MonstersTest": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130RStep7MonstersTest_corrected_input": {
+    "category": "legacy_or_fixture_failure_requires_triage"
+  },
+  "V130RStep9SpecTest": {
+    "category": "regression"
+  },
+  "V130SavePlotTest": {
+    "category": "regression"
+  },
+  "windows_export": {
+    "category": "export_with_logged_errors"
+  }
+}

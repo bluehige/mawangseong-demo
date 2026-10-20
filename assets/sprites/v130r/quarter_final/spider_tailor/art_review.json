@@ -1,0 +1,1476 @@
+{
+  "species_id": "spider_tailor",
+  "status": "ACCEPTED_NOT_INTEGRATED",
+  "selection": {
+    "status": "ACCEPTED_NOT_INTEGRATED",
+    "sources": [
+      {
+        "file": "attempt_2.png"
+      }
+    ],
+    "criteria": {
+      "T": true,
+      "F": true,
+      "H": true,
+      "E": true,
+      "S": true
+    },
+    "evidence": "넓은 모자·두개골·등 윗면·작은 아래왼쪽 얼굴·짧은 다리. NE 등.",
+    "notes": [
+      "Attempt1 rejected: frontal face/camera T,H,S insufficient and NE hurt compression switched to front. Attempt2 all40 poses replaces first.",
+      "Needle/loop, side pouch with two spools, thimble pendant and forelock retained; pins, eye dots and cap trim vary at tiny size."
+    ]
+  },
+  "uniform_scale": 0.8888888888888888,
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "logical_anchor": [
+    192,
+    345
+  ],
+  "atlas_anchor": [
+    156.5,
+    289
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "integrated": false,
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "visual_evidence": "넓은 모자·두개골·등 윗면·작은 아래왼쪽 얼굴·짧은 다리. NE 등.",
+  "directions": {
+    "sw": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/spider_tailor/spider_tailor_sheet.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              25,
+              65,
+              196,
+              220
+            ],
+            "source_bbox": [
+              0,
+              0,
+              171,
+              155
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 23,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              60,
+              157,
+              152,
+              138
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.19359430604982,
+            "contact_y": 289,
+            "sha256": "618e4e831fb2a2785c72286803b645e96b701ebfa5ce5774a34a81ab66b520f5"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              201,
+              69,
+              379,
+              221
+            ],
+            "source_bbox": [
+              0,
+              0,
+              178,
+              152
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 21,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              357,
+              161,
+              158,
+              135
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.2552522074495,
+            "contact_y": 289,
+            "sha256": "21f0d12ade33abf3fadf153b9b43ba5b8ca05637bd3e876358b787e9214282ac"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              395,
+              91,
+              574,
+              222
+            ],
+            "source_bbox": [
+              0,
+              0,
+              179,
+              131
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 15,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              688,
+              179,
+              159,
+              116
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.64919584294228,
+            "contact_y": 289,
+            "sha256": "02b787fe7b0ecfc34ebc982a0127a56835d64d07cbfd43bc1ef154232dd7c15d"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              588,
+              101,
+              752,
+              223
+            ],
+            "source_bbox": [
+              0,
+              0,
+              164,
+              122
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 15,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1031,
+              188,
+              146,
+              108
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.94753013976316,
+            "contact_y": 289,
+            "sha256": "f801ea3a619d45a73ed81f1b69ba2918cd1c4ab31d8f6941df59adc37ab066b9"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              21,
+              263,
+              193,
+              407
+            ],
+            "source_bbox": [
+              0,
+              0,
+              172,
+              144
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 18,
+            "foreign_major_components": [],
+            "index": 4,
+            "rect": [
+              61,
+              480,
+              153,
+              128
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.24841364578754,
+            "contact_y": 289,
+            "sha256": "5154679842962c376d6f07a690df101e1e6e8f242c60f203fc11dda9508ec200"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              197,
+              264,
+              370,
+              409
+            ],
+            "source_bbox": [
+              0,
+              0,
+              173,
+              145
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 22,
+            "foreign_major_components": [],
+            "index": 5,
+            "rect": [
+              383,
+              479,
+              154,
+              129
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.55389055389054,
+            "contact_y": 289,
+            "sha256": "eefe2272d2e062e69f3391c4dd1ec5774d53293373475e735c12b4d8b2ed4ea1"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              385,
+              271,
+              570,
+              408
+            ],
+            "source_bbox": [
+              0,
+              0,
+              185,
+              137
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 23,
+            "foreign_major_components": [],
+            "index": 6,
+            "rect": [
+              677,
+              487,
+              164,
+              122
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.7243613976346,
+            "contact_y": 289,
+            "sha256": "68498370cc75ee91ac5b6d0bc2fbad536fb4155c3b80115c4666f58fb485305c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              589,
+              270,
+              756,
+              406
+            ],
+            "source_bbox": [
+              0,
+              0,
+              167,
+              136
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 18,
+            "foreign_major_components": [],
+            "index": 7,
+            "rect": [
+              999,
+              487,
+              148,
+              121
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.86078665077474,
+            "contact_y": 289,
+            "sha256": "a5eb26ee7281317dc57457946d931ce6449c2b6831151197cc033f3b65b45047"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              21,
+              448,
+              198,
+              596
+            ],
+            "source_bbox": [
+              0,
+              0,
+              177,
+              148
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 24,
+            "foreign_major_components": [],
+            "index": 8,
+            "rect": [
+              49,
+              793,
+              157,
+              132
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.81017600768908,
+            "contact_y": 289,
+            "sha256": "c895e5b640d538a46b2a4986667a8b894fd27ca4bb5916cf211332342de0c6c8"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              198,
+              460,
+              397,
+              597
+            ],
+            "source_bbox": [
+              0,
+              0,
+              199,
+              137
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 19,
+            "foreign_major_components": [],
+            "index": 9,
+            "rect": [
+              368,
+              799,
+              177,
+              122
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.79771171830103,
+            "contact_y": 289,
+            "sha256": "94d8eb7a29e89e676a683004cb64d7fa339d291e4c99ccd8196d55248bd598d0"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              395,
+              469,
+              582,
+              597
+            ],
+            "source_bbox": [
+              0,
+              0,
+              187,
+              128
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 22,
+            "foreign_major_components": [],
+            "index": 10,
+            "rect": [
+              660,
+              808,
+              166,
+              114
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.31230448383735,
+            "contact_y": 289,
+            "sha256": "c341b85625a58b0a7cb7ba37edb3b2494d4a34f2b940e6b7763e2e2697803585"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              588,
+              458,
+              756,
+              597
+            ],
+            "source_bbox": [
+              0,
+              0,
+              168,
+              139
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 16,
+            "foreign_major_components": [],
+            "index": 11,
+            "rect": [
+              1011,
+              797,
+              149,
+              124
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.8585077896787,
+            "contact_y": 289,
+            "sha256": "646e0358ef669b455b04ddeb5ec92b95ed943ca158be3da9bd5146c88d9eaafa"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              41,
+              628,
+              196,
+              791
+            ],
+            "source_bbox": [
+              0,
+              0,
+              155,
+              163
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 16,
+            "foreign_major_components": [],
+            "index": 12,
+            "rect": [
+              72,
+              1089,
+              138,
+              145
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.0831432718225,
+            "contact_y": 289,
+            "sha256": "2c5c054fbb3926769fe52a02351fa5097bc784638cfa60e44eaf88e1d87fc8c9"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              214,
+              648,
+              385,
+              787
+            ],
+            "source_bbox": [
+              0,
+              0,
+              171,
+              139
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 18,
+            "foreign_major_components": [],
+            "index": 13,
+            "rect": [
+              354,
+              1112,
+              152,
+              124
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.01381807433683,
+            "contact_y": 289,
+            "sha256": "5e72e5d1ae4e96854fecc922b63eb8df62e3cc6bca8a7ae4737eab88bb180191"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              420,
+              655,
+              569,
+              792
+            ],
+            "source_bbox": [
+              0,
+              0,
+              149,
+              137
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 23,
+            "foreign_major_components": [],
+            "index": 14,
+            "rect": [
+              703,
+              1112,
+              132,
+              122
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.10619244204509,
+            "contact_y": 289,
+            "sha256": "0ada8b128378af645dfd20c6362e854b6494f61401af6ff6a0eec02dd0338fb1"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              581,
+              653,
+              752,
+              787
+            ],
+            "source_bbox": [
+              0,
+              0,
+              171,
+              134
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 25,
+            "foreign_major_components": [],
+            "index": 15,
+            "rect": [
+              980,
+              1119,
+              152,
+              119
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.5272514619883,
+            "contact_y": 289,
+            "sha256": "bc92f69b82894302a054373db35f69dbb9879aea58e97002c34fe9ddd2ce1276"
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/spider_tailor/spider_tailor_hurt_sw.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              37,
+              819,
+              196,
+              969
+            ],
+            "source_bbox": [
+              0,
+              0,
+              159,
+              150
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 19,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              61,
+              162,
+              141,
+              133
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.46720383866733,
+            "contact_y": 289,
+            "sha256": "704467607f54cc8d585d15507e7c4852e16df5d663958c3313a2c21ef9b9e028"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              222,
+              817,
+              386,
+              972
+            ],
+            "source_bbox": [
+              0,
+              0,
+              164,
+              155
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 18,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              379,
+              158,
+              146,
+              138
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.5249310848062,
+            "contact_y": 289,
+            "sha256": "4a01c38387ad8f230b3cd32bf90fb8279f5fadd773265280d9e63e3276191af2"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              404,
+              846,
+              575,
+              971
+            ],
+            "source_bbox": [
+              0,
+              0,
+              171,
+              125
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 21,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              698,
+              184,
+              152,
+              111
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.2428240578286,
+            "contact_y": 289,
+            "sha256": "06302cff53796ee418f0004422cd411465fef873a5dc8d11763bfefa4ddf1f1d"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              572,
+              833,
+              751,
+              969
+            ],
+            "source_bbox": [
+              0,
+              0,
+              179,
+              136
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 30,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              984,
+              174,
+              159,
+              121
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.21972927869462,
+            "contact_y": 289,
+            "sha256": "c6d18aaa00186e35c16ce420ff7ac06c4dd28e8d22ae72148c475e86e3b31c70"
+          }
+        ]
+      }
+    },
+    "ne": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/spider_tailor/spider_tailor_sheet_ne.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              781,
+              48,
+              949,
+              224
+            ],
+            "source_bbox": [
+              0,
+              0,
+              168,
+              176
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 18,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              68,
+              140,
+              149,
+              156
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.78777252629976,
+            "contact_y": 289,
+            "sha256": "e1d8f0ed25084a51a03064ff62623f16e8264eed320ab000572b49ba969c0f5d"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              973,
+              65,
+              1145,
+              225
+            ],
+            "source_bbox": [
+              0,
+              0,
+              172,
+              160
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 20,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              402,
+              159,
+              153,
+              142
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.71840106409044,
+            "contact_y": 289,
+            "sha256": "e088da1bc6f47addf1dcb5ce76c863e0df9d4bbe6cc16355c842b91fff37c1f3"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              1161,
+              92,
+              1321,
+              224
+            ],
+            "source_bbox": [
+              0,
+              0,
+              160,
+              132
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 20,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              713,
+              180,
+              142,
+              117
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.20248873823647,
+            "contact_y": 289,
+            "sha256": "0352fde8be6799f6d5f6982f5f88f5e44005a70a217e7c4287ad5cd750add05d"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              1341,
+              93,
+              1495,
+              225
+            ],
+            "source_bbox": [
+              0,
+              0,
+              154,
+              132
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 18,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1045,
+              183,
+              137,
+              117
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.60924943352146,
+            "contact_y": 289,
+            "sha256": "2d715cc6dd408ff8feecae64da96b57261d6b262f7ec6795b3bcf3ad17f23b9c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              794,
+              244,
+              957,
+              409
+            ],
+            "source_bbox": [
+              0,
+              0,
+              163,
+              165
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 20,
+            "foreign_major_components": [],
+            "index": 4,
+            "rect": [
+              71,
+              461,
+              145,
+              147
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.38466161798294,
+            "contact_y": 289,
+            "sha256": "284bda2a74d462901aa51c7cfe7cbc62837a159a9e0dd4e0cd4c8e4bd422f00d"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              987,
+              255,
+              1146,
+              409
+            ],
+            "source_bbox": [
+              0,
+              0,
+              159,
+              154
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 23,
+            "foreign_major_components": [],
+            "index": 5,
+            "rect": [
+              381,
+              471,
+              141,
+              137
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.67344383496305,
+            "contact_y": 289,
+            "sha256": "fa2a7482e789f162e41117dd710ff9bf744ed0a43a8189bc2f1fa3760e641205"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              1178,
+              244,
+              1333,
+              409
+            ],
+            "source_bbox": [
+              0,
+              0,
+              155,
+              165
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 20,
+            "foreign_major_components": [],
+            "index": 6,
+            "rect": [
+              716,
+              471,
+              138,
+              147
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.25685397201386,
+            "contact_y": 289,
+            "sha256": "8e0eff3561a674e2e438830562456f8dd5c2f8e6df9eae86d36efc8cb899091f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              1350,
+              254,
+              1505,
+              411
+            ],
+            "source_bbox": [
+              0,
+              0,
+              155,
+              157
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 23,
+            "foreign_major_components": [],
+            "index": 7,
+            "rect": [
+              1025,
+              470,
+              138,
+              140
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.20044673917022,
+            "contact_y": 289,
+            "sha256": "9cd621ee8480af5cfa6bd26ad1bf705466743bb9e4f812ec1c3fcda58f30bd1f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              782,
+              434,
+              949,
+              601
+            ],
+            "source_bbox": [
+              0,
+              0,
+              167,
+              167
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 20,
+            "foreign_major_components": [],
+            "index": 8,
+            "rect": [
+              74,
+              774,
+              148,
+              148
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.78058871405318,
+            "contact_y": 289,
+            "sha256": "b7575c2d444465ca42aa522afd6bbed86e0716fc50ba9a24d823785343044487"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              964,
+              460,
+              1154,
+              603
+            ],
+            "source_bbox": [
+              0,
+              0,
+              190,
+              143
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 22,
+            "foreign_major_components": [],
+            "index": 9,
+            "rect": [
+              394,
+              797,
+              169,
+              127
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.88542602728535,
+            "contact_y": 289,
+            "sha256": "ef0fad4c2159233c8a571b1819c47a2ecec4f871d7508e31135d7425ddfe243a"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              1152,
+              456,
+              1339,
+              605
+            ],
+            "source_bbox": [
+              0,
+              0,
+              187,
+              149
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 20,
+            "foreign_major_components": [],
+            "index": 10,
+            "rect": [
+              718,
+              795,
+              166,
+              132
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.9789280719658,
+            "contact_y": 289,
+            "sha256": "1acd52ee6df2a8effa196e0aceb04fc8762c905b2f6479f835b3d1a1796a3344"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              1347,
+              448,
+              1518,
+              602
+            ],
+            "source_bbox": [
+              0,
+              0,
+              171,
+              154
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 23,
+            "foreign_major_components": [],
+            "index": 11,
+            "rect": [
+              1009,
+              788,
+              152,
+              137
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.02464722483538,
+            "contact_y": 289,
+            "sha256": "6f6c89f9cdbf7539d667e737a760467f22d2630f7a270454e39bc912ff326172"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              787,
+              643,
+              954,
+              793
+            ],
+            "source_bbox": [
+              0,
+              0,
+              167,
+              150
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 23,
+            "foreign_major_components": [],
+            "index": 12,
+            "rect": [
+              85,
+              1102,
+              148,
+              133
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.95181041027166,
+            "contact_y": 289,
+            "sha256": "d8e10877d96b1195106f61a40a001983984304a96e4b9a3a9024cd8b933242fd"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              974,
+              649,
+              1128,
+              801
+            ],
+            "source_bbox": [
+              0,
+              0,
+              154,
+              152
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 17,
+            "foreign_major_components": [],
+            "index": 13,
+            "rect": [
+              393,
+              1104,
+              137,
+              135
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.14738325912336,
+            "contact_y": 289,
+            "sha256": "c015ea1e6fe12e2200f876cd5de092e51610fb7dd769dd0dca93f312b081ed0c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              1163,
+              658,
+              1335,
+              799
+            ],
+            "source_bbox": [
+              0,
+              0,
+              172,
+              141
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 21,
+            "foreign_major_components": [],
+            "index": 14,
+            "rect": [
+              720,
+              1117,
+              153,
+              125
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.79412578268415,
+            "contact_y": 289,
+            "sha256": "e181c3a493bfab942c7f86e7acefa0671faf59929b0800250a388b6250110f4c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              1355,
+              642,
+              1517,
+              794
+            ],
+            "source_bbox": [
+              0,
+              0,
+              162,
+              152
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 22,
+            "foreign_major_components": [],
+            "index": 15,
+            "rect": [
+              1038,
+              1107,
+              144,
+              135
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.72690680856869,
+            "contact_y": 289,
+            "sha256": "967496656f8cf29dc1b911e418fc8d9dea2dd83a891ba87abb509ef5b2d1cb45"
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/spider_tailor/spider_tailor_hurt_ne.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              789,
+              807,
+              951,
+              977
+            ],
+            "source_bbox": [
+              0,
+              0,
+              162,
+              170
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 15,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              87,
+              148,
+              144,
+              151
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.69619297232464,
+            "contact_y": 289,
+            "sha256": "d0fb0a80484084df3a593221da82a1a4513ccdd59e9218a811678b61aeb9890e"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              970,
+              824,
+              1130,
+              977
+            ],
+            "source_bbox": [
+              0,
+              0,
+              160,
+              153
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 16,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              407,
+              164,
+              142,
+              136
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.76207666492854,
+            "contact_y": 289,
+            "sha256": "26c9436b7f0c20149fd5a9cf867ff29a8e587efecee0164230cdc76bdb5cb795"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              1152,
+              855,
+              1332,
+              975
+            ],
+            "source_bbox": [
+              0,
+              0,
+              180,
+              120
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 19,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              718,
+              195,
+              160,
+              107
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.13400439456024,
+            "contact_y": 289,
+            "sha256": "32d3945bf7b7ccfeecce72a033c6bc4f4cf761241de133c4244d01187c3b7bff"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/spider_tailor/attempt_2.png",
+            "source_slice": [
+              1338,
+              822,
+              1491,
+              976
+            ],
+            "source_bbox": [
+              0,
+              0,
+              153,
+              154
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 17,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1040,
+              164,
+              136,
+              137
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.46966821834138,
+            "contact_y": 289,
+            "sha256": "5ec344f2ea79cca3cfdbaca8d39a3390273631bc822d9b1aa0f8983ff4b327ca"
+          }
+        ]
+      }
+    }
+  },
+  "processing": "Whole rectangular crop, uniform LANCZOS resizing, contact translation and assembly only. Native alpha retained. Contact is alpha>=192 bottom8px weighted center, not anatomical foot tracking."
+}

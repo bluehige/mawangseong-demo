@@ -114,12 +114,12 @@ func _check_combat_action_assets() -> void:
 			var frame_path = "res://assets/sprites/monsters/monster_%s_attack_down_%02d.png" % [monster_id, frame_index]
 			_expect(ResourceLoader.exists(frame_path), "%s 공격 원본 프레임 %02d 존재" % [monster_id, frame_index])
 	for sound_name in ["slash", "shield_bash", "fire_burst", "hit", "down"]:
-		var sound_path = "res://assets/audio/sfx/combat_%s.wav" % sound_name
+		var sound_path = "res://assets/audio/sfx/combat_%s.ogg" % sound_name
 		_expect(ResourceLoader.exists(sound_path), "전투 효과음 %s 존재" % sound_name)
 		_expect(ResourceLoader.load(sound_path) is AudioStream, "전투 효과음 %s 로드" % sound_name)
-	var music_path = "res://assets/audio/bgm/combat_dungeon_pressure.wav"
+	var music_path = "res://assets/audio/bgm/combat_dungeon_pressure.ogg"
 	_expect(ResourceLoader.exists(music_path), "전투 음악 존재")
-	_expect(ResourceLoader.load(music_path) is AudioStreamWAV, "전투 음악 WAV 로드")
+	_expect(ResourceLoader.load(music_path) is AudioStreamOggVorbis, "전투 음악 WAV 로드")
 	_expect(AudioServer.get_bus_index(AudioSettings.MUSIC_BUS) >= 0, "전투 음악 전용 음량 통로 생성")
 	_expect(AudioServer.get_bus_index(AudioSettings.SFX_BUS) >= 0, "전투 효과음 전용 음량 통로 생성")
 
@@ -172,7 +172,7 @@ func _check_combat_music_lifecycle(game: Node) -> void:
 		_expect(game.combat_music_player.playing, "오디오 장치 환경에서 전투 음악 재생")
 	_expect(game.combat_music_player.bus == AudioSettings.MUSIC_BUS, "전투 음악이 음악 전용 통로 사용")
 	var music_stream = game.combat_music_player.stream
-	_expect(music_stream is AudioStreamWAV and music_stream.loop_mode == AudioStreamWAV.LOOP_FORWARD, "전투 음악 반복 재생 설정")
+	_expect(music_stream is AudioStreamOggVorbis and music_stream.loop == true, "전투 음악 반복 재생 설정")
 	game._set_screen(Constants.SCREEN_MANAGEMENT)
 	await get_tree().process_frame
 	_expect(game.combat_music_active and game.combat_music_player.stream != music_stream, "전투 이탈 후 관리 음악으로 전환")

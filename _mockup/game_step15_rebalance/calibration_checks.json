@@ -1,0 +1,558 @@
+{
+  "route_canary": {
+    "role": "CALIBRATION_ONLY; final pairs must use the final fresh campaign",
+    "source": "campaign_v5",
+    "checks": 2067,
+    "input_hashes": {
+      "data/waves.json": "70bd31acd3b42cac9d08079b914309ead7063bddd311e203b43a5a1f7fa56741",
+      "data/v122/dual_front_day01_05_waves.json": "7f969ab9bd90aa3450ba0e242309dc5cf3a5145b4e0654e642fe33ab830c5d47",
+      "scripts/game/GameRoot.gd": "0183c1352e0a5b32b7084f574f1bff96f1db2e7856507ed4fe469258ca8e96ea",
+      "scripts/game/ApprovedBattleController.gd": "6fa287fb4500af3dcdee3b86d768389370d23315c5f73c850b408805bed80f5c",
+      "scripts/map_builder/ApprovedMonsterPlacement.gd": "7f740026d74179789126289796f3d7dd0fcbd439c50181dfcce9ae97202000dd",
+      "scripts/map_builder/ApprovedPlacement.gd": "265bdcf7cacb78701ebcf3ae1f62fcafe26cd10fbf040c72c90cc2a65711cf69",
+      "tools/tests/V130RB04Campaign.gd": "f7f4654e9a9e73e579325cd71e0dcbc1978d3bb865b9c7d6cec8da5da2ae6b79",
+      "tools/tests/V130RB04FastController.gd": "690120b93ea5580782dba194755c21b7aa0eca191d8d1e79559ffc8e8ae9a058",
+      "tools/tests/V130RB04FastUnit.gd": "4d38a9399e026819384e188877df3c22f760046080302c360a26eeb2d370770f",
+      "tools/tests/V130RB04Stacking.gd": "8a97adc5072425b8b02667fa4dd334ace2ee243a7d6348b09512b84cf8576d3a",
+      "tools/tests/V130RB04FastMap.gd": "e346c8c1443692eaaccea7b447c8d206528a1e1a84b4c933e25217a949adcf7d",
+      "scripts/game/CombatSceneController.gd": "cfd4589f511fc5e622376dcb7c5c84c4d189c20090981e3c69e2163db1d81738",
+      "scripts/units/Unit.gd": "a35fa4f71af4036723144d9339ab0693e03a9243d0e471adeb6e9ff1967e62bf",
+      "scripts/units/ApprovedBattleUnit.gd": "b57fd67aef06367664d0bf76d752232c8953533d829af66d53d662ef36dd7ae7",
+      "scripts/map_builder/ApprovedBattleMap.gd": "f73a7ac9950e12e81615a3b8a1ad0892fd29940e82285f246bcb1e2fad95c60f"
+    },
+    "rows": [
+      {
+        "seed": 130402,
+        "day": 20,
+        "layout": "recommended",
+        "win": true,
+        "hp": 641,
+        "max_hp": 1750,
+        "deployed": 13
+      },
+      {
+        "seed": 130402,
+        "day": 20,
+        "layout": "anchor_cluster",
+        "win": true,
+        "hp": 641,
+        "max_hp": 1750,
+        "deployed": 9
+      },
+      {
+        "seed": 130402,
+        "day": 20,
+        "layout": "final_line",
+        "win": true,
+        "hp": 641,
+        "max_hp": 1750,
+        "deployed": 6
+      },
+      {
+        "seed": 130402,
+        "day": 20,
+        "layout": "first_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 1750,
+        "deployed": 5
+      },
+      {
+        "seed": 130402,
+        "day": 21,
+        "layout": "recommended",
+        "win": true,
+        "hp": 642,
+        "max_hp": 2100,
+        "deployed": 13
+      },
+      {
+        "seed": 130402,
+        "day": 21,
+        "layout": "anchor_cluster",
+        "win": true,
+        "hp": 610,
+        "max_hp": 2100,
+        "deployed": 9
+      },
+      {
+        "seed": 130402,
+        "day": 21,
+        "layout": "final_line",
+        "win": true,
+        "hp": 178,
+        "max_hp": 2100,
+        "deployed": 6
+      },
+      {
+        "seed": 130402,
+        "day": 21,
+        "layout": "first_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2100,
+        "deployed": 5
+      },
+      {
+        "seed": 130402,
+        "day": 26,
+        "layout": "recommended",
+        "win": true,
+        "hp": 520,
+        "max_hp": 2100,
+        "deployed": 13
+      },
+      {
+        "seed": 130402,
+        "day": 26,
+        "layout": "anchor_cluster",
+        "win": true,
+        "hp": 520,
+        "max_hp": 2100,
+        "deployed": 9
+      },
+      {
+        "seed": 130402,
+        "day": 26,
+        "layout": "final_line",
+        "win": true,
+        "hp": 244,
+        "max_hp": 2100,
+        "deployed": 6
+      },
+      {
+        "seed": 130402,
+        "day": 26,
+        "layout": "first_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2100,
+        "deployed": 5
+      },
+      {
+        "seed": 130402,
+        "day": 27,
+        "layout": "recommended",
+        "win": true,
+        "hp": 259,
+        "max_hp": 2100,
+        "deployed": 14
+      },
+      {
+        "seed": 130402,
+        "day": 27,
+        "layout": "anchor_cluster",
+        "win": true,
+        "hp": 394,
+        "max_hp": 2100,
+        "deployed": 11
+      },
+      {
+        "seed": 130402,
+        "day": 27,
+        "layout": "final_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2100,
+        "deployed": 6
+      },
+      {
+        "seed": 130402,
+        "day": 27,
+        "layout": "first_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2100,
+        "deployed": 5
+      },
+      {
+        "seed": 130402,
+        "day": 30,
+        "layout": "recommended",
+        "win": true,
+        "hp": 416,
+        "max_hp": 2500,
+        "deployed": 14
+      },
+      {
+        "seed": 130402,
+        "day": 30,
+        "layout": "anchor_cluster",
+        "win": true,
+        "hp": 416,
+        "max_hp": 2500,
+        "deployed": 11
+      },
+      {
+        "seed": 130402,
+        "day": 30,
+        "layout": "final_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 6
+      },
+      {
+        "seed": 130402,
+        "day": 30,
+        "layout": "first_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 5
+      }
+    ],
+    "acceptance_evidence": false,
+    "exclusion_reason": "Predates canonical defense eligibility fix; not valid balance evidence. Preserved historical diagnostic only."
+  },
+  "c_coverage_canary": {
+    "role": "CALIBRATION_ONLY; final pairs must use the final fresh campaign",
+    "source": "campaign_v5",
+    "checks": 3826,
+    "input_hashes": {
+      "data/waves.json": "70bd31acd3b42cac9d08079b914309ead7063bddd311e203b43a5a1f7fa56741",
+      "data/v122/dual_front_day01_05_waves.json": "7f969ab9bd90aa3450ba0e242309dc5cf3a5145b4e0654e642fe33ab830c5d47",
+      "scripts/game/GameRoot.gd": "0183c1352e0a5b32b7084f574f1bff96f1db2e7856507ed4fe469258ca8e96ea",
+      "scripts/game/ApprovedBattleController.gd": "6fa287fb4500af3dcdee3b86d768389370d23315c5f73c850b408805bed80f5c",
+      "scripts/map_builder/ApprovedMonsterPlacement.gd": "7f740026d74179789126289796f3d7dd0fcbd439c50181dfcce9ae97202000dd",
+      "scripts/map_builder/ApprovedPlacement.gd": "265bdcf7cacb78701ebcf3ae1f62fcafe26cd10fbf040c72c90cc2a65711cf69",
+      "tools/tests/V130RB04Campaign.gd": "f7f4654e9a9e73e579325cd71e0dcbc1978d3bb865b9c7d6cec8da5da2ae6b79",
+      "tools/tests/V130RB04FastController.gd": "690120b93ea5580782dba194755c21b7aa0eca191d8d1e79559ffc8e8ae9a058",
+      "tools/tests/V130RB04FastUnit.gd": "4d38a9399e026819384e188877df3c22f760046080302c360a26eeb2d370770f",
+      "tools/tests/V130RB04Stacking.gd": "8a97adc5072425b8b02667fa4dd334ace2ee243a7d6348b09512b84cf8576d3a",
+      "tools/tests/V130RB04FastMap.gd": "e346c8c1443692eaaccea7b447c8d206528a1e1a84b4c933e25217a949adcf7d",
+      "scripts/game/CombatSceneController.gd": "cfd4589f511fc5e622376dcb7c5c84c4d189c20090981e3c69e2163db1d81738",
+      "scripts/units/Unit.gd": "a35fa4f71af4036723144d9339ab0693e03a9243d0e471adeb6e9ff1967e62bf",
+      "scripts/units/ApprovedBattleUnit.gd": "b57fd67aef06367664d0bf76d752232c8953533d829af66d53d662ef36dd7ae7",
+      "scripts/map_builder/ApprovedBattleMap.gd": "f73a7ac9950e12e81615a3b8a1ad0892fd29940e82285f246bcb1e2fad95c60f"
+    },
+    "rows": [
+      {
+        "seed": 130402,
+        "day": 27,
+        "layout": "recommended",
+        "win": true,
+        "hp": 259,
+        "max_hp": 2100,
+        "deployed": 14
+      },
+      {
+        "seed": 130402,
+        "day": 27,
+        "layout": "anchor_cluster",
+        "win": true,
+        "hp": 394,
+        "max_hp": 2100,
+        "deployed": 11
+      },
+      {
+        "seed": 130402,
+        "day": 27,
+        "layout": "final_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2100,
+        "deployed": 6
+      },
+      {
+        "seed": 130402,
+        "day": 27,
+        "layout": "first_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2100,
+        "deployed": 5
+      },
+      {
+        "seed": 130405,
+        "day": 27,
+        "layout": "recommended",
+        "win": true,
+        "hp": 350,
+        "max_hp": 2100,
+        "deployed": 14
+      },
+      {
+        "seed": 130405,
+        "day": 27,
+        "layout": "anchor_cluster",
+        "win": true,
+        "hp": 350,
+        "max_hp": 2100,
+        "deployed": 11
+      },
+      {
+        "seed": 130405,
+        "day": 27,
+        "layout": "final_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2100,
+        "deployed": 6
+      },
+      {
+        "seed": 130405,
+        "day": 27,
+        "layout": "first_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2100,
+        "deployed": 5
+      },
+      {
+        "seed": 130408,
+        "day": 27,
+        "layout": "recommended",
+        "win": true,
+        "hp": 644,
+        "max_hp": 2100,
+        "deployed": 14
+      },
+      {
+        "seed": 130408,
+        "day": 27,
+        "layout": "anchor_cluster",
+        "win": true,
+        "hp": 644,
+        "max_hp": 2100,
+        "deployed": 11
+      },
+      {
+        "seed": 130408,
+        "day": 27,
+        "layout": "final_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2100,
+        "deployed": 6
+      },
+      {
+        "seed": 130408,
+        "day": 27,
+        "layout": "first_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2100,
+        "deployed": 5
+      },
+      {
+        "seed": 130402,
+        "day": 28,
+        "layout": "recommended",
+        "win": true,
+        "hp": 416,
+        "max_hp": 2500,
+        "deployed": 14
+      },
+      {
+        "seed": 130402,
+        "day": 28,
+        "layout": "anchor_cluster",
+        "win": true,
+        "hp": 416,
+        "max_hp": 2500,
+        "deployed": 11
+      },
+      {
+        "seed": 130402,
+        "day": 28,
+        "layout": "final_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 6
+      },
+      {
+        "seed": 130402,
+        "day": 28,
+        "layout": "first_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 5
+      },
+      {
+        "seed": 130405,
+        "day": 28,
+        "layout": "recommended",
+        "win": true,
+        "hp": 750,
+        "max_hp": 2500,
+        "deployed": 14
+      },
+      {
+        "seed": 130405,
+        "day": 28,
+        "layout": "anchor_cluster",
+        "win": true,
+        "hp": 750,
+        "max_hp": 2500,
+        "deployed": 11
+      },
+      {
+        "seed": 130405,
+        "day": 28,
+        "layout": "final_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 6
+      },
+      {
+        "seed": 130405,
+        "day": 28,
+        "layout": "first_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 5
+      },
+      {
+        "seed": 130408,
+        "day": 28,
+        "layout": "recommended",
+        "win": true,
+        "hp": 727,
+        "max_hp": 2500,
+        "deployed": 14
+      },
+      {
+        "seed": 130408,
+        "day": 28,
+        "layout": "anchor_cluster",
+        "win": true,
+        "hp": 419,
+        "max_hp": 2500,
+        "deployed": 11
+      },
+      {
+        "seed": 130408,
+        "day": 28,
+        "layout": "final_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 6
+      },
+      {
+        "seed": 130408,
+        "day": 28,
+        "layout": "first_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 5
+      },
+      {
+        "seed": 130402,
+        "day": 30,
+        "layout": "recommended",
+        "win": true,
+        "hp": 416,
+        "max_hp": 2500,
+        "deployed": 14
+      },
+      {
+        "seed": 130402,
+        "day": 30,
+        "layout": "anchor_cluster",
+        "win": true,
+        "hp": 416,
+        "max_hp": 2500,
+        "deployed": 11
+      },
+      {
+        "seed": 130402,
+        "day": 30,
+        "layout": "final_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 6
+      },
+      {
+        "seed": 130402,
+        "day": 30,
+        "layout": "first_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 5
+      },
+      {
+        "seed": 130405,
+        "day": 30,
+        "layout": "recommended",
+        "win": true,
+        "hp": 750,
+        "max_hp": 2500,
+        "deployed": 14
+      },
+      {
+        "seed": 130405,
+        "day": 30,
+        "layout": "anchor_cluster",
+        "win": true,
+        "hp": 750,
+        "max_hp": 2500,
+        "deployed": 11
+      },
+      {
+        "seed": 130405,
+        "day": 30,
+        "layout": "final_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 6
+      },
+      {
+        "seed": 130405,
+        "day": 30,
+        "layout": "first_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 5
+      },
+      {
+        "seed": 130408,
+        "day": 30,
+        "layout": "recommended",
+        "win": true,
+        "hp": 727,
+        "max_hp": 2500,
+        "deployed": 14
+      },
+      {
+        "seed": 130408,
+        "day": 30,
+        "layout": "anchor_cluster",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 11
+      },
+      {
+        "seed": 130408,
+        "day": 30,
+        "layout": "final_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 6
+      },
+      {
+        "seed": 130408,
+        "day": 30,
+        "layout": "first_line",
+        "win": false,
+        "hp": 0,
+        "max_hp": 2500,
+        "deployed": 5
+      }
+    ],
+    "acceptance_evidence": false,
+    "exclusion_reason": "Predates canonical defense eligibility fix; not valid balance evidence. Preserved historical diagnostic only."
+  }
+}

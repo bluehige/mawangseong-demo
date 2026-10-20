@@ -1,0 +1,14 @@
+{
+  "tracked_at_entry": 8700,
+  "changed_paths": [
+    "data/v122/dual_front_day01_05_waves.json",
+    "data/v130r/story/manifest.json",
+    "data/waves.json",
+    "docs/handoff/CURRENT.md",
+    "scripts/game/ApprovedBattleController.gd",
+    "scripts/game/GameRoot.gd",
+    "scripts/map_builder/ApprovedMonsterPlacement.gd"
+  ],
+  "unexpected_changes": [],
+  "all_other_tracked_files_unchanged": true
+}

@@ -168,6 +168,24 @@ func _run() -> void:
 				_expect(is_equal_approx(unit.visual_body.position.y, expected_down_y), "%s down foot anchor mismatch" % expected_id)
 		unit.queue_free()
 
+	# These contract monsters already have their own native atlases. Their old
+	# sheets are registered aliases, rather than unprofiled promoted forms.
+	for species_id in ["spider_tailor", "bat_courier"]:
+		var legacy_path: String = "res://assets/sprites/monsters/update4/monster_" + species_id + "_sheet.png"
+		var runtime_path: String = "res://assets/sprites/uiux3d/" + species_id + "_sheet.png"
+		var profile: Dictionary = DataRegistry.combat_visual_profile_for_unit(species_id, legacy_path)
+		_expect(str(profile.get("profile_key", "")) == species_id, species_id + " alias must resolve to its own profile")
+		_expect(str(profile.get("runtime_path", "")) == runtime_path and str(profile.get("legacy_runtime_path", "")) == legacy_path, species_id + " native and legacy paths must match the registered migration")
+		_expect(str(profile.get("normalization_state", "")) == "NATIVE_ALPHA_RUNTIME_ATLAS", species_id + " native state is explicit")
+		_expect(DataRegistry.combat_visual_profile_for_unit(species_id, runtime_path) == profile, species_id + " native and legacy inputs resolve identically")
+		var unit = UnitActorScript.new()
+		add_child(unit)
+		unit.setup(species_id, {"display_name": species_id, "max_hp": 100, "sprite": legacy_path, "role": "visual_audit"}, "monster", "visual_audit")
+		_expect(unit.sprite_path == runtime_path and not unit.requires_sprite_chroma and unit.sprite.material == null, species_id + " actual unit must use its own native alpha art")
+		_expect(is_equal_approx(unit.sprite.scale.x, float(profile.get("render_scale", 0.0))), species_id + " registered native scale is consumed")
+		_check_native_atlas(unit, species_id, runtime_path)
+		unit.queue_free()
+
 	var preserved_unprofiled_forms := [
 		{"unit_id": "slime", "sprite": "res://assets/sprites/monsters/monster_slime_rescue_alchemy_gel_idle_down_00.png"},
 		{"unit_id": "goblin", "sprite": "res://assets/sprites/monsters/monster_goblin_vault_keeper_idle_down_00.png"},
@@ -175,9 +193,7 @@ func _run() -> void:
 		{"unit_id": "slime", "sprite": "res://assets/sprites/monsters/update4/crowns/monster_slime_crown_bastion_sheet.png"},
 		{"unit_id": "goblin", "sprite": "res://assets/sprites/monsters/update4/crowns/monster_goblin_crown_marshal_sheet.png"},
 		{"unit_id": "imp", "sprite": "res://assets/sprites/monsters/update4/crowns/monster_imp_crown_flame_sage_sheet.png"},
-		{"unit_id": "spore_healer", "sprite": "res://assets/sprites/monsters/update4/crowns/monster_mori_crown_priest_sheet.png"},
-		{"unit_id": "spider_tailor", "sprite": "res://assets/sprites/monsters/update4/monster_spider_tailor_sheet.png"},
-		{"unit_id": "bat_courier", "sprite": "res://assets/sprites/monsters/update4/monster_bat_courier_sheet.png"}
+		{"unit_id": "spore_healer", "sprite": "res://assets/sprites/monsters/update4/crowns/monster_mori_crown_priest_sheet.png"}
 	]
 	for form_value in preserved_unprofiled_forms:
 		var form: Dictionary = form_value

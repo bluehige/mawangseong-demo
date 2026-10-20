@@ -1,0 +1,55 @@
+{
+  "asset_id": "v130_result_03_little_medals",
+  "target_version": "v1.3.0",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an original instrumental game soundtrack lasting about 120 seconds. 108 BPM, F Lydian. Tiny medals awarded to endearing monster defenders. Muted cornet, oboe, music box and light bass; luminous Lydian lift and playful restrained ceremonial answers, readable beneath reward sounds, no bombastic triumph or hard closing cadence. Develop a complete original 120-second instrumental arc, with compatible opening and final two seconds for a seamless loop. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "0ddb2b35d5bb84143f1573a0d8fce472a62744ed54a5927b86f7fe0105593a48",
+  "generated_text": "[[A0]]\n[[B1]]\n[[C2]]\n[[D3]]\n[[E4]]\n[[B5]]\n[[F6]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "a7fee7cea11f551ab37fe1e5681ea670a14743487e291c7365046739bb9b115a",
+  "generated_at_utc": "2026-10-15T00:58:39.393400+00:00",
+  "source_run": "tmp/lyria_audio_v130/v130-20261015-approved",
+  "runtime_sha256": "044410f6fcca738f51f7721e7a0c1a6d821eaae88f92ef48985f590b30ad97c9",
+  "quality_report": {
+    "asset_id": "v130_result_03_little_medals",
+    "scene": "result",
+    "reference_lufs": -16.625539406428196,
+    "gain_db": -0.6447127233714252,
+    "before": {
+      "duration_seconds": 116.3869387755102,
+      "lufs": -15.98082668305677,
+      "peak_dbfs": -5.000377362660108,
+      "true_peak_dbtp": -4.960186842551005,
+      "longest_silence_seconds": 0.0,
+      "seam_delta": 9.1552734375e-05,
+      "adjacent_delta_p999": 0.0693359375
+    },
+    "after": {
+      "duration_seconds": 116.3869387755102,
+      "lufs": -16.62553902492346,
+      "peak_dbfs": -5.645013867498889,
+      "true_peak_dbtp": -5.604761096308696,
+      "longest_silence_seconds": 0.0,
+      "seam_delta": 6.103515625e-05,
+      "adjacent_delta_p999": 0.064361572265625
+    },
+    "checks": {
+      "duration_90_to_150": true,
+      "sample_peak_at_most_minus3": true,
+      "estimated_true_peak_at_most_minus3": true,
+      "no_silence_at_least_one_second": true,
+      "reference_loudness_within_one_lu": true,
+      "seam_within_ordinary_transients": true,
+      "two_second_loop_render": true
+    },
+    "passed": true
+  },
+  "request_attempts": 1,
+  "transport_retries": 0,
+  "listening_status": "사용자 청취 전",
+  "run_id": "v130-20261015-selected"
+}

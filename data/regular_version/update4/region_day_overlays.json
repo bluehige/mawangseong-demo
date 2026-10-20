@@ -5,7 +5,7 @@
   "ironbell_facility_pressure_a": {
     "region_id": "region_ironbell_ravine",
     "variant": "facility_pressure_a",
-    "day_types": ["standard_defense", "upper_objective"],
+    "day_types": ["standard_defense", "expansion_objective"],
     "facility_damage_multiplier": 1.08,
     "facility_repair_multiplier": 1.12,
     "primary_goal": "facility"
@@ -13,7 +13,7 @@
   "ironbell_facility_pressure_b": {
     "region_id": "region_ironbell_ravine",
     "variant": "facility_pressure_b",
-    "day_types": ["outpost_defense", "floor_transition"],
+    "day_types": ["outpost_defense", "passage_support"],
     "facility_damage_multiplier": 1.08,
     "facility_repair_multiplier": 1.12,
     "primary_goal": "stair",
@@ -28,7 +28,7 @@
   },
   "blackwater_cross_floor_pressure": {
     "region_id": "region_blackwater_exchange",
-    "variant": "cross_floor_exchange",
+    "variant": "vault_throne_exchange",
     "battle_gold_multiplier": 1.15,
     "treasure_loss_multiplier": 1.20,
     "wave_modifier": "blackwater_split_exchange"

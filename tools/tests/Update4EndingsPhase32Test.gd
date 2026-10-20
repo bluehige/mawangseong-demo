@@ -63,7 +63,7 @@ func _test_boundaries_and_priority() -> void:
 	e17.active_run.council_season.council_votes = 69
 	_expect(_resolved(e17.active_run, e17.profile, e17.context) == CouncilEndingScript.LOCAL_FALLBACK_ID, "E17 의결표 1 부족 시 fallback")
 	var e18 := _fixture("ending_two_floors_one_throne", false)
-	e18.context.upper_floor_integrity = 79
+	e18.context.expansion_facility_integrity = 79
 	_expect(_resolved(e18.active_run, e18.profile, e18.context) == CouncilEndingScript.LOCAL_FALLBACK_ID, "E18 상층 무결성 1 부족 시 fallback")
 	var e19 := _fixture("ending_minion_wears_the_crown", false)
 	e19.context.crown_monster_bond = 99
@@ -90,7 +90,7 @@ func _test_horizontal_rewards() -> void:
 	_expect(profile.get("cosmetic_ids", []).count("council_nameplate") == 1 and profile.get("unlocked_reward_ids", []).size() == 2, "E17 외형 보상 재적용 멱등")
 	var e18 := _fixture("ending_two_floors_one_throne", false)
 	var floor_profile := CouncilEndingScript.apply_rewards({}, e18.active_run, "ending_two_floors_one_throne", DataRegistry.update4_council_endings)
-	_expect(bool(floor_profile.get("chronicle", {}).get("floor_detail_unlocked", false)) and floor_profile.get("cosmetic_ids", []).has("upper_floor_epilogue_layout"), "E18 층별 연대기·외형 해금")
+	_expect(bool(floor_profile.get("chronicle", {}).get("zone_detail_unlocked", false)) and floor_profile.get("cosmetic_ids", []).has("upper_floor_epilogue_layout"), "E18 층별 연대기·외형 해금")
 	var e19 := _fixture("ending_minion_wears_the_crown", false)
 	var crown_profile := CouncilEndingScript.apply_rewards({}, e19.active_run, "ending_minion_wears_the_crown", DataRegistry.update4_council_endings)
 	_expect(bool(crown_profile.get("crown_evolution", {}).get("representative_portrait_unlocked", false)), "E19 왕관 몬스터 대표 초상 해금")
@@ -138,14 +138,14 @@ func _apply_e17_state(active_run: Dictionary, context: Dictionary) -> void:
 
 func _apply_e18_state(active_run: Dictionary, context: Dictionary) -> void:
 	active_run.council_season.council_votes = 0
-	active_run.upper_floor.seal_theft_count = 0
+	active_run.expansion.seal_theft_count = 0
 	context.merge({
 		"final_battle_won": true,
-		"upper_floor_integrity": 80,
+		"expansion_facility_integrity": 80,
 		"crown_room_disable_count_since_day16": 0,
-		"day30_upper_floor_contribution_ratio": 0.25,
-		"day30_lower_survivor_count": 1,
-		"day30_upper_survivor_count": 1
+		"day30_expansion_survivor_ratio": 0.25,
+		"day30_original_zone_survivor_count": 1,
+		"day30_expansion_zone_survivor_count": 1
 	}, true)
 
 

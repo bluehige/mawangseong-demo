@@ -1,6 +1,7 @@
 extends RefCounted
 class_name HUDController
 const UXTheme = preload("res://scripts/ui/UIUXTheme.gd")
+const Standard = preload("res://scripts/ui/UIStandard.gd")
 
 const DirectiveManager = preload("res://scripts/combat/DirectiveManager.gd")
 const Constants = preload("res://scripts/core/Constants.gd")
@@ -56,6 +57,8 @@ const COLOR_INFORMATION = Color("#7fb3c8")
 const COLOR_TEXT = Color("#f3eadc")
 const COLOR_MUTED_TEXT = Color("#bdb3c6")
 
+var combat_workspace = preload("res://scripts/ui/CombatWorkspaceUI.gd").new()
+
 var root: Node
 var skin_texture_cache: Dictionary = {}
 var facility_effect_labels: Array[Label] = []
@@ -64,6 +67,8 @@ var resource_value_labels: Dictionary = {}
 var unit_status_rows: Dictionary = {}
 var selected_unit_dynamic_labels: Dictionary = {}
 var selected_unit_displayed_id: int = 0
+var pynn_controls:Dictionary={}
+var manual_skill_controls:Dictionary={}
 var boss_hp_label: Label = null
 var boss_hp_fill: ColorRect = null
 var boss_hp_fill_width := 0.0
@@ -80,8 +85,26 @@ var v122_threat_label: Label = null
 
 func setup(game_root: Node) -> void:
 	root = game_root
+	ThemeDB.get_default_theme().default_font = UI_FONT
+	ThemeDB.get_default_theme().default_font_size = Standard.BODY_SIZE
+	var tooltip_style := StyleBoxFlat.new()
+	tooltip_style.bg_color = Color("#15111ffa")
+	tooltip_style.border_color = Color("#e8bd76")
+	tooltip_style.set_border_width_all(1)
+	tooltip_style.set_corner_radius_all(5)
+	tooltip_style.content_margin_left = 14
+	tooltip_style.content_margin_right = 14
+	tooltip_style.content_margin_top = 10
+	tooltip_style.content_margin_bottom = 10
+	var theme := ThemeDB.get_default_theme()
+	theme.set_stylebox("panel", "TooltipPanel", tooltip_style)
+	theme.set_font("font", "TooltipLabel", UI_FONT)
+	theme.set_font_size("font_size", "TooltipLabel", Standard.TOOLTIP_SIZE)
+	theme.set_color("font_color", "TooltipLabel", Color("#fff6e8"))
 
 func clear() -> void:
+	pynn_controls.clear()
+	manual_skill_controls.clear()
 	facility_effect_labels.clear()
 	battle_log_labels.clear()
 	resource_value_labels.clear()
@@ -111,7 +134,7 @@ func build_top_bar() -> void:
 		return
 	resource_value_labels["gold"] = _resource_chip(Rect2(16, 10, 250, 62), "금화", "%d" % GameState.gold, Color("#ffd36a"), "resource_gold")
 	resource_value_labels["mana"] = _resource_chip(Rect2(278, 10, 250, 62), "마력", "%d" % GameState.mana, Color("#67b7ff"), "resource_mana")
-	resource_value_labels["food"] = _resource_chip(Rect2(540, 10, 250, 62), "식량", "%d / 30" % GameState.food, Color("#d8a77f"), "resource_food")
+	resource_value_labels["food"] = _resource_chip(Rect2(540, 10, 250, 62), "식량", "%d / %d" % [GameState.food,GameState.Food.capacity(GameState.day)], Color("#d8a77f"), "resource_food")
 	resource_value_labels["infamy"] = _resource_chip(Rect2(802, 10, 250, 62), "악명", "%d" % GameState.infamy, Color("#be72ff"), "resource_infamy")
 	var day_panel = panel(Rect2(1184, 10, 185, 62), Color("#0d0b10e8"), Color("#6e5630"), "", "resource_small")
 	label(day_panel, "DAY %02d  밤" % GameState.day, Vector2(8, 14), Vector2(169, 34), 15, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER)
@@ -128,7 +151,7 @@ func _build_desktop_status_rail(compact: bool) -> void:
 	var item_width := rail_rect.size.x / 4.0
 	resource_value_labels["gold"] = _resource_rail_item(resource_rail, Rect2(0, 0, item_width, rail_rect.size.y), "금화", "%d" % GameState.gold, Color("#d9b45d"), compact)
 	resource_value_labels["mana"] = _resource_rail_item(resource_rail, Rect2(item_width, 0, item_width, rail_rect.size.y), "마력", "%d" % GameState.mana, Color("#67b7ff"), compact)
-	resource_value_labels["food"] = _resource_rail_item(resource_rail, Rect2(item_width * 2.0, 0, item_width, rail_rect.size.y), "식량", "%d / 30" % GameState.food, Color("#d8a77f"), compact)
+	resource_value_labels["food"] = _resource_rail_item(resource_rail, Rect2(item_width * 2.0, 0, item_width, rail_rect.size.y), "식량", "%d / %d" % [GameState.food,GameState.Food.capacity(GameState.day)], Color("#d8a77f"), compact)
 	resource_value_labels["infamy"] = _resource_rail_item(resource_rail, Rect2(item_width * 3.0, 0, item_width, rail_rect.size.y), "악명", "%d" % GameState.infamy, Color("#be72ff"), compact)
 	for index in range(1, 4):
 		var divider := ColorRect.new()
@@ -152,8 +175,10 @@ func _build_desktop_status_rail(compact: bool) -> void:
 	boss_hp_fill = _stat_bar(hp_panel, Rect2(fill_x, 38 if compact else 42, boss_hp_fill_width, 8 if compact else 9), float(GameState.demon_lord_hp) / float(max(1, GameState.demon_lord_max_hp)), Color("#e04455"), Color("#4b111a"))
 
 func _resource_rail_item(parent: Control, rect: Rect2, title: String, value: String, accent: Color, compact: bool) -> Label:
-	label(parent, title, rect.position + Vector2(0, 6 if compact else 9), Vector2(rect.size.x, 18), 13 if compact else 12, COLOR_MUTED_TEXT, HORIZONTAL_ALIGNMENT_CENTER)
-	return label(parent, value, rect.position + Vector2(0, 24 if compact else 29), Vector2(rect.size.x, 24), 18 if compact else 16, accent, HORIZONTAL_ALIGNMENT_CENTER)
+	label(parent, title, rect.position + Vector2(0, 2), Vector2(rect.size.x, 25), 13 if compact else 12, COLOR_MUTED_TEXT, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1)
+	var result := label(parent, value, rect.position + Vector2(0, 24 if compact else 27), Vector2(rect.size.x, 30 if compact else 33), 18 if compact else 16, accent, HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_OFF, 1)
+	result.name = "ResourceValue_" + title
+	return result
 
 func build_room_list(x: int, y: int, w: int, h: int) -> void:
 	var room_panel_skin = "flat" if root.current_screen == Constants.SCREEN_COMBAT else "panel"
@@ -498,7 +523,7 @@ func update_log_panel() -> void:
 		if not is_instance_valid(log_label):
 			continue
 		var log_index = start_index + row_index
-		log_label.text = str(root.logs[log_index]) if log_index < root.logs.size() else ""
+		log_label.text = LanguageSettings.presentation_source(str(root.logs[log_index])) if log_index < root.logs.size() else ""
 
 func update_combat_status() -> void:
 	if root == null or root.current_screen != Constants.SCREEN_COMBAT:
@@ -511,25 +536,7 @@ func update_combat_status() -> void:
 
 
 func _update_v122_combat_core_status() -> void:
-	if not root.has_meta("v122_combat_view_model"):
-		return
-	var model: Dictionary = root.get_meta("v122_combat_view_model", {})
-	var throne_hp := int(model.get("throne_hp", GameState.demon_lord_hp))
-	var throne_hp_max := maxi(1, int(model.get("throne_hp_max", GameState.demon_lord_max_hp)))
-	if v122_throne_status_label != null and is_instance_valid(v122_throne_status_label):
-		v122_throne_status_label.text = "DAY %02d · 왕좌 %d / %d" % [GameState.day, throne_hp, throne_hp_max]
-	if v122_throne_hp_fill != null and is_instance_valid(v122_throne_hp_fill):
-		v122_throne_hp_fill.size.x = v122_throne_hp_fill_width * clampf(float(throne_hp) / float(throne_hp_max), 0.0, 1.0)
-	var defense_progress := clampf(float(model.get("defense_progress", 0.0)), 0.0, 1.0)
-	if v122_defense_progress_label != null and is_instance_valid(v122_defense_progress_label):
-		v122_defense_progress_label.text = "방어 진행 %d%%" % int(round(defense_progress * 100.0))
-	if v122_defense_progress_fill != null and is_instance_valid(v122_defense_progress_fill):
-		v122_defense_progress_fill.size.x = v122_defense_progress_fill_width * defense_progress
-	var threat_visible := bool(model.get("threat_panel_visible", false))
-	if v122_threat_panel != null and is_instance_valid(v122_threat_panel):
-		v122_threat_panel.visible = threat_visible
-	if threat_visible and v122_threat_label != null and is_instance_valid(v122_threat_label):
-		v122_threat_label.text = _v122_threat_text(model)
+	combat_workspace.update_status()
 
 
 func _v122_threat_text(model: Dictionary) -> String:
@@ -546,376 +553,31 @@ func _v122_threat_text(model: Dictionary) -> String:
 
 
 func _update_v122_command_controls() -> void:
-	if not root.has_meta("v122_combat_view_model"):
-		return
-	var model: Dictionary = root.get_meta("v122_combat_view_model", {})
-	var pending_command_id := str(model.get("pending_command_id", ""))
-	if v122_command_points_label != null and is_instance_valid(v122_command_points_label):
-		if pending_command_id == "":
-			v122_command_points_label.text = "명령 %d/%d · 명령 선택 → 노란 대상 클릭" % [
-				int(model.get("command_points", 0)),
-				int(model.get("command_points_max", 0))
-			]
-		else:
-			var pending_data := _v122_command_data(pending_command_id)
-			v122_command_points_label.text = "%s 준비 · 노란 %s 클릭 · ESC/우클릭 취소" % [
-				str(pending_data.get("label", pending_command_id)),
-				_v122_target_type_label(str(pending_data.get("target_type", "")))
-			]
-	for value in model.get("commands", []):
-		if not value is Dictionary:
-			continue
-		var command: Dictionary = value
-		var command_id := str(command.get("id", ""))
-		var command_button = v122_command_buttons.get(command_id)
-		if not command_button is Button or not is_instance_valid(command_button):
-			continue
-		var live_state_value = root.get_meta("v122_command_state", {})
-		var live_state: Dictionary = live_state_value if live_state_value is Dictionary else {}
-		var live_cooldown := float(live_state.get("cooldowns", {}).get(command_id, command.get("cooldown_seconds", 0.0)))
-		var live_active: Dictionary = live_state.get("active_commands", {}).get(command_id, {})
-		var active_seconds := float(live_active.get("remaining_seconds", command.get("active_seconds", 0.0)))
-		var live_points := int(live_state.get("points", model.get("command_points", 0)))
-		var cost := int(command.get("cost", 0))
-		var unavailable := live_cooldown > 0.0 or live_points < cost
-		# Disabled controls cannot explain why a deliberate command was refused. Keep
-		# the button pressable, dim it, and let the command layer return its specific
-		# reason and recovery cue without spending a command point.
-		command_button.disabled = false
-		command_button.text = "%s\n%s" % [
-			str(command.get("label", command_id)),
-			"발동 %.1f초" % active_seconds if active_seconds > 0.05 else "%.1f초" % live_cooldown if live_cooldown > 0.05 else "CP %d" % cost
-		]
-		if unavailable:
-			command_button.tooltip_text = "지금은 %s. 눌러서 이유와 다음 행동을 확인하세요." % ("재사용 대기 중" if live_cooldown > 0.0 else "명령 포인트가 부족합니다")
-			command_button.add_theme_stylebox_override("normal", style(Color("#25212af5"), Color("#766d7f"), 2))
-			command_button.add_theme_stylebox_override("hover", style(Color("#332b34fa"), Color("#ff9a8b"), 3))
-			command_button.add_theme_color_override("font_color", Color("#c9c0cf"))
-		elif active_seconds > 0.05:
-			command_button.add_theme_stylebox_override("normal", style(Color("#39284bf5"), Color("#ffd36a"), 3))
-			command_button.add_theme_color_override("font_color", Color("#fff2c9"))
-		elif command_id == pending_command_id:
-			command_button.add_theme_stylebox_override("normal", style(Color("#392b18f5"), Color("#ffd36a"), 3))
-			command_button.add_theme_stylebox_override("hover", style(Color("#4b3820f8"), Color("#fff2a8"), 4))
-			command_button.add_theme_color_override("font_color", Color("#fff2c9"))
+	combat_workspace.update_commands()
 
 
 func build_combat_core_hud() -> void:
-	var model: Dictionary = root.get_meta("v122_combat_view_model", {})
-	var touch_ui := UISettings.is_touch_ui()
-	var compact := UISettings.is_compact_layout()
-	var layout: Dictionary = V122CombatViewModelScript.design_layout_contract(compact, touch_ui)
-	var throne_hp := int(model.get("throne_hp", GameState.demon_lord_hp))
-	var throne_hp_max := maxi(1, int(model.get("throne_hp_max", GameState.demon_lord_max_hp)))
-	var throne_rect: Rect2 = layout.get("throne_status", Rect2(20, 20, 620, 72))
-	var throne_panel := panel(throne_rect, Color("#0b0910dc"), Color("#6e5630"), "CombatThroneStatus", "flat")
-	throne_panel.name = "CombatThroneStatus"
-	if root.has_method("register_tutorial_target_control"):
-		root.register_tutorial_target_control("BossHpBar", throne_panel)
-	var status_label_y := 7.0 if touch_ui else 3.0
-	var status_bar_y := 38.0 if touch_ui else throne_rect.size.y - 16.0
-	var status_bar_height := 10.0 if touch_ui else 7.0
-	var status_inner_width := throne_rect.size.x - 32.0
-	var progress_width := 126.0 if touch_ui else clampf(status_inner_width * 0.27, 180.0, 210.0)
-	var status_gap := 18.0
-	v122_throne_hp_fill_width = status_inner_width - progress_width - status_gap
-	var progress_x := 16.0 + v122_throne_hp_fill_width + status_gap
-	v122_throne_status_label = label(
-		throne_panel,
-		"DAY %02d · 왕좌 %d / %d" % [GameState.day, throne_hp, throne_hp_max],
-		Vector2(16, status_label_y),
-		Vector2(v122_throne_hp_fill_width, 40),
-		20,
-		Color("#fff0dc"),
-		HORIZONTAL_ALIGNMENT_LEFT,
-		"",
-		UIFontScript.ROLE_EMPHASIS
-	)
-	v122_throne_hp_fill = _stat_bar(
-		throne_panel,
-		Rect2(16, status_bar_y, v122_throne_hp_fill_width, status_bar_height),
-		float(throne_hp) / float(throne_hp_max),
-		Color("#dc4e5d"),
-		Color("#3a1118")
-	)
-	var defense_progress := clampf(float(model.get("defense_progress", 0.0)), 0.0, 1.0)
-	v122_defense_progress_label = label(
-		throne_panel,
-		"방어 진행 %d%%" % int(round(defense_progress * 100.0)),
-		Vector2(progress_x, status_label_y),
-		Vector2(progress_width, 40),
-		20,
-		Color("#d8d1df"),
-		HORIZONTAL_ALIGNMENT_LEFT,
-		"",
-		UIFontScript.ROLE_EMPHASIS
-	)
-	v122_defense_progress_fill_width = progress_width
-	v122_defense_progress_fill = _stat_bar(
-		throne_panel,
-		Rect2(progress_x, status_bar_y, v122_defense_progress_fill_width, status_bar_height),
-		defense_progress,
-		Color("#d8a83f"),
-		Color("#302512")
-	)
-	if bool(model.get("threat_panel_visible", false)):
-		var threat_rect: Rect2 = layout.get("threat", Rect2(660, 20, 700, 72))
-		var threat_panel := panel(threat_rect, Color("#180b0ddd"), Color("#a94f50"), "CombatThreat", "flat")
-		threat_panel.name = "CombatThreat"
-		v122_threat_panel = threat_panel
-		label(threat_panel, "침입 위협", Vector2(14, status_label_y), Vector2(96, 40), 20, Color("#ff9d8f"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-		v122_threat_label = label(
-			threat_panel,
-			_v122_threat_text(model),
-			Vector2(116, status_label_y),
-			Vector2(threat_rect.size.x - 130.0, threat_rect.size.y - status_label_y - 6.0),
-			20,
-			Color("#f7e4df"),
-			HORIZONTAL_ALIGNMENT_LEFT,
-			"",
-			UIFontScript.ROLE_BODY,
-			VERTICAL_ALIGNMENT_CENTER,
-			TextServer.AUTOWRAP_WORD_SMART,
-			2
-		)
-
-	var command_rect: Rect2 = layout.get("commands", Rect2(420, 884, 1000, 142))
-	var command_panel := panel(command_rect, Color("#0b0910e8"), Color("#6e5630"), "CombatCommandBar", "flat")
-	command_panel.name = "CombatCommandBar"
-	v122_command_points_label = label(
-		command_panel,
-		"명령 %d/%d · 명령 선택 → 노란 대상 클릭" % [
-			int(model.get("command_points", 0)),
-			int(model.get("command_points_max", 0))
-		],
-		Vector2(14, 3),
-		Vector2(command_rect.size.x - 28.0, 34),
-		20,
-		Color("#ffd36a"),
-		HORIZONTAL_ALIGNMENT_CENTER,
-		"",
-		UIFontScript.ROLE_EMPHASIS
-	)
-	var command_specs := [
-		{"id": "rally", "target_id": "GLOBAL_DIRECTIVE_DEFEND"},
-		{"id": "focus", "target_id": "V122_COMMAND_FOCUS"},
-		{"id": "emergency_fallback", "target_id": "V122_COMMAND_FALLBACK"}
-	]
-	var command_gap := 10.0
-	var command_button_width := (command_rect.size.x - 24.0 - command_gap * maxf(0.0, float(command_specs.size() - 1))) / maxf(1.0, float(command_specs.size()))
-	var command_button_y := 42.0
-	var command_button_height := command_rect.size.y - command_button_y - 10.0
-	for index in range(command_specs.size()):
-		var spec: Dictionary = command_specs[index]
-		var command_id := str(spec.get("id", ""))
-		var command_data := _v122_command_data(command_id)
-		var command_button := button(
-			command_panel,
-			str(command_data.get("label", command_id)),
-			Rect2(
-				12 + index * (command_button_width + command_gap),
-				command_button_y,
-				command_button_width,
-				command_button_height
-			),
-			Callable(root, "_issue_v122_command").bind(command_id),
-			20,
-			str(spec.get("target_id", ""))
-		)
-		command_button.set_meta("ui_audio_silent", true)
-		command_button.tooltip_text = "전장의 노란 %s 표시를 클릭하면 즉시 발동 · CP %d" % [
-			_v122_target_type_label(str(command_data.get("target_type", ""))),
-			int(command_data.get("cost", 0))
-		]
-		if str(command_data.get("description", "")) != "":
-			command_button.tooltip_text += "\n%s" % str(command_data.get("description", ""))
-		v122_command_buttons[command_id] = command_button
-	if not touch_ui:
-		build_combat_tactics_panel()
-		build_combat_special_actions_panel()
-	build_speed_panel()
-	_update_v122_combat_core_status()
-	_update_v122_command_controls()
+	combat_workspace.setup(root, self)
+	combat_workspace.build_core()
 
 
 func build_combat_tactics_panel() -> void:
-	var compact := UISettings.is_compact_layout()
-	var layout := V122CombatViewModelScript.design_layout_contract(compact, false)
-	var tactics_rect: Rect2 = layout.get("tactics", Rect2(20, 884, 380, 142))
-	var tactics_panel := panel(tactics_rect, Color("#0b0910e8"), Color("#5c475f"), "CombatTacticsPanel", "flat")
-	tactics_panel.name = "CombatTacticsPanel"
-	var panel_width := tactics_rect.size.x
-	var row_height := 44.0
-	var first_row_y := 46.0
-	var second_row_y := 104.0
-	label(tactics_panel, "운영 지침", Vector2(10, 3), Vector2(panel_width - 20.0, 36), 22, Color("#d9b45d"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	label(tactics_panel, "전체", Vector2(10, first_row_y), Vector2(54, row_height), 18, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	var global_button := option_button(
-		tactics_panel,
-		Rect2(64, first_row_y, panel_width - 74.0, row_height),
-		[
-			{"label": "사수 · 배치 방 방어", "value": Constants.DIRECTIVE_DEFENSE},
-			{"label": "총공격 · 전장 전체 추격", "value": Constants.DIRECTIVE_ALL_OUT},
-			{"label": "생존 · 회복과 이탈 우선", "value": Constants.DIRECTIVE_SURVIVAL}
-		],
-		root.global_directive,
-		Callable(root, "_set_global_directive"),
-		20,
-		"GLOBAL_DIRECTIVE_DEFEND"
-	)
-	if root.has_method("_day_one_global_directive_locked") and root._day_one_global_directive_locked():
-		global_button.disabled = true
-		global_button.tooltip_text = "DAY 01은 사수로 고정됩니다."
-	var selected_room_name: String = str(root.display_name_for_instance(root.selected_room))
-	label(tactics_panel, selected_room_name, Vector2(10, second_row_y), Vector2(92, row_height), 18, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	var selected_room_data: Dictionary = root.rooms.get(root.selected_room, {})
-	var facility_role := str(selected_room_data.get("facility_role", ""))
-	var active_facility: bool = (
-		facility_role in ["barracks", "recovery", "watch_post", "ward_core"]
-		and root.has_method("_facility_room_is_active")
-		and root._facility_room_is_active(root.selected_room)
-	)
-	if active_facility:
-		var facility_button := button(
-			tactics_panel,
-			"시설 가동 · %s" % root._facility_short_label(facility_role),
-			Rect2(104, second_row_y, panel_width - 114.0, row_height),
-			Callable(root, "_issue_v122_selected_facility"),
-			18,
-			"V122_COMMAND_FACILITY_CONTEXT"
-		)
-		facility_button.set_meta("ui_audio_silent", true)
-		facility_button.tooltip_text = "선택한 시설을 즉시 가동합니다. 시설을 선택하면 이 자리에서만 나타납니다."
-	else:
-		var room_button := option_button(
-			tactics_panel,
-			Rect2(104, second_row_y, panel_width - 114.0, row_height),
-			root._room_directive_options(root.selected_room),
-			root.room_directives.get(root.selected_room, Constants.ROOM_DIRECTIVE_NONE),
-			Callable(root, "_set_room_directive"),
-			20
-		)
-		room_button.name = "CombatSelectedRoomDirective"
-		room_button.tooltip_text = "%s의 방 지침입니다. 전장의 방을 클릭해 대상을 바꿉니다." % selected_room_name
+	combat_workspace.build_tactics()
 
 
 func build_combat_special_actions_panel() -> void:
-	var heart: Dictionary = root.update3_active_run.get("heart", {}) if root.update3_active_run is Dictionary else {}
-	var heart_available := str(heart.get("heart_id", "")) != "" and bool(heart.get("awakened", false))
-	var duo_state: Dictionary = root._update3_duo_link_hud_state() if root.has_method("_update3_duo_link_hud_state") else {}
-	var equipped_links: Array = duo_state.get("equipped", [])
-	var floor_available: bool = (
-		root.has_method("_update4_council_mode_active")
-		and root._update4_council_mode_active()
-		and bool(root.update4_active_run.get("upper_floor", {}).get("unlocked", false))
-	)
-	if not heart_available and equipped_links.is_empty() and not floor_available:
-		return
-	var compact := UISettings.is_compact_layout()
-	var layout := V122CombatViewModelScript.design_layout_contract(compact, false)
-	var special_rect: Rect2 = layout.get("special_actions", Rect2(1568, 884, 332, 142))
-	var special_panel := panel(special_rect, Color("#0b0910e8"), Color("#5c475f"), "CombatSpecialActions", "flat")
-	special_panel.name = "CombatSpecialActions"
-	var content_width := special_rect.size.x - 20.0
-	label(special_panel, "특수 전력", Vector2(10, 3), Vector2(content_width, 22), 13 if compact else 11, Color("#d9b45d"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	var actions: Array[Dictionary] = []
-	if heart_available:
-		actions.append({
-			"text": "심장\n%d/100" % clampi(int(heart.get("charge", 0)), 0, 100),
-			"callback": Callable(root, "_activate_update3_heart"),
-			"disabled": int(heart.get("charge", 0)) < 100 or bool(heart.get("active_used_this_battle", false)) or bool(heart.get("disabled_this_battle", false)),
-			"name": "CombatHeartActivate"
-		})
-	for link_index in range(mini(2, equipped_links.size())):
-		var link_id := str(equipped_links[link_index])
-		var state: Dictionary = duo_state.get("states", {}).get(link_id, {})
-		actions.append({
-			"text": "%s\n%d/100" % [str(duo_state.get("names", {}).get(link_id, link_id)), clampi(int(state.get("charge", 0)), 0, 100)],
-			"callback": Callable(root, "_activate_update3_duo_link").bind(link_id),
-			"disabled": not bool(state.get("active", false)) or bool(state.get("used_this_battle", false)) or int(state.get("charge", 0)) < 100,
-			"name": "CombatDuoActivate_%d" % link_index
-		})
-	var action_count := mini(3, actions.size())
-	var action_width := (content_width - maxf(0.0, float(action_count - 1)) * 6.0) / maxf(1.0, float(action_count))
-	var floor_row_height := 34.0 if floor_available else 0.0
-	var action_height := special_rect.size.y - 38.0 - floor_row_height
-	for action_index in range(action_count):
-		var action: Dictionary = actions[action_index]
-		var action_button := button(
-			special_panel,
-			str(action.get("text", "")),
-			Rect2(10 + action_index * (action_width + 6.0), 30, action_width, action_height),
-			action.get("callback", Callable()),
-			12 if compact else 11,
-			str(action.get("name", ""))
-		)
-		action_button.disabled = bool(action.get("disabled", false))
-	if floor_available:
-		var floor_y := special_rect.size.y - 38.0
-		var floor_label_width := minf(104.0, content_width * 0.32)
-		var floor_button_width := (content_width - floor_label_width - 12.0) * 0.5
-		label(special_panel, "표시 층", Vector2(10, floor_y), Vector2(floor_label_width, 30), 11, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_CENTER)
-		button(special_panel, "1F", Rect2(16 + floor_label_width, floor_y, floor_button_width, 30), Callable(root, "_select_update4_visible_floor").bind("1F"), 11, "CombatFloor1")
-		button(special_panel, "2F", Rect2(22 + floor_label_width + floor_button_width, floor_y, floor_button_width, 30), Callable(root, "_select_update4_visible_floor").bind("2F"), 11, "CombatFloor2")
+	combat_workspace.build_special_actions()
 
 
 func build_combat_unit_inspector() -> void:
-	if root.selected_unit == null or not is_instance_valid(root.selected_unit):
-		return
-	selected_unit_dynamic_labels.clear()
-	selected_unit_displayed_id = root.selected_unit.get_instance_id()
-	var unit = root.selected_unit
-	var is_enemy := str(unit.faction) == Constants.FACTION_ENEMY
-	var accent := Color("#ff8f7f") if is_enemy else Color("#aee88f")
-	if UISettings.is_touch_ui():
-		_build_touch_combat_unit_inspector(unit, is_enemy, accent)
-		return
-	var layout := V122CombatViewModelScript.design_layout_contract(UISettings.is_compact_layout(), false)
-	var inspector_rect: Rect2 = layout.get("unit_inspector", Rect2(1518, 104, 370, 270))
-	var inspector := panel(inspector_rect, Color("#09070de8"), accent.darkened(0.52), "CombatUnitInspector", "flat")
-	inspector.name = "CombatUnitInspector"
-	inspector.z_index = 110
-	inspector.mouse_filter = Control.MOUSE_FILTER_STOP
-	label(inspector, "적 정보" if is_enemy else "아군 정보", Vector2(14, 8), Vector2(370, 36), 22, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	button(inspector, "×", Rect2(394, 8, 36, 36), Callable(root, "_clear_combat_unit_selection"), 15, "CombatUnitInspectorClose")
-	_combat_unit_portrait(inspector, unit, is_enemy, Rect2(16, 56, 96, 104))
-	label(inspector, _combat_unit_display_name(unit, is_enemy), Vector2(128, 54), Vector2(298, 40), 26, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var role_label := label(inspector, _combat_unit_role_label(unit, is_enemy), Vector2(128, 102), Vector2(298, 68), 20, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT)
-	role_label.name = "CombatUnitRole"
-	role_label.set_meta("uiux_keep_font_size", true)
-	var stats_label := label(inspector, "공격 %d · 방어 %d" % [int(unit.atk), int(unit.def)], Vector2(218, 176), Vector2(208, 34), 20, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT)
-	stats_label.name = "CombatUnitStats"
-	stats_label.set_meta("uiux_keep_font_size", true)
-	label(inspector, "HP", Vector2(16, 176), Vector2(54, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["hp"] = label(inspector, "%d / %d" % [unit.hp, unit.max_hp], Vector2(74, 176), Vector2(128, 32), 22, _combat_unit_hp_color(unit), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	label(inspector, "위치", Vector2(16, 218), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["room"] = label(inspector, root.display_name_for_instance(str(unit.current_room)), Vector2(88, 218), Vector2(338, 32), 20, Color("#eee5f4"), HORIZONTAL_ALIGNMENT_LEFT)
-	label(inspector, "행동", Vector2(16, 260), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["state"] = label(inspector, _combat_unit_state_text(unit), Vector2(88, 260), Vector2(338, 32), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	label(inspector, "목표", Vector2(16, 302), Vector2(60, 32), 20, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT)
-	selected_unit_dynamic_labels["objective"] = label(inspector, _combat_unit_objective_text(unit, is_enemy), Vector2(88, 302), Vector2(338, 32), 20, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var status_text := _combat_unit_status_text(unit, is_enemy)
-	selected_unit_dynamic_labels["status"] = rich_label(
-		inspector,
-		status_text,
-		Vector2(16, 346),
-		Vector2(414, 50),
-		18,
-		Color("#d8d1df"),
-		UIFontScript.ROLE_BODY,
-		TextServer.AUTOWRAP_WORD_SMART,
-		VERTICAL_ALIGNMENT_CENTER,
-		"",
-		2
-	)
-	# This starts empty before the first live target arrives. Keep its reserved
-	# rectangle in Chinese instead of aligning the empty content to a 6px box.
-	selected_unit_dynamic_labels["status"].set_meta("zh_dynamic_status_bounds", Rect2(16, 346, 414, 50))
+	combat_workspace.build_inspector()
 
 
 func _build_touch_combat_unit_inspector(unit: Node, is_enemy: bool, accent: Color) -> void:
 	var layout := V122CombatViewModelScript.design_layout_contract(false, true)
 	var inspector_rect: Rect2 = layout.get("unit_inspector", Rect2(820, 120, 1068, 620))
+	if _has_pynn_controls(unit,is_enemy):inspector_rect.size.y=maxf(inspector_rect.size.y,888)
+	elif _has_manual_skill_controls(unit,is_enemy):inspector_rect.size.y=maxf(inspector_rect.size.y,780)
 	var inspector := panel(inspector_rect, Color("#09070df8"), accent.darkened(0.42), "CombatUnitInspector", "flat")
 	inspector.name = "CombatUnitInspector"
 	inspector.z_index = 110
@@ -923,8 +585,8 @@ func _build_touch_combat_unit_inspector(unit: Node, is_enemy: bool, accent: Colo
 	label(inspector, "적 정보" if is_enemy else "아군 정보", Vector2(28, 18), Vector2(760, 70), 30, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
 	button(inspector, "닫기", Rect2(820, 14, 220, 104), Callable(root, "_clear_combat_unit_selection"), 24, "CombatUnitInspectorClose")
 	_combat_unit_portrait(inspector, unit, is_enemy, Rect2(32, 130, 180, 180))
-	label(inspector, _combat_unit_display_name(unit, is_enemy), Vector2(244, 130), Vector2(760, 54), 32, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
-	label(inspector, "%s · 공격 %d · 방어 %d" % [_combat_unit_role_label(unit, is_enemy), int(unit.atk), int(unit.def)], Vector2(244, 190), Vector2(760, 42), 22, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
+	selected_unit_dynamic_labels["name"]=label(inspector, _combat_unit_display_name(unit, is_enemy), Vector2(244, 130), Vector2(760, 54), 32, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
+	selected_unit_dynamic_labels["role_stats"]=label(inspector, "%s · 공격 %d · 방어 %d" % [_combat_unit_role_label(unit, is_enemy), int(unit.atk), int(unit.def)], Vector2(244, 190), Vector2(760, 42), 22, Color("#cfc7d9"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
 	label(inspector, "체력", Vector2(244, 246), Vector2(92, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
 	selected_unit_dynamic_labels["hp"] = label(inspector, "%d / %d" % [unit.hp, unit.max_hp], Vector2(346, 246), Vector2(658, 44), 26, _combat_unit_hp_color(unit), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
 	label(inspector, "위치", Vector2(32, 330), Vector2(170, 44), 22, Color("#aaa1b5"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER)
@@ -935,6 +597,119 @@ func _build_touch_combat_unit_inspector(unit: Node, is_enemy: bool, accent: Colo
 	selected_unit_dynamic_labels["objective"] = label(inspector, _combat_unit_objective_text(unit, is_enemy), Vector2(212, 450), Vector2(792, 44), 24, accent, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
 	var status_text := _combat_unit_status_text(unit, is_enemy)
 	selected_unit_dynamic_labels["status"] = rich_label(inspector, status_text, Vector2(32, 510), Vector2(972, 84), 22, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_CENTER, "", 18)
+	if _has_pynn_controls(unit,is_enemy):_build_pynn_controls(inspector,unit,true)
+	elif _has_manual_skill_controls(unit,is_enemy):_build_manual_skill_controls(inspector,unit,true)
+	# Keep the existing detail content, but bound its viewport above commands
+	# and speed controls. Long/manual-skill details remain scrollable.
+	var children := inspector.get_children()
+	var scroll := ScrollContainer.new()
+	scroll.name = "CombatUnitInspectorScroll"
+	scroll.position = Vector2(16, 120)
+	scroll.size = Vector2(inspector.size.x - 32, 400)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	inspector.add_child(scroll)
+	var content := Control.new()
+	content.custom_minimum_size = Vector2(scroll.size.x - 16, inspector.size.y - 120)
+	scroll.add_child(content)
+	for child in children:
+		if child is Control and child.position.y >= 120:
+			child.reparent(content, false)
+			child.position -= Vector2(16, 120)
+	inspector.size.y = 528
+
+func _has_manual_skill_controls(unit:Node,is_enemy:bool)->bool:
+	if is_enemy:return false
+	for id in root.combat_scene.skill_slots_for(unit):
+		if id!=null and str(id) in root.combat_scene.IMPLEMENTED_ACTION_SKILLS:return true
+	return false
+func _build_manual_skill_controls(parent:Control,unit:Node,touch:bool)->void:
+	var x:=32.0 if touch else 16.0;var y:=610.0 if touch else 406.0;var width:=972.0 if touch else 414.0;var height:=64.0 if touch else 44.0;var gap:=10.0
+	manual_skill_controls={"unit":unit,"skills":{}}
+	var ids:Array=[]
+	for value in root.combat_scene.skill_slots_for(unit):
+		if value!=null and str(value) in root.combat_scene.IMPLEMENTED_ACTION_SKILLS:ids.append(str(value))
+	for index in range(ids.size()):
+		var id:String=ids[index]
+		var full_width:bool=index==ids.size()-1 and ids.size()%2==1
+		var rect:=Rect2(x+(index%2)*((width-gap)/2+gap),y+floori(index/2.0)*(height+gap),width if full_width else (width-gap)/2,height)
+		manual_skill_controls.skills[id]=button(parent,"",rect,Callable(self,"_request_manual_skill").bind(unit,id),22 if touch else 16,"ManualCast_"+id)
+		manual_skill_controls.skills[id].tooltip_text=str(DataRegistry.skill(id).get("description",""))
+	_update_manual_skill_controls()
+func _request_manual_skill(unit:Node,id:String)->void:
+	if not is_instance_valid(unit) or unit!=root.selected_unit or root.combat_scene.skill_actions.protected() or root.combat_scene.skill_actions.is_active():return
+	var slot:int=root.combat_scene.skill_slots_for(unit).find(id)
+	if slot>=0:root.combat_scene.request_unit_skill(unit,slot)
+	_update_manual_skill_controls()
+func _update_manual_skill_controls()->void:
+	if manual_skill_controls.is_empty() or not is_instance_valid(manual_skill_controls.unit):return
+	var unit=manual_skill_controls.unit;var combat=root.combat_scene
+	for id in manual_skill_controls.skills:
+		var skill:Dictionary=DataRegistry.skill(id);var control:Button=manual_skill_controls.skills[id]
+		var cost:int=root._current_skill_mana_cost(skill,unit)
+		var caption: String=LanguageSettings.ui_text(str(skill.get("display_name",id)))
+		if cost>0:caption+="\n"+root.continuity.localized("마나","Mana","魔力")+" %d"%cost
+		var remaining: float=float(unit.skill_cooldowns.get(id,0.0))
+		if remaining>0.05:caption+="\n"+root.continuity.localized("대기 %.1f초", "Wait %.1fs", "等待 %.1f秒")%remaining
+		var usable:bool=unit.is_alive() and not unit.is_queued_for_deletion() and unit.skill_ready(id) and not unit.active_skills_locked() and not unit.duo_action_locked() and not combat.crown_command.owned(unit) and not combat.crown_mobility.transits.has(unit.get_instance_id()) and GameState.mana>=cost
+		match id:
+			"royal_no_second_cut":usable=usable and combat.crown_command.available(unit);caption+=" · %d/2"%int(unit.get_meta("royal_chain_uses",0))
+			"royal_jelly_bastion":usable=usable and combat._royal_jelly_available(unit)
+			"royal_urgent_courier":usable=usable and combat.crown_mobility.courier_available(unit)
+			"royal_emergency_plating":usable=usable and combat.crown_facilities.available(unit)
+			"royal_shared_umbrella":usable=usable and combat.royal_support.available(unit)
+		if control.has_method("set_action_caption"): control.set_action_caption(caption)
+		else: control.text=caption
+		control.disabled=not usable or combat.skill_actions.protected() or combat.skill_actions.is_active()
+
+func _has_pynn_controls(unit:Node,is_enemy:bool)->bool:
+	return not is_enemy and str(unit.crown_body_descriptor.get("form_id",""))=="crown_pynn_castle_flame_sage"
+func _build_pynn_controls(parent:Control,unit:Node,touch:bool)->void:
+	var width:=972.0 if touch else 414.0;var x:=32.0 if touch else 16.0
+	var y:=610.0 if touch else 406.0;var height:=64.0 if touch else 42.0;var gap:=10.0
+	pynn_controls={"unit":unit,"modes":{},"skills":{}}
+	var modes:Array=["single_flame","area_flame","ember_curse"]
+	for i in range(3):
+		var mode:String=modes[i]
+		pynn_controls.modes[mode]=button(parent,"",Rect2(x+i*((width-gap*2)/3+gap),y,(width-gap*2)/3,height),Callable(self,"_choose_pynn_mode").bind(unit,mode),22 if touch else 18,"PynnMode_"+mode)
+	y+=height+gap
+	pynn_controls["auto"]=label(parent,"",Vector2(x,y),Vector2(width,30 if touch else 26),20 if touch else 16,Color("#cfc7d9"),HORIZONTAL_ALIGNMENT_LEFT)
+	y+=40 if touch else 34
+	for i in range(2):
+		var id:String="fireball" if i==0 else "flame_zone"
+		pynn_controls.skills[id]=button(parent,"",Rect2(x+i*((width-gap)/2+gap),y,(width-gap)/2,height),Callable(self,"_request_pynn_manual_skill").bind(unit,id),22 if touch else 17,"PynnCast_"+id)
+	y+=height+gap
+	pynn_controls.skills["tricolor_demonfire"]=button(parent,"",Rect2(x,y,width,height),Callable(self,"_request_pynn_manual_skill").bind(unit,"tricolor_demonfire"),24 if touch else 19,"PynnCast_tricolor_demonfire")
+	_update_pynn_controls()
+func _choose_pynn_mode(unit:Node,mode:String)->void:
+	if not is_instance_valid(unit) or root.combat_scene.skill_actions.protected() or root.combat_scene.skill_actions.is_active():return
+	root.combat_scene.crown_flame.set_mode(unit,mode);_update_pynn_controls()
+func _request_pynn_manual_skill(unit:Node,skill_id:String)->void:
+	if not is_instance_valid(unit) or root.combat_scene.skill_actions.protected() or root.combat_scene.skill_actions.is_active():return
+	var slot:int=root.combat_scene.skill_slots_for(unit).find(skill_id)
+	if slot>=0:root.combat_scene.request_unit_skill(unit,slot,false)
+	_update_pynn_controls()
+func _update_pynn_controls()->void:
+	if pynn_controls.is_empty() or not is_instance_valid(pynn_controls.unit):return
+	var unit=pynn_controls.unit;var runtime=root.combat_scene.crown_flame
+	var blocked:bool=root.combat_scene.skill_actions.protected() or root.combat_scene.skill_actions.is_active() or not unit.is_alive() or unit.active_skills_locked() or unit.duo_action_locked()
+	for mode in pynn_controls.modes:
+		var control=pynn_controls.modes[mode]
+		if not is_instance_valid(control):continue
+		var quote:Dictionary=runtime.quote(unit,str(mode))
+		control.text=("✓ " if runtime.mode(unit)==str(mode) else "")+runtime.mode_name(str(mode))+" %d"%int(quote.get("cost",0))
+		control.disabled=blocked or not runtime.active(unit)
+	var auto_label=pynn_controls.get("auto")
+	if is_instance_valid(auto_label):auto_label.text=root.continuity.localized("자동 선택","Auto choice","自动选择")+" · "+(runtime.mode_name(runtime.auto_mode(unit)) if runtime.auto_mode(unit)!="" else root.continuity.localized("대기","Waiting","等待"))
+	for id in pynn_controls.skills:
+		var control=pynn_controls.skills[id]
+		if not is_instance_valid(control):continue
+		var royal:bool=str(id)=="tricolor_demonfire"
+		var cost:int=int(runtime.quote(unit,runtime.mode(unit)).get("cost",0)) if royal else root._current_skill_mana_cost(DataRegistry.skill(str(id)),unit)
+		var caption: String=(root.continuity.localized("삼색 실행","Cast tricolor","施放三色") if royal else LanguageSettings.ui_text(str(DataRegistry.skill(str(id)).get("display_name",id))))+" · "+root.continuity.localized("마나","Mana","魔力")+" %d"%cost
+		if royal:caption+=" · %d/2"%maxi(0,2-int(unit.get_meta("tricolor_uses",0)))
+		if control.has_method("set_action_caption"): control.set_action_caption(caption.replace(" · ","\n"))
+		else: control.text=caption
+		control.disabled=blocked or not unit.skill_ready(str(id)) or GameState.mana<cost or (royal and not runtime.available(unit))
 
 
 func _combat_unit_portrait(parent: Control, unit: Node, is_enemy: bool, rect: Rect2) -> TextureRect:
@@ -954,6 +729,8 @@ func _combat_unit_portrait(parent: Control, unit: Node, is_enemy: bool, rect: Re
 
 
 func _combat_unit_role_label(unit: Node, is_enemy: bool) -> String:
+	if not is_enemy and root.combat_scene._active_crown_id(unit)=="crown_popo_grand_night_courier":
+		return root.continuity.localized("위험 방 긴급 지원·전령 기동","Danger-room support · Courier mobility","危险房间支援·信使机动")
 	return role_display_name(str(unit.role), is_enemy)
 
 static func role_display_name(role_id: String, is_enemy: bool = false) -> String:
@@ -1040,6 +817,47 @@ func _combat_unit_status_text(unit: Node, is_enemy: bool) -> String:
 	if status == fallback:
 		status = "대상 · " + target if target != "" and not _combat_unit_objective_text(unit,is_enemy).split(" · ").has(target) else ""
 	var parts: Array = []
+	if not is_enemy:
+		if not unit.crown_body_descriptor.is_empty() and not unit._current_crown_body_active():
+			parts.append(root.continuity.localized("왕관 효과 억제", "Crown effects suppressed", "王冠效果受抑制"))
+		if root.combat_scene._active_crown_id(unit)=="crown_pynn_castle_flame_sage":
+			parts.append(root.continuity.localized("마나 효율 +6%","Mana efficiency +6%","魔力效率 +6%"))
+		if root.combat_scene._active_crown_id(unit)=="crown_popo_grand_night_courier":
+			parts.append(root.continuity.localized("상태 시간 약 -5.7% · 봉인 시간 +15%", "Status duration ≈ -5.7% · Seal duration +15%", "状态持续约 -5.7% · 封印持续 +15%"))
+		for skill_value in root.combat_scene.skill_slots_for(unit):
+			if skill_value != null and str(skill_value) not in root.combat_scene.IMPLEMENTED_ACTION_SKILLS:
+				parts.append(str(DataRegistry.skill(str(skill_value)).get("display_name", skill_value)) + " · " + root.continuity.localized("전투 미지원", "unavailable", "暂不支持"))
+		if float(unit.royal_jelly_timer) > 0.0:
+			parts.append(root.continuity.localized("왕관 젤 방호", "Royal gel guard", "王冠凝胶防护") + " %.1f" % float(unit.royal_jelly_timer))
+		if unit.mori_barrier>0:parts.append(root.continuity.localized("포자 성찬", "Spore sacrament", "孢子圣餐")+" %d / %.1f"%[unit.mori_barrier,unit.mori_barrier_timer])
+		if unit.crown_plating_move_timer>0.0:parts.append(root.continuity.localized("판금 후 이동 -25%", "Post-plating movement -25%", "镀甲后移速 -25%")+" %.1f"%unit.crown_plating_move_timer)
+		if unit.crown_forge_bonus>0:
+			var forge:int=root.combat_scene.crown_facilities.forge_bonus(unit)
+			if forge>0:parts.append(root.continuity.localized("움직이는 공방 방어", "Moving forge DEF", "移动工坊防御")+" +%d"%forge)
+		if unit.mori_healing_penalty_timer>0.0:parts.append(root.continuity.localized("우산 후 회복 -15%", "Post-umbrella healing -15%", "伞后治疗 -15%")+" %.1f"%unit.mori_healing_penalty_timer)
+		if not unit.night_relay_buffs.is_empty():
+			var relay_seconds:=0.0
+			for relay_buff in unit.night_relay_buffs.values(): relay_seconds=maxf(relay_seconds,float(relay_buff.remaining))
+			parts.append(root.continuity.localized("중계 강화", "Relay boost", "接力强化")+" %.1f"%relay_seconds)
+		var thread_state:Dictionary=unit.get_meta("silky_state",{}).get("thread",{})
+		if bool(thread_state.get("active",false)):
+			parts.append(root.continuity.localized("문턱 거미실", "Threshold web", "门槛蛛丝")+" · %d"%int(thread_state.get("remaining_targets",0)))
+		if root.combat_scene._active_crown_id(unit) == "crown_pudding_royal_bastion":
+			var source:String=root.combat_scene.crown_mobility.source_evolution(unit)
+			if source=="slime_gate_bulwark":parts.append(root.continuity.localized("왕관 성문 계승", "Royal gate inheritance", "王冠城门传承"))
+			elif source=="slime_rescue_alchemy_gel":parts.append(root.continuity.localized("왕관 구조 계승", "Royal rescue inheritance", "王冠救援传承"))
+		if unit.crown_anchor_pending:parts.append(root.continuity.localized("중앙 사수 방어 +3", "Center guard DEF +3", "中央坚守防御+3") if root.combat_scene.crown_mobility.anchored(unit) else root.continuity.localized("중앙 접근", "Approaching center", "接近中央"))
+		if root.combat_scene.crown_mobility.transits.has(unit.get_instance_id()):parts.append(root.continuity.localized("왕관 긴급 이동", "Royal emergency transit", "王冠紧急移动"))
+		if not unit.crown_courier_sources.is_empty():parts.append(root.continuity.localized("왕관 전령 지원", "Royal courier support", "王冠信使支援"))
+	var native_status:String=root.combat_scene.native_objectives.status(unit)
+	if native_status!="":parts.append(native_status)
+	var echo_status:String=root.combat_scene.echo_alarm.status(unit)
+	if echo_status!="":parts.append(echo_status)
+	var royal_command_status:String=root.combat_scene.crown_command.status(unit)
+	if royal_command_status!="":parts.append(royal_command_status)
+	if not unit.crown_ember_sources.is_empty():
+		var penalty:int=root.combat_scene.crown_flame.def_penalty(unit)
+		if penalty>0:parts.append(root.continuity.localized("잿불 저주 방어","Ember curse DEF","余烬诅咒防御")+" -%d"%penalty)
 	if is_enemy and unit.has_method("threat_warning_text"):
 		parts.append(str(unit.threat_warning_text()))
 	elif not is_enemy and unit.has_method("has_growth_preparation") and unit.has_growth_preparation():
@@ -1049,21 +867,7 @@ func _combat_unit_status_text(unit: Node, is_enemy: bool) -> String:
 
 
 func build_combat_context_drawer(targeting_state: Dictionary = {}) -> void:
-	var touch_ui := UISettings.is_touch_ui()
-	var layout := V122CombatViewModelScript.design_layout_contract(UISettings.is_compact_layout(), touch_ui)
-	var drawer_rect: Rect2 = layout.get("context_drawer", Rect2(1518, 96, 370, 756))
-	var drawer := panel(drawer_rect, Color("#09070df8"), Color("#8d6a3a"), "CombatContextDrawer", "flat")
-	drawer.name = "CombatContextDrawer"
-	drawer.z_index = 120
-	drawer.mouse_filter = Control.MOUSE_FILTER_STOP
-	label(drawer, "전투 상세", Vector2(18, 12), Vector2(640 if touch_ui else 250, 96 if touch_ui else 32), 26 if touch_ui else 22, Color("#fff0dc"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	button(drawer, "닫기", Rect2(870, 10, 180, 100) if touch_ui else Rect2(282, 10, 70, 38), Callable(root, "_close_combat_context_drawer"), 20 if touch_ui else 13, "CombatContextClose")
-	if str(targeting_state.get("command_id", "")) != "":
-		_build_combat_targeting_drawer(drawer, targeting_state)
-	elif touch_ui:
-		_build_touch_combat_detail_drawer(drawer)
-	else:
-		_build_combat_detail_drawer(drawer)
+	combat_workspace.build_context(targeting_state)
 
 
 func _build_combat_targeting_drawer(drawer: Control, targeting_state: Dictionary) -> void:
@@ -1251,11 +1055,6 @@ func _build_combat_detail_drawer(drawer: Control) -> void:
 		var duo_button := button(special_panel, "합동기 발동", Rect2(210, special_y, 112, 34), Callable(root, "_activate_update3_duo_link").bind(link_id), 11, "CombatDuoActivate_%d" % link_index)
 		duo_button.disabled = not bool(state.get("active", false)) or bool(state.get("used_this_battle", false)) or charge < 100
 		special_y += 42.0
-	if root.has_method("_update4_council_mode_active") and root._update4_council_mode_active() and bool(root.update4_active_run.get("upper_floor", {}).get("unlocked", false)):
-		label(special_panel, "표시 층", Vector2(12, special_y), Vector2(84, 34), 12, Color("#cfc7d9"))
-		button(special_panel, "1F", Rect2(104, special_y, 68, 34), Callable(root, "_select_update4_visible_floor").bind("1F"), 12, "CombatFloor1")
-		button(special_panel, "2F", Rect2(180, special_y, 68, 34), Callable(root, "_select_update4_visible_floor").bind("2F"), 12, "CombatFloor2")
-		special_y += 42.0
 	if root.has_method("_facility_effect_status_lines"):
 		for facility_line_value in root._facility_effect_status_lines():
 			var facility_line := str(facility_line_value)
@@ -1266,7 +1065,7 @@ func _build_combat_detail_drawer(drawer: Control) -> void:
 			if special_y >= 176.0:
 				break
 	if special_y <= 34.0:
-		label(special_panel, "현재 활성화된 심장·합동기·상층 전력이 없습니다.", Vector2(12, 62), Vector2(310, 54), 12, Color("#8f8798"), HORIZONTAL_ALIGNMENT_CENTER)
+		label(special_panel, "현재 활성화된 심장·합동기 전력이 없습니다.", Vector2(12, 62), Vector2(310, 54), 12, Color("#8f8798"), HORIZONTAL_ALIGNMENT_CENTER)
 
 	var log_panel := child_panel(drawer, Rect2(18, 570, 334, 184), Color("#120f16ee"), Color("#403448"), 1)
 	label(log_panel, "최근 전투 기록", Vector2(12, 7), Vector2(310, 22), 13, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
@@ -1280,7 +1079,7 @@ func _update_resource_values() -> void:
 	var values := {
 		"gold": "%d" % GameState.gold,
 		"mana": "%d" % GameState.mana,
-		"food": "%d / 30" % GameState.food,
+		"food": "%d / %d" % [GameState.food,GameState.Food.capacity(GameState.day)],
 		"infamy": "%d" % GameState.infamy
 	}
 	for key in values:
@@ -1330,10 +1129,22 @@ func _update_unit_status_column(faction: String, units: Array, base_color: Color
 		status_label.text = unit.status_line()
 
 func _update_selected_unit_status() -> void:
+	_update_manual_skill_controls()
 	if root.selected_unit == null or not is_instance_valid(root.selected_unit):
 		return
 	if root.selected_unit.get_instance_id() != selected_unit_displayed_id:
 		return
+	var selected=root.selected_unit
+	selected._sync_crown_body()
+	var is_enemy:bool=str(selected.faction)==Constants.FACTION_ENEMY
+	var display_name_label=selected_unit_dynamic_labels.get("name")
+	if is_instance_valid(display_name_label):display_name_label.text=LanguageSettings.ui_text(_combat_unit_display_name(selected,is_enemy))
+	var role_label=selected_unit_dynamic_labels.get("role")
+	if is_instance_valid(role_label):role_label.text=LanguageSettings.ui_text(_combat_unit_role_label(selected,is_enemy))
+	var stats_label=selected_unit_dynamic_labels.get("stats")
+	if is_instance_valid(stats_label):stats_label.text=LanguageSettings.ui_text("공격 %d · 방어 %d"%[int(selected.atk),int(selected.def)])
+	var role_stats_label=selected_unit_dynamic_labels.get("role_stats")
+	if is_instance_valid(role_stats_label):role_stats_label.text=LanguageSettings.ui_text("%s · 공격 %d · 방어 %d"%[_combat_unit_role_label(selected,is_enemy),int(selected.atk),int(selected.def)])
 	var portrait = selected_unit_dynamic_labels.get("portrait")
 	if portrait is TextureRect and is_instance_valid(portrait):
 		var unit = root.selected_unit
@@ -1369,6 +1180,7 @@ func _update_selected_unit_status() -> void:
 	var skills_label = selected_unit_dynamic_labels.get("skills")
 	if skills_label is RichTextLabel and is_instance_valid(skills_label):
 		skills_label.text = _selected_unit_skill_summary(root.selected_unit)
+	_update_pynn_controls()
 
 func build_selected_unit_panel() -> void:
 	selected_unit_dynamic_labels.clear()
@@ -1406,7 +1218,7 @@ func build_selected_unit_panel() -> void:
 
 func _selected_unit_skill_summary(unit: Node) -> String:
 	var lines: Array[String] = ["이동·공격·스킬은 현재 지시에 따라 자동 실행됩니다."]
-	var skill_slots: Array = DataRegistry.monster(unit.unit_id).get("skill_slots", [])
+	var skill_slots: Array = root.combat_scene.skill_slots_for(unit)
 	for skill_value in skill_slots:
 		if skill_value == null:
 			continue
@@ -1414,6 +1226,16 @@ func _selected_unit_skill_summary(unit: Node) -> String:
 		var skill: Dictionary = DataRegistry.skill(skill_id)
 		var cooldown := float(unit.skill_cooldowns.get(skill_id, 0.0))
 		var state := "준비" if cooldown <= 0.05 else "%.1f초" % cooldown
+		if skill_id not in root.combat_scene.IMPLEMENTED_ACTION_SKILLS:
+			state = root.continuity.localized("현재 전투 미지원", "Unavailable in combat", "当前战斗不支持")
+		elif skill_id == "royal_jelly_bastion" and not root.combat_scene._royal_jelly_available(unit):
+			state = root.continuity.localized("이번 전투 사용 완료", "Used this battle", "本场已使用")
+		elif skill_id=="royal_shared_umbrella" and int(unit.get_meta("royal_umbrella_uses",0))>=int(skill.get("uses_per_battle",1)):
+			state=root.continuity.localized("이번 전투 사용 완료", "Used this battle", "本场已使用")
+		elif skill_id=="royal_emergency_plating" and int(unit.get_meta("royal_plating_uses",0))>=int(skill.get("uses_per_battle",1)):
+			state=root.continuity.localized("이번 전투 사용 완료", "Used this battle", "本场已使用")
+		elif skill_id=="royal_urgent_courier":
+			state=root.continuity.localized("이번 전투 남은 횟수", "Uses left this battle", "本场剩余次数")+" %d"%maxi(0,int(skill.get("uses_per_battle",2))-int(unit.get_meta("royal_courier_uses",0)))
 		lines.append("• %s · %s" % [str(skill.get("display_name", skill_id)), state])
 	return "\n".join(lines)
 
@@ -1464,41 +1286,8 @@ func _room_directive_available(directive: String) -> bool:
 	return root._room_directive_options(root.selected_room).any(func(option): return str(option.get("value", "")) == directive)
 
 func build_speed_panel() -> void:
-	var touch_ui := UISettings.is_touch_ui()
-	var compact := UISettings.is_compact_layout()
-	var layout := V122CombatViewModelScript.design_layout_contract(compact, touch_ui)
-	var speed_rect: Rect2 = layout.get("speed_pause", Rect2(1438, 884, 120, 142))
-	var speed_panel = panel(speed_rect, Color("#100e14dc"), Color("#3b3143"), "CombatSpeedPanel", "flat")
-	speed_panel.name = "CombatSpeedPanel"
-	var speed_buttons: Array[Button] = []
-	if touch_ui:
-		speed_buttons = [
-			button(speed_panel, "x1", Rect2(8, 8, 116, 120), Callable(root, "_set_speed").bind(1.0), 18),
-			button(speed_panel, "x1.5", Rect2(136, 8, 116, 120), Callable(root, "_set_speed").bind(1.5), 18),
-			button(speed_panel, "x2", Rect2(8, 140, 116, 120), Callable(root, "_set_speed").bind(2.0), 18),
-			button(speed_panel, "x3", Rect2(136, 140, 116, 120), Callable(root, "_set_speed").bind(3.0), 18, "CombatSpeed3x")
-		]
-	else:
-		var gap := 6.0
-		var cell_width := (speed_rect.size.x - 16.0 - gap) * 0.5
-		var top_height := 42.0
-		var second_y := 8.0 + top_height + gap
-		button(speed_panel, "x1", Rect2(8, 8, cell_width, top_height), Callable(root, "_set_speed").bind(1.0), 20)
-		speed_buttons = [
-			button(speed_panel, "x1.5", Rect2(8 + cell_width + gap, 8, cell_width, top_height), Callable(root, "_set_speed").bind(1.5), 20),
-			button(speed_panel, "x2", Rect2(8, second_y, cell_width, top_height), Callable(root, "_set_speed").bind(2.0), 20),
-			button(speed_panel, "x3", Rect2(8 + cell_width + gap, second_y, cell_width, top_height), Callable(root, "_set_speed").bind(3.0), 20, "CombatSpeed3x")
-		]
-	for speed_button in speed_buttons:
-		if speed_button.text != "x1":
-			speed_button.disabled = not root._combat_speed_unlocked()
-		speed_button.tooltip_text = "튜토리얼 완료 후 사용할 수 있습니다." if speed_button.disabled else "전투 진행 속도를 변경합니다."
-	if touch_ui:
-		button(speed_panel, "일시정지", Rect2(8, 272, 244, 120), Callable(root, "_toggle_pause"), 18)
-	else:
-		var top_height := 42.0
-		var pause_y := 8.0 + top_height * 2.0 + 12.0
-		button(speed_panel, "일시정지", Rect2(8, pause_y, speed_rect.size.x - 16.0, speed_rect.size.y - pause_y - 8.0), Callable(root, "_toggle_pause"), 20)
+	combat_workspace.build_speed()
+
 
 func build_mobile_combat_bar() -> void:
 	selected_unit_dynamic_labels.clear()
@@ -1605,7 +1394,8 @@ func label(
 	min_font_size: int = 11
 ) -> Label:
 	var result = Label.new()
-	result.text = text
+	result.set_meta("hud_text_fit", true)
+	result.text = LanguageSettings.presentation_source(text)
 	result.position = position
 	result.size = size
 	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1617,17 +1407,18 @@ func label(
 	if max_lines > 0:
 		result.max_lines_visible = max_lines
 	result.add_theme_font_override("font", UIFontScript.font_for_role(font_role))
-	var base_font_size := font_size
+	var base_font_size := maxi(font_size, Standard.SUPPORT_SIZE if font_size <= Standard.SUPPORT_SIZE else Standard.BODY_SIZE)
 	if UISettings.is_touch_ui() and size.y >= 48.0:
 		base_font_size = UISettings.touch_font_size(font_size, 22)
-	var preferred_font_size = UISettings.scaled_font_size(base_font_size)
+	var preferred_font_size = Standard.text_size(base_font_size)
 	result.add_theme_font_size_override("font_size", preferred_font_size)
+	result.size.y = maxf(size.y, ceilf(result.get_theme_font("font").get_height(preferred_font_size)))
 	result.add_theme_color_override("font_color", color)
 	parent.add_child(result)
 	# Preferred text keeps the accessibility scale, but the fit floor must stay in
 	# logical pixels. Scaling the floor as well made compact HUD rows impossible
 	# to fit and caused their text to disappear at large/mobile text settings.
-	var fitted_minimum = 9
+	var fitted_minimum = Standard.SUPPORT_SIZE
 	call_deferred("_fit_label_to_bounds", result, fitted_minimum, 0)
 	_register_target(target_id, result)
 	return result
@@ -1646,7 +1437,7 @@ func rich_label(
 	min_font_size: int = 11
 ) -> RichTextLabel:
 	var result = RichTextLabel.new()
-	result.text = text
+	result.text = LanguageSettings.presentation_source(text)
 	result.position = position
 	result.size = size
 	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1656,34 +1447,50 @@ func rich_label(
 	result.clip_contents = true
 	result.autowrap_mode = wrap_mode
 	result.add_theme_font_override("normal_font", UIFontScript.font_for_role(font_role))
-	var preferred_font_size = UISettings.scaled_font_size(UISettings.touch_font_size(font_size, 22))
+	var preferred_font_size = Standard.text_size(UISettings.touch_font_size(font_size, Standard.BODY_SIZE))
 	result.add_theme_font_size_override("normal_font_size", preferred_font_size)
 	result.add_theme_color_override("default_color", color)
 	parent.add_child(result)
-	var fitted_minimum = 9
+	var fitted_minimum = Standard.SUPPORT_SIZE
 	call_deferred("_fit_rich_label_to_bounds", result, position, size, vertical_align, fitted_minimum, 0)
 	_register_target(target_id, result)
 	return result
 
 func _fit_label_to_bounds(result, min_font_size: int, attempt: int) -> void:
-	if is_instance_valid(result) and result.get_meta("uiux_keep_font_size", false) and LanguageSettings.locale == LanguageSettings.LOCALE_KOREAN:
-		return
 	if not is_instance_valid(result) or not result is Label:
 		return
+	if result.get_meta("dialogue_layout_managed",false): return
 	var current_size = result.get_theme_font_size("font_size")
 	var font = result.get_theme_font("font")
+	if not result.get_parent() is Container:
+		# Touch buttons can grow beyond their requested Rect. Following copy must
+		# begin after the actual hit area, rather than underneath its lower edge.
+		for sibling in result.get_parent().get_children():
+			if not sibling is BaseButton or not sibling.is_visible_in_tree(): continue
+			if sibling.position.y >= result.position.y: continue
+			if sibling.position.x >= result.position.x + result.size.x or result.position.x >= sibling.position.x + sibling.size.x: continue
+			result.position.y = maxf(result.position.y, sibling.position.y + sibling.size.y + 2)
+	# Containers overwrite size after creation. Preserve at least one rendered
+	# line through minimum size, including keep-font labels and touch scaling.
+	if result.get_parent() is Container:
+		var minimum_height := ceilf(font.get_height(current_size)) + 1.0
+		result.custom_minimum_size.y = maxf(result.custom_minimum_size.y, minimum_height)
+		result.size.y = maxf(result.size.y, minimum_height)
 	var line_count = maxi(1, result.get_line_count())
 	var needed_height = float(line_count * font.get_height(current_size))
-	var too_tall = needed_height > result.size.y + 1.0
-	if LanguageSettings.locale == LanguageSettings.LOCALE_CHINESE:
-		# CJK line rounding can hide a line even when the font metric fits by 1px.
-		too_tall = too_tall or result.get_line_count() > result.get_visible_line_count()
+	var too_tall = needed_height > Standard.label_slot_height(result)
+	# Rendered line rounding can hide text even when nominal metrics fit by 1px.
+	too_tall = too_tall or result.get_line_count() > result.get_visible_line_count()
 	var too_wide = false
 	if result.autowrap_mode == TextServer.AUTOWRAP_OFF:
 		too_wide = font.get_string_size(LanguageSettings.ui_text(result.text), HORIZONTAL_ALIGNMENT_LEFT, -1, current_size).x > result.size.x - 2.0
 	if (too_tall or too_wide) and current_size > min_font_size and attempt < 48:
 		result.add_theme_font_size_override("font_size", current_size - 1)
 		call_deferred("_fit_label_to_bounds", result, min_font_size, attempt + 1)
+	else:
+		var minimum_height := ceilf(font.get_height(current_size)) + 1.0
+		result.custom_minimum_size.y = maxf(result.custom_minimum_size.y, minimum_height)
+		result.size.y = maxf(minimum_height, minf(result.size.y, Standard.label_slot_height(result)))
 
 func _fit_rich_label_to_bounds(
 	result,
@@ -1740,11 +1547,12 @@ func button(
 	target_id: String = "",
 	grade: String = BUTTON_GRADE_UTILITY
 ) -> Button:
-	var result = Button.new()
+	var result = preload("res://scripts/ui/ReadableTooltipButton.gd").new()
 	result.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	result.text = text
+	result.text = LanguageSettings.presentation_source(text)
 	result.position = rect.position
-	result.size = rect.size
+	result.size = Vector2(rect.size.x, maxf(rect.size.y, Standard.BUTTON_HEIGHT))
+	result.tooltip_text = Standard.action_tooltip(text, callback)
 	if target_id != "":
 		result.name = target_id
 	result.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -1752,7 +1560,7 @@ func button(
 	result.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	var preferred_font_size = UISettings.scaled_font_size(UISettings.touch_font_size(font_size))
+	var preferred_font_size = Standard.text_size(UISettings.touch_font_size(maxi(font_size, Standard.BODY_SIZE)))
 	result.add_theme_font_size_override("font_size", _fit_button_font_size(text, rect.size.x, preferred_font_size))
 	if UISettings.is_touch_ui():
 		result.add_theme_stylebox_override("normal", style(Color("#17111ff7"), Color("#d8a83f"), 3))
@@ -1782,14 +1590,31 @@ func button(
 	_register_target(target_id, result)
 	return result
 
+func icon_button(parent: Control, id: String, rect: Rect2, callback: Callable, target_id: String) -> Button:
+	var result := button(parent, "", rect, callback, Standard.BUTTON_SIZE, target_id)
+	set_button_icon(result, id)
+	return result
+
+func set_button_icon(result: Button, id: String) -> void:
+	result.text = ""
+	result.icon = Standard.icon(id)
+	result.expand_icon = true
+	result.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	result.add_theme_constant_override("icon_max_width", Standard.ICON_SIZE)
+	result.tooltip_text = Standard.description(id)
+	result.set_meta("ui_icon_id", id)
+	result.custom_minimum_size = Vector2(Standard.ICON_BUTTON_SIZE, Standard.ICON_BUTTON_SIZE)
+
 func slider(parent: Control, rect: Rect2, value: float, callback: Callable, minimum: float = 0.0, maximum: float = 100.0, step: float = 1.0) -> HSlider:
-	var result = HSlider.new()
+	var result = preload("res://scripts/ui/ReadableTooltipSlider.gd").new()
 	result.position = rect.position
 	result.size = rect.size
 	result.mouse_filter = Control.MOUSE_FILTER_STOP
 	result.min_value = minimum
 	result.max_value = maximum
 	result.step = step
+	result.tooltip_text = Standard.localized("값 조정\n끌거나 방향키로 값을 변경합니다.", "Adjust value\nDrag or use arrow keys to change this value.", "调整数值\n拖动或使用方向键更改数值。")
+	result.tooltip_text = _setting_name(parent, rect) + "\n" + result.tooltip_text
 	result.value = value
 	result.allow_greater = false
 	result.allow_lesser = false
@@ -1812,7 +1637,7 @@ func option_button(
 	target_id: String = "",
 	grade: String = BUTTON_GRADE_TACTICAL
 ) -> OptionButton:
-	var result = OptionButton.new()
+	var result = preload("res://scripts/ui/ReadableTooltipOptionButton.gd").new()
 	result.position = rect.position
 	result.size = rect.size
 	if target_id != "":
@@ -1823,7 +1648,7 @@ func option_button(
 	result.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	result.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	result.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	result.add_theme_font_size_override("font_size", UISettings.scaled_font_size(UISettings.touch_font_size(font_size, 20)))
+	result.add_theme_font_size_override("font_size", Standard.text_size(UISettings.touch_font_size(font_size, Standard.BODY_SIZE)))
 	if UISettings.is_touch_ui():
 		result.add_theme_stylebox_override("normal", style(Color("#17111ff7"), Color("#d8a83f"), 3))
 		result.add_theme_stylebox_override("hover", style(Color("#2d203af9"), Color("#ffe38a"), 4))
@@ -1848,7 +1673,9 @@ func option_button(
 		result.select(selected_index)
 	var popup := result.get_popup()
 	popup.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON))
-	popup.add_theme_font_size_override("font_size", UISettings.scaled_font_size(UISettings.touch_font_size(font_size, 20)))
+	popup.add_theme_font_size_override("font_size", Standard.text_size(UISettings.touch_font_size(font_size, Standard.BODY_SIZE)))
+	result.tooltip_text = Standard.localized("선택 변경\n목록을 열어 사용할 항목을 선택합니다.", "Change selection\nOpen the list and choose an option.", "更改选择\n打开列表选择选项。")
+	result.tooltip_text = _setting_name(parent, rect) + "\n" + result.tooltip_text
 	popup.add_theme_color_override("font_color", Color("#eee5f4"))
 	popup.id_pressed.connect(_option_button_item_selected.bind(result, callback))
 	parent.add_child(result)
@@ -1861,6 +1688,17 @@ func _option_button_item_selected(index: int, menu: OptionButton, callback: Call
 	if index < 0 or index >= menu.item_count:
 		return
 	callback.call(str(menu.get_item_metadata(index)))
+
+func _setting_name(parent: Control, rect: Rect2) -> String:
+	var heading := ""
+	var nearest := INF
+	for child in parent.get_children():
+		if not child is Label or child.text == "" or child.position.x >= rect.end.x - 120: continue
+		var distance := absf(child.position.y - rect.position.y)
+		if distance < nearest:
+			nearest = distance
+			heading = LanguageSettings.ui_text(child.text)
+	return heading
 
 func apply_button_grade(button_control: BaseButton, grade: String, semantic_state: String = UI_STATE_DEFAULT) -> void:
 	if button_control == null:
@@ -2113,7 +1951,7 @@ func _fit_button_font_size(text: String, width: float, preferred_font_size: int)
 	var font := UIFontScript.font_for_role(UIFontScript.ROLE_BUTTON)
 	var longest := 0.0
 	var fitted := preferred_font_size
-	var minimum := mini(preferred_font_size, UISettings.scaled_font_size(18))
+	var minimum := Standard.SUPPORT_SIZE
 	while fitted > minimum:
 		longest = 0.0
 		for line in text.split("\n"):

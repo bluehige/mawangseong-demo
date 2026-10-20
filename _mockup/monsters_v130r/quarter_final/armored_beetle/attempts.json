@@ -1,0 +1,22 @@
+[
+  {
+    "original_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a14588-d174-7ed2-bebf-5cbb83d79b1e\\exec-a3b8e871-ab5b-4a82-bbeb-da16d307dbcd.png",
+    "sha256": "2c1b33c5049e02b297ed1fa161fadbebd37d4ecfec2b107da726d4ec5f8bec16",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "native_alpha_extrema": [
+      0,
+      254
+    ],
+    "transparent_fraction": 0.4804585774739583,
+    "attempt": 1,
+    "status": "ADOPTED",
+    "adopted_poses": 40,
+    "reason": "T/F/H/E/S pass; broad carapace top, low eyes, compact legs, violet gem rivets retained.",
+    "transparent_background": true,
+    "tool": "image_gen.imagegen"
+  }
+]

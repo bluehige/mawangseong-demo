@@ -38,7 +38,7 @@ func _run() -> void:
 	var paths := {}
 	_expect(CombatSceneControllerScript.SKILL_SFX.size() == SKILL_IDS.size(), "direct combat skill cue count is 24")
 	for skill_id in SKILL_IDS:
-		var expected_path := "res://assets/audio/sfx/skills/%s.wav" % skill_id
+		var expected_path := "res://assets/audio/sfx/skills/%s.ogg" % skill_id
 		var stream: AudioStream = CombatSceneControllerScript.SKILL_SFX.get(skill_id)
 		_expect(stream != null, "%s cue preloads" % skill_id)
 		_expect(stream != null and stream.resource_path == expected_path, "%s cue maps to its own WAV" % skill_id)

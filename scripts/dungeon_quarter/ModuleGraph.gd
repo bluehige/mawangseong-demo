@@ -39,6 +39,8 @@ var object_slots: Array = []
 func setup_quarter(module_data: Dictionary, layout_data: Dictionary, legacy_rooms: Dictionary) -> void:
 	modules = module_data.duplicate(true)
 	layout = layout_data.duplicate(true)
+	for module_id in layout.get("map_builder_modules", {}):
+		modules[module_id] = layout["map_builder_modules"][module_id].duplicate(true)
 	rooms = legacy_rooms.duplicate(true)
 	placed_modules_by_id.clear()
 	adjacency.clear()
@@ -63,6 +65,8 @@ func setup_quarter(module_data: Dictionary, layout_data: Dictionary, legacy_room
 	_rebuild_tile_projection()
 	_rebuild_walk_map()
 	_validate_v2_layout()
+	if layout.has("plot_grid") and validation["ok"]:
+		layout["generated_navigation"] = preload("res://scripts/map_builder/MapNavigationService.gd").build(self)
 
 func validation_summary() -> Dictionary:
 	return validation.duplicate(true)
@@ -229,6 +233,8 @@ func center(room_id: String) -> Vector2:
 	if cells.is_empty():
 		cells = tile_room_floor_cells.get(room_id, [])
 	if not cells.is_empty():
+		if layout.has("plot_grid"):
+			return tile_cell_center(preload("res://scripts/map_builder/MapNavigationService.gd").center_cell(cells))
 		var total := Vector2.ZERO
 		for cell in cells:
 			total += tile_cell_center(cell)
@@ -276,6 +282,8 @@ func find_path(start_instance_id: String, goal_instance_id: String) -> Array:
 	return path_between(start_instance_id, goal_instance_id)
 
 func path_points(start_room: String, goal_room: String) -> Array:
+	if layout.has("plot_grid"):
+		return path_to_point(center(start_room),center(goal_room)) if not path_between(start_room,goal_room).is_empty() else []
 	var room_path = path_between(start_room, goal_room)
 	if room_path.is_empty():
 		return []
@@ -436,7 +444,7 @@ func _initialize_master_grid() -> void:
 	for x in range(max_grid_size.x):
 		for y in range(max_grid_size.y):
 			var cell := Vector2i(x, y)
-			var active = active_rect.has_point(cell)
+			var active: bool = layout.get("plot_mask", {}).has(cell) if layout.has("plot_grid") else active_rect.has_point(cell)
 			cell_data[cell] = {
 				"gx": x,
 				"gy": y,
@@ -543,6 +551,8 @@ func _apply_blueprints_to_grid() -> void:
 	_apply_stage_unlock_mask()
 
 func _apply_stage_unlock_mask() -> void:
+	if layout.has("plot_grid"):
+		return
 	if layout.get("unlocked_room_grid_ids", []).is_empty():
 		return
 	var visible_cells: Dictionary = {}
@@ -673,10 +683,11 @@ func _raw_active_bounds() -> Rect2:
 
 func _rebuild_walk_map() -> void:
 	walk_map = DungeonWalkMapScript.new()
+	walk_map.allow_direct_fallback = not layout.has("plot_grid")
 	walk_map.rebuild_from_cell_data(cell_data, open_edge_set, tile_size, tile_world_origin, tile_visual_scale)
 
 func _validate_v2_layout() -> void:
-	var errors: Array = []
+	var errors: Array = layout.get("map_build_errors", []).duplicate()
 	var validator = SocketValidatorScript.new()
 	var socket_result = validator.validate_layout(modules, layout)
 	errors.append_array(socket_result.get("errors", []))

@@ -36,7 +36,7 @@ static func fire_reduce_zone(zone: Dictionary, fire_power: float) -> Dictionary:
 
 
 static func place_root_barrier(active_barriers: Array, barrier_id: String, location_type: String, skill: Dictionary) -> Dictionary:
-	if location_type not in ["threshold", "stair"]:
+	if location_type not in ["threshold", "passage"]:
 		return {"ok": false, "reason": "invalid_location", "barriers": active_barriers.duplicate(true)}
 	if active_barriers.size() >= maxi(1, int(skill.get("max_simultaneous", 1))):
 		return {"ok": false, "reason": "barrier_cap", "barriers": active_barriers.duplicate(true)}

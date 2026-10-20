@@ -77,7 +77,7 @@ func _build() -> void:
 	_add_label(content_root, "전선은 기존 경로를 이어가고, 의회는 DAY 1에서 새 규칙으로 시작합니다.", Rect2(176, 214, 1568, 36), 18, Color("#d7cedf"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_BODY)
 
 	_build_mode(CampaignModeServiceScript.FRONT_MODE_ID, "기존 전선과 심장", ["레온·셀렌·로만 전선", "마왕성 심장과 합동 기억", "다음 회차 DAY 4 준비"])
-	_build_mode(CampaignModeServiceScript.COUNCIL_MODE_ID, "지역과 표결의 새 회차", ["5개 지역 중 3개 선택", "전초기지·상층·왕관", "신규 의회 회차 DAY 1"])
+	_build_mode(CampaignModeServiceScript.COUNCIL_MODE_ID, "지역과 표결의 새 회차", ["5개 지역 중 3개 선택", "전초기지·확장 구역·왕관", "신규 의회 회차 DAY 1"])
 
 	_add_label(content_root, "모드 선택은 새 회차 저장에 기록됩니다. 진행 중 v4 회차에는 적용되지 않습니다.", Rect2(396, 874, 1128, 34), 17, Color("#bcb2c5"), HORIZONTAL_ALIGNMENT_CENTER, UIFontScript.ROLE_BODY)
 	var cancel_button := _add_button(content_root, "뒤로가기", Rect2(760, 942, 400, 64), Callable(self, "_cancel"), false)

@@ -29,12 +29,12 @@ func _test_empty_catalog_root() -> void:
 	var loaded := LoaderScript.load_all()
 	_expect(bool(loaded.get("ok", false)), "Update 4 빈 JSON 28종 parse PASS: %s" % [loaded.get("errors", [])])
 	var catalogs: Dictionary = loaded.get("catalogs", {})
-	_expect(catalogs.size() == 28, "Update 4 카탈로그 28종 분리 로드")
+	_expect(catalogs.size() == 27, "Update 4 카탈로그 28종 분리 로드")
 	var validation_errors := ValidatorScript.validate_catalogs(catalogs, _context())
 	_expect(validation_errors.is_empty(), "빈 Phase 1 fixture 참조 검증 PASS: %s" % [validation_errors])
 	_expect(SaveV4MigratorScript.TARGET_VERSION == 4, "Phase 1에서 저장 버전 v4 유지")
 	var missing := LoaderScript.load_all("res://data/regular_version/__missing_update4__")
-	_expect(not bool(missing.get("ok", true)) and missing.get("errors", []).size() == 28, "누락 데이터 root는 카탈로그별 명확한 오류")
+	_expect(not bool(missing.get("ok", true)) and missing.get("errors", []).size() == 27, "누락 데이터 root는 카탈로그별 명확한 오류")
 
 
 func _test_valid_synthetic_fixture() -> void:
@@ -63,8 +63,8 @@ func _test_rejection_cases() -> void:
 	_expect(_has_error(ValidatorScript.validate_catalogs(catalogs, _context(), {"regions": 5}), "수량 오류"), "카탈로그 기대 수량 불일치 검출")
 
 	catalogs = _valid_catalogs()
-	catalogs["upper_floor_layouts"]["upper_fixture"]["placed_modules"][0]["module_id"] = "upper_missing"
-	_expect(_has_error(ValidatorScript.validate_catalogs(catalogs, _context()), "module 참조가 없습니다"), "상층 module 누락 참조 검출")
+	catalogs["expansion_modules"].erase("crown_sanctum")
+	_expect(_has_error(ValidatorScript.validate_catalogs(catalogs, _context()), "module 참조가 없습니다"), "1층 왕관실 module 누락 참조 검출")
 
 	catalogs = _valid_catalogs()
 	catalogs["crown_evolutions"]["crown_fixture"]["branch_inheritance"] = {"slime_rescue_alchemist": "crown_anchor_bonus"}
@@ -135,14 +135,10 @@ func _valid_catalogs() -> Dictionary:
 		}
 	}
 	catalogs["outpost_encounters"] = {"outpost_battle_fixture": {"display_name": "검증 전투"}}
-	catalogs["upper_floor_modules"] = {"upper_stair_landing": {"display_name": "검증 계단"}}
-	catalogs["upper_floor_layouts"] = {
-		"upper_fixture": {
-			"display_name": "검증 상층",
-			"floor_id": "upper_02",
-			"placed_modules": [{"instance_id": "upper_stair", "module_id": "upper_stair_landing", "grid_origin": [0, 0]}],
-			"connections": []
-		}
+	catalogs["expansion_modules"] = {
+		"crown_sanctum":{"display_name":"왕관실","base_hp":600,"repair_cost_gold":24},
+		"seal_vault":{"display_name":"인장 금고","warning_seconds":3.0,"channel_seconds":4.0,"max_loss_per_battle":1,"vote_loss":5,"seal_loss":1},
+		"upper_facility_slot":{"display_name":"확장 시설"}
 	}
 	catalogs["monsters"] = {"monster_fixture": {"display_name": "검증 몬스터"}}
 	catalogs["enemies"] = {"enemy_fixture": {"display_name": "검증 적"}}

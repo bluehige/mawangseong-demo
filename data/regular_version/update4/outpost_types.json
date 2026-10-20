@@ -12,7 +12,7 @@
     "passive_text": "다음 본성 웨이브 변형 2개 공개",
     "battle_text": "적 첫 진입 +2초",
     "cost_text": "자원 보상 낮음",
-    "level_2_text": "상층 목표 적 진입 위치 공개",
+    "level_2_text": "확장 구역 목표를 노리는 적의 진입 위치 공개",
     "art_states": {
       "base": "res://assets/ui/outpost/update4/outpost_watch_nest_base.png",
       "damaged": "res://assets/ui/outpost/update4/outpost_watch_nest_damaged.png",

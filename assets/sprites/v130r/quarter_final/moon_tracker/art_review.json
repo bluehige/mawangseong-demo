@@ -1,0 +1,1476 @@
+{
+  "species_id": "moon_tracker",
+  "status": "ACCEPTED_NOT_INTEGRATED",
+  "selection": {
+    "status": "ACCEPTED_NOT_INTEGRATED",
+    "sources": [
+      {
+        "file": "attempt_2.png"
+      }
+    ],
+    "criteria": {
+      "T": true,
+      "F": true,
+      "H": true,
+      "E": true,
+      "S": true
+    },
+    "evidence": "넓은 후드 정수리·낮은 왼쪽 눈·단축 하체·타원 접지·남서 활. NE는 등/화살통.",
+    "notes": [
+      "Attempt1 visual TFHES passed but rejected for final use because secondary C thumbnail proportions were accidentally stretched. Attempt2 uses original-aspect C board and actual map montage. All40 adopted from attempt2.",
+      "Native alpha maximum254 retained. No source clipping or foreign major component pixels in rectangular crops."
+    ]
+  },
+  "uniform_scale": 1.1616805383038813,
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "logical_anchor": [
+    192,
+    345
+  ],
+  "atlas_anchor": [
+    156.5,
+    289
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "integrated": false,
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "visual_evidence": "넓은 후드 정수리·낮은 왼쪽 눈·단축 하체·타원 접지·남서 활. NE는 등/화살통.",
+  "directions": {
+    "sw": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/moon_tracker/moon_tracker_sheet.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              47,
+              49,
+              191,
+              225
+            ],
+            "source_bbox": [
+              0,
+              0,
+              144,
+              176
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              50,
+              93,
+              167,
+              204
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.49179151341167,
+            "contact_y": 289,
+            "sha256": "40e40fa5c4da2e47d7a2b41d3b816cb4928401e39d13fd0761b14f128724cc04"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              221,
+              58,
+              372,
+              225
+            ],
+            "source_bbox": [
+              0,
+              0,
+              151,
+              167
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              356,
+              103,
+              175,
+              194
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.5720053075859,
+            "contact_y": 289,
+            "sha256": "503d199e64c22681f98b01a28508b82b449339c4ee282da42d3001b761aca39b"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              420,
+              76,
+              558,
+              225
+            ],
+            "source_bbox": [
+              0,
+              0,
+              138,
+              149
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              697,
+              124,
+              160,
+              173
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.850451276606,
+            "contact_y": 289,
+            "sha256": "d6cfad8bf9b0388bd97472f512ec5b42362a67661e5d3faf709420a5a9d2c5f0"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              594,
+              128,
+              744,
+              224
+            ],
+            "source_bbox": [
+              0,
+              0,
+              150,
+              96
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1022,
+              185,
+              174,
+              112
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.6927338985572,
+            "contact_y": 289,
+            "sha256": "521a909d80c35208c92ec36c0091d88dd327b6e89f8b45ec31547654db368f5c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              41,
+              251,
+              201,
+              415
+            ],
+            "source_bbox": [
+              0,
+              0,
+              160,
+              164
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 4,
+            "rect": [
+              77,
+              421,
+              186,
+              191
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.3977771575021,
+            "contact_y": 289,
+            "sha256": "cfaba7884c1ff3d42b51dbe6c2dfd56dca2435f1b75e28107a64c435e202f8e6"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              226,
+              251,
+              386,
+              415
+            ],
+            "source_bbox": [
+              0,
+              0,
+              160,
+              164
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 5,
+            "rect": [
+              394,
+              420,
+              186,
+              191
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.57370746542722,
+            "contact_y": 289,
+            "sha256": "025eedd99612f14cbedde54f88864cdefc30bd652346aacaf5e65a3b385c3994"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              414,
+              256,
+              575,
+              413
+            ],
+            "source_bbox": [
+              0,
+              0,
+              161,
+              157
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 6,
+            "rect": [
+              707,
+              429,
+              187,
+              182
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.88552838355713,
+            "contact_y": 289,
+            "sha256": "86f277d2b79524ecf6bd369a8bda01e526596a0eda6b1ce6f84def1f464f150f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              603,
+              261,
+              752,
+              413
+            ],
+            "source_bbox": [
+              0,
+              0,
+              149,
+              152
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 7,
+            "rect": [
+              1030,
+              433,
+              173,
+              177
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.12043469947096,
+            "contact_y": 289,
+            "sha256": "78588fbe61fe809a8982f076d65cd793fb0363acea7c896b7507ac95f232f73c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              39,
+              432,
+              198,
+              590
+            ],
+            "source_bbox": [
+              0,
+              0,
+              159,
+              158
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 8,
+            "rect": [
+              45,
+              740,
+              185,
+              184
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.37675472179683,
+            "contact_y": 289,
+            "sha256": "38dfa910e2eb7eb1ba00c8c6bbe8257ba12d0d071dda1e87ba2761fe6439843c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              227,
+              431,
+              381,
+              591
+            ],
+            "source_bbox": [
+              0,
+              0,
+              154,
+              160
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 9,
+            "rect": [
+              357,
+              739,
+              179,
+              186
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.9663352180412,
+            "contact_y": 289,
+            "sha256": "bd5164cfa18a0ad785985bd7198daffd11002c6a824c436763f277d1f40ee6e8"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              395,
+              435,
+              579,
+              596
+            ],
+            "source_bbox": [
+              0,
+              0,
+              184,
+              161
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 10,
+            "foreign_major_components": [],
+            "index": 10,
+            "rect": [
+              644,
+              736,
+              214,
+              187
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.36678020297512,
+            "contact_y": 289,
+            "sha256": "9d6e485e9dc11a8f2cd5bdd3127b0d577800e8cefb773f66d7e7c11b9b97d8f7"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              606,
+              434,
+              758,
+              596
+            ],
+            "source_bbox": [
+              0,
+              0,
+              152,
+              162
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 11,
+            "rect": [
+              1009,
+              735,
+              177,
+              188
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.6133618010324,
+            "contact_y": 289,
+            "sha256": "f59f921094077d29d53d2ff9dc20a6c287133c0c6e0c3aa529c8b1be3f946113"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              44,
+              613,
+              197,
+              779
+            ],
+            "source_bbox": [
+              0,
+              0,
+              153,
+              166
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 12,
+            "rect": [
+              45,
+              1045,
+              178,
+              193
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.6293431836546,
+            "contact_y": 289,
+            "sha256": "32d5313b255a6c5a5e419e6b50d446f17d67b9ded052c4d6a446ef0dbc151450"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              229,
+              618,
+              390,
+              780
+            ],
+            "source_bbox": [
+              0,
+              0,
+              161,
+              162
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 7,
+            "foreign_major_components": [],
+            "index": 13,
+            "rect": [
+              355,
+              1050,
+              187,
+              188
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.18767844679905,
+            "contact_y": 289,
+            "sha256": "f62ac218dc225003604ee70f89567e3a84c80c93345365a714f209549d10ee70"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              411,
+              626,
+              576,
+              781
+            ],
+            "source_bbox": [
+              0,
+              0,
+              165,
+              155
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 14,
+            "rect": [
+              682,
+              1059,
+              192,
+              180
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.79449586879542,
+            "contact_y": 289,
+            "sha256": "db3d178aa602fa548137534087f4275290955bfbfe5b8a928e61467ba328077c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              598,
+              624,
+              745,
+              781
+            ],
+            "source_bbox": [
+              0,
+              0,
+              147,
+              157
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 15,
+            "rect": [
+              982,
+              1056,
+              171,
+              182
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.30611584161622,
+            "contact_y": 289,
+            "sha256": "6057497512e6ffdd2a0d41a799e64f2f44e66ee7620f211ffbe71cd8fb6c639e"
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/moon_tracker/moon_tracker_hurt_sw.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              51,
+              795,
+              197,
+              967
+            ],
+            "source_bbox": [
+              0,
+              0,
+              146,
+              172
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              53,
+              98,
+              170,
+              200
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.4646447039684,
+            "contact_y": 289,
+            "sha256": "2410ad983578fb2953e6e3cca64d814236e4c61de1d83ed1a69e30b6f1822e0d"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              240,
+              804,
+              391,
+              966
+            ],
+            "source_bbox": [
+              0,
+              0,
+              151,
+              162
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              390,
+              110,
+              175,
+              188
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.0062968005446,
+            "contact_y": 289,
+            "sha256": "f585b2dd89a2b61355220bf47146ec28c77c284e3dca18ba625794e7f7d8994c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              422,
+              851,
+              571,
+              967
+            ],
+            "source_bbox": [
+              0,
+              0,
+              149,
+              116
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              682,
+              163,
+              173,
+              135
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.14582315583783,
+            "contact_y": 289,
+            "sha256": "e792590ccf119b5ddc75e3fdfd5442496406b9fb78b3fa2d6969e24c1c438c27"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              608,
+              822,
+              761,
+              968
+            ],
+            "source_bbox": [
+              0,
+              0,
+              153,
+              146
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              998,
+              128,
+              178,
+              170
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.97569806209628,
+            "contact_y": 289,
+            "sha256": "7123b0bdc7f1164107a699138ee2c563cc793ded95c2b430b1c05ce6897ca715"
+          }
+        ]
+      }
+    },
+    "ne": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/moon_tracker/moon_tracker_sheet_ne.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              808,
+              48,
+              938,
+              225
+            ],
+            "source_bbox": [
+              0,
+              0,
+              130,
+              177
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              62,
+              91,
+              151,
+              206
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.1569221448046,
+            "contact_y": 289,
+            "sha256": "bb111b68160228046627d14945986dc6ff9908f0f0a8d8f5b0b7902ead61f03b"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              988,
+              59,
+              1120,
+              225
+            ],
+            "source_bbox": [
+              0,
+              0,
+              132,
+              166
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              377,
+              105,
+              153,
+              193
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.89941396382744,
+            "contact_y": 289,
+            "sha256": "81a3680132ce3efcea1663916484eae80cb517489a72062b4cdcc75797f25fb8"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              1167,
+              85,
+              1318,
+              225
+            ],
+            "source_bbox": [
+              0,
+              0,
+              151,
+              140
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              700,
+              134,
+              175,
+              163
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.96908879468808,
+            "contact_y": 289,
+            "sha256": "64885a540804c75477b936d185840a3742c18c5a431beef7a7e6dfe92faa0c2a"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              1355,
+              122,
+              1510,
+              226
+            ],
+            "source_bbox": [
+              0,
+              0,
+              155,
+              104
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1037,
+              177,
+              180,
+              121
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.02753036437247,
+            "contact_y": 289,
+            "sha256": "2b593634a7e6519fbd7b660a42676d7e0d88be86bb1b189993a8d27f0c80a057"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              801,
+              244,
+              946,
+              415
+            ],
+            "source_bbox": [
+              0,
+              0,
+              145,
+              171
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 4,
+            "rect": [
+              87,
+              412,
+              168,
+              199
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.74677219344954,
+            "contact_y": 289,
+            "sha256": "cbfaad3a3b684225c813bf48f44d58ab2b73d68b06b620157fee044baef04cc4"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              987,
+              249,
+              1125,
+              416
+            ],
+            "source_bbox": [
+              0,
+              0,
+              138,
+              167
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 5,
+            "rect": [
+              404,
+              418,
+              160,
+              194
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.12102680793572,
+            "contact_y": 289,
+            "sha256": "7f8c66ede5b71b4b51fef93db2788063c271ee141bf1e7d1b2e7a6d401b99514"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              1162,
+              252,
+              1320,
+              415
+            ],
+            "source_bbox": [
+              0,
+              0,
+              158,
+              163
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 6,
+            "rect": [
+              694,
+              422,
+              184,
+              189
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.05834823024668,
+            "contact_y": 289,
+            "sha256": "a128b3176d135af3a7b739c1dfcf0420bba461c653756954df37fd8192c4b2f7"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              1353,
+              254,
+              1511,
+              416
+            ],
+            "source_bbox": [
+              0,
+              0,
+              158,
+              162
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 7,
+            "rect": [
+              1024,
+              423,
+              184,
+              188
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.7924132536974,
+            "contact_y": 289,
+            "sha256": "b7c1dc4a13c6a6b4c9b39a85d26a27c366be69adb4d6fda662228a05b4ec58d3"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              801,
+              436,
+              946,
+              602
+            ],
+            "source_bbox": [
+              0,
+              0,
+              145,
+              166
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 8,
+            "rect": [
+              99,
+              733,
+              168,
+              193
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.87852204728983,
+            "contact_y": 289,
+            "sha256": "c4c37475e7b36b6015a5375863a60ff420966727dbdb6f784fc997468a37f92a"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              984,
+              443,
+              1138,
+              599
+            ],
+            "source_bbox": [
+              0,
+              0,
+              154,
+              156
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 9,
+            "rect": [
+              412,
+              745,
+              179,
+              181
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.21673728211107,
+            "contact_y": 289,
+            "sha256": "ef6df9d94a30692927c0dc16e172d11918a05b6993df7b927fbf5a54f6022842"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              1159,
+              442,
+              1314,
+              603
+            ],
+            "source_bbox": [
+              0,
+              0,
+              155,
+              161
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 10,
+            "foreign_major_components": [],
+            "index": 10,
+            "rect": [
+              693,
+              739,
+              180,
+              187
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.9523300421357,
+            "contact_y": 289,
+            "sha256": "cc31883e39e727b2f3c1fe194ce475cb4b865e8d34aab531c990f09eca3c6efd"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              1349,
+              440,
+              1499,
+              603
+            ],
+            "source_bbox": [
+              0,
+              0,
+              150,
+              163
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 11,
+            "rect": [
+              1035,
+              736,
+              174,
+              189
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.1384194320903,
+            "contact_y": 289,
+            "sha256": "76fffdc7b8f7343d7ebcb5f7214332b8959fd8923c653e6c7ae1f85fb5540377"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              795,
+              615,
+              961,
+              781
+            ],
+            "source_bbox": [
+              0,
+              0,
+              166,
+              166
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 12,
+            "rect": [
+              87,
+              1045,
+              193,
+              193
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.73447038366197,
+            "contact_y": 289,
+            "sha256": "44dffb7efaca8b0acdfdd71ca47bee3f61f2107ce61cd37c85d1c55c05f7226b"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              992,
+              629,
+              1138,
+              789
+            ],
+            "source_bbox": [
+              0,
+              0,
+              146,
+              160
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 13,
+            "rect": [
+              386,
+              1054,
+              170,
+              186
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.3111647577732,
+            "contact_y": 289,
+            "sha256": "26ab8c7b97352d78f11082aae847bff44b42d168c14cbe64e4f6bea019924f2d"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              1176,
+              635,
+              1314,
+              788
+            ],
+            "source_bbox": [
+              0,
+              0,
+              138,
+              153
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 14,
+            "rect": [
+              744,
+              1060,
+              160,
+              178
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.45107535082366,
+            "contact_y": 289,
+            "sha256": "ae0410b5c7f9e1deba6e8406b6a2813f4acc7eddb2c710c5d8e859dad230f3d6"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              1351,
+              628,
+              1512,
+              781
+            ],
+            "source_bbox": [
+              0,
+              0,
+              161,
+              153
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 15,
+            "rect": [
+              1007,
+              1064,
+              187,
+              178
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.53515666427063,
+            "contact_y": 289,
+            "sha256": "1be9e61b6e3a0e82f0b8007cfc4bf0e9adc7494993dc3bc2a3a2d7c321382133"
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/moon_tracker/moon_tracker_hurt_ne.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              805,
+              806,
+              949,
+              969
+            ],
+            "source_bbox": [
+              0,
+              0,
+              144,
+              163
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              64,
+              112,
+              167,
+              189
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.03219642686537,
+            "contact_y": 289,
+            "sha256": "bec46b0186e88453436edf044e4176addb9e81315e56ff6237e075c405838307"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              988,
+              814,
+              1133,
+              969
+            ],
+            "source_bbox": [
+              0,
+              0,
+              145,
+              155
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              381,
+              121,
+              168,
+              180
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.72693603145422,
+            "contact_y": 289,
+            "sha256": "fbd6518e7fc31f50c861d8d5d3bf636d9ac3d84feea2267a8deda5840c702cfa"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              1175,
+              859,
+              1315,
+              970
+            ],
+            "source_bbox": [
+              0,
+              0,
+              140,
+              111
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              708,
+              168,
+              163,
+              129
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.78475240192546,
+            "contact_y": 289,
+            "sha256": "f530352480c3e6fb55462e4b900c7c1a520f8128d06a985b60bbdb35bf783b61"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/moon_tracker/attempt_2.png",
+            "source_slice": [
+              1358,
+              816,
+              1501,
+              969
+            ],
+            "source_bbox": [
+              0,
+              0,
+              143,
+              153
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 2,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1004,
+              124,
+              166,
+              178
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.29159142279678,
+            "contact_y": 289,
+            "sha256": "674159f63eb60d16abfac044dd0740593e8d717591e9bd374ab6cf1b7964fa0b"
+          }
+        ]
+      }
+    }
+  },
+  "processing": "Whole rectangular crop, uniform LANCZOS resizing, contact translation and assembly only. Native alpha retained. Contact is alpha>=192 bottom8px weighted center, not anatomical foot tracking."
+}

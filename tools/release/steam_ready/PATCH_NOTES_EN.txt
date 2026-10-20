@@ -1,0 +1,15 @@
+1.3.0 — Castle Maps and Defense Update
+
+- Fixed DAY 2?3 battle preparation: blocked battles now explain the requirement and offer specialization selection without silently changing screens.
+- Reworked the quarter-view maps and defense layout system, including building and defender placement.
+- Updated the D- and C-rank maps and their defense flow.
+- Added 10 companion monsters, bringing the total to 24.
+- Expanded monster specializations, individual abilities, combat dialogue, and story presentation.
+- Improved HP bars and combat information displays.
+- Improved dialogue portrait sizing, Goldin's transparent background, the auto-advance button, and tooltips.
+- Fixed ordinary enemies bypassing nearby monsters; objective-first movement is now limited to thief and sapper roles.
+- Prepared 100 achievements with Korean, English, and Simplified Chinese text.
+- Revised the new-game flow and prologue guidance.
+- Adjusted combat and progression balance and improved save/load reliability.
+
+Front Chronicles and Demon Council remain part of the base game.

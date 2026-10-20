@@ -1,0 +1,55 @@
+{
+  "asset_id": "v130_title_02_crooked_banner",
+  "target_version": "v1.3.0",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an original instrumental game soundtrack lasting about 128 seconds. 96 BPM, C Dorian. A lovable demon ruler straightening a crooked banner. Oboe and mandolin answer each other over short light tuba notes and brushed snare, a buoyant offbeat miniature march rather than a solemn overture. Develop a complete original 128-second instrumental arc, with compatible opening and final two seconds for a seamless loop. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "89f30acd96b715b966e0c0b023ecd059efa965d5427ee887a8e821f0670cbfb7",
+  "generated_text": "[[A0]]\n[[B1]]\n[[C2]]\n[[D3]]\n[[C4]]\n[[E5]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "a59a7f6ef37f78fa3c1e966371163c3cce0b977fc5324b665156425fdeac10da",
+  "generated_at_utc": "2026-10-15T00:52:50.477617+00:00",
+  "source_run": "tmp/lyria_audio_v130/v130-20261015-approved",
+  "runtime_sha256": "ac2f60d2bbc5e3ae92e7d890ec6f0fe6c92bf5bb531fbe88f0337573ba08fdb1",
+  "quality_report": {
+    "asset_id": "v130_title_02_crooked_banner",
+    "scene": "title",
+    "reference_lufs": -16.625539406428196,
+    "gain_db": -0.16374538409306894,
+    "before": {
+      "duration_seconds": 126.0,
+      "lufs": -16.461794022335127,
+      "peak_dbfs": -5.000377362660108,
+      "true_peak_dbtp": -4.87715210228464,
+      "longest_silence_seconds": 0.0,
+      "seam_delta": 0.0045166015625,
+      "adjacent_delta_p999": 0.081939697265625
+    },
+    "after": {
+      "duration_seconds": 126.0,
+      "lufs": -16.625538921323987,
+      "peak_dbfs": -5.164069401046934,
+      "true_peak_dbtp": -5.040812193955966,
+      "longest_silence_seconds": 0.0,
+      "seam_delta": 0.004425048828125,
+      "adjacent_delta_p999": 0.080413818359375
+    },
+    "checks": {
+      "duration_90_to_150": true,
+      "sample_peak_at_most_minus3": true,
+      "estimated_true_peak_at_most_minus3": true,
+      "no_silence_at_least_one_second": true,
+      "reference_loudness_within_one_lu": true,
+      "seam_within_ordinary_transients": true,
+      "two_second_loop_render": true
+    },
+    "passed": true
+  },
+  "request_attempts": 1,
+  "transport_retries": 0,
+  "listening_status": "사용자 청취 전",
+  "run_id": "v130-20261015-selected"
+}

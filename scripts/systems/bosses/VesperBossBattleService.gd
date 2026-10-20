@@ -7,11 +7,11 @@ static func battle_profile(day: int, enemy: Dictionary) -> Dictionary:
 	return {"day": day, "max_hp": int(enemy.get("max_hp", 540)) if final_battle else roundi(int(enemy.get("max_hp", 540)) * 0.75), "skills": enemy.get("skills", []).duplicate() if final_battle else enemy.get("skills", []).slice(0, 3), "stage_count": 3, "retry_day": day}
 
 
-static func deadline_dive(from_floor: String, to_floor: String, transition_endpoints: Dictionary, skill: Dictionary) -> Dictionary:
-	var path_id := "%s:%s" % [from_floor, to_floor]
+static func deadline_dive(from_room: String, to_room: String, transition_endpoints: Dictionary, skill: Dictionary) -> Dictionary:
+	var path_id := "%s:%s" % [from_room, to_room]
 	var endpoints = transition_endpoints.get(path_id, [])
-	if not (endpoints is Array) or endpoints.size() < 2 or from_floor == to_floor:
-		return {"ok": false, "reason": "invalid_floor_path"}
+	if not (endpoints is Array) or endpoints.size() < 2 or from_room == to_room:
+		return {"ok": false, "reason": "invalid_passage_path"}
 	return {
 		"ok": true,
 		"path_id": path_id,
@@ -20,8 +20,8 @@ static func deadline_dive(from_floor: String, to_floor: String, transition_endpo
 		"travel_seconds": float(skill.get("travel_seconds", 0.7)),
 		"silence_seconds": float(skill.get("arrival_silence_seconds", 1.5)),
 		"arrival_lock_seconds": float(skill.get("arrival_lock_seconds", 1.0)),
-		"camera_focus_floor": to_floor,
-		"hidden_floor_alert": true
+		"target_room": to_room,
+		"objective_alert": true
 	}
 
 
@@ -40,19 +40,19 @@ static func tick_seal_snatch(state: Dictionary, delta: float) -> Dictionary:
 	return result
 
 
-static func airmail_exchange(boss: Dictionary, couriers: Array, valid_floor_ids: Array, skill: Dictionary) -> Dictionary:
+static func airmail_exchange(boss: Dictionary, couriers: Array, valid_room_ids: Array, skill: Dictionary) -> Dictionary:
 	for value in couriers:
 		if not (value is Dictionary) or not bool(value.get("active", true)):
 			continue
 		var courier: Dictionary = value.duplicate(true)
-		if str(boss.get("floor_id", "")) not in valid_floor_ids or str(courier.get("floor_id", "")) not in valid_floor_ids:
+		if str(boss.get("room_id", "")) not in valid_room_ids or str(courier.get("room_id", "")) not in valid_room_ids:
 			continue
 		var moved_boss := boss.duplicate(true)
-		var boss_floor = moved_boss.get("floor_id")
+		var boss_room = moved_boss.get("room_id")
 		var boss_position = moved_boss.get("position")
-		moved_boss["floor_id"] = courier.get("floor_id")
+		moved_boss["room_id"] = courier.get("room_id")
 		moved_boss["position"] = courier.get("position")
-		courier["floor_id"] = boss_floor
+		courier["room_id"] = boss_room
 		courier["position"] = boss_position
 		return {"ok": true, "boss": moved_boss, "courier": courier, "arrival_lock_seconds": float(skill.get("arrival_lock_seconds", 1.0))}
 	return {"ok": false, "reason": "no_valid_courier"}
@@ -75,7 +75,7 @@ static func resolve_battle(active_run_value, day: int, won: bool, battle_stats: 
 	vesper["wins"] = int(vesper.get("wins", 0)) + (1 if won else 0)
 	vesper["losses"] = int(vesper.get("losses", 0)) + (0 if won else 1)
 	vesper["seal_channels_completed"] = int(vesper.get("seal_channels_completed", 0)) + int(battle_stats.get("seal_channels_completed", 0))
-	vesper["floor_transitions"] = int(vesper.get("floor_transitions", 0)) + int(battle_stats.get("floor_transitions", 0))
+	vesper["passage_transitions"] = int(vesper.get("passage_transitions", 0)) + int(battle_stats.get("passage_transitions", 0))
 	bosses["rival_vesper"] = vesper
 	metrics["rival_bosses"] = bosses
 	active_run["run_metrics_update4"] = metrics

@@ -1,6 +1,7 @@
 extends RefCounted
 # Ordinary battle reactions never own keyboard focus or pause the simulation.
 const Reader = preload("res://scripts/story/StoryDirector.gd")
+const TextLayout = preload("res://scripts/ui/DialogueLayout.gd")
 var pending: Array[Dictionary] = []
 var presented: Dictionary = {}
 var reader = null
@@ -32,6 +33,7 @@ func enqueue(root: Node, scene: Dictionary, facts: Dictionary) -> void:
 	while pending.size() > 4: pending.pop_back()
 
 func tick(root: Node, delta: float) -> void:
+	if root.current_screen == "settings" and root.settings_return_screen == "combat": return
 	if root.current_screen != "combat":
 		clear()
 		return
@@ -39,7 +41,7 @@ func tick(root: Node, delta: float) -> void:
 		if is_instance_valid(panel): panel.visible = not root.story_combat_overlay_open
 		return
 	if is_instance_valid(panel): panel.visible = true
-	if reader != null and not _still_relevant(root,active):
+	if reader != null and not _active_event_relevant(root):
 		reader = null
 		active.clear()
 		_clear_panel()
@@ -58,6 +60,10 @@ func tick(root: Node, delta: float) -> void:
 		_start_next(root)
 	else:
 		_show(root)
+
+func _active_event_relevant(root: Node) -> bool:
+	# Once visible, finish the sentence even at x3. Only queued ordinary reactions expire.
+	return true
 
 func _still_relevant(root: Node, entry: Dictionary) -> bool:
 	var scene: Dictionary = entry.get("scene", {})
@@ -96,14 +102,16 @@ func _show(root: Node, new_cue: bool = true) -> void:
 	panel.name = "StoryCombatFeed"
 	panel.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	panel.z_index = 115
-	var portrait_path: String = root._onboarding_speaker_portrait_path(str(speaker.get("speaker_id","")),str(speaker.get("portrait_emotion","")))
+	var portrait_path: String = root._onboarding_speaker_portrait_path(str(speaker.get("speaker_id","")),str(speaker.get("portrait_emotion","")), true)
 	if portrait_path != "": root.hud.texture(panel,portrait_path,Rect2(16,20,100,112))
-	root.hud.label(panel,name,Vector2(132,12),Vector2(912,32),22,Color("#e8bd76"),HORIZONTAL_ALIGNMENT_LEFT,"StoryCombatFeedSpeaker")
+	var heading: Label = root.hud.label(panel,name,Vector2(132,12),Vector2(912,32),22,Color("#e8bd76"),HORIZONTAL_ALIGNMENT_LEFT,"StoryCombatFeedSpeaker")
 	var body: Label = root.hud.label(panel,text,Vector2(132,48),Vector2(912,96),23,Color("#f4eadc"),HORIZONTAL_ALIGNMENT_LEFT,"StoryCombatFeedText")
 	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	TextLayout.grow_feed(panel,heading,body)
 	_ignore_input(panel)
 	if new_cue:
 		root._log("%s: %s" % [name,text])
+		root.continuity.record("feed:%s:%s" % [str(active.facts.get("battle_scope_id", "")), reader.current_cue_id], name, text)
 		remaining = clampf(1.8 + text.length() * 0.055, 2.8, 5.0)
 
 func refresh_locale(root: Node) -> void:

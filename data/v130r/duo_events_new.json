@@ -1,0 +1,162 @@
+{
+  "event_planned_web_bridge": {
+    "display_name": "거미줄 다리",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "planned_web_bridge",
+    "text": "다리 위에 실을 걸면 제 물가까지 안 들어오겠는데요.",
+    "choices": [
+      {
+        "id": "remember_together",
+        "label": "둘의 기억을 합동기로 남긴다",
+        "effects": {
+          "metric_duo_memory_unlocked": 1
+        }
+      }
+    ]
+  },
+  "event_planned_slippery_flame": {
+    "display_name": "미끈불길",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "planned_slippery_flame",
+    "text": "제가… 먼저… 길에…",
+    "choices": [
+      {
+        "id": "remember_together",
+        "label": "둘의 기억을 합동기로 남긴다",
+        "effects": {
+          "metric_duo_memory_unlocked": 1
+        }
+      }
+    ]
+  },
+  "event_planned_toll_vault": {
+    "display_name": "통행세 금고",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "planned_toll_vault",
+    "text": "도둑이 동전을 들고 다리를 건너면 어떻게 하죠?",
+    "choices": [
+      {
+        "id": "remember_together",
+        "label": "둘의 기억을 합동기로 남긴다",
+        "effects": {
+          "metric_duo_memory_unlocked": 1
+        }
+      }
+    ]
+  },
+  "event_planned_marked_ambush": {
+    "display_name": "표식 기습",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "planned_marked_ambush",
+    "text": "빛을 비추면… 제가 보일까 봐…",
+    "choices": [
+      {
+        "id": "remember_together",
+        "label": "둘의 기억을 합동기로 남긴다",
+        "effects": {
+          "metric_duo_memory_unlocked": 1
+        }
+      }
+    ]
+  },
+  "event_planned_plate_exchange": {
+    "display_name": "판금 교환",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "planned_plate_exchange",
+    "text": "이 판금은 내 몸인데 빌려줘도 되는가?",
+    "choices": [
+      {
+        "id": "remember_together",
+        "label": "둘의 기억을 합동기로 남긴다",
+        "effects": {
+          "metric_duo_memory_unlocked": 1
+        }
+      }
+    ]
+  },
+  "event_planned_candle_ember": {
+    "display_name": "촛불 불씨",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "planned_candle_ember",
+    "text": "제 불도 셀렌 빛한테 안 밀릴 수 있겠죠?!",
+    "choices": [
+      {
+        "id": "remember_together",
+        "label": "둘의 기억을 합동기로 남긴다",
+        "effects": {
+          "metric_duo_memory_unlocked": 1
+        }
+      }
+    ]
+  },
+  "event_planned_underground_march": {
+    "display_name": "지하 행진",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "planned_underground_march",
+    "text": "굴로 이동해도 도착 지점부터 확인합니다. 돌콩, 부탁합니다!",
+    "choices": [
+      {
+        "id": "remember_together",
+        "label": "둘의 기억을 합동기로 남긴다",
+        "effects": {
+          "metric_duo_memory_unlocked": 1
+        }
+      }
+    ]
+  },
+  "event_planned_false_map": {
+    "display_name": "가짜 지도 소동",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "planned_false_map",
+    "text": "밀로를 왼쪽 오른쪽 셋째 왕좌로 보내자!",
+    "choices": [
+      {
+        "id": "remember_together",
+        "label": "둘의 기억을 합동기로 남긴다",
+        "effects": {
+          "metric_duo_memory_unlocked": 1
+        }
+      }
+    ]
+  },
+  "event_planned_false_treasure": {
+    "display_name": "가짜 보물 작전",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "planned_false_treasure",
+    "text": "니아 유인용 치즈인가? 우리 배식용인가? 중요 안건!",
+    "choices": [
+      {
+        "id": "remember_together",
+        "label": "둘의 기억을 합동기로 남긴다",
+        "effects": {
+          "metric_duo_memory_unlocked": 1
+        }
+      }
+    ]
+  },
+  "event_planned_sewn_bond": {
+    "display_name": "재봉 인연",
+    "day": 0,
+    "kind": "duo_memory",
+    "link_id": "planned_sewn_bond",
+    "text": "엄마가 당겨 주면 내가 대신 아파 줄게.",
+    "choices": [
+      {
+        "id": "remember_together",
+        "label": "둘의 기억을 합동기로 남긴다",
+        "effects": {
+          "metric_duo_memory_unlocked": 1
+        }
+      }
+    ]
+  }
+}

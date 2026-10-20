@@ -1,0 +1,55 @@
+{
+  "asset_id": "v130_final_ending_03_truce_lanterns",
+  "target_version": "v1.3.0",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an original instrumental game soundtrack lasting about 128 seconds. 88 BPM, A Dorian. Lanterns mark a fragile but friendly truce among former rivals. Alto flute and dulcimer exchange distinct gentle phrases over viola and soft frame drum; modal ambiguity, respectful curiosity and understated comedy, no anthem or military parade. Develop a complete original 128-second instrumental arc, with compatible opening and final two seconds for a seamless loop. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "ecc795a6a0a53ef42416d902228e5ebdd6a304a903ad5cffc84609effe7d53f1",
+  "generated_text": "[[A0]]\n[[B1]]\n[[C2]]\n[[D3]]\n[[E4]]\n[[C5]]\n[[F6]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "2cda4e144aafb9b61b52203274f00a0adc6059e57f3f1886e6c236b6431e63c1",
+  "generated_at_utc": "2026-10-15T01:02:05.839297+00:00",
+  "source_run": "tmp/lyria_audio_v130/v130-20261015-remaining",
+  "runtime_sha256": "3f4e6b561629cc991871c9444e97554f5270c429ee8b412633f8c0a52fd0fa53",
+  "quality_report": {
+    "asset_id": "v130_final_ending_03_truce_lanterns",
+    "scene": "final_ending",
+    "reference_lufs": -16.536239448124896,
+    "gain_db": -0.5598343665325825,
+    "before": {
+      "duration_seconds": 126.0,
+      "lufs": -15.976405081592313,
+      "peak_dbfs": -5.000377362660108,
+      "true_peak_dbtp": -4.94783385059776,
+      "longest_silence_seconds": 0.0,
+      "seam_delta": 0.001220703125,
+      "adjacent_delta_p999": 0.0849732055663992
+    },
+    "after": {
+      "duration_seconds": 126.0,
+      "lufs": -16.536239869468094,
+      "peak_dbfs": -5.56013479168514,
+      "true_peak_dbtp": -5.507587124458773,
+      "longest_silence_seconds": 0.0,
+      "seam_delta": 0.001129150390625,
+      "adjacent_delta_p999": 0.079681396484375
+    },
+    "checks": {
+      "duration_90_to_150": true,
+      "sample_peak_at_most_minus3": true,
+      "estimated_true_peak_at_most_minus3": true,
+      "no_silence_at_least_one_second": true,
+      "reference_loudness_within_one_lu": true,
+      "seam_within_ordinary_transients": true,
+      "two_second_loop_render": true
+    },
+    "passed": true
+  },
+  "request_attempts": 1,
+  "transport_retries": 0,
+  "listening_status": "사용자 청취 전",
+  "run_id": "v130-20261015-selected"
+}

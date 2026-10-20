@@ -1,0 +1,55 @@
+{
+  "asset_id": "v130_management_02_mushroom_tea",
+  "target_version": "v1.3.0",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an original instrumental game soundtrack lasting about 112 seconds. 78 BPM, F major. A quiet mushroom-tea break for a monster family. Nylon guitar, warm clarinet, harp and barely audible brushed percussion; relaxed major-key domestic warmth, gentle forward motion without becoming sleepy. Develop a complete original 112-second instrumental arc, with compatible opening and final two seconds for a seamless loop. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "897302ef485ba5ce9252248b522dba60f604ee9e656e8c84b78070b7de3b02db",
+  "generated_text": "[[A0]]\n[[B1]]\n[[C2]]\n[[D3]]\n[[C4]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "69ac7651ec0c4be71cae5679345c32aa68c4c1bf49e5f599c5d17f218ebcbf85",
+  "generated_at_utc": "2026-10-15T00:54:45.252043+00:00",
+  "source_run": "tmp/lyria_audio_v130/v130-20261015-approved",
+  "runtime_sha256": "8054d8a9716c6cf237637f5dccbf499810b01f8320f7c5f02be501db472749f6",
+  "quality_report": {
+    "asset_id": "v130_management_02_mushroom_tea",
+    "scene": "management",
+    "reference_lufs": -16.625539406428196,
+    "gain_db": -1.070720016866309,
+    "before": {
+      "duration_seconds": 110.0,
+      "lufs": -15.554819389561887,
+      "peak_dbfs": -4.0000883347026726,
+      "true_peak_dbtp": -3.9595665634528077,
+      "longest_silence_seconds": 0.0,
+      "seam_delta": 0.007720947265625,
+      "adjacent_delta_p999": 0.07794189453125
+    },
+    "after": {
+      "duration_seconds": 110.0,
+      "lufs": -16.62553951999429,
+      "peak_dbfs": -5.070900462450333,
+      "true_peak_dbtp": -5.030259423885419,
+      "longest_silence_seconds": 0.0,
+      "seam_delta": 0.006805419921875,
+      "adjacent_delta_p999": 0.06890869140625
+    },
+    "checks": {
+      "duration_90_to_150": true,
+      "sample_peak_at_most_minus3": true,
+      "estimated_true_peak_at_most_minus3": true,
+      "no_silence_at_least_one_second": true,
+      "reference_loudness_within_one_lu": true,
+      "seam_within_ordinary_transients": true,
+      "two_second_loop_render": true
+    },
+    "passed": true
+  },
+  "request_attempts": 1,
+  "transport_retries": 0,
+  "listening_status": "사용자 청취 전",
+  "run_id": "v130-20261015-selected"
+}

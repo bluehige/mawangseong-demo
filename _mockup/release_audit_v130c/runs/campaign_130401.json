@@ -1,0 +1,27 @@
+{
+  "id": "campaign_130401",
+  "exit_code": 0,
+  "seconds": 1340.02,
+  "timeout": false,
+  "error_lines": 0,
+  "warning_lines": 0,
+  "command": [
+    "D:\\Godot_v4.6.3-stable_win64.exe\\Godot_v4.6.3-stable_win64.exe",
+    "--path",
+    "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-action",
+    "--rendering-method",
+    "gl_compatibility",
+    "--windowed",
+    "--resolution",
+    "900x506",
+    "--max-fps",
+    "120",
+    "--headless",
+    "--scene",
+    "res://_mockup/release_audit_v130c/harness/V130RReleaseCampaign.tscn",
+    "--",
+    "seed=130401"
+  ],
+  "profile": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-action\\tmp\\release_audit_v130c_v130r_release_blockers\\profiles\\campaign_130401",
+  "engines_after": []
+}

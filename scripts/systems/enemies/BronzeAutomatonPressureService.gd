@@ -2,7 +2,7 @@ extends RefCounted
 class_name BronzeAutomatonPressureService
 
 
-static func choose_goal(facilities: Array, stair_queue_size: int) -> String:
+static func choose_goal(facilities: Array, passage_occupied: int) -> String:
 	var best_id := ""
 	var best_ratio := 2.0
 	for value in facilities:
@@ -15,7 +15,7 @@ static func choose_goal(facilities: Array, stair_queue_size: int) -> String:
 			best_id = str(value.get("id", ""))
 	if best_id != "":
 		return best_id
-	return "upper_stair" if stair_queue_size == 0 else "facility_route"
+	return "connecting_passage" if passage_occupied == 0 else "facility_route"
 
 
 static func apply_heavy_body(knockback_distance: float, skill: Dictionary) -> float:
@@ -28,10 +28,6 @@ static func brace_state(base_def: int, skill: Dictionary) -> Dictionary:
 		"def": ceili(maxi(0, base_def) * float(skill.get("def_multiplier", 1.25))),
 		"move_multiplier": float(skill.get("move_multiplier", 0.0))
 	}
-
-
-static func can_enter_stair(current_automaton_transitions: int, enemy_definition: Dictionary) -> bool:
-	return current_automaton_transitions < maxi(1, int(enemy_definition.get("max_stair_transitioning", 1)))
 
 
 static func facility_pressure(base_damage: int, base_repair: int, overlay: Dictionary) -> Dictionary:

@@ -1,0 +1,21 @@
+# 등급 F 설계도 칸 데이터 (22x16). x=왼→오른(입구→옥좌), y=위→아래 — 원본: _mockup/plan/plan_F.png
+# . 바닥  = 길  ~ 물길  B 다리  X 길 함정  m 수비 칸(길 위)
+# E 입구3x3 K 병영5x5 W 감시탑3x3 L 미끼보물실3x3 T 옥좌5x5 V 금고4x4
+# 방어선: x 0~13 = 1차(주 전장), x 16~21 = 최종. 2차 없음. 투영식은 E와 동일(W=22).
+...KKKKK......~~.TTTTT
+...KKKKK......~~.TTTTT
+...KKKKK......~~.TTTTT
+...KKKKK......~~.TTTTT
+...KKKKK......~~.TTTTT
+....mm....===XBB==mm=.
+....mm....===XBB==mm=.
+EEE=========..~~~~~~~~
+EEE=========..~~~~~~~~
+EEEmm..==.==..~~......
+...m=..mm.==..~~......
+...WWW.LLL==..~~..VVVV
+...WWW.LLL===XBB=mVVVV
+...WWW.LLL===XBB=mVVVV
+..............~~..VVVV
+..............~~......
+# buildings: [{"code": "E", "rect": [0, 7, 3, 3], "door": "E"}, {"code": "K", "rect": [3, 0, 5, 5], "door": "S"}, {"code": "W", "rect": [3, 11, 3, 3], "door": "N"}, {"code": "L", "rect": [7, 11, 3, 3], "door": "N"}, {"code": "T", "rect": [17, 0, 5, 5], "door": "S"}, {"code": "V", "rect": [18, 11, 4, 4], "door": "W"}]

@@ -1,0 +1,51 @@
+{
+  "status": "ACCEPTED_NOT_INTEGRATED",
+  "sources": [
+    {
+      "file": "attempt_1.png"
+    }
+  ],
+  "repairs": [
+    {
+      "file": "attempt_2.png",
+      "cols": 2,
+      "rows": 1,
+      "mapping": [
+        [
+          [
+            0,
+            0
+          ],
+          [
+            "sw",
+            3,
+            0
+          ]
+        ],
+        [
+          [
+            0,
+            1
+          ],
+          [
+            "ne",
+            4,
+            3
+          ]
+        ]
+      ]
+    }
+  ],
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "evidence": "머리띠·정수리 윗면·낮은 눈·짧은 유령 꼬리·타원. NE 얼굴 숨김.",
+  "notes": [
+    "Attempt1 SW skill gather rectangle risk and NE hurt recover front view rejected. Attempt2 replaces two poses. Initial apparent crop overlap was also reduced by nearest-body rectangle grouping; no masking used.",
+    "Two silver hair clips, black/gold side bow, broom, apron and waist keys preserved where visible."
+  ]
+}

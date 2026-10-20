@@ -1,7 +1,7 @@
 {
   "room_entrance_01": {
     "id": "room_entrance_01",
-    "display_name": "\uc785\uad6c",
+    "display_name": "입구",
     "theme": "cave_f",
     "module_type": "room",
     "room_function": "entry",
@@ -476,7 +476,7 @@
   },
   "corridor_spike_ns_01": {
     "id": "corridor_spike_ns_01",
-    "display_name": "\uac00\uc2dc \ubcf5\ub3c4",
+    "display_name": "가시 복도",
     "theme": "cave_f",
     "module_type": "junction",
     "room_function": "trap",
@@ -1005,7 +1005,7 @@
   },
   "junction_center_01": {
     "id": "junction_center_01",
-    "display_name": "\uc911\uc559 \ud1b5\ub85c",
+    "display_name": "중앙 통로",
     "theme": "cave_f",
     "module_type": "junction",
     "room_function": "corridor",
@@ -1110,7 +1110,7 @@
   },
   "room_throne_01": {
     "id": "room_throne_01",
-    "display_name": "\uc655\uc88c\uc758 \ubc29",
+    "display_name": "왕좌의 방",
     "theme": "cave_f",
     "module_type": "room",
     "room_function": "core",
@@ -1585,7 +1585,7 @@
   },
   "room_barracks_01": {
     "id": "room_barracks_01",
-    "display_name": "\ubcd1\uc601",
+    "display_name": "병영",
     "theme": "cave_f",
     "module_type": "room",
     "room_function": "barracks",
@@ -1947,7 +1947,7 @@
   },
   "room_recovery_01": {
     "id": "room_recovery_01",
-    "display_name": "\ud68c\ubcf5 \ub465\uc9c0",
+    "display_name": "회복 둥지",
     "theme": "cave_f",
     "module_type": "room",
     "room_function": "recovery",
@@ -2309,7 +2309,7 @@
   },
   "room_empty_slot_01": {
     "id": "room_empty_slot_01",
-    "display_name": "\uac74\uc124 \uc2ac\ub86f",
+    "display_name": "건설 슬롯",
     "theme": "cave_f",
     "module_type": "room",
     "room_function": "build_slot",
@@ -2671,7 +2671,7 @@
   },
   "room_treasure_01": {
     "id": "room_treasure_01",
-    "display_name": "\ubcf4\ubb3c \ubcf4\uad00\uc2e4",
+    "display_name": "보물 보관실",
     "theme": "cave_f",
     "module_type": "room",
     "room_function": "treasure",
@@ -5733,5 +5733,467 @@
       "to_barracks_u": "closed",
       "to_barracks_d": "closed"
     }
+  },
+  "room_crown_sanctum": {
+    "id": "room_crown_sanctum",
+    "display_name": "왕관실",
+    "theme": "cave_f",
+    "module_type": "room",
+    "room_function": "crown_sanctum",
+    "tier": 1,
+    "size": [
+      3,
+      3
+    ],
+    "footprint": [
+      3,
+      3
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ]
+    ],
+    "blocked_cells": [],
+    "object_slots": [],
+    "socket_entries": {
+      "to_n0": {
+        "cell": [
+          1,
+          0
+        ],
+        "side": "N"
+      },
+      "to_n1": {
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      "to_e0": {
+        "cell": [
+          2,
+          0
+        ],
+        "side": "E"
+      },
+      "to_e1": {
+        "cell": [
+          2,
+          1
+        ],
+        "side": "E"
+      },
+      "to_s0": {
+        "cell": [
+          0,
+          2
+        ],
+        "side": "S"
+      },
+      "to_s1": {
+        "cell": [
+          1,
+          2
+        ],
+        "side": "S"
+      },
+      "to_w0": {
+        "cell": [
+          0,
+          1
+        ],
+        "side": "W"
+      },
+      "to_w1": {
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      }
+    },
+    "sockets": [
+      {
+        "id": "to_n0",
+        "cell": [
+          1,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_n1",
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_e0",
+        "cell": [
+          2,
+          0
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e1",
+        "cell": [
+          2,
+          1
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_s0",
+        "cell": [
+          0,
+          2
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s1",
+        "cell": [
+          1,
+          2
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_w0",
+        "cell": [
+          0,
+          1
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w1",
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      }
+    ],
+    "default_socket_states": {
+      "to_n0": "closed",
+      "to_n1": "closed",
+      "to_e0": "closed",
+      "to_e1": "closed",
+      "to_s0": "closed",
+      "to_s1": "closed",
+      "to_w0": "closed",
+      "to_w1": "closed"
+    },
+    "tags": [
+      "council_objective"
+    ]
+  },
+  "room_seal_vault": {
+    "id": "room_seal_vault",
+    "display_name": "인장 금고",
+    "theme": "cave_f",
+    "module_type": "room",
+    "room_function": "seal_vault",
+    "tier": 1,
+    "size": [
+      3,
+      3
+    ],
+    "footprint": [
+      3,
+      3
+    ],
+    "floor_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ]
+    ],
+    "walk_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ]
+    ],
+    "blocked_cells": [],
+    "object_slots": [],
+    "socket_entries": {
+      "to_n0": {
+        "cell": [
+          1,
+          0
+        ],
+        "side": "N"
+      },
+      "to_n1": {
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      "to_e0": {
+        "cell": [
+          2,
+          0
+        ],
+        "side": "E"
+      },
+      "to_e1": {
+        "cell": [
+          2,
+          1
+        ],
+        "side": "E"
+      },
+      "to_s0": {
+        "cell": [
+          0,
+          2
+        ],
+        "side": "S"
+      },
+      "to_s1": {
+        "cell": [
+          1,
+          2
+        ],
+        "side": "S"
+      },
+      "to_w0": {
+        "cell": [
+          0,
+          1
+        ],
+        "side": "W"
+      },
+      "to_w1": {
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      }
+    },
+    "sockets": [
+      {
+        "id": "to_n0",
+        "cell": [
+          1,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_n1",
+        "cell": [
+          2,
+          0
+        ],
+        "side": "N"
+      },
+      {
+        "id": "to_e0",
+        "cell": [
+          2,
+          0
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_e1",
+        "cell": [
+          2,
+          1
+        ],
+        "side": "E"
+      },
+      {
+        "id": "to_s0",
+        "cell": [
+          0,
+          2
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_s1",
+        "cell": [
+          1,
+          2
+        ],
+        "side": "S"
+      },
+      {
+        "id": "to_w0",
+        "cell": [
+          0,
+          1
+        ],
+        "side": "W"
+      },
+      {
+        "id": "to_w1",
+        "cell": [
+          0,
+          2
+        ],
+        "side": "W"
+      }
+    ],
+    "default_socket_states": {
+      "to_n0": "closed",
+      "to_n1": "closed",
+      "to_e0": "closed",
+      "to_e1": "closed",
+      "to_s0": "closed",
+      "to_s1": "closed",
+      "to_w0": "closed",
+      "to_w1": "closed"
+    },
+    "tags": [
+      "council_objective"
+    ]
   }
 }

@@ -4,7 +4,7 @@ const CouncilChronicleScript = preload("res://scripts/systems/chronicle/CouncilC
 const CampaignModeScript = preload("res://scripts/systems/campaign/CampaignModeService.gd")
 const ChronicleScreenScene = preload("res://scenes/ui/screens/ChronicleScreen.tscn")
 const RegionScreenScene = preload("res://scenes/ui/screens/RegionSelectionScreen.tscn")
-const FloorHudScene = preload("res://scenes/ui/hud/MultiFloorHUD.tscn")
+const ObjectivesScene = preload("res://scenes/ui/screens/ExpansionObjectivesScreen.tscn")
 
 class AlertAudioSpy extends RefCounted:
 	var calls := 0
@@ -63,8 +63,8 @@ func _test_horizontal_unlocks_and_recent_runs() -> void:
 	_expect(profile.crown_evolution.forms_seen.size() == 6 and profile.crown_evolution.forms_unlocked.size() == 6 and profile.crown_evolution.memories_unlocked.size() == 6, "왕관 6종 도감·기억 수평 해금")
 	_expect(profile.rivals.letters_seen.size() == 15, "관계·결말 누적으로 경쟁 마왕 서신 15개 해금")
 	var summary: Dictionary = state.recent_runs.back()
-	var expected_fields := ["region_order", "outpost_type_id", "outpost_survived", "upper_layout_id", "representative_id", "rival_relations", "crown_form_id", "council_seals", "council_votes", "independence", "ending_id", "day30"]
-	_expect(expected_fields.all(func(key): return summary.has(key)) and summary.day30.has("time_seconds") and summary.day30.has("damage_by_floor"), "최근 회차 비교 필수 12항목·DAY30 세부 기록")
+	var expected_fields := ["region_order", "outpost_type_id", "outpost_survived", "zone_record_version", "representative_id", "rival_relations", "crown_form_id", "council_seals", "council_votes", "independence", "ending_id", "day30"]
+	_expect(expected_fields.all(func(key): return summary.has(key)) and summary.day30.has("time_seconds") and summary.day30.has("damage_by_zone"), "최근 회차 비교 필수 12항목·DAY30 세부 기록")
 	var mastery_before: Dictionary = profile.regions.mastery_by_region.duplicate(true)
 	profile = CouncilChronicleScript.record_completed_run(profile, _active_run(7), 7, str(ending_ids[0]), _context(7), _catalogs())
 	_expect(profile.regions.mastery_by_region == mastery_before and profile.chronicle_update4.recorded_cycle_ids.size() == 7, "동일 회차 재기록 시 숙련 중복 증가 금지")
@@ -91,14 +91,14 @@ func _test_relation_letter_gates() -> void:
 
 func _test_accessibility_normalization_and_profile_round_trip() -> void:
 	var invalid := CouncilChronicleScript.normalize_accessibility({"floor_alert_volume": 4.0, "floor_one_key": "X", "floor_two_key": "Y", "quick_dialogue": true})
-	_expect(is_equal_approx(float(invalid.floor_alert_volume), 1.0) and invalid.floor_one_key == "Q" and invalid.floor_two_key == "E" and bool(invalid.quick_dialogue), "접근성 범위·층 키 정규화")
-	var profile := CouncilChronicleScript.update_accessibility(completed_profile, "floor_alert_volume", 0.25)
+	_expect(is_equal_approx(float(invalid.objective_alert_volume), 1.0) and not invalid.has("floor_one_key") and not invalid.has("floor_two_key") and bool(invalid.quick_dialogue), "접근성 범위·층 키 정규화")
+	var profile := CouncilChronicleScript.update_accessibility(completed_profile, "objective_alert_volume", 0.25)
 	profile = CouncilChronicleScript.update_accessibility(profile, "floor_one_key", "A")
 	profile = CouncilChronicleScript.update_accessibility(profile, "floor_two_key", "D")
 	var restored: Dictionary = JSON.parse_string(JSON.stringify(profile))
 	var normalized := CampaignModeScript.normalize_profile(restored)
 	var settings: Dictionary = normalized.chronicle_update4.accessibility
-	_expect(is_equal_approx(float(settings.floor_alert_volume), 0.25) and settings.floor_one_key == "A" and settings.floor_two_key == "D", "v5 프로필 JSON 왕복 후 접근성 설정 보존")
+	_expect(is_equal_approx(float(settings.objective_alert_volume), 0.25) and not settings.has("floor_one_key") and not settings.has("floor_two_key"), "v5 프로필 JSON 왕복 후 접근성 설정 보존")
 	_expect(normalized.chronicle_update4.recent_runs.size() == 5 and normalized.chronicle_update4.recorded_cycle_ids.size() == 7, "v5 프로필 JSON 왕복 후 의회 연대기 보존")
 
 
@@ -113,11 +113,12 @@ func _test_ui_and_hud() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 	_expect(chronicle._page_text(0).contains("의회 지역 숙련") and chronicle._page_text(1).contains("경쟁 마왕 서신") and chronicle._page_text(2).contains("최근 5회 의회 회차 비교") and chronicle._page_text(2).contains("왕관 진화 도감"),"기존 연대기에 Update 4 네 기록군 보존")
+	_expect(chronicle._council_ending_title({"ending_code":"E18","ending_title":"두 층, 하나의 왕좌"})=="넓어진 땅, 하나의 왕좌","historical E18 uses the current title without changing saved records")
 	chronicle._select_tab(3)
 	await get_tree().process_frame
 	await get_tree().process_frame
 	var controls=chronicle.get_node_or_null("ChronicleCanvas/ChroniclePage3/Update4AccessibilityControls")
-	_expect(controls!=null and controls.get_node_or_null("QuickDialogueToggle")!=null and controls.get_node_or_null("FloorAlertVolume")!=null and controls.get_node_or_null("FloorOneKey")!=null,"독립 설정 탭에 접근성 토글·경보 볼륨·층 키")
+	_expect(controls==null and not chronicle.find_children("ChronicleSettingsShortcut","Button",true,false).is_empty(),"독립 설정 탭에 접근성 토글·경보 볼륨·층 키")
 	for viewport_size in [Vector2(1920, 1080), Vector2(1366, 768)]:
 		var rects: Dictionary = chronicle.layout_contract(viewport_size)
 		_expect(_rects_non_overlapping(rects, viewport_size), "%dx%d 연대기 UI 경계·비겹침" % [int(viewport_size.x), int(viewport_size.y)])
@@ -135,28 +136,13 @@ func _test_ui_and_hud() -> void:
 	region_screen.queue_free()
 	await get_tree().process_frame
 
-	var upper: Dictionary = active.upper_floor
-	upper.layout_id = "upper_compact_guard"
-	upper.layout_locked = true
-	upper.objective_hp = {"crown_sanctum": 600}
-	upper.graph_runtime = {"visible_floor": "1F", "entities": {}}
-	var audio_spy := AlertAudioSpy.new()
-	var hud = FloorHudScene.instantiate()
-	hud.setup(upper, DataRegistry.update4_upper_floor_layouts, DataRegistry.update4_upper_floor_modules, {"floor_alert_volume": 0.0, "hidden_floor_summary": false, "high_contrast_icons": true, "floor_one_key": "A", "floor_two_key": "D"}, true, audio_spy)
-	host.add_child(hud)
+	var objectives = ObjectivesScene.instantiate()
+	var state := preload("res://scripts/systems/council/CouncilExpansionService.gd").default_state()
+	state.unlocked = true; state.objective_hp={"crown_sanctum":600}; state.rooms={"crown_sanctum":"crown_sanctum","seal_vault":"seal_vault"}
+	host.add_child(objectives); objectives.setup(state,DataRegistry.update4_expansion_modules)
 	await get_tree().process_frame
-	hud.push_hidden_floor_alert("2F", 4, true)
-	var event := InputEventKey.new()
-	event.keycode = KEY_D
-	event.pressed = true
-	hud._unhandled_input(event)
-	_expect(hud.floor_1_button.text.contains("A") and hud.floor_2_button.text.contains("D") and hud.visible_floor == "2F", "재설정한 A/D 층 전환 키 적용")
-	_expect(hud.alert_label.text == "⚠ 2F 위험" and hud.alert_voice_id == "" and audio_spy.calls == 0, "숨은 층 요약 OFF·전용 경보 음량 0")
-	hud.accessibility["floor_alert_volume"] = 0.8
-	hud.push_hidden_floor_alert("2F", 4, true)
-	_expect(audio_spy.calls == 1 and hud.alert_voice_id == "test-alert", "음량이 켜진 경보는 실제 오디오 실행 경로를 호출")
-	var alert_style: StyleBoxFlat = hud.alert_panel.get_theme_stylebox("panel")
-	_expect(alert_style.border_color == Color("#fff05a") and alert_style.get_border_width(SIDE_LEFT) == 4, "고대비 위험 아이콘·경보 테두리")
+	_expect(objectives.get_node_or_null("FloorOneKey")==null and objectives.get_node_or_null("FloorTwoKey")==null,"first-floor objectives have no floor switching controls")
+	_expect(objectives.state.objective_hp.crown_sanctum==600,"objective overview retains live crown HP")
 	host.queue_free()
 	await get_tree().process_frame
 
@@ -192,7 +178,8 @@ func _active_run(cycle_index: int) -> Dictionary:
 	active.council_season.independence = 20 + cycle_index
 	active.outpost.type_id = "outpost_watch_nest"
 	active.outpost.stats.day20_win = cycle_index % 2 == 1
-	active.upper_floor.layout_id = "upper_compact_guard"
+	active.expansion.unlocked = true
+	active.expansion.eligible = true
 	return active
 
 
@@ -202,9 +189,9 @@ func _context(cycle_index: int) -> Dictionary:
 		"cycle_index": cycle_index,
 		"outpost_day20_survived": cycle_index % 2 == 1,
 		"day30_time_seconds": 120.0 + cycle_index,
-		"day30_lower_survivor_count": 2,
-		"day30_upper_survivor_count": 1,
-		"day30_damage_by_floor": {"1F": 100 + cycle_index, "2F": 50 + cycle_index}
+		"day30_original_zone_survivor_count": 2,
+		"day30_expansion_zone_survivor_count": 1,
+		"day30_damage_by_zone": {"original": 100 + cycle_index, "expansion": 50 + cycle_index}
 	}
 
 

@@ -53,8 +53,8 @@ func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
 	history_changed.emit()
 
 
-func save() -> void:
-	_save_settings()
+func save() -> bool:
+	return _save_settings()
 
 
 func _load_settings() -> void:
@@ -68,7 +68,7 @@ func _load_settings() -> void:
 	))
 
 
-func _save_settings() -> void:
+func _save_settings() -> bool:
 	var config := ConfigFile.new()
 	config.load(SETTINGS_PATH)
 	config.set_value(
@@ -79,7 +79,7 @@ func _save_settings() -> void:
 	var error := config.save(SETTINGS_PATH)
 	if error != OK:
 		push_warning("튜토리얼 안내 기록을 저장하지 못했습니다: %s" % error_string(error))
-
+	return error == OK
 
 func _normalized_ids(values) -> Dictionary:
 	var result: Dictionary = {}

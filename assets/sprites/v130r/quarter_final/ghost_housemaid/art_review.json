@@ -1,0 +1,1511 @@
+{
+  "species_id": "ghost_housemaid",
+  "status": "ACCEPTED_NOT_INTEGRATED",
+  "selection": {
+    "status": "ACCEPTED_NOT_INTEGRATED",
+    "sources": [
+      {
+        "file": "attempt_1.png"
+      }
+    ],
+    "repairs": [
+      {
+        "file": "attempt_2.png",
+        "cols": 2,
+        "rows": 1,
+        "mapping": [
+          [
+            [
+              0,
+              0
+            ],
+            [
+              "sw",
+              3,
+              0
+            ]
+          ],
+          [
+            [
+              0,
+              1
+            ],
+            [
+              "ne",
+              4,
+              3
+            ]
+          ]
+        ]
+      }
+    ],
+    "criteria": {
+      "T": true,
+      "F": true,
+      "H": true,
+      "E": true,
+      "S": true
+    },
+    "evidence": "머리띠·정수리 윗면·낮은 눈·짧은 유령 꼬리·타원. NE 얼굴 숨김.",
+    "notes": [
+      "Attempt1 SW skill gather rectangle risk and NE hurt recover front view rejected. Attempt2 replaces two poses. Initial apparent crop overlap was also reduced by nearest-body rectangle grouping; no masking used.",
+      "Two silver hair clips, black/gold side bow, broom, apron and waist keys preserved where visible."
+    ]
+  },
+  "uniform_scale": 0.8421052631578947,
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "logical_anchor": [
+    192,
+    345
+  ],
+  "atlas_anchor": [
+    156.5,
+    289
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "integrated": false,
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "visual_evidence": "머리띠·정수리 윗면·낮은 눈·짧은 유령 꼬리·타원. NE 얼굴 숨김.",
+  "directions": {
+    "sw": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/ghost_housemaid/ghost_housemaid_sheet.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              48,
+              54,
+              194,
+              215
+            ],
+            "source_bbox": [
+              0,
+              0,
+              146,
+              161
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 3,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              100,
+              158,
+              123,
+              136
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.49585818422796,
+            "contact_y": 289,
+            "sha256": "a357099bcefc4762420a9a59993a20c61fa3ca2578d40b94952fb46faf063b28"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              238,
+              56,
+              378,
+              221
+            ],
+            "source_bbox": [
+              0,
+              0,
+              140,
+              165
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 9,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              413,
+              155,
+              118,
+              139
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.82999441964284,
+            "contact_y": 289,
+            "sha256": "14c1a916b747791b965dd1a57c3c6755f9749545ccf373251bc0b3a4aac810e8"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              437,
+              74,
+              585,
+              211
+            ],
+            "source_bbox": [
+              0,
+              0,
+              148,
+              137
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 7,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              736,
+              178,
+              125,
+              115
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.6634775631134,
+            "contact_y": 289,
+            "sha256": "a08882e6b67f7a0e884528e044c7456c3b533811ffba4d5789a53f222311f452"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              622,
+              98,
+              782,
+              231
+            ],
+            "source_bbox": [
+              0,
+              0,
+              160,
+              133
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 8,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              981,
+              182,
+              135,
+              112
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.8471609740064,
+            "contact_y": 289,
+            "sha256": "2bf5a756e4a964d3a5e13f9dcca3c1b7209e1c22873404287c46c5b7198019d2"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              55,
+              240,
+              191,
+              396
+            ],
+            "source_bbox": [
+              0,
+              0,
+              136,
+              156
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 7,
+            "foreign_major_components": [],
+            "index": 4,
+            "rect": [
+              97,
+              476,
+              115,
+              131
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.4132130180473,
+            "contact_y": 289,
+            "sha256": "36bb592358eb71b2bd75d7fa7fd47df4e0969f8a789f9024f5c669703a50c20d"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              242,
+              243,
+              387,
+              398
+            ],
+            "source_bbox": [
+              0,
+              0,
+              145,
+              155
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 9,
+            "foreign_major_components": [],
+            "index": 5,
+            "rect": [
+              389,
+              476,
+              122,
+              131
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.36569589024612,
+            "contact_y": 289,
+            "sha256": "b1889b7b524fd41c53cbd84f38ef9b16880ce84763b375446617ac7338e42910"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              435,
+              245,
+              577,
+              397
+            ],
+            "source_bbox": [
+              0,
+              0,
+              142,
+              152
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 9,
+            "foreign_major_components": [],
+            "index": 6,
+            "rect": [
+              715,
+              478,
+              120,
+              128
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.71464019851118,
+            "contact_y": 289,
+            "sha256": "9554f218a6b2f30bcd85b16377b4db14cb0a3713593dccdf47bfe6de89b160d0"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              623,
+              245,
+              766,
+              398
+            ],
+            "source_bbox": [
+              0,
+              0,
+              143,
+              153
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 4,
+            "foreign_major_components": [],
+            "index": 7,
+            "rect": [
+              1037,
+              478,
+              120,
+              129
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.53301371015223,
+            "contact_y": 289,
+            "sha256": "702496fab9e6f138e36aa9526a5341937d36fe07506b2100da250c1cf0b1a364"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              44,
+              408,
+              203,
+              568
+            ],
+            "source_bbox": [
+              0,
+              0,
+              159,
+              160
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 13,
+            "foreign_major_components": [],
+            "index": 8,
+            "rect": [
+              76,
+              792,
+              134,
+              135
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.9397334429712,
+            "contact_y": 289,
+            "sha256": "0ade3f5c22cd9e375ee48e9d6f18f5e30f7389d5e71bbe810ba99bc820e5cacf"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              239,
+              410,
+              402,
+              568
+            ],
+            "source_bbox": [
+              0,
+              0,
+              163,
+              158
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 10,
+            "foreign_major_components": [],
+            "index": 9,
+            "rect": [
+              386,
+              791,
+              137,
+              133
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.98245706251066,
+            "contact_y": 289,
+            "sha256": "47659ad91e5bd2db1a5c5c896b3418966e62668aec22011bc4269440ca86f66f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              434,
+              426,
+              589,
+              583
+            ],
+            "source_bbox": [
+              0,
+              0,
+              155,
+              157
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 14,
+            "foreign_major_components": [],
+            "index": 10,
+            "rect": [
+              720,
+              790,
+              131,
+              132
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.19078068719898,
+            "contact_y": 289,
+            "sha256": "121606b6f09de1189e2230ddd817ab40d55cf6f319e93ef59b9c79dce3040dca"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              639,
+              420,
+              771,
+              564
+            ],
+            "source_bbox": [
+              0,
+              0,
+              132,
+              144
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 11,
+            "rect": [
+              1062,
+              801,
+              111,
+              121
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.9492456084939,
+            "contact_y": 289,
+            "sha256": "98d581f3806de4e6aa05fe317dc593b590c28c3f7c90bbea00fa8f44c05b101f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_2.png",
+            "source_slice": [
+              235,
+              188,
+              754,
+              748
+            ],
+            "source_bbox": [
+              0,
+              0,
+              519,
+              560
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 10,
+            "foreign_major_components": [],
+            "relative_scale": 0.2911392405063291,
+            "normalization": "Uniform repair source size matched to replaced pose body height, no warping.",
+            "index": 12,
+            "rect": [
+              102,
+              1094,
+              127,
+              137
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.080031989946,
+            "contact_y": 289,
+            "sha256": "7db85a5fe9aa9a4226aa1f4413d26c7d10b6d00fcc4c2866809949a6a3fd64cf"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              242,
+              589,
+              400,
+              747
+            ],
+            "source_bbox": [
+              0,
+              0,
+              158,
+              158
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 10,
+            "foreign_major_components": [],
+            "index": 13,
+            "rect": [
+              357,
+              1100,
+              133,
+              133
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.61085743277525,
+            "contact_y": 289,
+            "sha256": "42bbe15e035c1c670cdbf01b19836beaf16ea81369df37fc228800c8e4c14747"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              429,
+              585,
+              614,
+              745
+            ],
+            "source_bbox": [
+              0,
+              0,
+              185,
+              160
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 14,
+            "foreign_major_components": [],
+            "index": 14,
+            "rect": [
+              698,
+              1103,
+              156,
+              135
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.1491097830291,
+            "contact_y": 289,
+            "sha256": "dff27e84abfe27b34f389215b27f9836d3a3b36d728e2c047c72cbc92d01611c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              639,
+              588,
+              774,
+              742
+            ],
+            "source_bbox": [
+              0,
+              0,
+              135,
+              154
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 9,
+            "foreign_major_components": [],
+            "index": 15,
+            "rect": [
+              1053,
+              1103,
+              114,
+              130
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.13727578016218,
+            "contact_y": 289,
+            "sha256": "18b5edc26fcefdcb5611821b2a406c91065c13eb2e0a12c3ba709832a744ccca"
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/ghost_housemaid/ghost_housemaid_hurt_sw.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              49,
+              775,
+              196,
+              933
+            ],
+            "source_bbox": [
+              0,
+              0,
+              147,
+              158
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              98,
+              161,
+              124,
+              133
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.82195887068664,
+            "contact_y": 289,
+            "sha256": "a8f66ba8cecb0819288d22163dd63f8de3612910cb3c82490b318d94600afcda"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              266,
+              771,
+              393,
+              931
+            ],
+            "source_bbox": [
+              0,
+              0,
+              127,
+              160
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              422,
+              170,
+              107,
+              135
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.9980581647399,
+            "contact_y": 289,
+            "sha256": "ab5d29af1316e88bc00e5c1f208a573f1225b607400e9a82093829ba3eeb6c01"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              440,
+              798,
+              592,
+              931
+            ],
+            "source_bbox": [
+              0,
+              0,
+              152,
+              133
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              721,
+              186,
+              128,
+              112
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.78916526855838,
+            "contact_y": 289,
+            "sha256": "16502d60550467a33b196db53c8719cfceaf36c2cdaadfbd07505e40fdcd5146"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              637,
+              772,
+              755,
+              931
+            ],
+            "source_bbox": [
+              0,
+              0,
+              118,
+              159
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 14,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              1048,
+              160,
+              99,
+              134
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.45482298902084,
+            "contact_y": 289,
+            "sha256": "93bc35d15079c912f45540ac68a4cdd992a94a175ee2be5e92a6e4cf18824706"
+          }
+        ]
+      }
+    },
+    "ne": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/ghost_housemaid/ghost_housemaid_sheet_ne.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              830,
+              63,
+              958,
+              222
+            ],
+            "source_bbox": [
+              0,
+              0,
+              128,
+              159
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              104,
+              168,
+              108,
+              134
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.53004713030217,
+            "contact_y": 289,
+            "sha256": "4923bee388715efe79975d18635d35bb978a72fed6762e41bb747805d48e33e3"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              1020,
+              65,
+              1158,
+              221
+            ],
+            "source_bbox": [
+              0,
+              0,
+              138,
+              156
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 7,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              416,
+              168,
+              116,
+              131
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.97124447820826,
+            "contact_y": 289,
+            "sha256": "93affae966198a7504aa03bdee4eead493b43b020d3da9634a03d001952f9911"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              1204,
+              85,
+              1353,
+              224
+            ],
+            "source_bbox": [
+              0,
+              0,
+              149,
+              139
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              699,
+              180,
+              125,
+              117
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.22059018882248,
+            "contact_y": 289,
+            "sha256": "47ddccf72538d353ace71af77a9e7065a06fc60f683edf97f740ead81c8d45c4"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              1393,
+              114,
+              1544,
+              233
+            ],
+            "source_bbox": [
+              0,
+              0,
+              151,
+              119
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 5,
+            "foreign_major_components": [],
+            "index": 3,
+            "rect": [
+              989,
+              194,
+              127,
+              100
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.7677507143829,
+            "contact_y": 289,
+            "sha256": "2f6d6c7528fe01da149d6db4611720c4f083e40c1d263e503fde5c51755fee96"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              835,
+              242,
+              980,
+              398
+            ],
+            "source_bbox": [
+              0,
+              0,
+              145,
+              156
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 4,
+            "rect": [
+              101,
+              478,
+              122,
+              131
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.90203744079392,
+            "contact_y": 289,
+            "sha256": "9ec53ce0ae635b5b0906f5b777722f7ea6e75bf4bddbf5baeb0e59462f478f82"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              1028,
+              239,
+              1165,
+              395
+            ],
+            "source_bbox": [
+              0,
+              0,
+              137,
+              156
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 5,
+            "rect": [
+              417,
+              481,
+              115,
+              131
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.18608902609384,
+            "contact_y": 289,
+            "sha256": "8523b8378b39526d35105a148db02074743460a2d4c9180865a33ee472b0080c"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              1205,
+              246,
+              1334,
+              394
+            ],
+            "source_bbox": [
+              0,
+              0,
+              129,
+              148
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 6,
+            "rect": [
+              697,
+              481,
+              109,
+              125
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.72404178725208,
+            "contact_y": 289,
+            "sha256": "846331f230b7ac877bd7b3261f49cfe830662b6093af0556960417cebf0781df"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              1394,
+              250,
+              1537,
+              396
+            ],
+            "source_bbox": [
+              0,
+              0,
+              143,
+              146
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 7,
+            "rect": [
+              1050,
+              490,
+              120,
+              123
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.65632635352682,
+            "contact_y": 289,
+            "sha256": "f63371d9da6bc110e965768d8ba73f50645f6755967b4ecf098dfd67fec489c1"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              827,
+              419,
+              956,
+              573
+            ],
+            "source_bbox": [
+              0,
+              0,
+              129,
+              154
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 7,
+            "foreign_major_components": [],
+            "index": 8,
+            "rect": [
+              106,
+              798,
+              109,
+              130
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.81168888109437,
+            "contact_y": 289,
+            "sha256": "9dc3942af1ac6df5b837041f271937728dadaf70421193824b85f18f62beee2f"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              1006,
+              413,
+              1163,
+              574
+            ],
+            "source_bbox": [
+              0,
+              0,
+              157,
+              161
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 8,
+            "foreign_major_components": [],
+            "index": 9,
+            "rect": [
+              431,
+              791,
+              132,
+              136
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.48194737199972,
+            "contact_y": 289,
+            "sha256": "90fe1bff55d92795c11ca9764200a5553098829c506a61161ee67d04d2c70f08"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              1192,
+              416,
+              1361,
+              565
+            ],
+            "source_bbox": [
+              0,
+              0,
+              169,
+              149
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 7,
+            "foreign_major_components": [],
+            "index": 10,
+            "rect": [
+              675,
+              797,
+              142,
+              125
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.37822469623512,
+            "contact_y": 289,
+            "sha256": "1433e544b97ebf03d4cd88dd5bca1f4f7e647692c5f205ea9b978b71a504e045"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              1374,
+              422,
+              1520,
+              572
+            ],
+            "source_bbox": [
+              0,
+              0,
+              146,
+              150
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 8,
+            "foreign_major_components": [],
+            "index": 11,
+            "rect": [
+              1004,
+              796,
+              123,
+              126
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.2747094085825,
+            "contact_y": 289,
+            "sha256": "e773f011a53f399d56778d432bc298dcb9c6ef037cc8e956e1168acdd22c6225"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              816,
+              590,
+              958,
+              746
+            ],
+            "source_bbox": [
+              0,
+              0,
+              142,
+              156
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 8,
+            "foreign_major_components": [],
+            "index": 12,
+            "rect": [
+              90,
+              1106,
+              120,
+              131
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.5576848550612,
+            "contact_y": 289,
+            "sha256": "97a3b5e2ecf080cacc361a652baa10970f95dd968664760520f1efdcfbebf7e4"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              992,
+              585,
+              1159,
+              743
+            ],
+            "source_bbox": [
+              0,
+              0,
+              167,
+              158
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 8,
+            "foreign_major_components": [],
+            "index": 13,
+            "rect": [
+              406,
+              1105,
+              141,
+              133
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.18295980157754,
+            "contact_y": 289,
+            "sha256": "f1e1451303ae162b2b9a4f501aba19720757dc9a48eacf54c7032b97411c917d"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              1183,
+              582,
+              1361,
+              748
+            ],
+            "source_bbox": [
+              0,
+              0,
+              178,
+              166
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 8,
+            "foreign_major_components": [],
+            "index": 14,
+            "rect": [
+              712,
+              1098,
+              150,
+              140
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.85305400738298,
+            "contact_y": 289,
+            "sha256": "9d1dab6e13a1516c723246769848ee035e8761553008acc12432045a89884011"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              1398,
+              595,
+              1529,
+              748
+            ],
+            "source_bbox": [
+              0,
+              0,
+              131,
+              153
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 7,
+            "foreign_major_components": [],
+            "index": 15,
+            "rect": [
+              1043,
+              1112,
+              110,
+              129
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.30396355892097,
+            "contact_y": 289,
+            "sha256": "e8e175ffbd68ff82ff386164c376b8dffdde386b92f047c62b6aa326dda47bfc"
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/ghost_housemaid/ghost_housemaid_hurt_ne.png",
+        "frames": [
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              825,
+              776,
+              977,
+              934
+            ],
+            "source_bbox": [
+              0,
+              0,
+              152,
+              158
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 12,
+            "foreign_major_components": [],
+            "index": 0,
+            "rect": [
+              101,
+              163,
+              128,
+              133
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.4715424018213,
+            "contact_y": 289,
+            "sha256": "422795b23a2bd129146d64e266103f6507139bf05bcea0b880dda85d7ca878d5"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              1024,
+              780,
+              1175,
+              934
+            ],
+            "source_bbox": [
+              0,
+              0,
+              151,
+              154
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 6,
+            "foreign_major_components": [],
+            "index": 1,
+            "rect": [
+              406,
+              166,
+              127,
+              130
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.33674331910098,
+            "contact_y": 289,
+            "sha256": "f9f26a3896437c2a6eca14f2beb099b4f9f965e795aff79975cd3a7267829a55"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_1.png",
+            "source_slice": [
+              1219,
+              793,
+              1331,
+              929
+            ],
+            "source_bbox": [
+              0,
+              0,
+              112,
+              136
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 14,
+            "foreign_major_components": [],
+            "index": 2,
+            "rect": [
+              741,
+              189,
+              94,
+              115
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.3724795640327,
+            "contact_y": 289,
+            "sha256": "364c28079845e1581bc45fd66639f5522d90f94ae298f612ad7b5ed67f00b249"
+          },
+          {
+            "source": "_mockup/monsters_v130r/quarter_final/ghost_housemaid/attempt_2.png",
+            "source_slice": [
+              1118,
+              172,
+              1603,
+              727
+            ],
+            "source_bbox": [
+              0,
+              0,
+              485,
+              555
+            ],
+            "source_edge_alpha_ge192": 0,
+            "source_edge_max_alpha": 17,
+            "foreign_major_components": [],
+            "relative_scale": 0.28413284132841327,
+            "normalization": "Uniform repair source size matched to replaced pose body height, no warping.",
+            "index": 3,
+            "rect": [
+              1049,
+              162,
+              116,
+              133
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.03193750664258,
+            "contact_y": 289,
+            "sha256": "d223917c2581baaddfd17b9b935a558a58314e8dcab810e2313b493793061b5d"
+          }
+        ]
+      }
+    }
+  },
+  "processing": "Whole rectangular crop, uniform LANCZOS resizing, contact translation and assembly only. Native alpha retained. Contact is alpha>=192 bottom8px weighted center, not anatomical foot tracking."
+}

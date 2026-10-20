@@ -1,0 +1,55 @@
+{
+  "asset_id": "v130_result_01_debrief_biscuits",
+  "target_version": "v1.3.0",
+  "model": "lyria-3-pro-preview",
+  "interaction_api": "v1beta/interactions",
+  "interaction_id": "",
+  "store": false,
+  "prompt": "This is original audio for a cozy dark-fantasy comedy, 2D quarter-view castle-defense game. It must be new material, not an imitation of any artist, franchise, existing song, or copyrighted melody.\n\nCompose an original instrumental game soundtrack lasting about 112 seconds. 100 BPM, G major. A warm debrief with biscuits after a small defensive success. Flute, pizzicato violins, nylon guitar and vibraphone; modest earned relief and short answering phrases, understated rather than a victory fanfare, remain suitable while reading results. Develop a complete original 112-second instrumental arc, with compatible opening and final two seconds for a seamless loop. Keep the arrangement readable under frequent combat sound effects. No vocals, spoken words, choir syllables, or recognizable samples. Build a coherent arc without a hard ending. Keep the opening and final two seconds texturally compatible so they can be crossfaded into a seamless loop.",
+  "prompt_sha256": "be49fdbc22558da16b7d04ef2548fefab054429a6b0e5a0a0fc3029a7b96f840",
+  "generated_text": "[[A0]]\n[[B1]]\n[[C2]]\n[[D3]]\n[[B4]]\n[[C5]]",
+  "mime_type": "audio/mpeg",
+  "source_file": "source.mp3",
+  "source_sha256": "40b68cdde65d5d1845cd857a652ea8ef216b87b1ce5a947dad52a825b8b6e0b3",
+  "generated_at_utc": "2026-10-15T00:57:24.875431+00:00",
+  "source_run": "tmp/lyria_audio_v130/v130-20261015-approved",
+  "runtime_sha256": "a28184ae2d0e3d0fe554ac0166f82cf463aa7f7ed2fc758d3e9bf33b995182b7",
+  "quality_report": {
+    "asset_id": "v130_result_01_debrief_biscuits",
+    "scene": "result",
+    "reference_lufs": -16.625539406428196,
+    "gain_db": -0.2133645622475342,
+    "before": {
+      "duration_seconds": 109.77795918367347,
+      "lufs": -16.41217484418066,
+      "peak_dbfs": -5.000377362660108,
+      "true_peak_dbtp": -4.994849987629039,
+      "longest_silence_seconds": 0.15000000000000002,
+      "seam_delta": 6.103515625e-05,
+      "adjacent_delta_p999": 0.064361572265625
+    },
+    "after": {
+      "duration_seconds": 109.77795918367347,
+      "lufs": -16.625539875351954,
+      "peak_dbfs": -5.213688050871411,
+      "true_peak_dbtp": -5.208160675840343,
+      "longest_silence_seconds": 0.2,
+      "seam_delta": 6.103515625e-05,
+      "adjacent_delta_p999": 0.06280517578125
+    },
+    "checks": {
+      "duration_90_to_150": true,
+      "sample_peak_at_most_minus3": true,
+      "estimated_true_peak_at_most_minus3": true,
+      "no_silence_at_least_one_second": true,
+      "reference_loudness_within_one_lu": true,
+      "seam_within_ordinary_transients": true,
+      "two_second_loop_render": true
+    },
+    "passed": true
+  },
+  "request_attempts": 1,
+  "transport_retries": 0,
+  "listening_status": "사용자 청취 전",
+  "run_id": "v130-20261015-selected"
+}

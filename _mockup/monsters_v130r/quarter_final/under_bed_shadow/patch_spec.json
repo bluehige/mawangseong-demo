@@ -1,0 +1,35 @@
+{
+  "attempt": 2,
+  "cols": 3,
+  "rows": 2,
+  "keys": [
+    [
+      2,
+      2
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      2,
+      5
+    ],
+    [
+      2,
+      6
+    ],
+    [
+      2,
+      7
+    ]
+  ],
+  "poses": [
+    "SW attack contact: thin hands gently grab DOWN LEFT, hands kept close to body",
+    "SW attack recover: retract hands close beneath hood, never extend toward adjacent cell",
+    "NE REAR attack strike: back of hood, thin hands reach toward UPPER RIGHT, no face",
+    "NE REAR attack contact: back of hood, thin hands toward UPPER RIGHT, no face",
+    "NE REAR attack recover: back of hood, hands retract, no face",
+    "NE REAR hit reaction startle: back of hood, no face"
+  ]
+}

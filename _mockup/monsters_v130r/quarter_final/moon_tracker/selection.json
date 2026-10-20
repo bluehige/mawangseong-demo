@@ -1,0 +1,20 @@
+{
+  "status": "ACCEPTED_NOT_INTEGRATED",
+  "sources": [
+    {
+      "file": "attempt_2.png"
+    }
+  ],
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "evidence": "넓은 후드 정수리·낮은 왼쪽 눈·단축 하체·타원 접지·남서 활. NE는 등/화살통.",
+  "notes": [
+    "Attempt1 visual TFHES passed but rejected for final use because secondary C thumbnail proportions were accidentally stretched. Attempt2 uses original-aspect C board and actual map montage. All40 adopted from attempt2.",
+    "Native alpha maximum254 retained. No source clipping or foreign major component pixels in rectangular crops."
+  ]
+}

@@ -1,0 +1,606 @@
+{
+  "planned_web_bridge": {
+    "display_name": "거미줄 다리",
+    "member_instance_ids": [
+      "mon_v130r_pongdang",
+      "MON_SILKY"
+    ],
+    "member_names": [
+      "퐁당",
+      "실키"
+    ],
+    "role_tags": [
+      "연계",
+      "수비"
+    ],
+    "unlock_condition": {
+      "bond_each": 45,
+      "personal_memory_each": 1,
+      "deployed_together_days": 3,
+      "role_combo_count": 5,
+      "event_id": "event_planned_web_bridge"
+    },
+    "gauge_sources": [
+      {
+        "member_instance_id": "mon_v130r_pongdang",
+        "source_id": "skill_used",
+        "threshold": 1,
+        "gain": 8
+      },
+      {
+        "member_instance_id": "MON_SILKY",
+        "source_id": "skill_used",
+        "threshold": 1,
+        "gain": 8
+      }
+    ],
+    "effect_handler": "v130r_web_bridge",
+    "effect": {
+      "root_seconds": 2.0,
+      "slow_seconds": 4.0,
+      "slow_factor": 0.65,
+      "radius": 210.0,
+      "max_targets": 3
+    },
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 합동기 버튼으로 발동",
+    "tradeoff": "두 멤버가 생존해야 하며 전투당 한 번만 사용합니다.",
+    "vfx": {
+      "id": "vfx_planned_web_bridge",
+      "placeholder": false,
+      "effect_key": "guard",
+      "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png",
+      "cell": [
+        1,
+        1
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    }
+  },
+  "planned_slippery_flame": {
+    "display_name": "미끈불길",
+    "member_instance_ids": [
+      "mon_v130r_neurit",
+      "mon_core_pynn"
+    ],
+    "member_names": [
+      "느릿",
+      "핀"
+    ],
+    "role_tags": [
+      "연계",
+      "수비"
+    ],
+    "unlock_condition": {
+      "bond_each": 45,
+      "personal_memory_each": 1,
+      "deployed_together_days": 3,
+      "role_combo_count": 5,
+      "event_id": "event_planned_slippery_flame"
+    },
+    "gauge_sources": [
+      {
+        "member_instance_id": "mon_v130r_neurit",
+        "source_id": "skill_used",
+        "threshold": 1,
+        "gain": 8
+      },
+      {
+        "member_instance_id": "mon_core_pynn",
+        "source_id": "fire_skill_hit",
+        "threshold": 1,
+        "gain": 5
+      }
+    ],
+    "effect_handler": "v130r_slippery_flame",
+    "effect": {
+      "damage": 18,
+      "slow_seconds": 4.0,
+      "slow_factor": 0.65,
+      "radius": 180.0,
+      "max_targets": 3
+    },
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 합동기 버튼으로 발동",
+    "tradeoff": "두 멤버가 생존해야 하며 전투당 한 번만 사용합니다.",
+    "vfx": {
+      "id": "vfx_planned_slippery_flame",
+      "placeholder": false,
+      "effect_key": "guard",
+      "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png",
+      "cell": [
+        1,
+        1
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    }
+  },
+  "planned_toll_vault": {
+    "display_name": "통행세 금고",
+    "member_instance_ids": [
+      "mon_v130r_beongbeong",
+      "mon_core_gob"
+    ],
+    "member_names": [
+      "벙벙",
+      "곱"
+    ],
+    "role_tags": [
+      "연계",
+      "수비"
+    ],
+    "unlock_condition": {
+      "bond_each": 45,
+      "personal_memory_each": 1,
+      "deployed_together_days": 3,
+      "role_combo_count": 5,
+      "event_id": "event_planned_toll_vault"
+    },
+    "gauge_sources": [
+      {
+        "member_instance_id": "mon_v130r_beongbeong",
+        "source_id": "guard_or_block",
+        "threshold": 1,
+        "gain": 5
+      },
+      {
+        "member_instance_id": "mon_core_gob",
+        "source_id": "finisher",
+        "threshold": 1,
+        "gain": 5
+      }
+    ],
+    "effect_handler": "v130r_toll_vault",
+    "effect": {
+      "damage": 24,
+      "recover_fraction": 0.5,
+      "max_targets": 2,
+      "radius": 210.0
+    },
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 합동기 버튼으로 발동",
+    "tradeoff": "두 멤버가 생존해야 하며 전투당 한 번만 사용합니다.",
+    "vfx": {
+      "id": "vfx_planned_toll_vault",
+      "placeholder": false,
+      "effect_key": "guard",
+      "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png",
+      "cell": [
+        1,
+        1
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    }
+  },
+  "planned_marked_ambush": {
+    "display_name": "표식 기습",
+    "member_instance_ids": [
+      "mon_v130r_shh",
+      "mon_contract_lumi"
+    ],
+    "member_names": [
+      "쉿",
+      "루미"
+    ],
+    "role_tags": [
+      "연계",
+      "수비"
+    ],
+    "unlock_condition": {
+      "bond_each": 45,
+      "personal_memory_each": 1,
+      "deployed_together_days": 3,
+      "role_combo_count": 5,
+      "event_id": "event_planned_marked_ambush"
+    },
+    "gauge_sources": [
+      {
+        "member_instance_id": "mon_v130r_shh",
+        "source_id": "skill_used",
+        "threshold": 1,
+        "gain": 8
+      },
+      {
+        "member_instance_id": "mon_contract_lumi",
+        "source_id": "skill_used",
+        "threshold": 1,
+        "gain": 8
+      }
+    ],
+    "effect_handler": "v130r_marked_ambush",
+    "effect": {
+      "damage": 36,
+      "mark_seconds": 5.0,
+      "max_targets": 1,
+      "radius": 250.0
+    },
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 합동기 버튼으로 발동",
+    "tradeoff": "두 멤버가 생존해야 하며 전투당 한 번만 사용합니다.",
+    "vfx": {
+      "id": "vfx_planned_marked_ambush",
+      "placeholder": false,
+      "effect_key": "guard",
+      "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png",
+      "cell": [
+        1,
+        1
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    }
+  },
+  "planned_plate_exchange": {
+    "display_name": "판금 교환",
+    "member_instance_ids": [
+      "mon_v130r_teongteong",
+      "monster_toktok"
+    ],
+    "member_names": [
+      "텅텅",
+      "톡톡"
+    ],
+    "role_tags": [
+      "연계",
+      "수비"
+    ],
+    "unlock_condition": {
+      "bond_each": 45,
+      "personal_memory_each": 1,
+      "deployed_together_days": 3,
+      "role_combo_count": 5,
+      "event_id": "event_planned_plate_exchange"
+    },
+    "gauge_sources": [
+      {
+        "member_instance_id": "mon_v130r_teongteong",
+        "source_id": "guard_or_block",
+        "threshold": 1,
+        "gain": 5
+      },
+      {
+        "member_instance_id": "monster_toktok",
+        "source_id": "armor_break_or_repair",
+        "threshold": 1,
+        "gain": 5
+      }
+    ],
+    "effect_handler": "v130r_plate_exchange",
+    "effect": {
+      "shield": 30,
+      "def_bonus": 2,
+      "duration": 5.0,
+      "radius": 190.0
+    },
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 합동기 버튼으로 발동",
+    "tradeoff": "두 멤버가 생존해야 하며 전투당 한 번만 사용합니다.",
+    "vfx": {
+      "id": "vfx_planned_plate_exchange",
+      "placeholder": false,
+      "effect_key": "guard",
+      "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png",
+      "cell": [
+        1,
+        1
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    }
+  },
+  "planned_candle_ember": {
+    "display_name": "촛불 불씨",
+    "member_instance_ids": [
+      "mon_v130r_noknok",
+      "mon_core_pynn"
+    ],
+    "member_names": [
+      "녹녹",
+      "핀"
+    ],
+    "role_tags": [
+      "연계",
+      "수비"
+    ],
+    "unlock_condition": {
+      "bond_each": 45,
+      "personal_memory_each": 1,
+      "deployed_together_days": 3,
+      "role_combo_count": 5,
+      "event_id": "event_planned_candle_ember"
+    },
+    "gauge_sources": [
+      {
+        "member_instance_id": "mon_v130r_noknok",
+        "source_id": "skill_used",
+        "threshold": 1,
+        "gain": 8
+      },
+      {
+        "member_instance_id": "mon_core_pynn",
+        "source_id": "fire_skill_hit",
+        "threshold": 1,
+        "gain": 5
+      }
+    ],
+    "effect_handler": "v130r_candle_ember",
+    "effect": {
+      "damage": 20,
+      "mark_seconds": 5.0,
+      "max_targets": 3,
+      "radius": 210.0
+    },
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 합동기 버튼으로 발동",
+    "tradeoff": "두 멤버가 생존해야 하며 전투당 한 번만 사용합니다.",
+    "vfx": {
+      "id": "vfx_planned_candle_ember",
+      "placeholder": false,
+      "effect_key": "guard",
+      "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png",
+      "cell": [
+        1,
+        1
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    }
+  },
+  "planned_underground_march": {
+    "display_name": "지하 행진",
+    "member_instance_ids": [
+      "mon_v130r_papa",
+      "mon_contract_dolkong"
+    ],
+    "member_names": [
+      "파파",
+      "돌콩"
+    ],
+    "role_tags": [
+      "연계",
+      "수비"
+    ],
+    "unlock_condition": {
+      "bond_each": 45,
+      "personal_memory_each": 1,
+      "deployed_together_days": 3,
+      "role_combo_count": 5,
+      "event_id": "event_planned_underground_march"
+    },
+    "gauge_sources": [
+      {
+        "member_instance_id": "mon_v130r_papa",
+        "source_id": "skill_used",
+        "threshold": 1,
+        "gain": 8
+      },
+      {
+        "member_instance_id": "mon_contract_dolkong",
+        "source_id": "fixed_attack",
+        "threshold": 1,
+        "gain": 5
+      }
+    ],
+    "effect_handler": "v130r_underground_march",
+    "effect": {
+      "damage": 16,
+      "morale_damage": 20,
+      "def_bonus": 2,
+      "duration": 4.0,
+      "max_targets": 3,
+      "radius": 190.0
+    },
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 합동기 버튼으로 발동",
+    "tradeoff": "두 멤버가 생존해야 하며 전투당 한 번만 사용합니다.",
+    "vfx": {
+      "id": "vfx_planned_underground_march",
+      "placeholder": false,
+      "effect_key": "guard",
+      "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png",
+      "cell": [
+        1,
+        1
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    }
+  },
+  "planned_false_map": {
+    "display_name": "가짜 지도 소동",
+    "member_instance_ids": [
+      "mon_v130r_kkogit",
+      "mon_core_rolo"
+    ],
+    "member_names": [
+      "꼬깃",
+      "로로"
+    ],
+    "role_tags": [
+      "연계",
+      "수비"
+    ],
+    "unlock_condition": {
+      "bond_each": 45,
+      "personal_memory_each": 1,
+      "deployed_together_days": 3,
+      "role_combo_count": 5,
+      "event_id": "event_planned_false_map"
+    },
+    "gauge_sources": [
+      {
+        "member_instance_id": "mon_v130r_kkogit",
+        "source_id": "skill_used",
+        "threshold": 1,
+        "gain": 8
+      },
+      {
+        "member_instance_id": "mon_core_rolo",
+        "source_id": "skill_used",
+        "threshold": 1,
+        "gain": 8
+      }
+    ],
+    "effect_handler": "v130r_false_map",
+    "effect": {
+      "root_seconds": 1.5,
+      "mark_seconds": 5.0,
+      "max_targets": 3,
+      "radius": 210.0
+    },
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 합동기 버튼으로 발동",
+    "tradeoff": "두 멤버가 생존해야 하며 전투당 한 번만 사용합니다.",
+    "vfx": {
+      "id": "vfx_planned_false_map",
+      "placeholder": false,
+      "effect_key": "guard",
+      "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png",
+      "cell": [
+        1,
+        1
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    }
+  },
+  "planned_false_treasure": {
+    "display_name": "가짜 보물 작전",
+    "member_instance_ids": [
+      "mon_v130r_jjikjjik",
+      "mon_contract_mimi"
+    ],
+    "member_names": [
+      "찍찍단",
+      "미미"
+    ],
+    "role_tags": [
+      "연계",
+      "수비"
+    ],
+    "unlock_condition": {
+      "bond_each": 45,
+      "personal_memory_each": 1,
+      "deployed_together_days": 3,
+      "role_combo_count": 5,
+      "event_id": "event_planned_false_treasure"
+    },
+    "gauge_sources": [
+      {
+        "member_instance_id": "mon_v130r_jjikjjik",
+        "source_id": "skill_used",
+        "threshold": 1,
+        "gain": 8
+      },
+      {
+        "member_instance_id": "mon_contract_mimi",
+        "source_id": "skill_used",
+        "threshold": 1,
+        "gain": 8
+      }
+    ],
+    "effect_handler": "v130r_false_treasure",
+    "effect": {
+      "root_seconds": 2.0,
+      "recover_fraction": 0.5,
+      "max_targets": 2,
+      "radius": 210.0
+    },
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 합동기 버튼으로 발동",
+    "tradeoff": "두 멤버가 생존해야 하며 전투당 한 번만 사용합니다.",
+    "vfx": {
+      "id": "vfx_planned_false_treasure",
+      "placeholder": false,
+      "effect_key": "guard",
+      "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png",
+      "cell": [
+        1,
+        1
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    }
+  },
+  "planned_sewn_bond": {
+    "display_name": "재봉 인연",
+    "member_instance_ids": [
+      "mon_v130r_nubi",
+      "MON_SILKY"
+    ],
+    "member_names": [
+      "누비",
+      "실키"
+    ],
+    "role_tags": [
+      "연계",
+      "수비"
+    ],
+    "unlock_condition": {
+      "bond_each": 45,
+      "personal_memory_each": 1,
+      "deployed_together_days": 3,
+      "role_combo_count": 5,
+      "event_id": "event_planned_sewn_bond"
+    },
+    "gauge_sources": [
+      {
+        "member_instance_id": "mon_v130r_nubi",
+        "source_id": "damage_absorbed",
+        "threshold": 20,
+        "gain": 5
+      },
+      {
+        "member_instance_id": "MON_SILKY",
+        "source_id": "skill_used",
+        "threshold": 1,
+        "gain": 8
+      }
+    ],
+    "effect_handler": "v130r_sewn_bond",
+    "effect": {
+      "shield": 28,
+      "heal": 12,
+      "duration": 4.0,
+      "radius": 190.0
+    },
+    "max_uses_per_battle": 1,
+    "activation_hint": "J 키 또는 합동기 버튼으로 발동",
+    "tradeoff": "두 멤버가 생존해야 하며 전투당 한 번만 사용합니다.",
+    "vfx": {
+      "id": "vfx_planned_sewn_bond",
+      "placeholder": false,
+      "effect_key": "guard",
+      "sheet": "res://assets/ui/duo/duo_badges_vfx_sheet.png",
+      "cell": [
+        1,
+        1
+      ],
+      "grid": [
+        3,
+        2
+      ]
+    }
+  }
+}

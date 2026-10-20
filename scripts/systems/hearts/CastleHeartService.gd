@@ -20,7 +20,7 @@ const HUNGER_WAVE_BOSS_DAMAGE := 6
 const HUNGER_WAVE_MORALE_DAMAGE := 8
 const HUNGER_WAVE_INFAMY := 3
 const HUNGRY_HEAL_SCALE := 0.92
-const HUNGRY_DAILY_FOOD_COST := 2
+const HUNGRY_DAILY_FOOD_COST := 0 # Superseded by MonsterFoodService individual rations.
 const HUNGRY_ACTIVE_SECONDS := 5.0
 const HUNGRY_ACTIVE_DAMAGE_PER_SECOND := 6
 const HUNGRY_ACTIVE_SLOW_SCALE := 0.85
@@ -396,7 +396,7 @@ static func apply_room_damage(active_run_value: Dictionary, room_id: String, raw
 	return {"active_run": active_run, "damage": remaining, "reduced": reduced, "shield_absorbed": shield_absorbed, "charge_gain": int(charged.get("gain", 0))}
 
 
-static func apply_repair(active_run_value: Dictionary, raw_repair: int, event_token: String, time_seconds: float) -> Dictionary:
+static func apply_repair(active_run_value: Dictionary, raw_repair: int, event_token: String, time_seconds: float, maximum_effective_repair:int=-1) -> Dictionary:
 	var active_run := active_run_value.duplicate(true)
 	var repaired := maxi(0, raw_repair)
 	var bonus := 0
@@ -404,6 +404,9 @@ static func apply_repair(active_run_value: Dictionary, raw_repair: int, event_to
 		var modified := int(round(float(repaired) * REPAIR_SCALE))
 		bonus = modified - repaired
 		repaired = modified
+	if maximum_effective_repair>=0:
+		repaired=mini(repaired,maxi(0,maximum_effective_repair))
+		bonus=maxi(0,repaired-mini(maxi(0,raw_repair),repaired))
 	var charged := record_charge(active_run, "facility_repaired", repaired, event_token, time_seconds)
 	active_run = charged.get("active_run", active_run)
 	var metrics: Dictionary = active_run.get("run_metrics_update3", {}).duplicate(true)

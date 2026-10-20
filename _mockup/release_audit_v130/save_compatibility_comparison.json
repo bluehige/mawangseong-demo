@@ -1,0 +1,95 @@
+[
+  {
+    "schema": 1,
+    "release_provenance": "unversioned personal DAY2 checkpoint; exact release producer unknown",
+    "game_fields": {
+      "day": {
+        "before": 2,
+        "after": 2,
+        "equal": true
+      },
+      "throne_hp": {
+        "before": 1500,
+        "after": 1500,
+        "equal": true
+      },
+      "food": {
+        "before": 24,
+        "after": 24,
+        "equal": true
+      },
+      "gold": {
+        "before": 1475,
+        "after": 1475,
+        "equal": true
+      }
+    },
+    "roster_count_before": 3,
+    "roster_count_after": 3,
+    "roster_differences": [],
+    "map_layout_replaced": true,
+    "continuation_battle_win": true
+  },
+  {
+    "schema": 4,
+    "release_provenance": "unversioned personal DAY2 checkpoint; exact release producer unknown",
+    "game_fields": {
+      "day": {
+        "before": 2,
+        "after": 2,
+        "equal": true
+      },
+      "throne_hp": {
+        "before": 1500,
+        "after": 1500,
+        "equal": true
+      },
+      "food": {
+        "before": 24,
+        "after": 24,
+        "equal": true
+      },
+      "gold": {
+        "before": 1475,
+        "after": 1475,
+        "equal": true
+      }
+    },
+    "roster_count_before": 3,
+    "roster_count_after": 3,
+    "roster_differences": [],
+    "map_layout_replaced": true,
+    "continuation_battle_win": true
+  },
+  {
+    "schema": 5,
+    "release_provenance": "unversioned personal DAY2 checkpoint; exact release producer unknown",
+    "game_fields": {
+      "day": {
+        "before": 2,
+        "after": 2,
+        "equal": true
+      },
+      "throne_hp": {
+        "before": 1500,
+        "after": 1500,
+        "equal": true
+      },
+      "food": {
+        "before": 24,
+        "after": 24,
+        "equal": true
+      },
+      "gold": {
+        "before": 1475,
+        "after": 1475,
+        "equal": true
+      }
+    },
+    "roster_count_before": 3,
+    "roster_count_after": 3,
+    "roster_differences": [],
+    "map_layout_replaced": true,
+    "continuation_battle_win": true
+  }
+]

@@ -1,0 +1,201 @@
+﻿api_name,field,koreana,english,schinese
+ACH_FIRST_NIGHT,name,축축한 원룸의 첫 손님,First Guest in a Damp Studio,潮湿单间的第一位客人
+ACH_FIRST_NIGHT,description,DAY 1 방어에 성공한다.,Successfully defend on DAY 1.,成功守住第1天。
+ACH_THIEF_DENIED,name,개업 첫 도난은 사절,No Grand Opening Theft,开业首日，谢绝盗窃
+ACH_THIEF_DENIED,description,도둑이 나오는 날 금고 손실 없이 승리한다.,Win on a day with thieves without losing anything from the vault.,在有盗贼出没的日子获胜，且金库没有任何损失。
+ACH_HERO_TRAINEE,name,견습 용사 돌려보내기,Send the Trainee Hero Home,送见习勇者回家
+ACH_HERO_TRAINEE,description,DAY 3 수련생 용사를 막아낸다.,Repel the trainee hero on DAY 3.,在第3天击退见习勇者。
+ACH_GRADE_E,name,동굴이 아니라 마왕성,"A Demon Castle, Not a Cave",是魔王城，不是山洞
+ACH_GRADE_E,description,DAY 15에 소마왕성(E등급)으로 승급한다.,Advance to Lesser Demon Castle (Grade E) on DAY 15.,在第15天晋升为小魔王城（E级）。
+ACH_GRADE_D,name,갈림길의 요새,Fortress at the Fork,岔路口的要塞
+ACH_GRADE_D,description,DAY 20에 요새 마왕성(D등급)으로 승급한다.,Advance to Fortified Demon Castle (Grade D) on DAY 20.,在第20天晋升为要塞魔王城（D级）。
+ACH_GRADE_C,name,서문과 남문,"West Gate, South Gate",西门与南门
+ACH_GRADE_C,description,DAY 27에 대마왕성(C등급)으로 승급한다.,Advance to Great Demon Castle (Grade C) on DAY 27.,在第27天晋升为大魔王城（C级）。
+ACH_SELEN,name,"성스러운 빛, 촛불로 맞서다","Holy Light, Meet Candlelight",圣光来了，点上蜡烛
+ACH_SELEN,description,성기사 견습 셀렌을 처음 물리친다.,Defeat Apprentice Paladin Selen for the first time.,首次击败见习圣骑士瑟伦。
+ACH_ROMAN,name,감사는 끝났습니다,The Audit Is Over,审计到此结束
+ACH_ROMAN,description,길드 조사대장 로만을 물리친다.,Defeat Guild Chief Investigator Roman.,击败公会调查队长罗曼。
+ACH_LEON,name,정식 용사 레온,Full-Fledged Hero Leon,正式勇者里昂
+ACH_LEON,description,DAY 30 레온을 물리치고 캠페인을 끝낸다.,Defeat Leon on DAY 30 and complete the campaign.,在第30天击败里昂，完成战役。
+ACH_DAY29,name,싸우지 않는 밤,A Night Without Fighting,不打仗的夜晚
+ACH_DAY29,description,DAY 29 준비일을 보낸다.,Spend DAY 29 preparing.,度过第29天的准备日。
+ACH_BUILD_FIRST,name,첫 삽,Breaking Ground,第一铲土
+ACH_BUILD_FIRST,description,건물을 처음 지어 길을 연결한다.,Build your first building and connect it to a path.,首次建造建筑，并将其与道路连接。
+ACH_BUILD_ALL5,name,다섯 가지 방,Five Kinds of Rooms,五种房间
+ACH_BUILD_ALL5,description,병영·회복 둥지·결계핵·감시탑·미끼 보물실을 모두 짓는다.,"Build a Barracks, Recovery Nest, Barrier Core, Watchtower, and Decoy Treasury.",建造兵营、恢复巢穴、结界核心、瞭望塔和诱饵宝物室。
+ACH_BUILD_MAX,name,증축 허가,Expansion Approved,扩建获批
+ACH_BUILD_MAX,description,건물 하나를 최대 레벨까지 강화한다.,Upgrade one building to its maximum level.,将一座建筑升级至最高等级。
+ACH_TRAPS_50,name,바닥 조심,Watch Your Step,小心脚下
+ACH_TRAPS_50,description,함정을 누적 50개 설치한다.,Place a total of 50 traps.,累计设置50个陷阱。
+ACH_TRAP_KILLS_100,name,발밑의 공포,Terror Underfoot,脚下的恐怖
+ACH_TRAP_KILLS_100,description,함정으로 적을 누적 100명 쓰러뜨린다.,Defeat a total of 100 enemies with traps.,用陷阱累计击败100名敌人。
+ACH_STONE_BRIDGE,name,나무에서 돌로,From Wood to Stone,木桥换石桥
+ACH_STONE_BRIDGE,description,다리가 돌다리로 바뀐다(D등급).,Replace the wooden bridge with a stone bridge (Grade D).,将桥梁变为石桥（D级）。
+ACH_NO_THRONE_DMG,name,옥좌는 먼지 하나 없이,Not a Speck on the Throne,王座一尘不染
+ACH_NO_THRONE_DMG,description,옥좌가 피해를 받지 않고 전투에서 이긴다(DAY 10 이후).,Win a battle on DAY 10 or later without the throne taking damage.,在第10天或之后的战斗中获胜，且王座未受到伤害。
+ACH_SPLIT_DEFENSE,name,두 갈래를 지켜라,Hold Both Paths,守住两条路
+ACH_SPLIT_DEFENSE,description,C등급에서 서문·남문 양쪽 최종 방어선을 모두 지켜 승리한다.,Win at Grade C while holding both final defense lines at the west and south gates.,在C级战斗中守住西门与南门两处最终防线并获胜。
+ACH_ALL_FACILITIES_ALIVE,name,시설 무사,Facilities Safe and Sound,设施平安无事
+ACH_ALL_FACILITIES_ALIVE,description,D·C등급 전투에서 시설이 하나도 무력화되지 않고 승리한다.,Win a Grade D or C battle without any facility being disabled.,在D级或C级战斗中获胜，且没有任何设施被瘫痪。
+ACH_FAMILY_10,name,식구가 늘었다,The Family Grows,家里添新成员了
+ACH_FAMILY_10,description,몬스터 10명이 합류한다.,Have 10 monsters join you.,让10名魔物加入。
+ACH_FAMILY_24,name,스물네 식구,A Family of Twenty-Four,二十四口之家
+ACH_FAMILY_24,description,몬스터 24명이 모두 합류한다.,Have all 24 monsters join you.,让全部24名魔物加入。
+ACH_FIRST_MEMORY,name,처음 내민 젤 손,The First Jelly Hand,第一次伸来的果冻手
+ACH_FIRST_MEMORY,description,몬스터의 기억을 처음 해금한다.,Unlock a monster memory for the first time.,首次解锁魔物的记忆。
+ACH_ALL_MEMORIES,name,기억의 서고,Archive of Memories,记忆书库
+ACH_ALL_MEMORIES,description,모든 몬스터의 기억을 해금한다.,Unlock every monster's memories.,解锁所有魔物的全部记忆。
+ACH_FIRST_DUO,name,둘이 하나,Two as One,二合为一
+ACH_FIRST_DUO,description,합동기를 처음 해금한다.,Unlock your first Team Skill.,首次解锁合击技。
+ACH_ALL_DUOS,name,열여섯 번의 하이파이브,Sixteen High Fives,十六次击掌
+ACH_ALL_DUOS,description,합동기 16개를 모두 해금한다.,Unlock all 16 Team Skills.,解锁全部16个合击技。
+ACH_FIRST_SPEC,name,진로 결정,Career Choice,决定发展方向
+ACH_FIRST_SPEC,description,몬스터 전문화를 처음 고른다.,Choose a monster specialization for the first time.,首次为魔物选择专精。
+ACH_SPEC_24,name,모두 제 갈 길,Everyone Finds Their Path,各走各的路
+ACH_SPEC_24,description,24종 모두 전문화를 고른다.,Choose a specialization for all 24 species.,为全部24个种类的魔物选择专精。
+ACH_NO_HUNGER,name,배부른 마왕성,A Well-Fed Demon Castle,吃得饱饱的魔王城
+ACH_NO_HUNGER,description,한 캠페인 동안 굶주림 상태 몬스터 없이 DAY 30에 도달한다.,Reach DAY 30 without any monster going hungry throughout the campaign.,在整场战役中没有魔物陷入饥饿状态的情况下，到达第30天。
+ACH_FULL_HOUSE,name,수비 칸 만석,Every Defense Slot Taken,防守位满员
+ACH_FULL_HOUSE,description,수비 칸을 모두 채우고 식량이 모자라지 않은 채 승리한다.,Win with every defense slot filled and no food shortage.,填满全部防守位，且在食物充足的情况下获胜。
+ACH_M_FROG,name,혀 낚시꾼,Tongue Angler,舌头钓手
+ACH_M_FROG,description,퐁당이 다리 위 적을 누적 30명 묶는다.,Have Pongdang root a total of 30 enemies on bridges.,让噗咚累计束缚桥上的30名敌人。
+ACH_M_SNAIL,name,늦어도 도착,"Late, but Still Arriving",迟到也会到
+ACH_M_SNAIL,description,느릿의 점액으로 적을 누적 200번 느리게 한다.,Slow enemies a total of 200 times with Neurit's slime.,用慢栗的黏液累计使敌人减速200次。
+ACH_M_TROLL,name,통행세 징수,Toll Collection,收过桥费
+ACH_M_TROLL,description,벙벙이 도둑에게서 금화 누적 500을 되찾는다.,Have Beongbeong recover a total of 500 gold from thieves.,让懵懵从盗贼手中累计夺回500金币。
+ACH_M_SHADOW,name,까꿍,Peekaboo,吓你一跳
+ACH_M_SHADOW,description,쉿이 적을 누적 50번 겁준다.,Have Shh frighten enemies a total of 50 times.,让嘘嘘累计惊吓敌人50次。
+ACH_M_ARMOR,name,옥좌 앞의 맹세,An Oath Before the Throne,王座前的誓言
+ACH_M_ARMOR,description,텅텅이 레온 전투에서 판금 재조립 후 살아남는다.,Have Teongteong survive the battle against Leon after using Reassemble.,让空空在对抗里昂的战斗中使用板甲重组后存活。
+ACH_M_WISP,name,작은 달,A Little Moon,小小月亮
+ACH_M_WISP,description,녹녹이 숨은 적을 누적 20번 드러낸다.,Reveal hidden enemies a total of 20 times with Noknok.,让蜡诺诺累计揭露隐藏的敌人20次。
+ACH_M_MOLE,name,안전 제일,Safety First,安全第一
+ACH_M_MOLE,description,파파가 공병의 공사를 누적 30번 방해한다.,Have Papa interrupt enemy engineers' construction a total of 30 times.,让帕帕累计打断工兵施工30次。
+ACH_M_MAP,name,왕좌가 세 군데,Three Thrones?,王座有三处？
+ACH_M_MAP,description,꼬깃이 탐험가를 누적 100번 길 잃게 한다.,Have Kkogit make explorers lose their way a total of 100 times.,让皱吉累计使探险家迷路100次。
+ACH_M_RATS,name,치즈 인상 투쟁,The Fight for More Cheese,争取奶酪加薪
+ACH_M_RATS,description,찍찍단이 금화 누적 1000을 회수한다.,Have the Jjikjjik Union recover a total of 1000 gold.,让吱吱团累计收回1000金币。
+ACH_M_DOLL,name,대신 아파 줄게,I'll Hurt in Your Place,替你承受疼痛
+ACH_M_DOLL,description,누비가 보스전에서 대신 받은 피해로 동료를 살린다.,Have Nubi save an ally by taking damage in their place during a boss battle.,让缝妮在首领战中替同伴承受伤害，救下同伴。
+ACH_M_PUDDING,name,말랑한 벽,A Squishy Wall,软乎乎的墙
+ACH_M_PUDDING,description,푸딩이 한 전투에서 피해 1000을 막아낸다.,Have Pudding block 1000 damage in a single battle.,让布丁在一场战斗中挡下1000点伤害。
+ACH_M_GOB,name,곱은 어디?,Where Did Gob Go?,戈布去哪儿了？
+ACH_M_GOB,description,곱이 도둑을 누적 30명 쓰러뜨린다.,Have Gob defeat a total of 30 thieves.,让戈布累计击败30名盗贼。
+ACH_M_PYNN,name,교환 환불 불가,"No Exchanges, No Refunds",不退不换
+ACH_M_PYNN,description,핀의 화염구로 적 누적 300명을 맞힌다.,Hit a total of 300 enemies with Pynn's fireballs.,用皮恩的火球累计命中300名敌人。
+ACH_M_ROLO,name,부풀리지 않은 보고,No Inflated Reports,报告绝不注水
+ACH_M_ROLO,description,로로가 원정을 10번 이끈다.,Have Rolo lead 10 expeditions.,让罗罗带领远征10次。
+ACH_SEAL_NO_THRONE,name,철벽 인장,The Ironclad Seal,铁壁印章
+ACH_SEAL_NO_THRONE,description,도전 인장: 옥좌 무피해 조건으로 승리한다.,Win with the No Throne Damage Challenge Seal.,在王座无伤的挑战印章条件下获胜。
+ACH_SEAL_NO_DOWN,name,아무도 쓰러지지 않게,No One Goes Down,谁都不许倒下
+ACH_SEAL_NO_DOWN,description,도전 인장: 몬스터 전투불능 없이 승리한다.,Win with the No Monster Incapacitations Challenge Seal.,在没有魔物失去战斗能力的挑战印章条件下获胜。
+ACH_SEAL_LOW_MANA,name,가난한 마법사,A Wizard on a Budget,穷魔法师
+ACH_SEAL_LOW_MANA,description,도전 인장: 마나 제한 조건으로 승리한다.,Win with the Limited Mana Challenge Seal.,在法力受限的挑战印章条件下获胜。
+ACH_SEAL_NO_DISABLE,name,멈추지 않는 시설,Facilities Keep Running,设施不停工
+ACH_SEAL_NO_DISABLE,description,도전 인장: 시설 무력화 없이 승리한다.,Win with the No Disabled Facilities Challenge Seal.,在没有设施被瘫痪的挑战印章条件下获胜。
+ACH_SEAL_CONTRACT_VANGUARD,name,계약 선봉대,Contract Vanguard,契约先锋队
+ACH_SEAL_CONTRACT_VANGUARD,description,도전 인장: 계약 몬스터 선봉 조건으로 승리한다.,Win with the Contract Monster Vanguard Challenge Seal.,在契约魔物担任先锋的挑战印章条件下获胜。
+ACH_SEAL_ADAPTIVE,name,숙적의 적응,The Rival Adapts,宿敌也会适应
+ACH_SEAL_ADAPTIVE,description,도전 인장: 적응하는 숙적 조건으로 승리한다.,Win with the Adaptive Rival Challenge Seal.,在适应型宿敌的挑战印章条件下获胜。
+ACH_SECRET_BUCKET,name,양동이 두 개,Two Buckets,两只水桶
+ACH_SECRET_BUCKET,description,천장 누수 대사를 끝까지 본다.,Read the ceiling leak conversation to the end.,看完天花板漏水的全部对话。
+ACH_SECRET_DIRECT_LEON,name,마왕이 직접,"The Demon Lord, Personally",魔王亲自动手
+ACH_SECRET_DIRECT_LEON,description,직접 조종한 몬스터로 레온에게 마지막 일격을 넣는다.,Deal the final blow to Leon with a monster you are directly controlling.,用直接操控的魔物对里昂打出最后一击。
+ACH_SECRET_ALL_IN_ONE,name,몰빵의 대가,The Price of Going All In,全押一处的代价
+ACH_SECRET_ALL_IN_ONE,description,한 건물 앞에 전원 세우고 진다.,Lose after placing everyone in front of a single building.,把所有魔物都安排在同一座建筑前，然后战败。
+ACH_SECRET_HUNGRY_WIN,name,배고파도 이긴다,"Hungry, but Victorious",饿着肚子也能赢
+ACH_SECRET_HUNGRY_WIN,description,몬스터 5명 이상이 굶주린 채 승리한다.,Win while at least 5 monsters are hungry.,在至少5名魔物处于饥饿状态时获胜。
+ACH_SECRET_37,name,연못 반환 요구서 37번,Pond Return Demand No. 37,第37份归还池塘要求书
+ACH_SECRET_37,description,퐁당 합류 대화를 본다.,Read Pongdang's recruitment conversation.,观看噗咚的加入对话。
+ACH_END_TRUE_DEMON_CASTLE,name,진짜 마왕성,True Demon Castle,真正的魔王城
+ACH_END_TRUE_DEMON_CASTLE,description,"결말 ""진짜 마왕성""에 도달한다.","Reach the ""True Demon Castle"" ending.",达成“真正的魔王城”结局。
+ACH_END_MONSTER_FAMILY_CASTLE,name,몬스터 식구들의 성,The Monster Family's Castle,魔物家人的城
+ACH_END_MONSTER_FAMILY_CASTLE,description,"결말 ""몬스터 식구들의 성""에 도달한다.","Reach ""The Monster Family's Castle"" ending.",达成“魔物家人的城”结局。
+ACH_END_IMPREGNABLE_DEMON_CITADEL,name,철벽의 마왕 요새,The Impregnable Demon Fortress,铁壁魔王要塞
+ACH_END_IMPREGNABLE_DEMON_CITADEL,description,"결말 ""철벽의 마왕 요새""에 도달한다.","Reach ""The Impregnable Demon Fortress"" ending.",达成“铁壁魔王要塞”结局。
+ACH_END_DREAD_OVERLORD_RISES,name,공포의 대마왕,The Dread Demon Lord,恐怖大魔王
+ACH_END_DREAD_OVERLORD_RISES,description,"결말 ""공포의 대마왕""에 도달한다.","Reach ""The Dread Demon Lord"" ending.",达成“恐怖大魔王”结局。
+ACH_END_DEMON_HERO_RIVAL_PACT,name,마왕과 용사의 라이벌 협정,The Demon Lord and Hero's Rivalry Pact,魔王与勇者的宿敌协定
+ACH_END_DEMON_HERO_RIVAL_PACT,description,"결말 ""마왕과 용사의 라이벌 협정""에 도달한다.","Reach ""The Demon Lord and Hero's Rivalry Pact"" ending.",达成“魔王与勇者的宿敌协定”结局。
+ACH_END_CONTRACT_MONSTER_ALLIANCE,name,계약 마물 연합,Contract Monster Alliance,契约魔物联盟
+ACH_END_CONTRACT_MONSTER_ALLIANCE,description,"결말 ""계약 마물 연합""에 도달한다.","Reach the ""Contract Monster Alliance"" ending.",达成“契约魔物联盟”结局。
+ACH_END_ROYAL_DOCTRINE_BROKEN,name,왕국 교리 파쇄,Kingdom Doctrine Shattered,王国军规粉碎
+ACH_END_ROYAL_DOCTRINE_BROKEN,description,"결말 ""왕국 교리 파쇄""에 도달한다.","Reach the ""Kingdom Doctrine Shattered"" ending.",达成“王国军规粉碎”结局。
+ACH_END_CHALLENGE_SEAL_LEGEND,name,도전 인장의 전설,Legend of the Challenge Seals,挑战印章的传说
+ACH_END_CHALLENGE_SEAL_LEGEND,description,"결말 ""도전 인장의 전설""에 도달한다.","Reach the ""Legend of the Challenge Seals"" ending.",达成“挑战印章的传说”结局。
+ACH_END_EVELYNS_COUNTERLEDGER,name,에블린의 역산 장부,Evelyn's Reverse-Calculation Ledger,伊芙琳的逆算账本
+ACH_END_EVELYNS_COUNTERLEDGER,description,"결말 ""에블린의 역산 장부""에 도달한다.","Reach the ""Evelyn's Reverse-Calculation Ledger"" ending.",达成“伊芙琳的逆算账本”结局。
+ACH_END_ADAPTIVE_RIVAL_MASTERY,name,적응하는 숙적의 완성,The Adaptive Rival Perfected,适应宿敌的完成
+ACH_END_ADAPTIVE_RIVAL_MASTERY,description,"결말 ""적응하는 숙적의 완성""에 도달한다.","Reach ""The Adaptive Rival Perfected"" ending.",达成“适应宿敌的完成”结局。
+ACH_END_CASTLE_WITHOUT_RESERVES,name,예비대 없는 성,A Castle Without Reserves,没有预备队的城
+ACH_END_CASTLE_WITHOUT_RESERVES,description,"결말 ""예비대 없는 성""에 도달한다.","Reach the ""A Castle Without Reserves"" ending.",达成“没有预备队的城”结局。
+ACH_END_TWELVE_ENDINGS_CHRONICLE,name,열두 결말의 연대기,Chronicle of Twelve Endings,十二结局编年史
+ACH_END_TWELVE_ENDINGS_CHRONICLE,description,"결말 ""열두 결말의 연대기""에 도달한다.","Reach the ""Chronicle of Twelve Endings"" ending.",达成“十二结局编年史”结局。
+ACH_FRONT_FRONT_HERO_OATH,name,용사의 맹세 전선 돌파,Hero's Oath Front Repelled,击退勇者之誓战线
+ACH_FRONT_FRONT_HERO_OATH,description,용사의 맹세 전선을 끝까지 막아낸다.,Defend against the Hero's Oath front to the end.,抵御勇者之誓战线直至最后。
+ACH_FRONT_FRONT_HOLY_PURIFICATION,name,성스러운 정화 전선 돌파,Holy Purification Front Repelled,击退圣光净化战线
+ACH_FRONT_FRONT_HOLY_PURIFICATION,description,성스러운 정화 전선을 끝까지 막아낸다.,Defend against the Holy Purification front to the end.,抵御圣光净化战线直至最后。
+ACH_FRONT_FRONT_GUILD_REPOSSESSION,name,길드 압류 전선 돌파,Guild Repossession Front Repelled,击退公会回收战线
+ACH_FRONT_FRONT_GUILD_REPOSSESSION,description,길드 압류 전선을 끝까지 막아낸다.,Defend against the Guild Repossession front to the end.,抵御公会回收战线直至最后。
+ACH_END3_ENDING_HOLY_OPEN_GATE,name,열린 성문,Open Gates,敞开的城门
+ACH_END3_ENDING_HOLY_OPEN_GATE,description,"3차 업데이트 결말 ""열린 성문""에 도달한다.","Reach the ""Open Gates"" ending from Update 3.",达成第3次更新的“敞开的城门”结局。
+ACH_END3_ENDING_OFF_LEDGER_INDEPENDENCE,name,장부 밖의 독립,Independence off the Books,账本之外的独立
+ACH_END3_ENDING_OFF_LEDGER_INDEPENDENCE,description,"3차 업데이트 결말 ""장부 밖의 독립""에 도달한다.","Reach the ""Independence off the Books"" ending from Update 3.",达成第3次更新的“账本之外的独立”结局。
+ACH_END3_ENDING_LIVING_CASTLE_VOICE,name,살아있는 성의 목소리,The Living Castle's Voice,活城的声音
+ACH_END3_ENDING_LIVING_CASTLE_VOICE,description,"3차 업데이트 결말 ""살아있는 성의 목소리""에 도달한다.","Reach ""The Living Castle's Voice"" ending from Update 3.",达成第3次更新的“活城的声音”结局。
+ACH_END3_ENDING_LINKED_CORRIDORS,name,이어진 회랑,Linked Corridors,相连的回廊
+ACH_END3_ENDING_LINKED_CORRIDORS,description,"3차 업데이트 결말 ""이어진 회랑""에 도달한다.","Reach the ""Linked Corridors"" ending from Update 3.",达成第3次更新的“相连的回廊”结局。
+ACH_END3_ENDING_THREE_FRONT_ARMISTICE,name,세 전선 휴전,Three-Front Armistice,三条战线停战
+ACH_END3_ENDING_THREE_FRONT_ARMISTICE,description,"3차 업데이트 결말 ""세 전선 휴전""에 도달한다.","Reach the ""Three-Front Armistice"" ending from Update 3.",达成第3次更新的“三条战线停战”结局。
+ACH_END4_ENDING_COUNCIL_SEAT,name,의회의 한 자리,A Seat on the Council,议会的一席之地
+ACH_END4_ENDING_COUNCIL_SEAT,description,"의회 결말 ""의회의 한 자리""에 도달한다.","Reach the Council ending ""A Seat on the Council"".",达成议会结局“议会的一席之地”。
+ACH_END4_ENDING_TWO_FLOORS_ONE_THRONE,name,두 층 하나의 옥좌,"Two Floors, One Throne",两层楼，一座王座
+ACH_END4_ENDING_TWO_FLOORS_ONE_THRONE,description,"의회 결말 ""두 층 하나의 옥좌""에 도달한다.","Reach the Council ending ""Two Floors, One Throne"".",达成议会结局“两层楼，一座王座”。
+ACH_END4_ENDING_MINION_WEARS_THE_CROWN,name,부하가 쓴 왕관,A Minion's Crown,部下戴上的王冠
+ACH_END4_ENDING_MINION_WEARS_THE_CROWN,description,"의회 결말 ""부하가 쓴 왕관""에 도달한다.","Reach the Council ending ""A Minion's Crown"".",达成议会结局“部下戴上的王冠”。
+ACH_END4_ENDING_OUTPOST_BECOMES_HOME,name,전초기지가 집이 되다,An Outpost Becomes Home,前哨成了家
+ACH_END4_ENDING_OUTPOST_BECOMES_HOME,description,"의회 결말 ""전초기지가 집이 되다""에 도달한다.","Reach the Council ending ""An Outpost Becomes Home"".",达成议会结局“前哨成了家”。
+ACH_END4_ENDING_THREE_RIVALS_COSIGN,name,세 숙적의 연서,Three Rivals Cosign,三位宿敌的联名书
+ACH_END4_ENDING_THREE_RIVALS_COSIGN,description,"의회 결말 ""세 숙적의 연서""에 도달한다.","Reach the Council ending ""Three Rivals Cosign"".",达成议会结局“三位宿敌的联名书”。
+ACH_END4_ENDING_COUNCIL_DISSOLVED,name,의회 해산,Council Dissolved,议会解散
+ACH_END4_ENDING_COUNCIL_DISSOLVED,description,"의회 결말 ""의회 해산""에 도달한다.","Reach the Council ending ""Council Dissolved"".",达成议会结局“议会解散”。
+ACH_CROWN_CROWN_PUDDING_ROYAL_BASTION,name,왕실 보루 푸딩,Royal Bastion Pudding,王室堡垒布丁
+ACH_CROWN_CROWN_PUDDING_ROYAL_BASTION,description,왕관 진화: 왕실 보루 푸딩.,Complete Crown Evolution into Royal Bastion Pudding.,完成王冠进化：王室堡垒布丁。
+ACH_CROWN_CROWN_GOB_MIDNIGHT_MARSHAL,name,한밤의 원수 곱,Midnight Marshal Gob,午夜元帅戈布
+ACH_CROWN_CROWN_GOB_MIDNIGHT_MARSHAL,description,왕관 진화: 한밤의 원수 곱.,Complete Crown Evolution into Midnight Marshal Gob.,完成王冠进化：午夜元帅戈布。
+ACH_CROWN_CROWN_PYNN_CASTLE_FLAME_SAGE,name,성의 불꽃 현자 핀,"Pynn, the Castle's Flame Sage",城堡火焰贤者皮恩
+ACH_CROWN_CROWN_PYNN_CASTLE_FLAME_SAGE,description,왕관 진화: 성의 불꽃 현자 핀.,"Complete Crown Evolution into Pynn, the Castle's Flame Sage.",完成王冠进化：城堡火焰贤者皮恩。
+ACH_CROWN_CROWN_MORI_GRAND_MYCELIAL_PRIEST,name,대균사 사제 모리,Grand Mycelial Priest Mori,大菌丝祭司莫里
+ACH_CROWN_CROWN_MORI_GRAND_MYCELIAL_PRIEST,description,왕관 진화: 대균사 사제 모리.,Complete Crown Evolution into Grand Mycelial Priest Mori.,完成王冠进化：大菌丝祭司莫里。
+ACH_CROWN_CROWN_TOKTOK_ROYAL_ARMORER,name,왕실 무구장 톡톡,Royal Armorer Toktok,王室军械师托克托克
+ACH_CROWN_CROWN_TOKTOK_ROYAL_ARMORER,description,왕관 진화: 왕실 무구장 톡톡.,Complete Crown Evolution into Royal Armorer Toktok.,完成王冠进化：王室军械师托克托克。
+ACH_CROWN_CROWN_POPO_GRAND_NIGHT_COURIER,name,대야간 전령 포포,Grand Night Courier Popo,大夜间传令官波波
+ACH_CROWN_CROWN_POPO_GRAND_NIGHT_COURIER,description,왕관 진화: 대야간 전령 포포.,Complete Crown Evolution into Grand Night Courier Popo.,完成王冠进化：大夜间传令官波波。
+ACH_MILO,name,별 세 개짜리 마왕성,Three-Star Demon Castle,三星魔王城
+ACH_MILO,description,"탐험가 밀로의 조사서를 ""마왕성""으로 고쳐 쓰게 만든다(DAY 5 승리).","Make Explorer Milo rewrite his survey report to call it a ""Demon Castle"" (win on DAY 5).",让探险家米洛将调查报告改写为“魔王城”（在第5天获胜）。
+ACH_NIA,name,보안 평점 A,A-Rated Security,安保评级A
+ACH_NIA,description,니아의 보안 재평가(DAY 6)에서 금고 손실 없이 승리한다.,Win Nia's security reassessment on DAY 6 without any vault losses.,在妮娅的安保复评（第6天）中获胜，且金库没有任何损失。
+ACH_ENGINEERS,name,부실 공사 감별,Shoddy Work Inspector,劣质工程鉴别师
+ACH_ENGINEERS,description,왕국 공병이 처음 나온 날(DAY 20) 시설 무력화 없이 승리한다.,Win on the first day Kingdom Engineers appear (DAY 20) without any facilities being disabled.,在王国工兵首次登场的日子（第20天）获胜，且没有任何设施被瘫痪。
+ACH_PERFECT_CAMPAIGN,name,패배를 모르는 성,The Undefeated Castle,不败之城
+ACH_PERFECT_CAMPAIGN,description,한 캠페인에서 한 번도 지지 않고 DAY 30을 끝낸다.,Complete DAY 30 without a single defeat in one campaign.,在同一场战役中一次也不失败，完成第30天。
+ACH_MOVE_BUILDING,name,이사 전문가,Moving Expert,搬迁专家
+ACH_MOVE_BUILDING,description,건물을 누적 20번 옮긴다.,Move buildings a total of 20 times.,累计搬迁建筑20次。
+ACH_GATE_BRIDGE,name,관문다리,Gate Bridge,关隘桥
+ACH_GATE_BRIDGE,description,C등급에서 관문다리를 지키며 승리한다.,Win while defending the gate bridge at Grade C.,在C级时守住关隘桥并获胜。
+ACH_VAULT_1000,name,금고지기,Vault Keeper,金库守护者
+ACH_VAULT_1000,description,금고에 금화 1000 이상을 모은다.,Accumulate at least 1000 gold in the vault.,在金库中积攒至少1000金币。
+ACH_LEVEL_10,name,고참,Veteran,老兵
+ACH_LEVEL_10,description,몬스터 하나를 레벨 10까지 키운다.,Raise one monster to level 10.,将一只魔物培养至10级。
+ACH_FIRST_JOIN_SCENE,name,새 식구 환영회,Welcome to the Family,新家人欢迎会
+ACH_FIRST_JOIN_SCENE,description,신규 몬스터의 합류 장면을 처음 본다.,Watch a new monster's joining scene for the first time.,首次观看新魔物的加入场景。
+ACH_ALL_BARKS,name,수다쟁이 성,The Chatty Castle,话痨城堡
+ACH_ALL_BARKS,description,몬스터 24종의 전투 대사를 모두 한 번씩 듣는다.,Hear a combat line from each of the 24 monster species.,听过全部24种魔物的战斗台词，每种至少一次。
+ACH_SPEED_X3_WIN,name,빨리 감기 마왕,Fast-Forward Demon Lord,快进魔王
+ACH_SPEED_X3_WIN,description,속도 x3으로만 한 전투를 끝까지 이긴다.,Win an entire battle using only x3 speed.,全程仅使用x3速度赢得一场战斗。
+ACH_SECRET_ZERO_FOOD,name,빈 창고,Empty Pantry,空仓库
+ACH_SECRET_ZERO_FOOD,description,식량 0으로 정산을 맞이하고도 다음 전투에서 이긴다.,"Reach settlement with 0 food, then win the next battle.",以0食物迎来结算后，赢得下一场战斗。
+ACH_SECRET_BATI,name,바티는 건조하다,Bati Is Deadpan,巴蒂很冷淡
+ACH_SECRET_BATI,description,바티의 대사 100줄을 본다.,View 100 lines of Bati's dialogue.,看过巴蒂的100句台词。
+ACH_100,name,마왕성 완전 정복,Demon Castle Complete,魔王城完全征服
+ACH_100,description,다른 도전과제 99개를 모두 달성한다.,Unlock all 99 other achievements.,达成其余全部99项成就。

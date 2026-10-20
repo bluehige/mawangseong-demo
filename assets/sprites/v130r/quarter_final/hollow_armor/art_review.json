@@ -1,0 +1,1379 @@
+{
+  "species_id": "hollow_armor",
+  "selected_attempts": {
+    "sw": 3,
+    "ne": 4
+  },
+  "status": "FINAL_ART_NOT_INTEGRATED",
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "logical_anchor": [
+    192,
+    345
+  ],
+  "atlas_anchor": [
+    156.5,
+    289
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "uniform_scale": 0.7710360730297404,
+  "camera_reference": "0098 C, 42 degree downward orthographic visual match",
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "visual_reason": "넓은 투구 윗면·짧은 흉갑/다리·왼쪽 작은 눈/바이저·대각 접지",
+  "directions": {
+    "sw": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/hollow_armor/hollow_armor_sheet.png",
+        "frames": [
+          {
+            "source_slice": [
+              56,
+              40,
+              293,
+              304
+            ],
+            "source_bbox": [
+              0,
+              0,
+              237,
+              264
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 0,
+            "rect": [
+              94,
+              94,
+              183,
+              204
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.0681195516812,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              324,
+              44,
+              550,
+              304
+            ],
+            "source_bbox": [
+              0,
+              0,
+              226,
+              260
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 1,
+            "rect": [
+              410,
+              96,
+              174,
+              200
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.39705545183585,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              570,
+              106,
+              818,
+              305
+            ],
+            "source_bbox": [
+              0,
+              0,
+              248,
+              199
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 2,
+            "rect": [
+              670,
+              141,
+              191,
+              153
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.99177845793176,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              848,
+              146,
+              1090,
+              313
+            ],
+            "source_bbox": [
+              0,
+              0,
+              242,
+              167
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 3,
+            "rect": [
+              976,
+              165,
+              187,
+              129
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.30491053006716,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              44,
+              337,
+              272,
+              588
+            ],
+            "source_bbox": [
+              0,
+              0,
+              228,
+              251
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 4,
+            "rect": [
+              89,
+              413,
+              176,
+              194
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.20338772834387,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              311,
+              340,
+              546,
+              580
+            ],
+            "source_bbox": [
+              0,
+              0,
+              235,
+              240
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 5,
+            "rect": [
+              415,
+              430,
+              181,
+              185
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.42489684672748,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              589,
+              342,
+              823,
+              589
+            ],
+            "source_bbox": [
+              0,
+              0,
+              234,
+              247
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 6,
+            "rect": [
+              711,
+              417,
+              180,
+              190
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.42369426247353,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              869,
+              338,
+              1090,
+              581
+            ],
+            "source_bbox": [
+              0,
+              0,
+              221,
+              243
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 4,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 7,
+            "rect": [
+              1036,
+              423,
+              170,
+              187
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.12351261847664,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              38,
+              594,
+              276,
+              831
+            ],
+            "source_bbox": [
+              0,
+              0,
+              238,
+              237
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 8,
+            "rect": [
+              74,
+              738,
+              184,
+              183
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.22083782450628,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              286,
+              593,
+              563,
+              832
+            ],
+            "source_bbox": [
+              0,
+              0,
+              277,
+              239
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 9,
+            "rect": [
+              373,
+              737,
+              214,
+              184
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.3206486704271,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              582,
+              601,
+              834,
+              835
+            ],
+            "source_bbox": [
+              0,
+              0,
+              252,
+              234
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 10,
+            "rect": [
+              681,
+              741,
+              194,
+              180
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.9566197829078,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              872,
+              597,
+              1092,
+              833
+            ],
+            "source_bbox": [
+              0,
+              0,
+              220,
+              236
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 11,
+            "rect": [
+              1030,
+              739,
+              170,
+              182
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.92537078651685,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              62,
+              851,
+              280,
+              1080
+            ],
+            "source_bbox": [
+              0,
+              0,
+              218,
+              229
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 12,
+            "rect": [
+              97,
+              1064,
+              168,
+              177
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.89911720236063,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              326,
+              857,
+              553,
+              1081
+            ],
+            "source_bbox": [
+              0,
+              0,
+              227,
+              224
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 13,
+            "rect": [
+              365,
+              1063,
+              175,
+              173
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.88383265496765,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              589,
+              851,
+              821,
+              1084
+            ],
+            "source_bbox": [
+              0,
+              0,
+              232,
+              233
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 14,
+            "rect": [
+              721,
+              1058,
+              179,
+              180
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.8454741670039,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              871,
+              854,
+              1086,
+              1083
+            ],
+            "source_bbox": [
+              0,
+              0,
+              215,
+              229
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 15,
+            "rect": [
+              1016,
+              1061,
+              166,
+              177
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.60172438681906,
+            "contact_y": 289
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/hollow_armor/hollow_armor_hurt_sw.png",
+        "frames": [
+          {
+            "source_slice": [
+              42,
+              1110,
+              271,
+              1343
+            ],
+            "source_bbox": [
+              0,
+              0,
+              229,
+              233
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 0,
+            "rect": [
+              86,
+              119,
+              177,
+              180
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.74289898191623,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              307,
+              1116,
+              563,
+              1349
+            ],
+            "source_bbox": [
+              0,
+              0,
+              256,
+              233
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 1,
+            "rect": [
+              412,
+              114,
+              197,
+              180
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.78045941807045,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              600,
+              1132,
+              833,
+              1348
+            ],
+            "source_bbox": [
+              0,
+              0,
+              233,
+              216
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 2,
+            "rect": [
+              708,
+              130,
+              180,
+              167
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.62510330319802,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              873,
+              1110,
+              1087,
+              1349
+            ],
+            "source_bbox": [
+              0,
+              0,
+              214,
+              239
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 3,
+            "rect": [
+              1020,
+              114,
+              165,
+              184
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.62402802998557,
+            "contact_y": 289
+          }
+        ]
+      }
+    },
+    "ne": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/hollow_armor/hollow_armor_sheet_ne.png",
+        "frames": [
+          {
+            "source_slice": [
+              61,
+              44,
+              262,
+              302
+            ],
+            "source_bbox": [
+              0,
+              0,
+              201,
+              258
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 0,
+            "rect": [
+              65,
+              94,
+              155,
+              199
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.42824132960232,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              335,
+              41,
+              549,
+              303
+            ],
+            "source_bbox": [
+              0,
+              0,
+              214,
+              262
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 6,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 1,
+            "rect": [
+              371,
+              91,
+              165,
+              202
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.79183685668175,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              600,
+              92,
+              810,
+              306
+            ],
+            "source_bbox": [
+              0,
+              0,
+              210,
+              214
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 2,
+            "rect": [
+              700,
+              129,
+              162,
+              165
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.77615350259387,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              850,
+              133,
+              1092,
+              311
+            ],
+            "source_bbox": [
+              0,
+              0,
+              242,
+              178
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 3,
+            "rect": [
+              1009,
+              157,
+              187,
+              137
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.7430039055867,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              50,
+              329,
+              271,
+              566
+            ],
+            "source_bbox": [
+              0,
+              0,
+              221,
+              237
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 4,
+            "rect": [
+              61,
+              424,
+              170,
+              183
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.3290758548992,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              327,
+              330,
+              554,
+              567
+            ],
+            "source_bbox": [
+              0,
+              0,
+              227,
+              237
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 5,
+            "rect": [
+              374,
+              424,
+              175,
+              183
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.97832355573235,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              602,
+              330,
+              827,
+              567
+            ],
+            "source_bbox": [
+              0,
+              0,
+              225,
+              237
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 1,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 6,
+            "rect": [
+              696,
+              423,
+              173,
+              183
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.61292628001996,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              876,
+              331,
+              1095,
+              567
+            ],
+            "source_bbox": [
+              0,
+              0,
+              219,
+              236
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 1,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 7,
+            "rect": [
+              1004,
+              425,
+              169,
+              182
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.41971769112496,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              51,
+              594,
+              291,
+              824
+            ],
+            "source_bbox": [
+              0,
+              0,
+              240,
+              230
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 1,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 8,
+            "rect": [
+              65,
+              743,
+              185,
+              177
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.33547630928481,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              319,
+              591,
+              563,
+              824
+            ],
+            "source_bbox": [
+              0,
+              0,
+              244,
+              233
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 1,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 9,
+            "rect": [
+              376,
+              741,
+              188,
+              180
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.62425946621482,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              599,
+              593,
+              841,
+              824
+            ],
+            "source_bbox": [
+              0,
+              0,
+              242,
+              231
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 1,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 10,
+            "rect": [
+              698,
+              742,
+              187,
+              178
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.37566441962554,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              880,
+              598,
+              1094,
+              825
+            ],
+            "source_bbox": [
+              0,
+              0,
+              214,
+              227
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 11,
+            "rect": [
+              1011,
+              746,
+              165,
+              175
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.74591212686786,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              51,
+              854,
+              277,
+              1080
+            ],
+            "source_bbox": [
+              0,
+              0,
+              226,
+              226
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 1,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 12,
+            "rect": [
+              64,
+              1060,
+              174,
+              174
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.57376527832253,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              324,
+              849,
+              576,
+              1078
+            ],
+            "source_bbox": [
+              0,
+              0,
+              252,
+              229
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 13,
+            "rect": [
+              367,
+              1057,
+              194,
+              177
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.3788432595141,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              594,
+              851,
+              866,
+              1085
+            ],
+            "source_bbox": [
+              0,
+              0,
+              272,
+              234
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 14,
+            "rect": [
+              690,
+              1054,
+              210,
+              180
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.78883543397876,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              868,
+              854,
+              1092,
+              1079
+            ],
+            "source_bbox": [
+              0,
+              0,
+              224,
+              225
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 1,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 15,
+            "rect": [
+              996,
+              1061,
+              173,
+              173
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.2050544057812,
+            "contact_y": 289
+          }
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/hollow_armor/hollow_armor_hurt_ne.png",
+        "frames": [
+          {
+            "source_slice": [
+              42,
+              1106,
+              285,
+              1342
+            ],
+            "source_bbox": [
+              0,
+              0,
+              243,
+              236
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 4,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 0,
+            "rect": [
+              47,
+              111,
+              187,
+              182
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.11694503034738,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              315,
+              1116,
+              567,
+              1337
+            ],
+            "source_bbox": [
+              0,
+              0,
+              252,
+              221
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 3,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 1,
+            "rect": [
+              389,
+              124,
+              194,
+              170
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.32224598750358,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              609,
+              1122,
+              822,
+              1343
+            ],
+            "source_bbox": [
+              0,
+              0,
+              213,
+              221
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 1,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 2,
+            "rect": [
+              700,
+              124,
+              164,
+              170
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.5990995967519,
+            "contact_y": 289
+          },
+          {
+            "source_slice": [
+              875,
+              1108,
+              1082,
+              1345
+            ],
+            "source_bbox": [
+              0,
+              0,
+              207,
+              237
+            ],
+            "source_seam_alpha_ge8": 0,
+            "source_seam_max_alpha": 2,
+            "crop_method": "Complete-component bounding rectangle; no pixel masking",
+            "index": 3,
+            "rect": [
+              1005,
+              111,
+              160,
+              183
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.9581898165481,
+            "contact_y": 289
+          }
+        ]
+      }
+    }
+  }
+}

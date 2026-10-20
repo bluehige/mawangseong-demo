@@ -1,0 +1,529 @@
+{
+  "purpose": "Calibration only; not the final fresh ten-run acceptance evidence. Uses real campaign_v7 entries.",
+  "primary_candidate": "campaign_v8",
+  "runs": {
+    "legal_e_support": {
+      "checks": {
+        "checks": 3703,
+        "days": "15,16,18,19",
+        "elapsed_msec": 256739,
+        "failures": [],
+        "seeds": "130401,130402,130403,130404",
+        "source": "campaign_v7"
+      },
+      "run": {
+        "command": [
+          "D:\\Godot_v4.6.3-stable_win64.exe\\Godot_v4.6.3-stable_win64.exe",
+          "--path",
+          "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-action",
+          "--rendering-method",
+          "gl_compatibility",
+          "--resolution",
+          "1280x720",
+          "--headless",
+          "--scene",
+          "res://tools/tests/V130RB04Stacking.tscn",
+          "--",
+          "label=legal_e_support",
+          "seeds=130401,130402,130403,130404",
+          "last_day=30",
+          "layout=recommended",
+          "stack_source=campaign_v7",
+          "stack_days=15,16,18,19",
+          "retries=0"
+        ],
+        "exit_code": 0,
+        "seconds": 258.02,
+        "peak_godot": 1,
+        "godot_after": [],
+        "stderr": "",
+        "waves_sha256": "6f3e43abf06b5d443a3022be58435f922ca38d05219a6b82727c14d9d6de023a",
+        "waves_unchanged_during_run": true,
+        "inputs_unchanged": true
+      },
+      "results": {
+        "E": {
+          "recommended": {
+            "battles": 10,
+            "wins": 8,
+            "hp_pct": 56.52095238095238
+          },
+          "anchor_cluster": {
+            "battles": 10,
+            "wins": 9,
+            "hp_pct": 55.256190476190476
+          },
+          "final_line": {
+            "battles": 10,
+            "wins": 3,
+            "hp_pct": 12.045714285714286
+          },
+          "first_line": {
+            "battles": 10,
+            "wins": 3,
+            "hp_pct": 22.60952380952381
+          }
+        }
+      },
+      "input_hashes": {
+        "data/waves.json": "6f3e43abf06b5d443a3022be58435f922ca38d05219a6b82727c14d9d6de023a",
+        "data/v122/dual_front_day01_05_waves.json": "7f969ab9bd90aa3450ba0e242309dc5cf3a5145b4e0654e642fe33ab830c5d47",
+        "scripts/game/GameRoot.gd": "0183c1352e0a5b32b7084f574f1bff96f1db2e7856507ed4fe469258ca8e96ea",
+        "scripts/game/ApprovedBattleController.gd": "6fa287fb4500af3dcdee3b86d768389370d23315c5f73c850b408805bed80f5c",
+        "scripts/map_builder/ApprovedMonsterPlacement.gd": "13715ed83e3d829fd1c9c59ceb8dc533728aa61565cbc883fc191ce58fd879da",
+        "scripts/map_builder/ApprovedPlacement.gd": "265bdcf7cacb78701ebcf3ae1f62fcafe26cd10fbf040c72c90cc2a65711cf69",
+        "tools/tests/V130RB04Campaign.gd": "379ff821cfe7b5f64ce6657ebbd61b1ffaa9284ed581d1fd1e4b44dde145db3b",
+        "tools/tests/V130RB04FastController.gd": "690120b93ea5580782dba194755c21b7aa0eca191d8d1e79559ffc8e8ae9a058",
+        "tools/tests/V130RB04FastUnit.gd": "4d38a9399e026819384e188877df3c22f760046080302c360a26eeb2d370770f",
+        "tools/tests/V130RB04Stacking.gd": "5c5458bf09dcc4902f147809844d06c0029bab2f8d7a5fd12251542f3dc64f8e",
+        "tools/tests/V130RB04FastMap.gd": "e346c8c1443692eaaccea7b447c8d206528a1e1a84b4c933e25217a949adcf7d",
+        "scripts/game/CombatSceneController.gd": "cfd4589f511fc5e622376dcb7c5c84c4d189c20090981e3c69e2163db1d81738",
+        "scripts/units/Unit.gd": "a35fa4f71af4036723144d9339ab0693e03a9243d0e471adeb6e9ff1967e62bf",
+        "scripts/units/ApprovedBattleUnit.gd": "b57fd67aef06367664d0bf76d752232c8953533d829af66d53d662ef36dd7ae7",
+        "scripts/map_builder/ApprovedBattleMap.gd": "f73a7ac9950e12e81615a3b8a1ad0892fd29940e82285f246bcb1e2fad95c60f",
+        "scripts/map_builder/ApprovedMonsterPlacementUI.gd": "284573c8dc4b64823356a1a1e92b702559ffecbe16a9ef0a80c5a661137626a1",
+        "scripts/map_builder/ApprovedGradeProgression.gd": "92004b553e73d033a024312a26ccfd85de5ebaba7fe76e963a37402b50ff41a4",
+        "scripts/ui/StartFlow.gd": "bb31e3a452fb8ac868f24d6ae6d3b94b4fa8490cc5f30d703bc0c63379571427",
+        "data/monster_instances.json": "afdf26899714873f23c60fbb21cb354ff89642b4a0ab4adc2e7b0a7c874600c7",
+        "data/regular_version/update4/monster_instances.json": "272f78525e03a8781d210f51cf1ab6477278fd874056c59abedd99b0c6e8c28d",
+        "data/v130r/monster_instances_new.json": "48e9b2750fa9e9684cca1565079b5897f73cc07d7ba32f30f247db29d370f925"
+      }
+    },
+    "legal_fd_c_canary": {
+      "checks": {
+        "checks": 8367,
+        "days": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,17,20,21,22,23,24,25,26,27,28,30",
+        "elapsed_msec": 659516,
+        "failures": [],
+        "seeds": "130401",
+        "source": "campaign_v7"
+      },
+      "run": {
+        "command": [
+          "D:\\Godot_v4.6.3-stable_win64.exe\\Godot_v4.6.3-stable_win64.exe",
+          "--path",
+          "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-action",
+          "--rendering-method",
+          "gl_compatibility",
+          "--resolution",
+          "1280x720",
+          "--headless",
+          "--scene",
+          "res://tools/tests/V130RB04Stacking.tscn",
+          "--",
+          "label=legal_fd_c_canary",
+          "seeds=130401",
+          "last_day=30",
+          "layout=recommended",
+          "stack_source=campaign_v7",
+          "stack_days=1,2,3,4,5,6,7,8,9,10,11,12,13,14,17,20,21,22,23,24,25,26,27,28,30",
+          "retries=0"
+        ],
+        "exit_code": 0,
+        "seconds": 660.69,
+        "peak_godot": 1,
+        "godot_after": [],
+        "stderr": "",
+        "waves_sha256": "6f3e43abf06b5d443a3022be58435f922ca38d05219a6b82727c14d9d6de023a",
+        "waves_unchanged_during_run": true,
+        "inputs_unchanged": true
+      },
+      "results": {
+        "C": {
+          "recommended": {
+            "battles": 3,
+            "wins": 3,
+            "hp_pct": 24.643174603174604
+          },
+          "anchor_cluster": {
+            "battles": 3,
+            "wins": 3,
+            "hp_pct": 27.214603174603173
+          },
+          "final_line": {
+            "battles": 3,
+            "wins": 2,
+            "hp_pct": 16.694603174603174
+          },
+          "first_line": {
+            "battles": 3,
+            "wins": 0,
+            "hp_pct": 0.0
+          }
+        },
+        "D": {
+          "recommended": {
+            "battles": 7,
+            "wins": 7,
+            "hp_pct": 27.110204081632652
+          },
+          "anchor_cluster": {
+            "battles": 7,
+            "wins": 6,
+            "hp_pct": 19.71972789115646
+          },
+          "final_line": {
+            "battles": 7,
+            "wins": 6,
+            "hp_pct": 25.511564625850337
+          },
+          "first_line": {
+            "battles": 7,
+            "wins": 0,
+            "hp_pct": 0.0
+          }
+        },
+        "E": {
+          "recommended": {
+            "battles": 1,
+            "wins": 1,
+            "hp_pct": 68.17142857142858
+          },
+          "anchor_cluster": {
+            "battles": 1,
+            "wins": 1,
+            "hp_pct": 50.17142857142857
+          },
+          "final_line": {
+            "battles": 1,
+            "wins": 0,
+            "hp_pct": 0.0
+          },
+          "first_line": {
+            "battles": 1,
+            "wins": 1,
+            "hp_pct": 68.17142857142858
+          }
+        },
+        "F": {
+          "recommended": {
+            "battles": 14,
+            "wins": 14,
+            "hp_pct": 75.10000000000001
+          },
+          "anchor_cluster": {
+            "battles": 14,
+            "wins": 14,
+            "hp_pct": 80.03809523809525
+          },
+          "final_line": {
+            "battles": 14,
+            "wins": 14,
+            "hp_pct": 79.90476190476191
+          },
+          "first_line": {
+            "battles": 14,
+            "wins": 5,
+            "hp_pct": 30.819047619047616
+          }
+        }
+      },
+      "input_hashes": {
+        "data/waves.json": "6f3e43abf06b5d443a3022be58435f922ca38d05219a6b82727c14d9d6de023a",
+        "data/v122/dual_front_day01_05_waves.json": "7f969ab9bd90aa3450ba0e242309dc5cf3a5145b4e0654e642fe33ab830c5d47",
+        "scripts/game/GameRoot.gd": "0183c1352e0a5b32b7084f574f1bff96f1db2e7856507ed4fe469258ca8e96ea",
+        "scripts/game/ApprovedBattleController.gd": "6fa287fb4500af3dcdee3b86d768389370d23315c5f73c850b408805bed80f5c",
+        "scripts/map_builder/ApprovedMonsterPlacement.gd": "13715ed83e3d829fd1c9c59ceb8dc533728aa61565cbc883fc191ce58fd879da",
+        "scripts/map_builder/ApprovedPlacement.gd": "265bdcf7cacb78701ebcf3ae1f62fcafe26cd10fbf040c72c90cc2a65711cf69",
+        "tools/tests/V130RB04Campaign.gd": "379ff821cfe7b5f64ce6657ebbd61b1ffaa9284ed581d1fd1e4b44dde145db3b",
+        "tools/tests/V130RB04FastController.gd": "690120b93ea5580782dba194755c21b7aa0eca191d8d1e79559ffc8e8ae9a058",
+        "tools/tests/V130RB04FastUnit.gd": "4d38a9399e026819384e188877df3c22f760046080302c360a26eeb2d370770f",
+        "tools/tests/V130RB04Stacking.gd": "5c5458bf09dcc4902f147809844d06c0029bab2f8d7a5fd12251542f3dc64f8e",
+        "tools/tests/V130RB04FastMap.gd": "e346c8c1443692eaaccea7b447c8d206528a1e1a84b4c933e25217a949adcf7d",
+        "scripts/game/CombatSceneController.gd": "cfd4589f511fc5e622376dcb7c5c84c4d189c20090981e3c69e2163db1d81738",
+        "scripts/units/Unit.gd": "a35fa4f71af4036723144d9339ab0693e03a9243d0e471adeb6e9ff1967e62bf",
+        "scripts/units/ApprovedBattleUnit.gd": "b57fd67aef06367664d0bf76d752232c8953533d829af66d53d662ef36dd7ae7",
+        "scripts/map_builder/ApprovedBattleMap.gd": "f73a7ac9950e12e81615a3b8a1ad0892fd29940e82285f246bcb1e2fad95c60f",
+        "scripts/map_builder/ApprovedMonsterPlacementUI.gd": "284573c8dc4b64823356a1a1e92b702559ffecbe16a9ef0a80c5a661137626a1",
+        "scripts/map_builder/ApprovedGradeProgression.gd": "92004b553e73d033a024312a26ccfd85de5ebaba7fe76e963a37402b50ff41a4",
+        "scripts/ui/StartFlow.gd": "bb31e3a452fb8ac868f24d6ae6d3b94b4fa8490cc5f30d703bc0c63379571427",
+        "data/monster_instances.json": "afdf26899714873f23c60fbb21cb354ff89642b4a0ab4adc2e7b0a7c874600c7",
+        "data/regular_version/update4/monster_instances.json": "272f78525e03a8781d210f51cf1ab6477278fd874056c59abedd99b0c6e8c28d",
+        "data/v130r/monster_instances_new.json": "48e9b2750fa9e9684cca1565079b5897f73cc07d7ba32f30f247db29d370f925"
+      }
+    },
+    "legal_f_c_targeted": {
+      "checks": {
+        "checks": 5090,
+        "days": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,27,28,30",
+        "elapsed_msec": 441472,
+        "failures": [],
+        "seeds": "130401",
+        "source": "campaign_v7"
+      },
+      "run": {
+        "command": [
+          "D:\\Godot_v4.6.3-stable_win64.exe\\Godot_v4.6.3-stable_win64.exe",
+          "--path",
+          "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-action",
+          "--rendering-method",
+          "gl_compatibility",
+          "--resolution",
+          "1280x720",
+          "--headless",
+          "--scene",
+          "res://tools/tests/V130RB04Stacking.tscn",
+          "--",
+          "label=legal_f_c_targeted",
+          "seeds=130401",
+          "last_day=30",
+          "layout=recommended",
+          "stack_source=campaign_v7",
+          "stack_days=1,2,3,4,5,6,7,8,9,10,11,12,13,14,27,28,30",
+          "retries=0"
+        ],
+        "exit_code": 0,
+        "seconds": 442.67,
+        "peak_godot": 1,
+        "godot_after": [],
+        "stderr": "",
+        "waves_sha256": "148a5b10ad42c115b5a1a6453a202b66a7017416827d9c749d132de11f8143a0",
+        "waves_unchanged_during_run": true,
+        "inputs_unchanged": true
+      },
+      "results": {
+        "C": {
+          "recommended": {
+            "battles": 3,
+            "wins": 3,
+            "hp_pct": 21.214603174603173
+          },
+          "anchor_cluster": {
+            "battles": 3,
+            "wins": 3,
+            "hp_pct": 27.214603174603173
+          },
+          "final_line": {
+            "battles": 3,
+            "wins": 2,
+            "hp_pct": 16.694603174603174
+          },
+          "first_line": {
+            "battles": 3,
+            "wins": 0,
+            "hp_pct": 0.0
+          }
+        },
+        "F": {
+          "recommended": {
+            "battles": 14,
+            "wins": 14,
+            "hp_pct": 80.3809523809524
+          },
+          "anchor_cluster": {
+            "battles": 14,
+            "wins": 14,
+            "hp_pct": 78.76190476190477
+          },
+          "final_line": {
+            "battles": 14,
+            "wins": 14,
+            "hp_pct": 80.13333333333334
+          },
+          "first_line": {
+            "battles": 14,
+            "wins": 3,
+            "hp_pct": 20.228571428571428
+          }
+        }
+      },
+      "input_hashes": {
+        "data/waves.json": "148a5b10ad42c115b5a1a6453a202b66a7017416827d9c749d132de11f8143a0",
+        "data/v122/dual_front_day01_05_waves.json": "7f969ab9bd90aa3450ba0e242309dc5cf3a5145b4e0654e642fe33ab830c5d47",
+        "scripts/game/GameRoot.gd": "0183c1352e0a5b32b7084f574f1bff96f1db2e7856507ed4fe469258ca8e96ea",
+        "scripts/game/ApprovedBattleController.gd": "6fa287fb4500af3dcdee3b86d768389370d23315c5f73c850b408805bed80f5c",
+        "scripts/map_builder/ApprovedMonsterPlacement.gd": "3abb6ed26e8536510d4848321d9d5e1fcdcb0152d4821c27ed68c75bf1eba153",
+        "scripts/map_builder/ApprovedPlacement.gd": "265bdcf7cacb78701ebcf3ae1f62fcafe26cd10fbf040c72c90cc2a65711cf69",
+        "tools/tests/V130RB04Campaign.gd": "9ade4805e752547d24f098cca21b7aa26333491de17dca3df768d9da0651e80f",
+        "tools/tests/V130RB04FastController.gd": "690120b93ea5580782dba194755c21b7aa0eca191d8d1e79559ffc8e8ae9a058",
+        "tools/tests/V130RB04FastUnit.gd": "4d38a9399e026819384e188877df3c22f760046080302c360a26eeb2d370770f",
+        "tools/tests/V130RB04Stacking.gd": "5c5458bf09dcc4902f147809844d06c0029bab2f8d7a5fd12251542f3dc64f8e",
+        "tools/tests/V130RB04FastMap.gd": "e346c8c1443692eaaccea7b447c8d206528a1e1a84b4c933e25217a949adcf7d",
+        "scripts/game/CombatSceneController.gd": "cfd4589f511fc5e622376dcb7c5c84c4d189c20090981e3c69e2163db1d81738",
+        "scripts/units/Unit.gd": "a35fa4f71af4036723144d9339ab0693e03a9243d0e471adeb6e9ff1967e62bf",
+        "scripts/units/ApprovedBattleUnit.gd": "b57fd67aef06367664d0bf76d752232c8953533d829af66d53d662ef36dd7ae7",
+        "scripts/map_builder/ApprovedBattleMap.gd": "f73a7ac9950e12e81615a3b8a1ad0892fd29940e82285f246bcb1e2fad95c60f",
+        "scripts/map_builder/ApprovedMonsterPlacementUI.gd": "284573c8dc4b64823356a1a1e92b702559ffecbe16a9ef0a80c5a661137626a1",
+        "scripts/map_builder/ApprovedGradeProgression.gd": "92004b553e73d033a024312a26ccfd85de5ebaba7fe76e963a37402b50ff41a4",
+        "scripts/ui/StartFlow.gd": "bb31e3a452fb8ac868f24d6ae6d3b94b4fa8490cc5f30d703bc0c63379571427",
+        "data/monster_instances.json": "afdf26899714873f23c60fbb21cb354ff89642b4a0ab4adc2e7b0a7c874600c7",
+        "data/regular_version/update4/monster_instances.json": "272f78525e03a8781d210f51cf1ab6477278fd874056c59abedd99b0c6e8c28d",
+        "data/v130r/monster_instances_new.json": "48e9b2750fa9e9684cca1565079b5897f73cc07d7ba32f30f247db29d370f925"
+      }
+    },
+    "legal_c_ward": {
+      "checks": {
+        "checks": 1306,
+        "days": "27,28,30",
+        "elapsed_msec": 104914,
+        "failures": [],
+        "seeds": "130401",
+        "source": "campaign_v7"
+      },
+      "run": {
+        "command": [
+          "D:\\Godot_v4.6.3-stable_win64.exe\\Godot_v4.6.3-stable_win64.exe",
+          "--path",
+          "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-action",
+          "--rendering-method",
+          "gl_compatibility",
+          "--resolution",
+          "1280x720",
+          "--headless",
+          "--scene",
+          "res://tools/tests/V130RB04Stacking.tscn",
+          "--",
+          "label=legal_c_ward",
+          "seeds=130401",
+          "last_day=30",
+          "layout=recommended",
+          "stack_source=campaign_v7",
+          "stack_days=27,28,30",
+          "retries=0"
+        ],
+        "exit_code": 0,
+        "seconds": 105.97,
+        "peak_godot": 1,
+        "godot_after": [],
+        "stderr": "",
+        "waves_sha256": "148a5b10ad42c115b5a1a6453a202b66a7017416827d9c749d132de11f8143a0",
+        "waves_unchanged_during_run": true,
+        "inputs_unchanged": true
+      },
+      "results": {
+        "C": {
+          "recommended": {
+            "battles": 3,
+            "wins": 3,
+            "hp_pct": 23.35746031746032
+          },
+          "anchor_cluster": {
+            "battles": 3,
+            "wins": 3,
+            "hp_pct": 27.214603174603173
+          },
+          "final_line": {
+            "battles": 3,
+            "wins": 2,
+            "hp_pct": 16.694603174603174
+          },
+          "first_line": {
+            "battles": 3,
+            "wins": 0,
+            "hp_pct": 0.0
+          }
+        }
+      },
+      "input_hashes": {
+        "data/waves.json": "148a5b10ad42c115b5a1a6453a202b66a7017416827d9c749d132de11f8143a0",
+        "data/v122/dual_front_day01_05_waves.json": "7f969ab9bd90aa3450ba0e242309dc5cf3a5145b4e0654e642fe33ab830c5d47",
+        "scripts/game/GameRoot.gd": "0183c1352e0a5b32b7084f574f1bff96f1db2e7856507ed4fe469258ca8e96ea",
+        "scripts/game/ApprovedBattleController.gd": "6fa287fb4500af3dcdee3b86d768389370d23315c5f73c850b408805bed80f5c",
+        "scripts/map_builder/ApprovedMonsterPlacement.gd": "e98623af009715beffdbc625c150424f4072109f372ef40dd4bb334c34c1413c",
+        "scripts/map_builder/ApprovedPlacement.gd": "265bdcf7cacb78701ebcf3ae1f62fcafe26cd10fbf040c72c90cc2a65711cf69",
+        "tools/tests/V130RB04Campaign.gd": "9ade4805e752547d24f098cca21b7aa26333491de17dca3df768d9da0651e80f",
+        "tools/tests/V130RB04FastController.gd": "690120b93ea5580782dba194755c21b7aa0eca191d8d1e79559ffc8e8ae9a058",
+        "tools/tests/V130RB04FastUnit.gd": "4d38a9399e026819384e188877df3c22f760046080302c360a26eeb2d370770f",
+        "tools/tests/V130RB04Stacking.gd": "5c5458bf09dcc4902f147809844d06c0029bab2f8d7a5fd12251542f3dc64f8e",
+        "tools/tests/V130RB04FastMap.gd": "e346c8c1443692eaaccea7b447c8d206528a1e1a84b4c933e25217a949adcf7d",
+        "scripts/game/CombatSceneController.gd": "cfd4589f511fc5e622376dcb7c5c84c4d189c20090981e3c69e2163db1d81738",
+        "scripts/units/Unit.gd": "a35fa4f71af4036723144d9339ab0693e03a9243d0e471adeb6e9ff1967e62bf",
+        "scripts/units/ApprovedBattleUnit.gd": "b57fd67aef06367664d0bf76d752232c8953533d829af66d53d662ef36dd7ae7",
+        "scripts/map_builder/ApprovedBattleMap.gd": "f73a7ac9950e12e81615a3b8a1ad0892fd29940e82285f246bcb1e2fad95c60f",
+        "scripts/map_builder/ApprovedMonsterPlacementUI.gd": "284573c8dc4b64823356a1a1e92b702559ffecbe16a9ef0a80c5a661137626a1",
+        "scripts/map_builder/ApprovedGradeProgression.gd": "92004b553e73d033a024312a26ccfd85de5ebaba7fe76e963a37402b50ff41a4",
+        "scripts/ui/StartFlow.gd": "bb31e3a452fb8ac868f24d6ae6d3b94b4fa8490cc5f30d703bc0c63379571427",
+        "data/monster_instances.json": "afdf26899714873f23c60fbb21cb354ff89642b4a0ab4adc2e7b0a7c874600c7",
+        "data/regular_version/update4/monster_instances.json": "272f78525e03a8781d210f51cf1ab6477278fd874056c59abedd99b0c6e8c28d",
+        "data/v130r/monster_instances_new.json": "48e9b2750fa9e9684cca1565079b5897f73cc07d7ba32f30f247db29d370f925"
+      }
+    },
+    "legal_c27_pressure": {
+      "checks": {
+        "checks": 437,
+        "days": "27",
+        "elapsed_msec": 41889,
+        "failures": [],
+        "seeds": "130401",
+        "source": "campaign_v7"
+      },
+      "run": {
+        "command": [
+          "D:\\Godot_v4.6.3-stable_win64.exe\\Godot_v4.6.3-stable_win64.exe",
+          "--path",
+          "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-action",
+          "--rendering-method",
+          "gl_compatibility",
+          "--resolution",
+          "1280x720",
+          "--headless",
+          "--scene",
+          "res://tools/tests/V130RB04Stacking.tscn",
+          "--",
+          "label=legal_c27_pressure",
+          "seeds=130401",
+          "last_day=30",
+          "layout=recommended",
+          "stack_source=campaign_v7",
+          "stack_days=27",
+          "retries=0"
+        ],
+        "exit_code": 0,
+        "seconds": 42.89,
+        "peak_godot": 1,
+        "godot_after": [],
+        "stderr": "",
+        "waves_sha256": "9bb25eb7d066a57338d2de7dde6d26e7d57c797ac893d6afcf881ff10d804de3",
+        "waves_unchanged_during_run": true,
+        "inputs_unchanged": true
+      },
+      "results": {
+        "C": {
+          "recommended": {
+            "battles": 1,
+            "wins": 1,
+            "hp_pct": 18.523809523809526
+          },
+          "anchor_cluster": {
+            "battles": 1,
+            "wins": 1,
+            "hp_pct": 18.523809523809526
+          },
+          "final_line": {
+            "battles": 1,
+            "wins": 1,
+            "hp_pct": 18.523809523809526
+          },
+          "first_line": {
+            "battles": 1,
+            "wins": 0,
+            "hp_pct": 0.0
+          }
+        }
+      },
+      "input_hashes": {
+        "data/waves.json": "9bb25eb7d066a57338d2de7dde6d26e7d57c797ac893d6afcf881ff10d804de3",
+        "data/v122/dual_front_day01_05_waves.json": "7f969ab9bd90aa3450ba0e242309dc5cf3a5145b4e0654e642fe33ab830c5d47",
+        "scripts/game/GameRoot.gd": "0183c1352e0a5b32b7084f574f1bff96f1db2e7856507ed4fe469258ca8e96ea",
+        "scripts/game/ApprovedBattleController.gd": "6fa287fb4500af3dcdee3b86d768389370d23315c5f73c850b408805bed80f5c",
+        "scripts/map_builder/ApprovedMonsterPlacement.gd": "a02c0fbc0b79c1bda7a0e9f877f167c591e8dfc0d4071ea3106d557a0ad95f6d",
+        "scripts/map_builder/ApprovedPlacement.gd": "265bdcf7cacb78701ebcf3ae1f62fcafe26cd10fbf040c72c90cc2a65711cf69",
+        "tools/tests/V130RB04Campaign.gd": "9ade4805e752547d24f098cca21b7aa26333491de17dca3df768d9da0651e80f",
+        "tools/tests/V130RB04FastController.gd": "690120b93ea5580782dba194755c21b7aa0eca191d8d1e79559ffc8e8ae9a058",
+        "tools/tests/V130RB04FastUnit.gd": "4d38a9399e026819384e188877df3c22f760046080302c360a26eeb2d370770f",
+        "tools/tests/V130RB04Stacking.gd": "5c5458bf09dcc4902f147809844d06c0029bab2f8d7a5fd12251542f3dc64f8e",
+        "tools/tests/V130RB04FastMap.gd": "e346c8c1443692eaaccea7b447c8d206528a1e1a84b4c933e25217a949adcf7d",
+        "scripts/game/CombatSceneController.gd": "cfd4589f511fc5e622376dcb7c5c84c4d189c20090981e3c69e2163db1d81738",
+        "scripts/units/Unit.gd": "a35fa4f71af4036723144d9339ab0693e03a9243d0e471adeb6e9ff1967e62bf",
+        "scripts/units/ApprovedBattleUnit.gd": "b57fd67aef06367664d0bf76d752232c8953533d829af66d53d662ef36dd7ae7",
+        "scripts/map_builder/ApprovedBattleMap.gd": "f73a7ac9950e12e81615a3b8a1ad0892fd29940e82285f246bcb1e2fad95c60f",
+        "scripts/map_builder/ApprovedMonsterPlacementUI.gd": "284573c8dc4b64823356a1a1e92b702559ffecbe16a9ef0a80c5a661137626a1",
+        "scripts/map_builder/ApprovedGradeProgression.gd": "92004b553e73d033a024312a26ccfd85de5ebaba7fe76e963a37402b50ff41a4",
+        "scripts/ui/StartFlow.gd": "bb31e3a452fb8ac868f24d6ae6d3b94b4fa8490cc5f30d703bc0c63379571427",
+        "data/monster_instances.json": "afdf26899714873f23c60fbb21cb354ff89642b4a0ab4adc2e7b0a7c874600c7",
+        "data/regular_version/update4/monster_instances.json": "272f78525e03a8781d210f51cf1ab6477278fd874056c59abedd99b0c6e8c28d",
+        "data/v130r/monster_instances_new.json": "48e9b2750fa9e9684cca1565079b5897f73cc07d7ba32f30f247db29d370f925"
+      }
+    }
+  }
+}

@@ -5,6 +5,7 @@ const IsoMathScript = preload("res://scripts/dungeon_quarter/IsoMath.gd")
 
 const INVALID_CELL = Vector2i(-999999, -999999)
 
+var allow_direct_fallback := true
 var astar: AStarGrid2D = null
 var walkable_cells: Dictionary = {}
 var blocked_cells: Dictionary = {}
@@ -65,7 +66,7 @@ func get_path_world(from_world: Vector2, to_world: Vector2) -> Array:
 		return [cell_to_world(goal_cell)]
 	var id_path = _edge_constrained_path(start_cell, goal_cell)
 	if id_path.is_empty():
-		return [cell_to_world(goal_cell)]
+		return [cell_to_world(goal_cell)] if allow_direct_fallback else []
 	var points: Array = []
 	for cell in id_path:
 		points.append(cell_to_world(cell))

@@ -5,7 +5,7 @@ static func nearest(source: Node, candidates: Array, max_distance: float = INF) 
 	var best: Node = null
 	var best_distance = max_distance
 	for candidate in candidates:
-		if candidate == null or not candidate.is_alive():
+		if not is_instance_valid(candidate) or candidate.is_queued_for_deletion() or not candidate.is_alive() or (candidate.has_method("is_targetable_by") and not candidate.is_targetable_by(source)):
 			continue
 		var distance = source.global_position.distance_to(candidate.global_position)
 		if distance < best_distance:
@@ -21,7 +21,7 @@ static func monster_priority(source: Node, candidates: Array, graph, core_room: 
 	if treasure_room != "":
 		treasure_pressure_rooms = [treasure_room] + graph.exits(treasure_room)
 	for candidate in candidates:
-		if candidate == null or not candidate.is_alive():
+		if not is_instance_valid(candidate) or candidate.is_queued_for_deletion() or not candidate.is_alive() or (candidate.has_method("is_targetable_by") and not candidate.is_targetable_by(source)):
 			continue
 		var distance = source.global_position.distance_to(candidate.global_position)
 		var throne_distance = candidate.global_position.distance_to(throne)

@@ -17,7 +17,7 @@
 	"art": {"prop_sheet":"res://assets/sprites/hearts/heart_props_sheet.png","row":1,"stage_columns":{"2":0,"3":1,"4":2},"inactive_column":3,"icon_sheet":"res://assets/ui/hearts/heart_icons_vfx_sheet.png","icon_cell":[1,0],"active_vfx_cell":[1,1],"grid":[3,2],"placeholder":false},
     "display_name": "포식 심장",
     "passives": ["마무리 공격마다 hunger +1", "hunger 5마다 교전 방 전체에 피해 12·사기 피해 8", "파동당 악명 +3(전투당 최대 9)"],
-    "tradeoffs": ["일일 식량 유지비 +2", "직접·지속 회복량 -8%", "파동의 보스 피해는 6"],
+    "tradeoffs": ["직접·지속 회복량 -8%", "파동의 보스 피해는 6"],
     "charge_sources": ["적에게 실제 피해 35: +2", "마무리 공격: +6", "hunger 파동: +8"],
     "active_skill_id": "devouring_corridor",
     "max_uses_per_battle": 1,

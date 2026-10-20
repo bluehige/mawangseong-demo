@@ -1,0 +1,16 @@
+[
+  {
+    "source_document": "assets/source/imagegen/v1213_bati_cute/SOURCE.md",
+    "source_image_count": 28,
+    "planned_runtime_count": 9,
+    "source_paths_exist": true,
+    "each_png_referenced_exactly_once": true
+  },
+  {
+    "source_document": "assets/source/imagegen/v1213_ui_icons/SOURCE.md",
+    "source_image_count": 35,
+    "planned_runtime_count": 32,
+    "source_paths_exist": true,
+    "each_png_referenced_exactly_once": true
+  }
+]

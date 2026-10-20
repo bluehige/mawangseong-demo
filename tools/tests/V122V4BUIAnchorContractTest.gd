@@ -9,6 +9,7 @@ func _init() -> void:
 func _run() -> void:
 	var unit_source := _read_source(UNIT_PATH)
 	var combat_source := _read_source(COMBAT_PATH)
+	var presentation_source := _read_source("res://scripts/ui/CombatDamagePresentation.gd")
 	var checks: Array[String] = [
 		_check(unit_source.contains("func combat_anchor_local(anchor_name: String) -> Vector2"), "Unit provides local foot/body/head anchors"),
 		_check(unit_source.contains("func combat_anchor_global(anchor_name: String) -> Vector2"), "Unit provides global anchor conversion"),
@@ -20,8 +21,8 @@ func _run() -> void:
 		_check(unit_source.contains("visual_body.position = pose_position"), "Anchor body follows the resolved visual pose"),
 		_check(combat_source.contains("func spawn_damage_number(position: Vector2, damage: int, target_faction: String, anchor_target = null) -> void"), "Damage number accepts an anchor target"),
 		_check(combat_source.contains('anchor_target.combat_anchor_global("head")'), "Damage number consumes the target head anchor"),
-		_check(combat_source.contains("spawn_damage_number(target.global_position, damage, target.faction, target)"), "Combat hit feedback passes the target to damage number"),
-		_check(combat_source.contains("damage_label.position = anchor_position + Vector2") and not combat_source.contains("position + Vector2(-label_size.x * 0.5, -112.0"), "Fixed unit-origin damage offset is removed")
+		_check(combat_source.contains("_spawn_contact_damage_number(target, damage, attacker, attacker_id, contact_kind)"), "Combat hit feedback passes the target and source to damage number"),
+		_check(presentation_source.contains("label.position = center - label.size * 0.5") and not combat_source.contains("position + Vector2(-label_size.x * 0.5, -112.0"), "Screen-sized numbers remain centered on the resolved head anchor")
 	]
 	var failures := checks.filter(func(result: String) -> bool: return result.begins_with("FAIL"))
 	if failures.is_empty():

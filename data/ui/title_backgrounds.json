@@ -1,0 +1,5 @@
+{
+  "images": {"default": "res://assets/ui/v1213/title_monster_court.png"},
+  "ending_backgrounds": [],
+  "schema_note": "Priority-ordered {ending_id, background_id} hooks; only unlocked ending codes/IDs are eligible. Future images fall back to default until explicitly added."
+}

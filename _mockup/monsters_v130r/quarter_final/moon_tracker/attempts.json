@@ -1,0 +1,42 @@
+[
+  {
+    "original_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a14588-d174-7ed2-bebf-5cbb83d79b1e\\exec-1e769b1b-6078-4e9d-904c-c60258001fc3.png",
+    "sha256": "b3da727b46568ad187cb8d991c9a7e26570dcd5fb5a54cf78a3f3ae60d186d66",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "native_alpha_extrema": [
+      0,
+      254
+    ],
+    "transparent_fraction": 0.5498021443684896,
+    "attempt": 1,
+    "status": "REJECTED",
+    "adopted_poses": 0,
+    "reason": "T/F/H/E/S visual pass, but secondary C thumbnails had nonuniform scale. Not adopted.",
+    "transparent_background": true,
+    "tool": "image_gen.imagegen"
+  },
+  {
+    "original_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a14588-d174-7ed2-bebf-5cbb83d79b1e\\exec-a92d9831-d3c0-4fd3-bff6-1e6ceca7f62c.png",
+    "sha256": "22011d57d69f5a0a05d9a0fd12dc288f15ef8ec7f9881eebfd7479d8b6300e7b",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "native_alpha_extrema": [
+      0,
+      254
+    ],
+    "transparent_fraction": 0.5373560587565104,
+    "attempt": 2,
+    "status": "ADOPTED",
+    "adopted_poses": 40,
+    "reason": "Original aspect ratio C board; T/F/H/E/S pass; correct two directions and clear full rectangular crops.",
+    "transparent_background": true,
+    "tool": "image_gen.imagegen"
+  }
+]

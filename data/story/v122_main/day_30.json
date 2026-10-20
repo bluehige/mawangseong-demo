@@ -2727,7 +2727,8 @@
         "required_event": "leon_arrived",
         "nonblocking": true,
         "feed_priority": 70,
-        "migrated_from": "STORY_D30_PRECOMBAT"
+        "migrated_from": "STORY_D30_PRECOMBAT",
+        "important": true
       },
       "cues": [
         {
@@ -3051,7 +3052,8 @@
         "required_event": "oath_active",
         "nonblocking": true,
         "feed_priority": 100,
-        "migrated_from": "STORY_D30_PRECOMBAT"
+        "migrated_from": "STORY_D30_PRECOMBAT",
+        "important": true
       },
       "cues": [
         {

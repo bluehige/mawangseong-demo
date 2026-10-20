@@ -5,9 +5,11 @@
       "lane_id": "lane_a",
       "count": 3,
       "spawn_delay": 0.0,
-      "spawn_interval": 2.8,
+      "spawn_interval": 2.5,
       "hp_scale": 2.1,
-      "atk_scale": 0.58
+      "atk_scale": 0.58,
+      "objective_priority": 0,
+      "attack_throne": true
     }
   ],
   "day_2": [
@@ -32,7 +34,7 @@
       "lane_id": "lane_a",
       "count": 2,
       "spawn_delay": 22.0,
-      "spawn_interval": 8.0,
+      "spawn_interval": 7.5,
       "hp_scale": 1.8,
       "atk_scale": 0.48
     },
@@ -41,7 +43,7 @@
       "lane_id": "lane_b",
       "count": 2,
       "spawn_delay": 22.0,
-      "spawn_interval": 8.0,
+      "spawn_interval": 7.5,
       "hp_scale": 1.6,
       "atk_scale": 0.46
     }
@@ -106,7 +108,7 @@
       "count": 1,
       "spawn_delay": 24.0,
       "hp_scale": 3.2,
-      "atk_scale": 0.60
+      "atk_scale": 0.6
     }
   ],
   "day_5": [
@@ -117,7 +119,10 @@
       "spawn_delay": 0.0,
       "spawn_interval": 6.0,
       "hp_scale": 3.8,
-      "atk_scale": 0.60
+      "atk_scale": 0.6,
+      "objective_priority": 0,
+      "attack_throne": true,
+      "attack_throne_lane": 0
     },
     {
       "enemy_id": "explorer",
@@ -126,7 +131,7 @@
       "spawn_delay": 4.0,
       "spawn_interval": 6.0,
       "hp_scale": 3.6,
-      "atk_scale": 0.60
+      "atk_scale": 0.6
     },
     {
       "enemy_id": "trainee_hero",

@@ -1,0 +1,314 @@
+[
+  {
+    "index": 0,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-c6b38356-2137-43e2-a20a-0724d5fbe12f.png",
+    "prompt": "Use case: background-extraction. Edit target is ONLY character 0 top left: portrait_explorer_milo, frightened brown-haired boy explorer, brown miner helmet with headlamp, green scarf, brown leather coat and gloves, backpack, map, nervous mouth and sweat. Reference is the numbered contact sheet. Recreate that ONE portrait faithfully, keeping original identity, clothing, facial expression, pose, props, colors and painterly style. Native transparent RGBA background, alpha=0 around silhouette and all four corners. Remove the entire original backdrop, stone walls, dark vignette, colored panel, white background. Do not include other reference characters, sheet labels, frame, text or checkerboard. Full visible head and original bust composition, a small transparent margin around the silhouette. Only background removal changes requested.",
+    "runtime": "assets/sprites/portraits/onboarding/portrait_explorer_milo_alpha_v131.png",
+    "sha256": "bb82da848c38ff33d364f76d8e6ca95c9a8f679777c0782d751f6a788a333600",
+    "size": [
+      1323,
+      1189
+    ],
+    "original": "assets/sprites/portraits/onboarding/portrait_explorer_milo.png"
+  },
+  {
+    "index": 1,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-24c54a42-a5b4-4468-9ed9-9ab59b78518b.png",
+    "prompt": "Use case: background-extraction. Edit target is ONLY character 1 top second: portrait_hero_leon, tousled blond young male hero, blue eyes, determined tense expression and sweat, blue hooded cloak with gold trim and gold star brooch over dark armor, fist held to chest. Reference is the numbered contact sheet. Recreate that ONE portrait faithfully, keeping original identity, clothing, facial expression, pose, props, colors and painterly style. Native transparent RGBA background, alpha=0 around silhouette and all four corners. Remove the entire original backdrop, stone walls, dark vignette, colored panel, white background. Do not include other reference characters, sheet labels, frame, text or checkerboard. Full visible head and original bust composition, a small transparent margin around the silhouette. Only background removal changes requested.",
+    "runtime": "assets/sprites/portraits/onboarding/portrait_hero_leon_alpha_v131.png",
+    "sha256": "70f9f86a5ed2fe51e13621807bc85a5180a27f4a16c2a6853de8ec4734e8a941",
+    "size": [
+      1320,
+      1192
+    ],
+    "original": "assets/sprites/portraits/onboarding/portrait_hero_leon.png"
+  },
+  {
+    "index": 2,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-bf3f6bd5-1575-4451-bc15-382646988ec1.png",
+    "prompt": "Use case: background-extraction. Edit target is ONLY character 2 top third: portrait_thief_nia, adult pale woman thief with black hair partly across face, dark purple hood with gold vine embroidery, purple gem drop earrings, knowing sly smile, finger to lips, brown-black leather armor and gold chains. Reference is the numbered contact sheet. Recreate that ONE portrait faithfully, keeping original identity, clothing, facial expression, pose, props, colors and painterly style. Native transparent RGBA background, alpha=0 around silhouette and all four corners. Remove the entire original backdrop, stone walls, dark vignette, colored panel, white background. Do not include other reference characters, sheet labels, frame, text or checkerboard. Full visible head and original bust composition, a small transparent margin around the silhouette. Only background removal changes requested.",
+    "runtime": "assets/sprites/portraits/onboarding/portrait_thief_nia_alpha_v131.png",
+    "sha256": "2e283253c6652bf0375bd94992d0d7c92be4b27079c6db7a0f186d17395c5ffb",
+    "size": [
+      1269,
+      1240
+    ],
+    "original": "assets/sprites/portraits/onboarding/portrait_thief_nia.png"
+  },
+  {
+    "index": 3,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-5c56bfe1-e9b7-47b5-b9a8-5377c038f1b9.png",
+    "prompt": "Use case: background-extraction. Edit target is ONLY character 3 top right: CHR_EXPLORER_MILO_portrait_panic, frightened young explorer with brown hair and brown brimmed hat, teal scarf and weathered brown coat, backpack, lantern raised with left hand, map in right hand, scared open mouth. Reference is the numbered contact sheet. Recreate that ONE portrait faithfully, keeping original identity, clothing, facial expression, pose, props, colors and painterly style. Native transparent RGBA background, alpha=0 around silhouette and all four corners. Remove the entire original backdrop, stone walls, dark vignette, colored panel, white background. Do not include other reference characters, sheet labels, frame, text or checkerboard. Full visible head and original bust composition, a small transparent margin around the silhouette. Only background removal changes requested.",
+    "runtime": "assets/sprites/portraits/onboarding/CHR_EXPLORER_MILO_portrait_panic_alpha_v131.png",
+    "sha256": "0815e80134cfcc959ba22c89896ba46471d3ce426b30d6d451107ab940bfd17f",
+    "size": [
+      1389,
+      1132
+    ],
+    "original": "assets/sprites/portraits/onboarding/CHR_EXPLORER_MILO_portrait_panic.png"
+  },
+  {
+    "index": 4,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-0347be51-3918-413f-8258-455f06271e41.png",
+    "prompt": "Use case: background-extraction. Edit target is ONLY character 4 bottom left: CHR_INVESTIGATOR_IRIS_portrait_inquisitive, young woman investigator, brown curled bob and brown military cap with shield badge, narrowed inquisitive eyes, brown leather coat, map and magnifying glass. Reference is the numbered contact sheet. Recreate that ONE portrait faithfully, keeping original identity, clothing, facial expression, pose, props, colors and painterly style. Native transparent RGBA background, alpha=0 around silhouette and all four corners. Remove the entire original backdrop, stone walls, dark vignette, colored panel, white background. Do not include other reference characters, sheet labels, frame, text or checkerboard. Full visible head and original bust composition, a small transparent margin around the silhouette. Only background removal changes requested.",
+    "runtime": "assets/sprites/portraits/onboarding/CHR_INVESTIGATOR_IRIS_portrait_inquisitive_alpha_v131.png",
+    "sha256": "324e0559fd0e6bc339730af6a7692b81139152921b5a72a112d415b98cde86ae",
+    "size": [
+      1278,
+      1230
+    ],
+    "original": "assets/sprites/portraits/onboarding/CHR_INVESTIGATOR_IRIS_portrait_inquisitive.png"
+  },
+  {
+    "index": 5,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-8e1c8169-8b43-4cbb-a9e2-751e181dac03.png",
+    "prompt": "Use case: background-extraction. Edit target is ONLY character 5 bottom middle: CHR_SELEN_portrait_checklist, stylized cartoon male knight bust, blue blindfold-like visor, gold crown helmet red gem, gold white silver blue armor, neutral mouth and exact angular bust silhouette. Reference is the numbered contact sheet. Recreate that ONE portrait faithfully, keeping original identity, clothing, facial expression, pose, props, colors and painterly style. Native transparent RGBA background, alpha=0 around silhouette and all four corners. Remove the entire original backdrop, stone walls, dark vignette, colored panel, white background. Do not include other reference characters, sheet labels, frame, text or checkerboard. Full visible head and original bust composition, a small transparent margin around the silhouette. Only background removal changes requested.",
+    "runtime": "assets/sprites/portraits/onboarding/CHR_SELEN_portrait_checklist_alpha_v131.png",
+    "sha256": "42ce567ce1ed70d37c680dd75afc81ae27935919967a8ecc1bcf3ae545cd001a",
+    "size": [
+      1150,
+      1367
+    ],
+    "original": "assets/sprites/portraits/onboarding/CHR_SELEN_portrait_checklist.png"
+  },
+  {
+    "index": 6,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-54ec0cb6-4b67-4372-b23d-7dd574e517fd.png",
+    "prompt": "Use case: background-extraction. Produce ONE transparent RGBA game dialogue portrait of ONLY the woman labeled 6 (bottom row, right): CHR_THIEF_NIA_portrait_teasing. Keep her exact black ponytail with purple ribbon, face, sly smirk, purple scarf, brown-black leather outfit, clipboard and raised lockpick, original pose and painterly style. Reconstruct the portrait faithfully at 1024 square resolution. Remove ALL the stone wall and surrounding rectangular background; genuine native transparent background with alpha=0, including empty corners and space around her hair/body. Do not include other characters from the reference contact sheet, labels, backdrop, frames, shadow panels, white or checkerboard pixels. Keep original bust composition and full visible head and shoulders.",
+    "runtime": "assets/sprites/portraits/onboarding/CHR_THIEF_NIA_portrait_teasing_alpha_v131.png",
+    "sha256": "c25c890d7627c4f0bcb9f4f8c3462a13ccaf6fef5872c63ab414ac62c566b102",
+    "size": [
+      1254,
+      1254
+    ],
+    "original": "assets/sprites/portraits/onboarding/CHR_THIEF_NIA_portrait_teasing.png"
+  },
+  {
+    "index": 7,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-0b6ac25d-c739-455a-8a5a-5e2af6748a87.png",
+    "prompt": "Use case: background-extraction. Recreate only numbered portrait 7 in reference sheet reference_1. Character is the same young male hero Leon. defeated: lowered head, sad dejected blue eyes and frown; blue hooded cape, dark armor and gold star brooch. Keep original character identity, expression, clothes, pose, props, colors and detailed painterly game style. Make one square bust portrait, native transparent RGBA, alpha=0 in empty corners and all space around silhouette, small transparent margin at head and sides. Remove ALL dark scenery, stone background, vignette and rectangular panels. No other sheet characters, labels, text, shadows on panels, checkerboard or colored background. Preserve original composition; only remove background.",
+    "runtime": "assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_defeated_alpha_v131.png",
+    "sha256": "0077db13b352af47ae98e1ff004726603c9b9e250fa42d3134708c74db1652f4",
+    "size": [
+      1254,
+      1254
+    ],
+    "original": "assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_defeated.png"
+  },
+  {
+    "index": 8,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-57e1b206-653d-40b4-85e8-b31ba7c12e1c.png",
+    "prompt": "Use case: background-extraction. Recreate only numbered portrait 8 in reference sheet reference_1. Character is the same young male hero Leon. determined: tense serious direct blue eyes and firm mouth, blond hair, blue cape and dark armor with gold star clasp, right fist at chest. Keep original character identity, expression, clothes, pose, props, colors and detailed painterly game style. Make one square bust portrait, native transparent RGBA, alpha=0 in empty corners and all space around silhouette, small transparent margin at head and sides. Remove ALL dark scenery, stone background, vignette and rectangular panels. No other sheet characters, labels, text, shadows on panels, checkerboard or colored background. Preserve original composition; only remove background.",
+    "runtime": "assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_determined_alpha_v131.png",
+    "sha256": "329e665bf26835a61f1809e38ff898f93f2d2b03ef4d337c0f8bce0f26186a68",
+    "size": [
+      1254,
+      1254
+    ],
+    "original": "assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_determined.png"
+  },
+  {
+    "index": 9,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-9bc7c08e-f50f-4814-98f4-fbd0c24b05d6.png",
+    "prompt": "Use case: background-extraction. Recreate only numbered portrait 9 in reference sheet reference_1. Character is the same young male hero Leon. flustered: startled worried open mouth, wide blue eyes, blushing cheeks, fist raised at chest, blue hooded cape and gold star brooch. Keep original character identity, expression, clothes, pose, props, colors and detailed painterly game style. Make one square bust portrait, native transparent RGBA, alpha=0 in empty corners and all space around silhouette, small transparent margin at head and sides. Remove ALL dark scenery, stone background, vignette and rectangular panels. No other sheet characters, labels, text, shadows on panels, checkerboard or colored background. Preserve original composition; only remove background.",
+    "runtime": "assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_flustered_alpha_v131.png",
+    "sha256": "53b84c9644d2b2fd42f531c19eb8503a1171fa3aef88891a373817086d8e53e2",
+    "size": [
+      1254,
+      1254
+    ],
+    "original": "assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_flustered.png"
+  },
+  {
+    "index": 10,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-2501549e-5bf1-48ac-84a3-f76a08b9ea95.png",
+    "prompt": "Use case: background-extraction. Recreate only numbered portrait 10 in reference sheet reference_1. Character is the same young male hero Leon. heroic: confident smile, blue eyes, tousled blond hair, black steel knight armor with gold trim, blue cape and clenched armored fist. Keep original character identity, expression, clothes, pose, props, colors and detailed painterly game style. Make one square bust portrait, native transparent RGBA, alpha=0 in empty corners and all space around silhouette, small transparent margin at head and sides. Remove ALL dark scenery, stone background, vignette and rectangular panels. No other sheet characters, labels, text, shadows on panels, checkerboard or colored background. Preserve original composition; only remove background.",
+    "runtime": "assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_heroic_alpha_v131.png",
+    "sha256": "efeaa51a034008a05fd4d49861666d472cfe5e3c0c06c1c207bffd1f23f1b66c",
+    "size": [
+      1254,
+      1254
+    ],
+    "original": "assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_heroic.png"
+  },
+  {
+    "index": 11,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-49f077a6-e519-4c35-a51f-188142a95d5c.png",
+    "prompt": "Use case: background-extraction. Recreate only numbered portrait 11 in reference sheet reference_1. Character is the same young male hero Leon. manual: thoughtful expression, right hand touching chin, open brown book in left hand, blond hair blue eyes, blue cape dark gold-trimmed armor. Keep original character identity, expression, clothes, pose, props, colors and detailed painterly game style. Make one square bust portrait, native transparent RGBA, alpha=0 in empty corners and all space around silhouette, small transparent margin at head and sides. Remove ALL dark scenery, stone background, vignette and rectangular panels. No other sheet characters, labels, text, shadows on panels, checkerboard or colored background. Preserve original composition; only remove background.",
+    "runtime": "assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_manual_alpha_v131.png",
+    "sha256": "ef3f906b61218ad9779b7625d486d1473aebaed494b461c4cdb3651a55d7476a",
+    "size": [
+      1254,
+      1254
+    ],
+    "original": "assets/sprites/portraits/onboarding/CHR_HERO_LEON_portrait_manual.png"
+  },
+  {
+    "index": 12,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-fdf6fe3a-816b-479a-bc08-b5c911c688b2.png",
+    "prompt": "Use case: background-extraction. Recreate only numbered portrait 12 in reference sheet reference_1. Character is the same young male hero Leon. official final: confident slight smile, tousled blond hair, blue eyes, blue cape, black gold-trimmed plate armor, silver gauntlet clenched across chest. Keep original character identity, expression, clothes, pose, props, colors and detailed painterly game style. Make one square bust portrait, native transparent RGBA, alpha=0 in empty corners and all space around silhouette, small transparent margin at head and sides. Remove ALL dark scenery, stone background, vignette and rectangular panels. No other sheet characters, labels, text, shadows on panels, checkerboard or colored background. Preserve original composition; only remove background.",
+    "runtime": "assets/sprites/portraits/campaign/CHR_HERO_LEON_OFFICIAL_portrait_final_alpha_v131.png",
+    "sha256": "f38ea670214211a8e3c358650bc26b492b7befbfdb568e11dd91b896c658b6f2",
+    "size": [
+      1254,
+      1254
+    ],
+    "original": "assets/sprites/portraits/campaign/CHR_HERO_LEON_OFFICIAL_portrait_final.png"
+  },
+  {
+    "index": 13,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-c18883bf-ae9d-491b-a122-a2c3ed7b1c60.png",
+    "prompt": "Use case: background-extraction. Recreate only numbered portrait 13 in reference sheet reference_1. Roman command: serious weathered adult male officer with dark brown hair and short beard, navy peaked cap gold emblem, navy coat with ornate gold edges and lapels, white shirt red tie, brown gloves holding brown clipboard. Keep original character identity, expression, clothes, pose, props, colors and detailed painterly game style. Make one square bust portrait, native transparent RGBA, alpha=0 in empty corners and all space around silhouette, small transparent margin at head and sides. Remove ALL dark scenery, stone background, vignette and rectangular panels. No other sheet characters, labels, text, shadows on panels, checkerboard or colored background. Preserve original composition; only remove background.",
+    "runtime": "assets/sprites/portraits/campaign/CHR_ROMAN_portrait_command_alpha_v131.png",
+    "sha256": "8bcaf78ee58ef04e203d1aa13f8729534e1e187168336d93cb4ac37a06fbb86b",
+    "size": [
+      1254,
+      1254
+    ],
+    "original": "assets/sprites/portraits/campaign/CHR_ROMAN_portrait_command.png"
+  },
+  {
+    "index": 14,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-6b69a2c8-2d26-41e8-b3d9-9c35ab050931.png",
+    "prompt": "Use case: background-extraction. Make ONE native transparent RGBA game portrait from the shieldbearer in the top-left image labeled 14: young male knight with brown hair and confident eyes, navy hood, silver and gold helmet, blue gold-trimmed cape, dark plate armor, large black-gold shield with crown emblem in right side, short sword in left hand. Reference is numbered contact sheet reference_2. Preserve the original character identity, outfit, expression, pose and art style. For 14 preserve bust composition; for 15-20 produce an enlarged faithful version of ONLY THE FIRST STANDING FRAME, full original body, not an invented bust, no other animation frames. Alpha=0 completely outside character, four empty transparent corners and small transparent margin. Remove magenta, stone walls and all scenery completely. No checkerboard, flat color panel, frame, label, text or other characters. This is a replacement dialogue portrait only, no animation sheet.",
+    "runtime": "assets/sprites/portraits/enemies/CHR_SHIELDBEARER_portrait_alpha_v131.png",
+    "sha256": "f2004ac7dedce5009b5a6cfde6e229b4cabceee4860dc9b1bb4cda9a68d58f10",
+    "size": [
+      1275,
+      1234
+    ],
+    "original": "assets/sprites/portraits/enemies/CHR_SHIELDBEARER_portrait.png"
+  },
+  {
+    "index": 15,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-0097f5a1-bf68-49ed-9642-2c165ea07e72.png",
+    "prompt": "Use case: background-extraction. Make ONE native transparent RGBA game portrait from bounty tracker in image 15: only the standing humanoid FIRST top-left frame of its 4x4 spritesheet. Dark brown-green hooded ranger with leather armor, brown cloak, crossbow/ranged hunting gear. Retain its original isometric game sprite design, pose and green/brown palette. Reference is numbered contact sheet reference_2. Preserve the original character identity, outfit, expression, pose and art style. For 14 preserve bust composition; for 15-20 produce an enlarged faithful version of ONLY THE FIRST STANDING FRAME, full original body, not an invented bust, no other animation frames. Alpha=0 completely outside character, four empty transparent corners and small transparent margin. Remove magenta, stone walls and all scenery completely. No checkerboard, flat color panel, frame, label, text or other characters. This is a replacement dialogue portrait only, no animation sheet.",
+    "runtime": "assets/sprites/portraits/update3/enemy_bounty_tracker_alpha_v131.png",
+    "sha256": "6a49114f1df5b1b15025a5f8ab379618402212a5ccc4d5b75c6b3da93ba3b8de",
+    "size": [
+      1185,
+      1327
+    ],
+    "original": "assets/sprites/enemies/update3_atlas/enemy_bounty_tracker_sheet.png"
+  },
+  {
+    "index": 16,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-efee56c3-938e-42f4-b543-5cc091dd6070.png",
+    "prompt": "Use case: background-extraction. Make ONE native transparent RGBA game portrait from choir exorcist in image 16: only the standing humanoid FIRST top-left frame of its 4x4 spritesheet. Pale blonde long-haired priestess in white and gold religious robes holding golden staff. Retain its original isometric game sprite design, pose and white/gold palette. Reference is numbered contact sheet reference_2. Preserve the original character identity, outfit, expression, pose and art style. For 14 preserve bust composition; for 15-20 produce an enlarged faithful version of ONLY THE FIRST STANDING FRAME, full original body, not an invented bust, no other animation frames. Alpha=0 completely outside character, four empty transparent corners and small transparent margin. Remove magenta, stone walls and all scenery completely. No checkerboard, flat color panel, frame, label, text or other characters. This is a replacement dialogue portrait only, no animation sheet.",
+    "runtime": "assets/sprites/portraits/update3/enemy_choir_exorcist_alpha_v131.png",
+    "sha256": "43bfab4c90761cc6ef2cb4155ecd563ca4cec43905af741adb84b67d4e3d1ac4",
+    "size": [
+      1169,
+      1345
+    ],
+    "original": "assets/sprites/enemies/update3_atlas/enemy_choir_exorcist_sheet.png"
+  },
+  {
+    "index": 17,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-4b0344fb-e08f-4631-960e-aeb906fd3f6a.png",
+    "prompt": "Use case: background-extraction. Make ONE native transparent RGBA game portrait from combat alchemist in image 17: only the standing humanoid FIRST top-left frame of its 4x4 spritesheet. Green coat brown leather belt and dark hood, green potion equipment, gloved hands, mysterious face. Retain its original isometric game sprite design, pose and green/brown palette. Reference is numbered contact sheet reference_2. Preserve the original character identity, outfit, expression, pose and art style. For 14 preserve bust composition; for 15-20 produce an enlarged faithful version of ONLY THE FIRST STANDING FRAME, full original body, not an invented bust, no other animation frames. Alpha=0 completely outside character, four empty transparent corners and small transparent margin. Remove magenta, stone walls and all scenery completely. No checkerboard, flat color panel, frame, label, text or other characters. This is a replacement dialogue portrait only, no animation sheet.",
+    "runtime": "assets/sprites/portraits/update3/enemy_combat_alchemist_alpha_v131.png",
+    "sha256": "1f9192a60b66aed56b936e0206ecdd9f98c72b994cfd63a220d498f84425a96c",
+    "size": [
+      1159,
+      1357
+    ],
+    "original": "assets/sprites/enemies/update3_atlas/enemy_combat_alchemist_sheet.png"
+  },
+  {
+    "index": 18,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-18b9faf1-3a13-40f1-ad9b-40bb6cebde90.png",
+    "prompt": "Use case: background-extraction. Make ONE native transparent RGBA game portrait from ledger binder in image 18: only the standing humanoid FIRST top-left frame of its 4x4 spritesheet. Gold pointed hood, brown-purple ornate long coat, pale face, large gilded ledger book held in front and chain ornament. Retain original isometric game sprite design, pose and gold/brown/purple palette. Reference is numbered contact sheet reference_2. Preserve the original character identity, outfit, expression, pose and art style. For 14 preserve bust composition; for 15-20 produce an enlarged faithful version of ONLY THE FIRST STANDING FRAME, full original body, not an invented bust, no other animation frames. Alpha=0 completely outside character, four empty transparent corners and small transparent margin. Remove magenta, stone walls and all scenery completely. No checkerboard, flat color panel, frame, label, text or other characters. This is a replacement dialogue portrait only, no animation sheet.",
+    "runtime": "assets/sprites/portraits/update3/enemy_ledger_binder_alpha_v131.png",
+    "sha256": "671b0d4fe7f9b58852295ba5135145d9e1ad5c0557d77504c6f62b7eda78ebf8",
+    "size": [
+      1219,
+      1290
+    ],
+    "original": "assets/sprites/enemies/update3_atlas/enemy_ledger_binder_sheet.png"
+  },
+  {
+    "index": 19,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-aed828eb-79a4-476f-96b1-1c4c573d7766.png",
+    "prompt": "Use case: background-extraction. Make ONE native transparent RGBA game portrait from reliquary guard in image 19: only the standing humanoid FIRST top-left frame of its 4x4 spritesheet. Heavy gold full plate armor and helmet, massive gold shield, glowing cyan blue face visor and blue tabard. Retain original isometric game sprite design, pose and gold/cyan palette. Reference is numbered contact sheet reference_2. Preserve the original character identity, outfit, expression, pose and art style. For 14 preserve bust composition; for 15-20 produce an enlarged faithful version of ONLY THE FIRST STANDING FRAME, full original body, not an invented bust, no other animation frames. Alpha=0 completely outside character, four empty transparent corners and small transparent margin. Remove magenta, stone walls and all scenery completely. No checkerboard, flat color panel, frame, label, text or other characters. This is a replacement dialogue portrait only, no animation sheet.",
+    "runtime": "assets/sprites/portraits/update3/enemy_reliquary_guard_alpha_v131.png",
+    "sha256": "9a9e2f0dfb5f606d0e3e261df9d2625829d3a1809ac236bd5b3285141d715f3a",
+    "size": [
+      1193,
+      1319
+    ],
+    "original": "assets/sprites/enemies/update3_atlas/enemy_reliquary_guard_sheet.png"
+  },
+  {
+    "index": 20,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-7566630d-d633-4975-9435-501ed2818877.png",
+    "prompt": "Use case: background-extraction. Make ONE native transparent RGBA game portrait from seal chainbearer in image 20: only the standing humanoid FIRST top-left frame of its 4x4 spritesheet. Long pale blond-haired robed figure in white and grey layered robes, gold belts and chains, staff/chain magical implement. Retain original isometric game sprite design, pose and white/gold palette. Reference is numbered contact sheet reference_2. Preserve the original character identity, outfit, expression, pose and art style. For 14 preserve bust composition; for 15-20 produce an enlarged faithful version of ONLY THE FIRST STANDING FRAME, full original body, not an invented bust, no other animation frames. Alpha=0 completely outside character, four empty transparent corners and small transparent margin. Remove magenta, stone walls and all scenery completely. No checkerboard, flat color panel, frame, label, text or other characters. This is a replacement dialogue portrait only, no animation sheet.",
+    "runtime": "assets/sprites/portraits/update3/enemy_seal_chainbearer_alpha_v131.png",
+    "sha256": "6746b03c49dbe82d4d25dc4f254940bccb5de5b9fa3eccf32670d99cfc169aa5",
+    "size": [
+      1191,
+      1320
+    ],
+    "original": "assets/sprites/enemies/update3_atlas/enemy_seal_chainbearer_sheet.png"
+  },
+  {
+    "index": 21,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-c3813994-b450-4b74-a24f-28ed743c4b98.png",
+    "prompt": "Use case: background-extraction. Recreate ONLY the left sheet labeled 21 portraits: neutral/ready expressions. Six cells: top row blue gelatin slime knight with strawberry and whipped cream top, teal shield and golden star crest; green hooded goblin with leather armor and spear; pink-haired imp mage with small dark horns and pink fire. Bottom row white/lavender crowned slime alchemist with strawberry whipped cream and teal potion bottle; green goblin vault guard in ornate dark-gold plate and lock emblem shield; pale pink/white-haired imp shaman with large black horns and black-purple feathered robe, purple staff. Reference is a contact sheet containing several sheets: output ONLY the six characters belonging to the indicated numbered sheet, not the neighboring sheets. Output ONE LANDSCAPE 3:2 RGBA atlas, 1536x1024, EXACTLY 3 equal columns and 2 equal rows (each cell512 square). Maintain each character identity, costume, pose, expression, style and original cell order. Each character is individually isolated on genuine native transparency, alpha=0 throughout all six cell backgrounds. Keep a generous transparent gutter on ALL FOUR edges of EVERY cell; heads, bodies, weapons, flames and wings must remain inside their own cell. Preserve original colored character lighting and design. Remove ALL dark rectangular cell background panels, gradient/vignette, shadow backdrops, labels, frames and checkerboard. No text, no extra characters. Distinct six portraits, consistent original 3x2 grid; background removal only.",
+    "runtime": "assets/sprites/portraits/uiux_evolution/portraits_alpha_v131.png",
+    "sha256": "247ee170e1a3d5fe708eed8eef6a4d4012a4b3b603bfdc0a1281bf14bf742fec",
+    "size": [
+      1536,
+      1024
+    ],
+    "original": "assets/sprites/portraits/uiux_evolution/portraits.png"
+  },
+  {
+    "index": 22,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-89c60098-79a0-4a09-827f-5d30f3ba89ba.png",
+    "prompt": "Use case: background-extraction. Recreate ONLY the middle sheet labeled 22 victory: happy/victorious expressions as shown. Six cells in same original order: blue gelatin slime knight strawberry whipped cream top teal shield and gold star crest; green hooded goblin leather armor spear; pink-haired horned imp mage pink flames; white/lavender slime alchemist strawberry top teal potion; green goblin vault keeper dark-gold plate and lock emblem shield; pale pink/white-haired imp shaman black horns purple feathered robes and staff. Reference is a contact sheet containing several sheets: output ONLY the six characters belonging to the indicated numbered sheet, not the neighboring sheets. Output ONE LANDSCAPE 3:2 RGBA atlas, 1536x1024, EXACTLY 3 equal columns and 2 equal rows (each cell512 square). Maintain each character identity, costume, pose, expression, style and original cell order. Each character is individually isolated on genuine native transparency, alpha=0 throughout all six cell backgrounds. Keep a generous transparent gutter on ALL FOUR edges of EVERY cell; heads, bodies, weapons, flames and wings must remain inside their own cell. Preserve original colored character lighting and design. Remove ALL dark rectangular cell background panels, gradient/vignette, shadow backdrops, labels, frames and checkerboard. No text, no extra characters. Distinct six portraits, consistent original 3x2 grid; background removal only.",
+    "runtime": "assets/sprites/portraits/uiux_evolution/victory_alpha_v131.png",
+    "sha256": "d746927a85a8ab3756bf8b263edb448fc728a243698c120cf4035f4c3078b3fb",
+    "size": [
+      1536,
+      1024
+    ],
+    "original": "assets/sprites/portraits/uiux_evolution/victory.png"
+  },
+  {
+    "index": 23,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-8d568ac9-b574-44e0-a3d7-ed5215327269.png",
+    "prompt": "Use case: background-extraction. Recreate ONLY the right sheet labeled 23 wounded: tired/hurt/sad expressions as shown. Six cells in same original order: blue gelatin slime knight strawberry whipped cream top teal shield and gold star crest; green hooded goblin leather armor spear; pink-haired horned imp mage pink flames; white/lavender slime alchemist strawberry top teal potion; green goblin vault keeper dark-gold plate and lock emblem shield; pale pink/white-haired imp shaman black horns purple feathered robes and staff. Reference is a contact sheet containing several sheets: output ONLY the six characters belonging to the indicated numbered sheet, not the neighboring sheets. Output ONE LANDSCAPE 3:2 RGBA atlas, 1536x1024, EXACTLY 3 equal columns and 2 equal rows (each cell512 square). Maintain each character identity, costume, pose, expression, style and original cell order. Each character is individually isolated on genuine native transparency, alpha=0 throughout all six cell backgrounds. Keep a generous transparent gutter on ALL FOUR edges of EVERY cell; heads, bodies, weapons, flames and wings must remain inside their own cell. Preserve original colored character lighting and design. Remove ALL dark rectangular cell background panels, gradient/vignette, shadow backdrops, labels, frames and checkerboard. No text, no extra characters. Distinct six portraits, consistent original 3x2 grid; background removal only.",
+    "runtime": "assets/sprites/portraits/uiux_evolution/wounded_alpha_v131.png",
+    "sha256": "252331834932d10c386356c35cfd01713253a34fef2f9ae4ca14e53cb57dfca9",
+    "size": [
+      1536,
+      1024
+    ],
+    "original": "assets/sprites/portraits/uiux_evolution/wounded.png"
+  },
+  {
+    "index": 24,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-360f3e3b-40cf-456e-a255-ba878074ba39.png",
+    "prompt": "Use case: background-extraction. Recreate ONLY the left sheet labeled 24 core. Top row victorious, bottom row wounded. Columns: blue slime royal bastion with strawberry cake top, golden crown and teal crystal shield, purple gel body; green hooded goblin midnight marshal with elaborate black/gold armor, gold crown and spear; magenta-haired horned imp queen with black/gold/purple robes, gold crown and purple fire orb. Reference is a contact sheet containing several sheets: output ONLY the six characters belonging to the indicated numbered sheet, not the neighboring sheets. Output ONE LANDSCAPE 3:2 RGBA atlas, 1536x1024, EXACTLY 3 equal columns and 2 equal rows (each cell512 square). Maintain each character identity, costume, pose, expression, style and original cell order. Each character is individually isolated on genuine native transparency, alpha=0 throughout all six cell backgrounds. Keep a generous transparent gutter on ALL FOUR edges of EVERY cell; heads, bodies, weapons, flames and wings must remain inside their own cell. Preserve original colored character lighting and design. Remove ALL dark rectangular cell background panels, gradient/vignette, shadow backdrops, labels, frames and checkerboard. No text, no extra characters. Distinct six portraits, consistent original 3x2 grid; background removal only.",
+    "runtime": "assets/sprites/portraits/uiux_crowns/core_alpha_v131.png",
+    "sha256": "deed88cc1cd9ba573fd9a3664cebebf1cf7e84921e090647e5eae2860d2896b4",
+    "size": [
+      1536,
+      1024
+    ],
+    "original": "assets/sprites/portraits/uiux_crowns/core.png"
+  },
+  {
+    "index": 25,
+    "path": "C:\\Users\\blueh\\.codex\\generated_images\\01a15630-818b-7732-93fd-75e381c93014\\exec-69ac8265-daca-4063-b8c6-6b523ce20905.png",
+    "prompt": "Use case: background-extraction. Recreate ONLY the right sheet labeled 25 support. Top row victorious, bottom row wounded. Columns: elder mushroom priest with beige drooping moustache/beard, red-spotted cap and gold jeweled crown, green cloak and glowing staff; heavily armored horned beetle with royal gold crown, black/gold segmented armor and purple gem face; blue bat courier with gold crown, purple ears/wing membranes, brown satchel, parcel and mail paper. Reference is a contact sheet containing several sheets: output ONLY the six characters belonging to the indicated numbered sheet, not the neighboring sheets. Output ONE LANDSCAPE 3:2 RGBA atlas, 1536x1024, EXACTLY 3 equal columns and 2 equal rows (each cell512 square). Maintain each character identity, costume, pose, expression, style and original cell order. Each character is individually isolated on genuine native transparency, alpha=0 throughout all six cell backgrounds. Keep a generous transparent gutter on ALL FOUR edges of EVERY cell; heads, bodies, weapons, flames and wings must remain inside their own cell. Preserve original colored character lighting and design. Remove ALL dark rectangular cell background panels, gradient/vignette, shadow backdrops, labels, frames and checkerboard. No text, no extra characters. Distinct six portraits, consistent original 3x2 grid; background removal only.",
+    "runtime": "assets/sprites/portraits/uiux_crowns/support_alpha_v131.png",
+    "sha256": "4144a125fd2a222a2f5371cee64a0687d36cf6521677c9e099fdd13c6cf10f16",
+    "size": [
+      1536,
+      1024
+    ],
+    "original": "assets/sprites/portraits/uiux_crowns/support.png"
+  }
+]

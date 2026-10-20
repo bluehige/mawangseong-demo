@@ -1,0 +1,55 @@
+{
+  "target_tracks_per_scene": 5,
+  "scenes": {
+    "title": {
+      "concept": "warm whimsical castle",
+      "events": [
+        "music.screen.title",
+        "music.screen.management",
+        "music.v130.title.01",
+        "music.v130.title.02",
+        "music.v130.title.03"
+      ]
+    },
+    "management": {
+      "concept": "warm whimsical castle",
+      "events": [
+        "music.screen.management",
+        "music.screen.title",
+        "music.v130.management.01",
+        "music.v130.management.02",
+        "music.v130.management.03"
+      ]
+    },
+    "combat": {
+      "concept": "dungeon pressure and siege",
+      "events": [
+        "music.combat.normal",
+        "music.combat.late_risk",
+        "music.combat.boss",
+        "music.v130.combat.01",
+        "music.v130.combat.02"
+      ]
+    },
+    "result": {
+      "concept": "warm castle debrief",
+      "events": [
+        "music.screen.management",
+        "music.screen.title",
+        "music.v130.result.01",
+        "music.v130.result.02",
+        "music.v130.result.03"
+      ]
+    },
+    "final_ending": {
+      "concept": "bittersweet final victory",
+      "events": [
+        "music.final.ending",
+        "music.v130.final_ending.01",
+        "music.v130.final_ending.02",
+        "music.v130.final_ending.03",
+        "music.v130.final_ending.04"
+      ]
+    }
+  }
+}

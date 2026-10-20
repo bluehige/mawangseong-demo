@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "source_version": "v130r-monsters-v1",
+  "monsters": {
+    "slime": {
+      "display_name": "푸딩",
+      "upkeep_food": 1,
+      "join_condition": "시작",
+      "role": "근접 탱커",
+      "recommended_spot": "1차"
+    },
+    "goblin": {
+      "display_name": "곱",
+      "upkeep_food": 1,
+      "join_condition": "시작",
+      "role": "근접 추격",
+      "recommended_spot": "1차/금고"
+    },
+    "imp": {
+      "display_name": "핀",
+      "upkeep_food": 1,
+      "join_condition": "시작",
+      "role": "원거리 불",
+      "recommended_spot": "후열"
+    },
+    "kobold_scout": {
+      "display_name": "로로",
+      "upkeep_food": 1,
+      "join_condition": "시작",
+      "role": "교란·원정대장",
+      "recommended_spot": "갈림길"
+    },
+    "rat_union": {
+      "display_name": "찍찍단",
+      "upkeep_food": 1,
+      "join_condition": "DAY 4",
+      "role": "도둑 대응·금화 회수",
+      "recommended_spot": "금고·미끼",
+      "join_day": 4,
+      "join_day_policy": "day"
+    },
+    "crumpled_map": {
+      "display_name": "꼬깃",
+      "upkeep_food": 1,
+      "join_condition": "DAY 5",
+      "role": "탐험가 길 잃히기",
+      "recommended_spot": "1차 갈림길",
+      "join_day": 5,
+      "join_day_policy": "day"
+    },
+    "river_frog": {
+      "display_name": "퐁당",
+      "upkeep_food": 2,
+      "join_condition": "DAY 6",
+      "role": "다리 속박",
+      "recommended_spot": "다리 옆 물가",
+      "join_day": 6,
+      "join_day_policy": "day"
+    },
+    "spore_healer": {
+      "display_name": "모리",
+      "upkeep_food": 2,
+      "join_condition": "DAY 7*",
+      "role": "회복·정화",
+      "recommended_spot": "회복 둥지",
+      "join_day": 7,
+      "join_day_policy": "existing_contract_first_else_day"
+    },
+    "glue_snail": {
+      "display_name": "느릿",
+      "upkeep_food": 1,
+      "join_condition": "DAY 8",
+      "role": "함정 길 강화",
+      "recommended_spot": "함정 길",
+      "join_day": 8,
+      "join_day_policy": "day"
+    },
+    "stone_sentinel": {
+      "display_name": "돌콩",
+      "upkeep_food": 3,
+      "join_condition": "DAY 9*",
+      "role": "고정 방어",
+      "recommended_spot": "입구",
+      "join_day": 9,
+      "join_day_policy": "existing_contract_first_else_day"
+    },
+    "under_bed_shadow": {
+      "display_name": "쉿",
+      "upkeep_food": 2,
+      "join_condition": "DAY 10",
+      "role": "은신 기습·공포",
+      "recommended_spot": "2차 갈림길",
+      "join_day": 10,
+      "join_day_policy": "day"
+    },
+    "war_drummer": {
+      "display_name": "두둠",
+      "upkeep_food": 2,
+      "join_condition": "DAY 12*",
+      "role": "사기·방어 버프",
+      "recommended_spot": "병영",
+      "join_day": 12,
+      "join_day_policy": "existing_contract_first_else_day"
+    },
+    "bridge_troll": {
+      "display_name": "벙벙",
+      "upkeep_food": 3,
+      "join_condition": "DAY 13",
+      "role": "다리 봉쇄·통행세",
+      "recommended_spot": "다리",
+      "join_day": 13,
+      "join_day_policy": "day"
+    },
+    "candle_wisp": {
+      "display_name": "녹녹",
+      "upkeep_food": 2,
+      "join_condition": "DAY 15",
+      "role": "은신 탐지·성기사 대응",
+      "recommended_spot": "감시탑·옥좌",
+      "join_day": 15,
+      "join_day_policy": "day"
+    },
+    "moon_tracker": {
+      "display_name": "루미",
+      "upkeep_food": 3,
+      "join_condition": "DAY 16*",
+      "role": "원거리 표식",
+      "recommended_spot": "감시탑",
+      "join_day": 16,
+      "join_day_policy": "existing_contract_first_else_day"
+    },
+    "mimic_porter": {
+      "display_name": "미미",
+      "upkeep_food": 3,
+      "join_condition": "DAY 17*",
+      "role": "가짜 보물·유인",
+      "recommended_spot": "미끼 보물실",
+      "join_day": 17,
+      "join_day_policy": "existing_contract_first_else_day"
+    },
+    "curse_doll": {
+      "display_name": "누비",
+      "upkeep_food": 2,
+      "join_condition": "DAY 18",
+      "role": "보스 약화·대신 맞기",
+      "recommended_spot": "2차 후열",
+      "join_day": 18,
+      "join_day_policy": "day"
+    },
+    "mole_digger": {
+      "display_name": "파파",
+      "upkeep_food": 2,
+      "join_condition": "DAY 20",
+      "role": "방어선 기동·공병 대응",
+      "recommended_spot": "방어선 사이",
+      "join_day": 20,
+      "join_day_policy": "day"
+    },
+    "spider_tailor": {
+      "display_name": "실키",
+      "upkeep_food": 2,
+      "join_condition": "기존 조건",
+      "role": "문턱 제어·구조",
+      "recommended_spot": "다리·문"
+    },
+    "bat_courier": {
+      "display_name": "포포",
+      "upkeep_food": 2,
+      "join_condition": "기존 조건",
+      "role": "기동·경보",
+      "recommended_spot": "감시탑"
+    },
+    "hollow_armor": {
+      "display_name": "텅텅",
+      "upkeep_food": 3,
+      "join_condition": "DAY 25",
+      "role": "최종 도발 탱커·용사 대응",
+      "recommended_spot": "옥좌 앞",
+      "join_day": 25,
+      "join_day_policy": "day"
+    },
+    "ghost_housemaid": {
+      "display_name": "베베",
+      "upkeep_food": 2,
+      "join_condition": "기존 전선 조건",
+      "role": "구조",
+      "recommended_spot": "—"
+    },
+    "graveyard_hound": {
+      "display_name": "코코",
+      "upkeep_food": 3,
+      "join_condition": "기존 전선 조건",
+      "role": "추적",
+      "recommended_spot": "—"
+    },
+    "armored_beetle": {
+      "display_name": "톡톡",
+      "upkeep_food": 3,
+      "join_condition": "기존 전선 조건",
+      "role": "방어",
+      "recommended_spot": "—"
+    }
+  },
+  "join_policy_note": "기존 계약 시스템에 합류 조건이 이미 있으면 그쪽 우선, 없으면 이 DAY로.",
+  "settlement": {
+    "deployed_only": true,
+    "reserve_upkeep_food": 0,
+    "shortage_status": "굶주림",
+    "next_battle_atk_multiplier": 0.8,
+    "recovery_nest_allowed_when_hungry": false,
+    "monster_disappears": false,
+    "rule_text": "정산 때 배치된 몬스터만 유지비. 대기 0. 부족하면 못 받은 몬스터 \"굶주림\"(다음 전투 공격 -20%, 회복 둥지 회복 불가). 사라지지 않음."
+  },
+  "building_costs": {
+    "food_removed": true,
+    "removed_barracks_food": 2,
+    "rule_text": "건물 비용에서 식량 제거(병영 식2 삭제)."
+  },
+  "stages": [
+    {
+      "stage": 1,
+      "display_name": "마굴",
+      "grade": "F",
+      "day_start": 1,
+      "day_end": 14,
+      "defense_spots": 15,
+      "defense_spots_approximate": false,
+      "roster_upkeep_text": "21",
+      "food_income_per_day": 15,
+      "storage_capacity": 30
+    },
+    {
+      "stage": 2,
+      "display_name": "소마왕성",
+      "grade": "E",
+      "day_start": 15,
+      "day_end": 19,
+      "defense_spots": 18,
+      "defense_spots_approximate": false,
+      "roster_upkeep_text": "31",
+      "food_income_per_day": 23,
+      "storage_capacity": 45
+    },
+    {
+      "stage": 3,
+      "display_name": "요새",
+      "grade": "D",
+      "day_start": 20,
+      "day_end": 26,
+      "defense_spots": 22,
+      "defense_spots_approximate": true,
+      "roster_upkeep_text": "40 (+전선 3마리 48)",
+      "food_income_per_day": 30,
+      "storage_capacity": 60
+    },
+    {
+      "stage": 4,
+      "display_name": "대마왕성",
+      "grade": "C",
+      "day_start": 27,
+      "day_end": 30,
+      "defense_spots": 26,
+      "defense_spots_approximate": true,
+      "roster_upkeep_text": "40~48",
+      "food_income_per_day": 34,
+      "storage_capacity": 75
+    }
+  ],
+  "income_note": "수입 ≈ 명단 전체의 70~75% → 다 세우려면 원정·칙령 식량이 필요."
+}

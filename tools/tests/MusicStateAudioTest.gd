@@ -27,7 +27,7 @@ func _run() -> void:
 	for stream in tracks:
 		_expect(stream != null, "music state stream preloads")
 		_expect(stream != null and stream.get_length() > 96.0, "music state stream is long-form audio")
-		_expect(stream is AudioStreamWAV and stream.loop_mode == AudioStreamWAV.LOOP_FORWARD, "music state stream uses imported forward loop")
+		_expect(stream is AudioStreamOggVorbis and stream.loop == true, "music state stream uses imported forward loop")
 		if stream != null:
 			paths[stream.resource_path] = true
 	_expect(paths.size() == 3, "management, normal combat, and boss combat use distinct files")
@@ -41,7 +41,7 @@ func _run() -> void:
 		var stream = game._music_stream_for_state(state_id)
 		_expect(stream != null, "%s music resolves from the approved catalog" % state_id)
 		_expect(stream != null and stream.get_length() > 96.0, "%s music is long-form audio" % state_id)
-		_expect(stream is AudioStreamWAV and stream.loop_mode == AudioStreamWAV.LOOP_FORWARD, "%s music uses an imported forward loop" % state_id)
+		_expect(stream is AudioStreamOggVorbis and stream.loop == true, "%s music uses an imported forward loop" % state_id)
 		var event_id := MusicStateResolverScript.event_for_state(state_id)
 		var resolved := AudioCatalogApiScript.resolve_event(event_id)
 		final_music_paths[str(resolved.get("runtime_path", ""))] = true

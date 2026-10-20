@@ -1,0 +1,12 @@
+[
+  {
+    "attempt": 1,
+    "status": "PARTIAL",
+    "reason": "T/F/H/E/S pass; SW attack10 and skill14 overlap source row boundary; those2 frames rejected"
+  },
+  {
+    "attempt": 2,
+    "status": "ADOPTED",
+    "reason": "Two SW replacement poses; attached effects, native alpha, all criteria pass"
+  }
+]

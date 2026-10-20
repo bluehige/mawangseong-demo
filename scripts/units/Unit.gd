@@ -15,7 +15,7 @@ const NAVIGATION_PROGRESS_EPSILON = 0.05
 const FALLBACK_UNIT_DEPTH_MIN := 1
 const FALLBACK_UNIT_DEPTH_MAX := 44
 const COMBAT_ANCHOR_HEAD_GAP := 6.0
-const COMBAT_NAME_ANCHOR_OFFSET := Vector2(-55.0, -22.0)
+const COMBAT_NAME_ANCHOR_OFFSET := Vector2(-100.0, -32.0)
 const COMBAT_HP_ANCHOR_OFFSET := Vector2(-24.0, 8.0)
 const GROUNDED_VISUAL_SCALE = 0.42
 const FLYING_VISUAL_SCALE = 0.44
@@ -38,6 +38,7 @@ const SOFT_COUNTER_MAX_STRENGTH = 0.35
 signal hp_changed(unit: UnitActor)
 signal downed(unit: UnitActor)
 signal effective_healed(unit: UnitActor, amount: int, event_token: String)
+signal damage_redirected(protector: UnitActor, amount: int)
 signal first_heart_control_applied(unit: UnitActor)
 
 var unit_id: String = ""
@@ -49,17 +50,33 @@ var current_room: String = ""
 var assigned_room: String = ""
 var goal_room: String = ""
 
-var max_hp: int = 1
+var crown_base_body:Dictionary={}
+var crown_body_descriptor:Dictionary={}
+var _crown_body_active:=false
+var _crown_body_syncing:=false
+var max_hp: int = 1:
+	get:
+		_sync_crown_body()
+		return max_hp
 var hp: int = 1
-var atk: int = 1
-var def: int = 0
+var atk: int = 1:
+	get:
+		_sync_crown_body()
+		return atk
+var def: int = 0:
+	get:
+		_sync_crown_body()
+		return def
 var heart_def_bonus: int = 0
 var heart_move_multiplier: float = 1.0
 var heart_healing_multiplier: float = 1.0
 var heart_skill_recovery_multiplier: float = 1.0
 var heart_first_control_multiplier: float = 1.0
 var heart_first_control_available: bool = false
-var move_speed: float = 100.0
+var move_speed: float = 100.0:
+	get:
+		_sync_crown_body()
+		return move_speed
 var v122_command_move_multiplier: float = 1.0
 var attack_range: float = 48.0
 var attack_interval: float = 1.0
@@ -83,6 +100,8 @@ var target_text: String = ""
 var state_age: float = 0.0
 var attack_anim_timer: float = 0.0
 var skill_anim_timer: float = 0.0
+var presentation_skill_anim_timer: float = 0.0
+var presentation_skill_immediate_contact := false
 var hit_anim_timer: float = 0.0
 var target_focus_timer: float = 0.0
 var hit_focus_timer: float = 0.0
@@ -94,6 +113,27 @@ var slow_timer: float = 0.0
 var slow_factor: float = 1.0
 var shield_timer: float = 0.0
 var damage_reduction: float = 0.0
+var royal_jelly_timer: float = 0.0
+var night_relay_buffs: Dictionary = {}
+var outgoing_healing_multiplier := 1.0
+var mori_barrier:=0
+var mori_barrier_timer:=0.0
+var mori_barrier_source_id:=0
+var mori_healing_penalty_timer:=0.0
+var mori_healing_penalty_multiplier:=1.0
+var crown_forge_bonus:=0
+var crown_forge_room:=""
+var crown_plating_move_timer:=0.0
+var crown_plating_move_multiplier:=1.0
+var crown_anchor_pending:=false
+var crown_anchor_fixed:=false
+var crown_courier_sources:Dictionary={}
+var night_relay_move_multiplier := 1.0
+var night_relay_attack_multiplier := 1.0
+var royal_jelly_damage_reduction: float = 0.0
+var royal_jelly_redirect_timer: float = 0.0
+var royal_jelly_redirect_fraction: float = 0.0
+var royal_jelly_redirect_target: UnitActor = null
 var guard_timer: float = 0.0
 var guard_bonus: int = 0
 var threat_unit: UnitActor = null
@@ -130,6 +170,7 @@ var duo_damage_taken_multiplier: float = 1.0
 var duo_redirect_timer: float = 0.0
 var duo_redirect_fraction: float = 0.0
 var duo_redirect_target: UnitActor = null
+var damage_redirect_in_progress := false
 var rescue_phase_timer: float = 0.0
 var action_interrupt_timer: float = 0.0
 var seal_move_lock_timer: float = 0.0
@@ -159,6 +200,7 @@ var bounty_damage_taken_multiplier: float = 1.0
 var armor_break_amount: int = 0
 var armor_break_timer: float = 0.0
 var armor_break_source_id: String = ""
+var crown_ember_sources:Dictionary={}
 var patch_plate_barrier: int = 0
 var patch_plate_barrier_timer: float = 0.0
 var scrap_stacks: int = 0
@@ -187,10 +229,10 @@ static var _sheet_chroma_shader: Shader = null
 static var _sheet_chroma_requirement_cache: Dictionary = {}
 
 func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: String) -> void:
+	crown_base_body.clear();crown_body_descriptor.clear()
 	_ensure_visuals()
 	unit_id = source_id
 	var source_sprite_path := str(stats.get("sprite", stats.get("sprite_sheet", "")))
-	combat_visual_profile = DataRegistry.combat_visual_profile_for_unit(unit_id, source_sprite_path)
 	display_name = stats.get("display_name", source_id)
 	faction = unit_faction
 	role = stats.get("role", stats.get("goal_type", ""))
@@ -205,9 +247,26 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 	intrinsic_move_multiplier = clampf(float(stats.get("move_speed_multiplier", 1.0)), 0.0, 2.0)
 	attack_range = float(stats.get("attack_range", 48))
 	attack_interval = float(stats.get("attack_interval", 1.0))
+	outgoing_healing_multiplier = float(stats.get("outgoing_healing_multiplier",1.0))
+	crown_base_body=Dictionary(stats.get("crown_base_body",{})).duplicate(true)
+	crown_body_descriptor=Dictionary(stats.get("crown_body_descriptor",{})).duplicate(true)
+	_crown_body_active=bool(stats.get("crown_applied_at_setup",false))
 	morale = int(stats.get("morale", stats.get("loyalty", 0)))
 	exp_reward = int(stats.get("exp", 0))
 	infamy_reward = int(stats.get("infamy", 0))
+	_configure_combat_sprite(source_sprite_path)
+	_apply_visual_pose()
+	name_label.text = display_name
+	_update_label_color()
+	_sync_combat_label_visibility()
+	set_tactical_state(Constants.UNIT_STATE_IDLE, "대기")
+	_play_animation("idle_down")
+	refresh_depth_slot()
+	queue_redraw()
+
+func _configure_combat_sprite(source_sprite_path:String)->void:
+	# Setup and live form changes share the original native frame/chroma kernel.
+	combat_visual_profile = DataRegistry.combat_visual_profile_for_unit(unit_id, source_sprite_path)
 	sprite_path = source_sprite_path
 	var normalized_runtime_path := str(combat_visual_profile.get("runtime_path", ""))
 	if normalized_runtime_path != "":
@@ -223,14 +282,6 @@ func setup(source_id: String, stats: Dictionary, unit_faction: String, room_id: 
 		else:
 			sprite.material = null
 		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	_apply_visual_pose()
-	name_label.text = display_name
-	_update_label_color()
-	_sync_combat_label_visibility()
-	set_tactical_state(Constants.UNIT_STATE_IDLE, "대기")
-	_play_animation("idle_down")
-	refresh_depth_slot()
-	queue_redraw()
 
 func _ready() -> void:
 	collision_layer = 0
@@ -241,8 +292,21 @@ func _ready() -> void:
 	refresh_depth_slot()
 
 func _physics_process(delta: float) -> void:
+	_sync_crown_body()
+	var step_speed := simulation_speed
+	if has_meta("action_resume_delta"):
+		delta = float(get_meta("action_resume_delta"))
+		step_speed = float(get_meta("action_resume_speed"))
+		remove_meta("action_resume_delta")
+		remove_meta("action_resume_speed")
 	var frame_delta := delta
-	delta *= simulation_speed
+	delta *= step_speed
+	crown_plating_move_timer=maxf(0.0,crown_plating_move_timer-delta)
+	if crown_plating_move_timer<=0.0:crown_plating_move_multiplier=1.0
+	mori_barrier_timer=maxf(0.0,mori_barrier_timer-delta)
+	if mori_barrier_timer<=0.0:clear_mori_barrier()
+	mori_healing_penalty_timer=maxf(0.0,mori_healing_penalty_timer-delta)
+	if mori_healing_penalty_timer<=0.0:mori_healing_penalty_multiplier=1.0
 	_sync_combat_label_visibility()
 	if down:
 		velocity = Vector2.ZERO
@@ -255,6 +319,16 @@ func _physics_process(delta: float) -> void:
 	duo_mark_timer = max(0.0, duo_mark_timer - delta)
 	duo_penalty_timer = maxf(0.0, duo_penalty_timer - delta)
 	duo_redirect_timer = maxf(0.0, duo_redirect_timer - delta)
+	royal_jelly_timer = maxf(0.0, royal_jelly_timer - delta)
+	for source in night_relay_buffs.keys():
+		if night_relay_buffs[source].has("combat_deadline"):
+			var game_root=_game_root()
+			night_relay_buffs[source].remaining=maxf(0.0,float(night_relay_buffs[source].combat_deadline)-float(game_root.combat_time)) if game_root!=null else 0.0
+		else:
+			night_relay_buffs[source].remaining = maxf(0.0, float(night_relay_buffs[source].remaining)-delta)
+		if float(night_relay_buffs[source].remaining) <= 0.0: night_relay_buffs.erase(source)
+	_refresh_night_relay_multipliers()
+	royal_jelly_redirect_timer = maxf(0.0, royal_jelly_redirect_timer - delta)
 	action_interrupt_timer = maxf(0.0, action_interrupt_timer - delta)
 	seal_move_lock_timer = maxf(0.0, seal_move_lock_timer - delta)
 	seal_skill_lock_timer = maxf(0.0, seal_skill_lock_timer - delta)
@@ -311,6 +385,7 @@ func _physics_process(delta: float) -> void:
 			duo_march_move_multiplier = 1.0
 	attack_anim_timer = max(0.0, attack_anim_timer - delta)
 	skill_anim_timer = max(0.0, skill_anim_timer - delta)
+	presentation_skill_anim_timer = maxf(0.0, presentation_skill_anim_timer - delta)
 	hit_anim_timer = max(0.0, hit_anim_timer - delta)
 	target_focus_timer = max(0.0, target_focus_timer - delta)
 	hit_focus_timer = max(0.0, hit_focus_timer - delta)
@@ -441,21 +516,49 @@ func _update_navigation_stall(destination: Vector2, distance_before: float, move
 	navigation_stall_time = 0.0
 
 func is_alive() -> bool:
+	_sync_crown_body()
 	return not down and hp > 0
 
+func is_targetable_by(observer:Node=null)->bool:
+	if down or hp<=0 or is_queued_for_deletion():return false
+	if unit_id!="shadow_duelist":return true
+	var game_root=_game_root()
+	return game_root.combat_scene.native_objectives.targetable(self,observer) if game_root!=null else true
+func effective_atk()->int:
+	var game_root=_game_root()
+	return roundi(atk*game_root.combat_scene.native_objectives.attack_factor(self)) if game_root!=null else atk
+func _native_incoming_factor()->float:
+	var game_root=_game_root()
+	return game_root.combat_scene.native_objectives.incoming_factor(self) if game_root!=null else 1.0
+
 func receive_damage(amount: int) -> int:
+	_sync_crown_body()
 	# A cancelled or rounded-to-zero hit must not consume HP or barriers.
 	if down or amount <= 0:
 		return 0
-	if duo_redirect_timer > 0.0 and duo_redirect_target != null and is_instance_valid(duo_redirect_target) and duo_redirect_target.is_alive() and duo_redirect_target != self:
-		var redirected := clampi(int(round(float(maxi(0, amount)) * duo_redirect_fraction)), 0, maxi(0, amount - 1))
+	set_meta("redirect_actual_hp_loss",0)
+	var redirect_target: UnitActor = duo_redirect_target if duo_redirect_timer > 0.0 and is_instance_valid(duo_redirect_target) and duo_redirect_target.is_alive() else null
+	var redirect_fraction := duo_redirect_fraction if redirect_target != null else 0.0
+	if royal_jelly_redirect_timer > 0.0 and is_instance_valid(royal_jelly_redirect_target) and royal_jelly_redirect_target.is_alive() and royal_jelly_redirect_fraction > redirect_fraction:
+		redirect_target = royal_jelly_redirect_target
+		redirect_fraction = royal_jelly_redirect_fraction
+	if not damage_redirect_in_progress and redirect_target != null and redirect_target != self:
+		var redirected := clampi(int(round(float(maxi(0, amount)) * redirect_fraction)), 0, maxi(0, amount - 1))
 		amount -= redirected
 		if redirected > 0:
-			duo_redirect_target.receive_damage(redirected)
+			damage_redirect_in_progress = true
+			var redirect_hp_before:int=redirect_target.hp
+			var redirected_dealt := redirect_target.receive_damage(redirected)
+			set_meta("redirect_actual_hp_loss",maxi(0,redirect_hp_before-int(redirect_target.hp)))
+			damage_redirect_in_progress = false
+			if redirected_dealt > 0:
+				damage_redirected.emit(redirect_target, redirected_dealt)
 	var status_reduction := return_scent_damage_reduction if return_scent_timer > 0.0 else 0.0
 	if home_guard_reduction_timer > 0.0:
 		status_reduction = maxf(status_reduction, home_guard_damage_reduction)
-	var final_amount = max(1, int(round(float(amount) * (1.0 - damage_reduction) * (1.0 - clampf(status_reduction, 0.0, 0.8)) * soft_counter_damage_taken_multiplier * boss_damage_taken_multiplier * duo_damage_taken_multiplier)))
+	if royal_jelly_timer > 0.0:
+		status_reduction = maxf(status_reduction, royal_jelly_damage_reduction)
+	var final_amount = max(1, int(round(float(amount) * (1.0 - damage_reduction) * (1.0 - clampf(status_reduction, 0.0, 0.8)) * soft_counter_damage_taken_multiplier * boss_damage_taken_multiplier * duo_damage_taken_multiplier * _native_incoming_factor())))
 	if patch_plate_barrier > 0 and patch_plate_barrier_timer > 0.0:
 		var patch_blocked := mini(patch_plate_barrier, final_amount)
 		patch_plate_barrier -= patch_blocked
@@ -466,6 +569,17 @@ func receive_damage(amount: int) -> int:
 			hp_changed.emit(self)
 			queue_redraw()
 			return 0
+	if mori_barrier > 0 and mori_barrier_timer>0.0:
+		var game_root=_game_root()
+		if game_root==null or not game_root.combat_scene.royal_support.barrier_active(mori_barrier_source_id):clear_mori_barrier()
+	if mori_barrier > 0 and mori_barrier_timer>0.0:
+		var blocked:=mini(mori_barrier,final_amount)
+		mori_barrier-=blocked;final_amount-=blocked
+		var game_root=_game_root()
+		if game_root!=null:game_root.combat_scene.royal_support.record_absorbed(mori_barrier_source_id,blocked)
+		if mori_barrier<=0:clear_mori_barrier()
+		if final_amount<=0:
+			hp_changed.emit(self);queue_redraw();return 0
 	if duo_barrier > 0:
 		var blocked := mini(duo_barrier, final_amount)
 		duo_barrier -= blocked
@@ -474,7 +588,23 @@ func receive_damage(amount: int) -> int:
 			hp_changed.emit(self)
 			queue_redraw()
 			return 0
+	if hp-final_amount<=0:
+		var game_root=_game_root()
+		if game_root!=null and game_root.combat_scene.royal_support.prevent_fatal(self,final_amount):final_amount=maxi(0,hp-1)
+	if unit_id == "slime" and amount > final_amount:
+		var blocked: int = int(get_meta("ach_blocked",0))+maxi(0,amount-final_amount)
+		set_meta("ach_blocked",blocked)
+		AchievementService.record("monster_moment",{"pudding_blocked":blocked})
+	var native_hp_before:int=hp
 	hp = max(0, hp - final_amount)
+	if hp > 0 and is_instance_valid(redirect_target) and redirect_target.unit_id == "curse_doll" and int(get_meta("redirect_actual_hp_loss",0)) > 0 and native_hp_before <= final_amount+int(get_meta("redirect_actual_hp_loss",0)):
+		var ach_game = _game_root()
+		if ach_game != null and ach_game.enemy_units.any(func(u): return is_instance_valid(u) and (bool(DataRegistry.enemies.get(u.unit_id,{}).get("boss",false)) or "leon" in str(u.unit_id))):
+			AchievementService.record("monster_moment",{"doll_saved_ally_in_boss":true})
+	var native_root=_game_root()
+	if native_root!=null and native_hp_before>hp:
+		native_root.combat_scene.native_objectives.damage_received(self,native_hp_before,hp)
+		native_root.support_mastery.record_hp_loss(self,native_hp_before-hp)
 	hp_changed.emit(self)
 	if hp <= 0:
 		down = true
@@ -490,17 +620,45 @@ func receive_damage(amount: int) -> int:
 		downed.emit(self)
 	queue_redraw()
 	return final_amount
+func apply_royal_jelly_guard(seconds: float, reduction: float) -> void:
+	royal_jelly_timer = maxf(royal_jelly_timer, maxf(0.0, seconds))
+	royal_jelly_damage_reduction = clampf(reduction, 0.0, 0.8)
+	queue_redraw()
+
+func apply_royal_jelly_redirect(protector: UnitActor, seconds: float, fraction: float) -> void:
+	if not is_instance_valid(protector) or protector == self or not protector.is_alive(): return
+	royal_jelly_redirect_target = protector
+	royal_jelly_redirect_timer = maxf(0.0, seconds)
+	royal_jelly_redirect_fraction = clampf(fraction, 0.0, 0.5)
+
 func receive_magic_damage(amount: int) -> int:
 	var adjusted := maxi(0, int(round(float(maxi(0, amount)) * relic_aura_magic_multiplier)))
 	return receive_damage(adjusted)
 
 
+func outgoing_heal_amount(amount: int, crown_enabled:bool=true) -> int:
+	_sync_crown_body()
+	var multiplier:float=outgoing_healing_multiplier if crown_enabled else 1.0
+	if mori_healing_penalty_timer>0.0:multiplier*=mori_healing_penalty_multiplier
+	return maxi(0,roundi(float(amount)*multiplier))
+
+func resolved_heal_amount(amount:int,ignore_healing_fatigue:bool=false)->int:
+	var fatigue_multiplier:=1.0 if ignore_healing_fatigue else soft_counter_healing_multiplier*heart_healing_multiplier
+	return maxi(1,roundi(float(amount)*fatigue_multiplier)) if amount>0 else 0
+
+func grant_mori_barrier(amount:int,seconds:float,source_id:int)->void:
+	mori_barrier=maxi(mori_barrier,maxi(0,amount));mori_barrier_timer=maxf(0.0,seconds);mori_barrier_source_id=source_id
+	hp_changed.emit(self);queue_redraw()
+
+func clear_mori_barrier()->void:
+	mori_barrier=0;mori_barrier_timer=0.0;mori_barrier_source_id=0
+
 func heal(amount: int, heart_event_token: String = "", ignore_healing_fatigue: bool = false) -> int:
+	_sync_crown_body()
 	if down:
 		return 0
 	var before := hp
-	var fatigue_multiplier := 1.0 if ignore_healing_fatigue else soft_counter_healing_multiplier * heart_healing_multiplier
-	var adjusted_amount := maxi(1, int(round(float(amount) * fatigue_multiplier))) if amount > 0 else 0
+	var adjusted_amount:=resolved_heal_amount(amount,ignore_healing_fatigue)
 	hp = min(max_hp, hp + adjusted_amount)
 	var effective := maxi(0, hp - before)
 	hp_changed.emit(self)
@@ -789,8 +947,11 @@ func cancel_seal_chain_telegraph(source: UnitActor = null) -> void:
 
 
 func apply_seal_chain(move_seconds: float, skill_seconds: float, immunity_seconds: float) -> void:
-	seal_move_lock_timer = maxf(seal_move_lock_timer, _heart_control_duration(maxf(0.0, move_seconds)))
-	seal_skill_lock_timer = maxf(seal_skill_lock_timer, _hostile_status_duration(maxf(0.0, skill_seconds)))
+	# The authored mail-route capture weakness belongs only to hostile sealing,
+	# never the friendly immunity timer. Sample current crown once per application.
+	var capture_multiplier:=1.15 if _current_crown_body_active() and str(crown_body_descriptor.get("form_id",""))=="crown_popo_grand_night_courier" else 1.0
+	seal_move_lock_timer = maxf(seal_move_lock_timer, _heart_control_duration(maxf(0.0, move_seconds))*capture_multiplier)
+	seal_skill_lock_timer = maxf(seal_skill_lock_timer, _hostile_status_duration(maxf(0.0, skill_seconds))*capture_multiplier)
 	seal_target_immunity_timer = maxf(seal_target_immunity_timer, maxf(0.0, immunity_seconds))
 	cancel_seal_chain_telegraph()
 	set_tactical_state(Constants.UNIT_STATE_SEEK_TARGET, "봉인 사슬", "이동·스킬 제한")
@@ -842,6 +1003,21 @@ func negative_status_count() -> int:
 	count += soft_counter_effects.size()
 	return count
 
+func cleanse_all_negative_status()->int:
+	var count:=royal_cleansable_status_count()
+	armor_break_timer=0.0;armor_break_amount=0;armor_break_source_id=""
+	seal_move_lock_timer=0.0;seal_skill_lock_timer=0.0;seal_telegraph_timer=0.0;seal_telegraph_source=null
+	slow_timer=0.0;slow_factor=1.0
+	if threat_forced:threat_timer=0.0;threat_unit=null;threat_forced=false
+	soft_counter_effects.clear();_refresh_soft_counter_multipliers()
+	queue_redraw();return count
+
+func royal_cleansable_status_count()->int:
+	var count:=negative_status_count()
+	if threat_timer>0.0 and not threat_forced:count-=1
+	if seal_skill_lock_timer>0.0 and seal_move_lock_timer<=0.0:count+=1
+	return maxi(0,count)
+
 
 func begin_purifying_hymn(seconds: float) -> void:
 	purifying_hymn_cast_timer = maxf(0.0, seconds)
@@ -889,7 +1065,48 @@ func _heart_control_duration(seconds: float) -> float:
 
 
 func _hostile_status_duration(seconds: float) -> float:
-	return maxf(0.0, seconds) * relic_aura_status_multiplier * consecrated_status_multiplier
+	var resistance:=1.0
+	if _current_crown_body_active():resistance=maxf(1.0,float(crown_body_descriptor.get("multipliers",{}).get("status_resistance",1.0)))
+	# NEW_DESIGN: normalized resistance1.06 means duration/1.06. Existing
+	# timers are not rescaled when the sanctuary changes state.
+	var courier:=1.0
+	if not crown_courier_sources.is_empty():
+		var game_root=_game_root()
+		if game_root!=null:courier=game_root.combat_scene.crown_mobility.resistance_factor(self)
+	return maxf(0.0, seconds) * relic_aura_status_multiplier * consecrated_status_multiplier / resistance * courier
+
+func _current_crown_body_active()->bool:
+	if crown_body_descriptor.is_empty() or faction!=Constants.FACTION_MONSTER:return false
+	var game_root=_game_root()
+	return game_root!=null and game_root.combat_scene!=null and game_root.combat_scene._active_crown_id(self)==str(crown_body_descriptor.get("form_id",""))
+
+func _sync_crown_body()->void:
+	if _crown_body_syncing or crown_base_body.is_empty():return
+	var active:bool=_current_crown_body_active()
+	if active==_crown_body_active:return
+	_crown_body_syncing=true
+	_crown_body_active=active
+	var multipliers:Dictionary=crown_body_descriptor.get("multipliers",{}) if active else {}
+	max_hp=maxi(1,roundi(float(crown_base_body.max_hp)*float(multipliers.get("max_hp",1.0))))
+	atk=roundi(float(crown_base_body.atk)*float(multipliers.get("atk",1.0)))
+	def=roundi(float(crown_base_body.def)*float(multipliers.get("def",1.0)))
+	move_speed=float(crown_base_body.move_speed)*float(multipliers.get("move_speed",1.0))
+	outgoing_healing_multiplier=float(crown_base_body.get("outgoing_healing_multiplier",1.0))*float(multipliers.get("healing",1.0))
+	var source_sprite_path:String=str(crown_body_descriptor.get("crown_sprite" if active else "base_sprite",""))
+	if source_sprite_path!="" and source_sprite_path!=sprite_path:
+		var previous_animation:String=str(sprite.animation)
+		_configure_combat_sprite(source_sprite_path)
+		_play_animation(previous_animation if sprite.sprite_frames.has_animation(previous_animation) else "down" if down else "idle_down")
+		_apply_visual_pose()
+		# Rebind native chroma + wall-depth immediately; the wall canvas consumes
+		# registered bodies before the actor's next physics frame.
+		refresh_depth_slot()
+	# NEW_POLICY: preserve absolute living HP, clip only the lower maximum.
+	# A layer transition is neither damage nor healing and never revives.
+	hp=clampi(hp,1,max_hp) if not down and hp>0 else 0
+	hp_changed.emit(self)
+	_crown_body_syncing=false
+	queue_redraw()
 
 func activate_shield(seconds: float, reduction: float, status_label: String = "점액 방패") -> void:
 	shield_timer = max(shield_timer, seconds)
@@ -906,7 +1123,31 @@ func activate_guard(seconds: float, bonus: int) -> void:
 	queue_redraw()
 
 func effective_def() -> int:
-	return maxi(0, def + guard_bonus + heart_def_bonus - armor_break_amount - acid_def_penalty)
+	var forge:=0
+	if crown_forge_bonus>0:
+		var game_root=_game_root()
+		if game_root!=null:forge=game_root.combat_scene.crown_facilities.forge_bonus(self)
+	var value:int=maxi(0, def + guard_bonus + heart_def_bonus + forge + _crown_anchor_bonus() - armor_break_amount - acid_def_penalty - _crown_ember_def_penalty())
+	var game_root=_game_root()
+	return roundi(value*game_root.combat_scene.crown_command.defense_factor(self)*game_root.combat_scene.native_objectives.defense_factor(self)) if game_root!=null else value
+
+func _crown_ember_def_penalty()->int:
+	if crown_ember_sources.is_empty():return 0
+	var game_root=_game_root()
+	return game_root.combat_scene.crown_flame.def_penalty(self) if game_root!=null else 0
+func _crown_ember_slow_factor()->float:
+	if crown_ember_sources.is_empty():return 1.0
+	var game_root=_game_root()
+	return game_root.combat_scene.crown_flame.slow_factor(self) if game_root!=null else 1.0
+
+func _crown_anchor_bonus()->int:
+	if not crown_anchor_pending:return 0
+	var game_root=_game_root()
+	return game_root.combat_scene.crown_mobility.anchor_bonus(self) if game_root!=null else 0
+func _validate_courier_buffs()->void:
+	if crown_courier_sources.is_empty():return
+	var game_root=_game_root()
+	if game_root!=null:game_root.combat_scene.crown_mobility.validate_buffs(self)
 
 func mark_threat(attacker: UnitActor, seconds: float = 4.0, forced: bool = false) -> void:
 	# Ordinary retaliation memory must not replace an active explicit taunt.
@@ -989,6 +1230,19 @@ func play_hit(source_position: Vector2) -> void:
 	hit_anim_timer = HIT_REACTION_DURATION
 	hit_focus_timer = HIT_FOCUS_DURATION
 	queue_redraw()
+
+func play_skill_visual(target_position: Vector2 = Vector2.ZERO, immediate_contact: bool = false) -> void:
+	# Separate from skill_anim_timer: enemy interruption/cast rules read that
+	# gameplay-facing timer and must never be changed by presentation.
+	if target_position != Vector2.ZERO:
+		var direction := (target_position - global_position).normalized()
+		if direction != Vector2.ZERO: action_direction = direction
+	presentation_skill_anim_timer = SKILL_ANIM_DURATION
+	presentation_skill_immediate_contact = immediate_contact
+	_play_animation("skill_down", true)
+	if immediate_contact and sprite.sprite_frames.get_frame_count("skill_down") >= 3:
+		sprite.frame = 2
+	_apply_visual_pose()
 
 func activate_growth_preparation(preparation_name: String, preparation_summary: String) -> void:
 	growth_preparation_name = preparation_name
@@ -1080,11 +1334,28 @@ func threat_warning_text() -> String:
 	return "보물방 침투"
 
 func effective_attack_interval() -> float:
-	return attack_interval * royal_rally_attack_interval_multiplier * soft_counter_attack_interval_multiplier * boss_attack_interval_multiplier
+	_validate_courier_buffs()
+	return attack_interval * royal_rally_attack_interval_multiplier * soft_counter_attack_interval_multiplier * boss_attack_interval_multiplier * night_relay_attack_multiplier
 
 
 func effective_move_speed(extra_multiplier: float = 1.0) -> float:
-	return move_speed * intrinsic_move_multiplier * slow_factor * royal_rally_move_multiplier * soft_counter_move_multiplier * heart_move_multiplier * duo_march_move_multiplier * duo_penalty_move_multiplier * boss_move_multiplier * v122_command_move_multiplier * extra_multiplier
+	_validate_courier_buffs()
+	var anchor_factor:=0.0 if _crown_anchor_bonus()>0 else 1.0
+	return move_speed * intrinsic_move_multiplier * minf(slow_factor,_crown_ember_slow_factor()) * royal_rally_move_multiplier * soft_counter_move_multiplier * heart_move_multiplier * duo_march_move_multiplier * duo_penalty_move_multiplier * boss_move_multiplier * v122_command_move_multiplier * extra_multiplier * night_relay_move_multiplier * crown_plating_move_multiplier * anchor_factor
+
+func apply_night_relay_buff(source: String, seconds: float, movement: float, interval: float) -> void:
+	night_relay_buffs[source] = {"remaining":maxf(0.0,seconds),"movement":movement,"interval":interval}
+	_refresh_night_relay_multipliers()
+
+func clear_night_relay_buffs() -> void:
+	night_relay_buffs.clear()
+	_refresh_night_relay_multipliers()
+
+func _refresh_night_relay_multipliers() -> void:
+	night_relay_move_multiplier = 1.0; night_relay_attack_multiplier = 1.0
+	for buff in night_relay_buffs.values():
+		night_relay_move_multiplier = maxf(night_relay_move_multiplier,float(buff.movement))
+		night_relay_attack_multiplier = minf(night_relay_attack_multiplier,float(buff.interval))
 
 func apply_soft_counter(mode: String, seconds: float, strength: float, source_id: String = "") -> float:
 	if mode not in ["movement", "healing", "shield", "skill_recovery", "exposure", "attack_speed"]:
@@ -1304,12 +1575,23 @@ func _draw_hp_bar() -> void:
 		hp_color = Color("#d99b4e")
 	draw_rect(Rect2(hp_rect.position, Vector2(bar_width * ratio, hp_rect.size.y)), hp_color)
 
+func map_hp_bar_screen_rect() -> Rect2:
+	if not _should_show_hp_bar():
+		return Rect2()
+	return get_global_transform_with_canvas() * Rect2(combat_anchor_local("head") + COMBAT_HP_ANCHOR_OFFSET, Vector2(48, 6)).grow(3)
+
 func _draw_map_status_label(anchor: Vector2, text: String, color: Color) -> void:
 	var info:=MapStatusLabel.layout(self,anchor,text,UI_FONT,16)
 	var blockers: Array[Rect2]=[]
 	var game_root:=_game_root()
 	if game_root != null and game_root.get("combat_map_label_blockers") is Array:
 		blockers.assign(game_root.get("combat_map_label_blockers"))
+	if game_root != null:
+		for unit in game_root.monster_units + game_root.enemy_units:
+			if is_instance_valid(unit):
+				var bar: Rect2 = unit.map_hp_bar_screen_rect()
+				if bar.has_area() and info.rect.grow(64).intersects(bar):
+					blockers.append(bar)
 	if name_label != null and name_label.is_visible_in_tree():
 		blockers.append(name_label.get_global_transform_with_canvas()*Rect2(Vector2.ZERO,name_label.size))
 	if sprite != null and sprite.sprite_frames != null and sprite.sprite_frames.has_animation(sprite.animation):
@@ -1360,12 +1642,12 @@ func _ensure_visuals() -> void:
 	if name_label == null:
 		name_label = Label.new()
 		name_label.position = combat_anchor_local("head") + COMBAT_NAME_ANCHOR_OFFSET
-		name_label.size = Vector2(110, 24)
+		name_label.size = Vector2(200, 36)
 		name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		name_label.add_theme_font_override("font", UI_FONT)
-		name_label.add_theme_font_size_override("font_size", 13)
+		name_label.add_theme_font_size_override("font_size", preload("res://scripts/ui/UIStandard.gd").text_size(18))
 		name_label.add_theme_color_override("font_outline_color", Color("#09070bd9"))
 		name_label.add_theme_constant_override("outline_size", 3)
 		add_child(name_label)
@@ -1435,7 +1717,7 @@ static func warm_animation_frames(path: String) -> SpriteFrames:
 	var fallback_texture := _load_png(path)
 	if fallback_texture == null:
 		return null
-	var frames := _build_sheet_animation_frames(fallback_texture) if path.ends_with("_sheet.png") else _build_animation_frames(path, fallback_texture)
+	var frames := _build_sheet_animation_frames(fallback_texture) if path.ends_with("_sheet.png") or path.ends_with("_sheet_ne.png") else _build_animation_frames(path, fallback_texture)
 	_animation_frames_cache[path] = frames
 	return frames
 
@@ -1493,7 +1775,7 @@ static func _build_animation_frames(path: String, fallback_texture: Texture2D) -
 func _update_animation() -> void:
 	if down:
 		_play_animation("down")
-	elif skill_anim_timer > 0.0:
+	elif skill_anim_timer > 0.0 or presentation_skill_anim_timer > 0.0:
 		_play_animation("skill_down")
 	elif attack_anim_timer > 0.0:
 		_play_animation("attack_down")
@@ -1549,7 +1831,14 @@ func _apply_visual_pose() -> void:
 		pose_rotation = sin(move_wave) * 0.04
 	elif _is_flying_unit():
 		pose_offset.y += sin(visual_phase * 4.0) * 3.0
-	if attack_anim_timer > 0.0:
+	if presentation_skill_anim_timer > 0.0 and presentation_skill_immediate_contact:
+		var contact_progress := 1.0 - presentation_skill_anim_timer / SKILL_ANIM_DURATION
+		var contact_strength := 1.0 - smoothstep(0.0, 0.65, contact_progress)
+		pose_offset += action_direction * ATTACK_LUNGE_DISTANCE * contact_strength
+		pose_scale.x *= 1.0 + contact_strength * 0.10
+		pose_scale.y *= 1.0 - contact_strength * 0.05
+		pose_rotation += action_direction.x * contact_strength * 0.06
+	elif attack_anim_timer > 0.0:
 		var attack_progress = clamp(1.0 - attack_anim_timer / ATTACK_ANIM_DURATION, 0.0, 1.0)
 		var attack_offset := 0.0
 		var attack_strength := 0.0

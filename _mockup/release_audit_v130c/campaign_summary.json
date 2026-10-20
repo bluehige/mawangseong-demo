@@ -1,0 +1,80 @@
+[
+  {
+    "seed": 130401,
+    "recorded_days": 30,
+    "battle_wins": 29,
+    "retries": 0,
+    "day29": {
+      "seed": 130401,
+      "day": 29,
+      "preparation_only": true,
+      "advanced": true
+    },
+    "ending": {
+      "completed": true,
+      "ending": "monster_family_castle",
+      "screen": "ending"
+    },
+    "hp": 845,
+    "max_hp": 2500,
+    "campaign_checks": 819,
+    "campaign_failures": [],
+    "restart_checks": 14,
+    "restart_failures": [],
+    "resumed_day": 30.0,
+    "resumed_postgame": true,
+    "rat_union_restored": true
+  },
+  {
+    "seed": 130402,
+    "recorded_days": 30,
+    "battle_wins": 29,
+    "retries": 0,
+    "day29": {
+      "seed": 130402,
+      "day": 29,
+      "preparation_only": true,
+      "advanced": true
+    },
+    "ending": {
+      "completed": true,
+      "ending": "monster_family_castle",
+      "screen": "ending"
+    },
+    "hp": 1570,
+    "max_hp": 2500,
+    "campaign_checks": 819,
+    "campaign_failures": [],
+    "restart_checks": 14,
+    "restart_failures": [],
+    "resumed_day": 30.0,
+    "resumed_postgame": true,
+    "rat_union_restored": true
+  },
+  {
+    "seed": 130403,
+    "recorded_days": 30,
+    "battle_wins": 29,
+    "retries": 0,
+    "day29": {
+      "seed": 130403,
+      "day": 29,
+      "preparation_only": true,
+      "advanced": true
+    },
+    "ending": {
+      "completed": true,
+      "ending": "monster_family_castle",
+      "screen": "ending"
+    },
+    "hp": 931,
+    "max_hp": 2500,
+    "campaign_checks": 819,
+    "campaign_failures": [],
+    "restart_checks": 14,
+    "restart_failures": [],
+    "resumed_day": 30.0,
+    "resumed_postgame": true,
+    "rat_union_restored": true
+  }
+]

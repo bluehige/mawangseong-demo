@@ -1,0 +1,93 @@
+[
+  {
+    "species_id": "slime",
+    "attempt": 1,
+    "criteria": "O/O/O/O/O",
+    "selected": true,
+    "note": "최종 채택. 각도5항목 충족; 기술 검증은 validation_0101c.json 참조."
+  },
+  {
+    "species_id": "goblin",
+    "attempt": 1,
+    "criteria": "O/O/O/O/O",
+    "selected": false,
+    "note": "T/F/H/E/S는 충족했으나 공격 팔 두 포즈의 원본 사각 경계가 겹침. 재생성."
+  },
+  {
+    "species_id": "goblin",
+    "attempt": 2,
+    "criteria": "O/O/O/O/O",
+    "selected": true,
+    "note": "최종 채택. 각도5항목 충족; 기술 검증은 validation_0101c.json 참조."
+  },
+  {
+    "species_id": "imp",
+    "attempt": 1,
+    "criteria": "O/O/O/O/X",
+    "selected": false,
+    "note": "S 미충족: 남서 대기 얼굴이 정면에 가까움. 2차에서 좌측 주둥이·압축 먼 눈 강화."
+  },
+  {
+    "species_id": "imp",
+    "attempt": 2,
+    "criteria": "O/O/O/O/O",
+    "selected": true,
+    "note": "최종 채택. 각도5항목 충족; 기술 검증은 validation_0101c.json 참조."
+  },
+  {
+    "species_id": "kobold_scout",
+    "attempt": 1,
+    "criteria": "O/O/O/O/O",
+    "selected": false,
+    "note": "각도 충족, 외형 미충족: 참조에 없는 망토 해골 무늬."
+  },
+  {
+    "species_id": "kobold_scout",
+    "attempt": 2,
+    "criteria": "O/O/O/O/O",
+    "selected": false,
+    "note": "각도 충족, 외형/포즈 미충족: 일부 북동 랜턴 중복·쓰러짐 자리 서 있음."
+  },
+  {
+    "species_id": "kobold_scout",
+    "attempt": 3,
+    "criteria": "O/O/O/O/O",
+    "selected": false,
+    "note": "각도·소품 충족, 원본 쓰러짐과 다음 행 이동의 사각 경계가 겹침."
+  },
+  {
+    "species_id": "kobold_scout",
+    "attempt": 4,
+    "criteria": "O/O/O/O/O",
+    "selected": true,
+    "note": "최종 채택. 각도5항목 충족; 기술 검증은 validation_0101c.json 참조."
+  },
+  {
+    "species_id": "spore_healer",
+    "attempt": 1,
+    "criteria": "O/O/O/O/X",
+    "selected": false,
+    "note": "S 미충족: 남서 대기 얼굴의 두 눈이 정면 배치. 2차에서 왼쪽 측면 강화."
+  },
+  {
+    "species_id": "spore_healer",
+    "attempt": 2,
+    "criteria": "O/O/O/O/O",
+    "selected": true,
+    "note": "최종 채택. 각도5항목 충족; 기술 검증은 validation_0101c.json 참조."
+  },
+  {
+    "species_id": "stone_sentinel",
+    "attempt": 1,
+    "criteria": "O/O/O/O/O",
+    "selected": true,
+    "note": "최종 채택. 각도5항목 충족; 기술 검증은 validation_0101c.json 참조."
+  },
+  {
+    "species_id": "war_drummer",
+    "attempt": 1,
+    "criteria": "O/O/O/O/O",
+    "selected": true,
+    "note": "최종 채택. 각도5항목 충족; 기술 검증은 validation_0101c.json 참조."
+  }
+]

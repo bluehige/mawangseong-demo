@@ -1,0 +1,134 @@
+{
+  "passed": true,
+  "checks": {
+    "day1_combat_visible": true,
+    "day1_victory_visible": true,
+    "space_advances_victory_dialogue": true,
+    "escape_opens_game_menu": true,
+    "six_native_save_versions_written": true,
+    "restart_continue_same_victory_cue": true,
+    "native_restore_preserves_state": true,
+    "native_completed_battle_saved": true,
+    "both_native_exits_zero": true,
+    "both_native_logs_clean": true,
+    "direct_image_limit": true,
+    "task_engines_zero": true
+  },
+  "method": "@oai/sky actual Windows click/key; screenshot copies and OCR; normal Main; no injected test code",
+  "direct_images_total": 12,
+  "direct_image_dimensions": [
+    {
+      "path": "C:/Users/blueh/Documents/Codex/2026-10-11/task-2/mawangseong-action/_mockup/release_audit_v130c/settings_en.png",
+      "size": [
+        960,
+        540
+      ]
+    },
+    {
+      "path": "C:/Users/blueh/Documents/Codex/2026-10-11/task-2/mawangseong-action/_mockup/release_audit_v130c/settings_zh_CN.png",
+      "size": [
+        960,
+        540
+      ]
+    },
+    {
+      "path": "C:/Users/blueh/Documents/Codex/2026-10-11/task-2/mawangseong-action/_mockup/release_audit_v130c/toast_zh_CN.png",
+      "size": [
+        960,
+        540
+      ]
+    },
+    {
+      "path": "C:/Users/blueh/Documents/Codex/2026-10-11/task-2/mawangseong-action/_mockup/release_audit_v130c/captures/cu_01_title_960.png",
+      "size": [
+        960,
+        563
+      ]
+    },
+    {
+      "path": "C:/Users/blueh/Documents/Codex/2026-10-11/task-2/mawangseong-action/_mockup/release_audit_v130c/captures/cu_02_menu_960.png",
+      "size": [
+        960,
+        563
+      ]
+    },
+    {
+      "path": "C:/Users/blueh/Documents/Codex/2026-10-11/task-2/mawangseong-action/_mockup/release_audit_v130c/captures/cu_14_first_dialogue_960.png",
+      "size": [
+        960,
+        563
+      ]
+    },
+    {
+      "path": "C:/Users/blueh/Documents/Codex/2026-10-11/task-2/mawangseong-action/_mockup/release_audit_v130c/captures/cu_21_day1_dialogue_960.png",
+      "size": [
+        960,
+        563
+      ]
+    },
+    {
+      "path": "C:/Users/blueh/Documents/Codex/2026-10-11/task-2/mawangseong-action/_mockup/release_audit_v130c/captures/cu_29_guide2_960.png",
+      "size": [
+        960,
+        563
+      ]
+    },
+    {
+      "path": "C:/Users/blueh/Documents/Codex/2026-10-11/task-2/mawangseong-action/_mockup/release_audit_v130c/captures/cu_32_deployment_ready_960.png",
+      "size": [
+        960,
+        563
+      ]
+    },
+    {
+      "path": "C:/Users/blueh/Documents/Codex/2026-10-11/task-2/mawangseong-action/_mockup/release_audit_v130c/captures/cu_43_combat_960.png",
+      "size": [
+        960,
+        563
+      ]
+    },
+    {
+      "path": "C:/Users/blueh/Documents/Codex/2026-10-11/task-2/mawangseong-action/_mockup/release_audit_v130c/captures/cu_46_victory_escape_960.png",
+      "size": [
+        960,
+        563
+      ]
+    },
+    {
+      "path": "C:/Users/blueh/Documents/Codex/2026-10-11/task-2/mawangseong-action/_mockup/release_audit_v130c/captures/cu_52_restart_menu_960.png",
+      "size": [
+        960,
+        563
+      ]
+    }
+  ],
+  "capture_index": "cu_capture_index.json",
+  "player_name": "Cavebaron",
+  "native_checkpoint": "dialogue",
+  "native_day": 1,
+  "before_state": {
+    "day": 1,
+    "demon_lord_hp": 1420,
+    "gold": 1443,
+    "mana": 260,
+    "food": 30,
+    "player_name": "Cavebaron"
+  },
+  "state_comparison": {
+    "day": true,
+    "demon_lord_hp": true,
+    "gold": true,
+    "mana": true,
+    "food": true,
+    "player_name": true,
+    "checkpoint": true
+  },
+  "saved_at_after_explicit_save_and_quit": "2026-10-19 12:37:18",
+  "resaved_after_continue_at": "2026-10-19 12:39:40",
+  "notes": [
+    "Enter while the default-name button had focus requested another name; the visible Use this name button confirmed Cavebaron.",
+    "Unread first-play Skip was locked; normal Space advanced the authored dialogue.",
+    "After the first normal quit the subsequent CU screenshot had no target; native process exit 0 confirmed completion.",
+    "Continued checkpoint was inspected by OCR, not opened as a thirteenth image."
+  ]
+}

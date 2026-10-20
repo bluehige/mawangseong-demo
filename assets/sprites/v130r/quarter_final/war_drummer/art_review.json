@@ -1,0 +1,1763 @@
+{
+  "species_id": "war_drummer",
+  "selected_attempt": 1,
+  "source": "_mockup/monsters_v130r/quarter_final/war_drummer/attempt_1.png",
+  "source_sha256": "a46aa19858688409f447d76dc8fe88bb5bf63a39995ca30c29e63185c7389733",
+  "source_size": [
+    1586,
+    992
+  ],
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "logical_anchor": [
+    192,
+    345
+  ],
+  "anchor": [
+    156.5,
+    289
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "camera_reference": "0098 approved C + v7d map pieces, 42 degree prompt; visually judged, not measured 3D",
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "visual_evidence": "넓은 두건·머리 윗면/작은 왼쪽 얼굴/짧은 뼈다리/타원 접지. 북·막대기 유지.",
+  "uniform_scale": 1.1274062337916406,
+  "integrated": false,
+  "directions": {
+    "sw": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/war_drummer/war_drummer_sheet.png",
+        "sha256": "087d5a96fe52cae90fcdd638f46f810b244037b0030da9bf282f80b4a35587d3",
+        "frames": [
+          {
+            "source_slice": [
+              66,
+              15,
+              218,
+              194
+            ],
+            "source_bbox": [
+              0,
+              0,
+              152,
+              179
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 0,
+            "rect": [
+              65,
+              94,
+              171,
+              202
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.9631,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              168,
+              198
+            ],
+            "body_height": 195,
+            "sha256": "aed5a347487e6b961fcbb0f68f66d84ebe0901d417f4516d337d0f58ab45e10b"
+          },
+          {
+            "source_slice": [
+              252,
+              15,
+              401,
+              194
+            ],
+            "source_bbox": [
+              0,
+              0,
+              149,
+              179
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 1,
+            "rect": [
+              379,
+              94,
+              168,
+              202
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.4978,
+            "support_y": 289,
+            "body_box": [
+              2,
+              3,
+              165,
+              198
+            ],
+            "body_height": 195,
+            "sha256": "3cbcb4498610d2eb4e536ec42695ca9d3d976e7046faf57cd1167f586a7e4d90"
+          },
+          {
+            "source_slice": [
+              431,
+              50,
+              583,
+              202
+            ],
+            "source_bbox": [
+              0,
+              0,
+              152,
+              152
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 2,
+            "rect": [
+              669,
+              124,
+              171,
+              171
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.5385,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              168,
+              167
+            ],
+            "body_height": 164,
+            "sha256": "f57849f682d13913040140ae1ecbc25372bc2c809067776fb7688ae38805250f"
+          },
+          {
+            "source_slice": [
+              623,
+              26,
+              781,
+              192
+            ],
+            "source_bbox": [
+              0,
+              0,
+              158,
+              166
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 3,
+            "rect": [
+              1028,
+              109,
+              178,
+              187
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.7825,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              175,
+              183
+            ],
+            "body_height": 180,
+            "sha256": "b90434729a128f3ded938ba253f0bc8f19750119698ea30f77017d5bccf380fa"
+          },
+          {
+            "source_slice": [
+              43,
+              205,
+              220,
+              378
+            ],
+            "source_bbox": [
+              0,
+              0,
+              177,
+              173
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 4,
+            "rect": [
+              21,
+              413,
+              200,
+              195
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.8408,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              196,
+              191
+            ],
+            "body_height": 188,
+            "sha256": "48750279ef4ee59c7564e79fca4f552396828059a6d813caac61aaec1f960354"
+          },
+          {
+            "source_slice": [
+              258,
+              206,
+              417,
+              382
+            ],
+            "source_bbox": [
+              0,
+              0,
+              159,
+              176
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 5,
+            "rect": [
+              378,
+              410,
+              179,
+              198
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.0019,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              176,
+              194
+            ],
+            "body_height": 191,
+            "sha256": "2f0860304376bd78604a511b39798de89ef51915e44f2bb410e273626a07f13f"
+          },
+          {
+            "source_slice": [
+              447,
+              209,
+              603,
+              385
+            ],
+            "source_bbox": [
+              0,
+              0,
+              156,
+              176
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 6,
+            "rect": [
+              705,
+              409,
+              176,
+              198
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.4879,
+            "support_y": 289,
+            "body_box": [
+              2,
+              4,
+              173,
+              195
+            ],
+            "body_height": 191,
+            "sha256": "a64a0a6e639de3e33c4325747110044b245ee8953b5aaa71728130c2f06d36d8"
+          },
+          {
+            "source_slice": [
+              633,
+              207,
+              784,
+              380
+            ],
+            "source_bbox": [
+              0,
+              0,
+              151,
+              173
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 7,
+            "rect": [
+              987,
+              414,
+              170,
+              195
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.9871,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              167,
+              191
+            ],
+            "body_height": 188,
+            "sha256": "725fd6892163b5d0d3cc7be6e6cac1cb0e945eade83d2a60917e093c2b3fde59"
+          },
+          {
+            "source_slice": [
+              70,
+              384,
+              232,
+              561
+            ],
+            "source_bbox": [
+              0,
+              0,
+              162,
+              177
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 8,
+            "rect": [
+              46,
+              721,
+              183,
+              200
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.4044,
+            "support_y": 289,
+            "body_box": [
+              2,
+              4,
+              180,
+              197
+            ],
+            "body_height": 193,
+            "sha256": "f9219f30f98b519826c7e44c64ae6c6fbb7f474b60bfa5d2eb25d2821ae0dc4e"
+          },
+          {
+            "source_slice": [
+              238,
+              394,
+              413,
+              564
+            ],
+            "source_bbox": [
+              0,
+              0,
+              175,
+              170
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 9,
+            "rect": [
+              333,
+              729,
+              197,
+              192
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.7652,
+            "support_y": 289,
+            "body_box": [
+              3,
+              4,
+              193,
+              189
+            ],
+            "body_height": 185,
+            "sha256": "590671d05307efb665e51b0cceff812b5feb18e90491c0101d7cc7c38d19a8ec"
+          },
+          {
+            "source_slice": [
+              434,
+              410,
+              611,
+              570
+            ],
+            "source_bbox": [
+              0,
+              0,
+              177,
+              160
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 10,
+            "rect": [
+              656,
+              741,
+              200,
+              180
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.61,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              196,
+              177
+            ],
+            "body_height": 174,
+            "sha256": "7001f4267419dcf850462fcefc64a213d7b76260fb4f5e8f3d82a6ad23a30489"
+          },
+          {
+            "source_slice": [
+              625,
+              397,
+              790,
+              558
+            ],
+            "source_bbox": [
+              0,
+              0,
+              165,
+              161
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 11,
+            "rect": [
+              969,
+              742,
+              186,
+              182
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.2108,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              182,
+              177
+            ],
+            "body_height": 174,
+            "sha256": "a9376a984db3551120d68b381fdb0ec08b1b1cf9491c5ab56e47fa2cf87b30fb"
+          },
+          {
+            "source_slice": [
+              45,
+              586,
+              217,
+              755
+            ],
+            "source_bbox": [
+              0,
+              0,
+              172,
+              169
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 12,
+            "rect": [
+              22,
+              1043,
+              194,
+              191
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.2196,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              191,
+              188
+            ],
+            "body_height": 185,
+            "sha256": "09f60bce9d1f5d9995c8b96f0660e0aba96a21c3463699cdc8acfe30039b291d"
+          },
+          {
+            "source_slice": [
+              254,
+              589,
+              414,
+              762
+            ],
+            "source_bbox": [
+              0,
+              0,
+              160,
+              173
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 13,
+            "rect": [
+              367,
+              1041,
+              180,
+              195
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.5519,
+            "support_y": 289,
+            "body_box": [
+              2,
+              3,
+              177,
+              190
+            ],
+            "body_height": 187,
+            "sha256": "5e12deb06c439821148872a49c595bdf2b2690a0b84f06e87cb48606e03825a6"
+          },
+          {
+            "source_slice": [
+              446,
+              581,
+              603,
+              762
+            ],
+            "source_bbox": [
+              0,
+              0,
+              157,
+              181
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 14,
+            "rect": [
+              681,
+              1032,
+              177,
+              204
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.585,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              174,
+              199
+            ],
+            "body_height": 196,
+            "sha256": "076b8dfb7b24321c533731e0f07134ef8702c3a862f71075ddf77f5aabfa2229"
+          },
+          {
+            "source_slice": [
+              634,
+              586,
+              793,
+              762
+            ],
+            "source_bbox": [
+              0,
+              0,
+              159,
+              176
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 15,
+            "rect": [
+              998,
+              1039,
+              179,
+              198
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.4471,
+            "support_y": 289,
+            "body_box": [
+              2,
+              3,
+              176,
+              192
+            ],
+            "body_height": 189,
+            "sha256": "eaf0362f0446547658f3ab6f04a0545140ab4b8b5736d5d11b36b98d9e693d64"
+          }
+        ],
+        "logical_frame_size": [
+          384,
+          384
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/war_drummer/war_drummer_hurt_sw.png",
+        "sha256": "cc512af4ceaeb3772bd49d29f987666a30ac392bf597d5f15a37209de8c289c9",
+        "frames": [
+          {
+            "source_slice": [
+              57,
+              768,
+              222,
+              951
+            ],
+            "source_bbox": [
+              0,
+              0,
+              165,
+              183
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 0,
+            "rect": [
+              24,
+              90,
+              186,
+              206
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.653,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              182,
+              202
+            ],
+            "body_height": 199,
+            "sha256": "fbb609915ea0ce989c7ecd12d06f4b095fd04718ef1ad1038506c08c0f1ef5f8"
+          },
+          {
+            "source_slice": [
+              262,
+              785,
+              416,
+              950
+            ],
+            "source_bbox": [
+              0,
+              0,
+              154,
+              165
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 1,
+            "rect": [
+              353,
+              110,
+              174,
+              186
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.0076,
+            "support_y": 289,
+            "body_box": [
+              3,
+              4,
+              171,
+              180
+            ],
+            "body_height": 176,
+            "sha256": "7aeae9186024afcee91d0bb625fcbd66f7cfcc91f5f0191ab67e198a1dc9433d"
+          },
+          {
+            "source_slice": [
+              459,
+              813,
+              597,
+              950
+            ],
+            "source_bbox": [
+              0,
+              0,
+              138,
+              137
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 2,
+            "rect": [
+              728,
+              142,
+              156,
+              154
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.0899,
+            "support_y": 289,
+            "body_box": [
+              4,
+              3,
+              153,
+              149
+            ],
+            "body_height": 146,
+            "sha256": "191586f54c51f820015894eca37738fdf16d29ccc47f305699a56da1b2428783"
+          },
+          {
+            "source_slice": [
+              639,
+              773,
+              790,
+              950
+            ],
+            "source_bbox": [
+              0,
+              0,
+              151,
+              177
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 3,
+            "rect": [
+              985,
+              95,
+              170,
+              200
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.0034,
+            "support_y": 289,
+            "body_box": [
+              3,
+              4,
+              167,
+              196
+            ],
+            "body_height": 192,
+            "sha256": "d2dd8f87b7b74cfb864efe05e67aaabc3e6d6b5ae7869af87a0ecdbd8fe361ae"
+          }
+        ],
+        "logical_frame_size": [
+          384,
+          384
+        ]
+      }
+    },
+    "ne": {
+      "combat": {
+        "path": "assets/sprites/v130r/quarter_final/war_drummer/war_drummer_sheet_ne.png",
+        "sha256": "422e5b369a20db026a6f545bec6d8ae0d9ca3389e8cf02ba0bb9f536a2102f8b",
+        "frames": [
+          {
+            "source_slice": [
+              856,
+              18,
+              1002,
+              194
+            ],
+            "source_bbox": [
+              0,
+              0,
+              146,
+              176
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 0,
+            "rect": [
+              105,
+              96,
+              165,
+              198
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.0036,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              162,
+              195
+            ],
+            "body_height": 192,
+            "sha256": "d1cfc996e8034a2893e7484b77928568d076475799dca7b55df5b29f0eb38f27"
+          },
+          {
+            "source_slice": [
+              1040,
+              12,
+              1187,
+              195
+            ],
+            "source_bbox": [
+              0,
+              0,
+              147,
+              183
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 1,
+            "rect": [
+              411,
+              89,
+              166,
+              206
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.127,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              163,
+              202
+            ],
+            "body_height": 199,
+            "sha256": "06479db6c5d52f43f65692835e149ffa1c605cc856fc0a23551f486df2ea3569"
+          },
+          {
+            "source_slice": [
+              1221,
+              15,
+              1374,
+              194
+            ],
+            "source_bbox": [
+              0,
+              0,
+              153,
+              179
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 2,
+            "rect": [
+              722,
+              92,
+              172,
+              202
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.0218,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              168,
+              199
+            ],
+            "body_height": 196,
+            "sha256": "666304a6a8072a330dc1bdc9c2e4c5c68eeb4954d9bbcf6c5468f73bfb6980b8"
+          },
+          {
+            "source_slice": [
+              1407,
+              40,
+              1561,
+              204
+            ],
+            "source_bbox": [
+              0,
+              0,
+              154,
+              164
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 3,
+            "rect": [
+              1041,
+              110,
+              174,
+              185
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.9528,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              171,
+              181
+            ],
+            "body_height": 178,
+            "sha256": "502c6a846e66f4e98ebad653d41a690078596d36180e897b2f8045dbdc993e6e"
+          },
+          {
+            "source_slice": [
+              849,
+              205,
+              999,
+              380
+            ],
+            "source_bbox": [
+              0,
+              0,
+              150,
+              175
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 4,
+            "rect": [
+              83,
+              411,
+              169,
+              197
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.8973,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              166,
+              193
+            ],
+            "body_height": 190,
+            "sha256": "f8d9bfee3e3c614fecc6198fb9c6b73ea0e4e12e6db30b1d3333dfe3c1ae7a2f"
+          },
+          {
+            "source_slice": [
+              1037,
+              207,
+              1184,
+              381
+            ],
+            "source_bbox": [
+              0,
+              0,
+              147,
+              174
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 5,
+            "rect": [
+              388,
+              412,
+              166,
+              196
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.4283,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              163,
+              192
+            ],
+            "body_height": 189,
+            "sha256": "c25bce4a42e38e70ec504cb820cc2ad3e0c92862e20c45525083799be5db05e1"
+          },
+          {
+            "source_slice": [
+              1222,
+              206,
+              1377,
+              381
+            ],
+            "source_bbox": [
+              0,
+              0,
+              155,
+              175
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 6,
+            "rect": [
+              694,
+              411,
+              175,
+              197
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.2403,
+            "support_y": 289,
+            "body_box": [
+              3,
+              2,
+              172,
+              193
+            ],
+            "body_height": 191,
+            "sha256": "b547341efbcd91094b33ea648fe06b5653f46a1ebfc988cf4c9b7c08644d5c4c"
+          },
+          {
+            "source_slice": [
+              1408,
+              210,
+              1559,
+              382
+            ],
+            "source_bbox": [
+              0,
+              0,
+              151,
+              172
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 7,
+            "rect": [
+              1007,
+              414,
+              170,
+              194
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.0266,
+            "support_y": 289,
+            "body_box": [
+              3,
+              4,
+              167,
+              190
+            ],
+            "body_height": 186,
+            "sha256": "bbff181bea3cd26255d584e224b1288a8d7832b23ad8d63c4203515d6b15cad0"
+          },
+          {
+            "source_slice": [
+              840,
+              388,
+              990,
+              556
+            ],
+            "source_bbox": [
+              0,
+              0,
+              150,
+              168
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 8,
+            "rect": [
+              101,
+              737,
+              169,
+              189
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.794,
+            "support_y": 289,
+            "body_box": [
+              3,
+              4,
+              166,
+              182
+            ],
+            "body_height": 178,
+            "sha256": "18bc3bef6d3e727d53932fa37db8d0fef7a5287cfbf80316c6748d05201f88ef"
+          },
+          {
+            "source_slice": [
+              1028,
+              390,
+              1187,
+              560
+            ],
+            "source_bbox": [
+              0,
+              0,
+              159,
+              170
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 9,
+            "rect": [
+              386,
+              735,
+              179,
+              192
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.9355,
+            "support_y": 289,
+            "body_box": [
+              3,
+              4,
+              177,
+              186
+            ],
+            "body_height": 182,
+            "sha256": "e45e432c80a8a1b7f567ddf5ceea4a47ac8a9ff48612d139c96a844033c5a245"
+          },
+          {
+            "source_slice": [
+              1226,
+              400,
+              1370,
+              562
+            ],
+            "source_bbox": [
+              0,
+              0,
+              144,
+              162
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 10,
+            "rect": [
+              738,
+              738,
+              162,
+              183
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.1732,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              159,
+              180
+            ],
+            "body_height": 177,
+            "sha256": "efaae7036fe7c57b5d0c5c13c8d4c5cc78789e7890039b577bccf0539ed9f97e"
+          },
+          {
+            "source_slice": [
+              1385,
+              398,
+              1554,
+              562
+            ],
+            "source_bbox": [
+              0,
+              0,
+              169,
+              164
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 11,
+            "rect": [
+              1012,
+              736,
+              191,
+              185
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.0466,
+            "support_y": 289,
+            "body_box": [
+              3,
+              2,
+              188,
+              182
+            ],
+            "body_height": 180,
+            "sha256": "a2934b73cd5344a670057993b35600f897aa0d8195f280e09faf04f94b88d648"
+          },
+          {
+            "source_slice": [
+              853,
+              581,
+              1004,
+              761
+            ],
+            "source_bbox": [
+              0,
+              0,
+              151,
+              180
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 12,
+            "rect": [
+              106,
+              1031,
+              170,
+              203
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.1455,
+            "support_y": 289,
+            "body_box": [
+              2,
+              3,
+              167,
+              200
+            ],
+            "body_height": 197,
+            "sha256": "9330b6811e928f45b2ef05b96955600bdd64fd845445b14e450a74906269a062"
+          },
+          {
+            "source_slice": [
+              1041,
+              586,
+              1198,
+              763
+            ],
+            "source_bbox": [
+              0,
+              0,
+              157,
+              177
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 13,
+            "rect": [
+              406,
+              1035,
+              177,
+              200
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.8145,
+            "support_y": 289,
+            "body_box": [
+              3,
+              4,
+              174,
+              196
+            ],
+            "body_height": 192,
+            "sha256": "7d0a4dc320e6902a4a46e51c6dffc8418a3228a8ce237093393e2e61483231f3"
+          },
+          {
+            "source_slice": [
+              1236,
+              585,
+              1386,
+              762
+            ],
+            "source_bbox": [
+              0,
+              0,
+              150,
+              177
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 14,
+            "rect": [
+              740,
+              1034,
+              169,
+              200
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.7833,
+            "support_y": 289,
+            "body_box": [
+              3,
+              4,
+              166,
+              197
+            ],
+            "body_height": 193,
+            "sha256": "a249a0ad8167250110c0d94edca43d21b83675bd348cffed4ae8228936af0e7b"
+          },
+          {
+            "source_slice": [
+              1413,
+              578,
+              1562,
+              763
+            ],
+            "source_bbox": [
+              0,
+              0,
+              149,
+              185
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 15,
+            "rect": [
+              1042,
+              1026,
+              168,
+              209
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.1929,
+            "support_y": 289,
+            "body_box": [
+              3,
+              4,
+              165,
+              205
+            ],
+            "body_height": 201,
+            "sha256": "a7375b171a313614ab300b4a36d0cbfabcada0a4fd04f75210b6dba02ca1cb4b"
+          }
+        ],
+        "logical_frame_size": [
+          384,
+          384
+        ]
+      },
+      "hurt": {
+        "path": "assets/sprites/v130r/quarter_final/war_drummer/war_drummer_hurt_ne.png",
+        "sha256": "20c37662265e88201e476e023b96bdb4fb348514de708c095b48bbbb703e0ab1",
+        "frames": [
+          {
+            "source_slice": [
+              850,
+              770,
+              1000,
+              949
+            ],
+            "source_bbox": [
+              0,
+              0,
+              150,
+              179
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 0,
+            "rect": [
+              111,
+              93,
+              169,
+              202
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.3596,
+            "support_y": 289,
+            "body_box": [
+              3,
+              4,
+              165,
+              198
+            ],
+            "body_height": 194,
+            "sha256": "0e46a0c4eeb3f2f1f7a376a78f039fd23d23f4406bda536e58f549e2be3a517c"
+          },
+          {
+            "source_slice": [
+              1028,
+              784,
+              1187,
+              948
+            ],
+            "source_bbox": [
+              0,
+              0,
+              159,
+              164
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 1,
+            "rect": [
+              403,
+              110,
+              179,
+              185
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.7254,
+            "support_y": 289,
+            "body_box": [
+              2,
+              3,
+              176,
+              181
+            ],
+            "body_height": 178,
+            "sha256": "9f2b271432705a3a5cc9ca553c51bf5567ce7cf89512812583b950d47d38e541"
+          },
+          {
+            "source_slice": [
+              1228,
+              812,
+              1376,
+              956
+            ],
+            "source_bbox": [
+              0,
+              0,
+              148,
+              144
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 2,
+            "rect": [
+              719,
+              132,
+              167,
+              162
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.9695,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              165,
+              159
+            ],
+            "body_height": 156,
+            "sha256": "12eb99fe04d4619642beb9cc1726cf2f1854b370e6f4dc6f36fbaf85a6c323d3"
+          },
+          {
+            "source_slice": [
+              1406,
+              770,
+              1563,
+              950
+            ],
+            "source_bbox": [
+              0,
+              0,
+              157,
+              180
+            ],
+            "cropped_residue_pixels": 0,
+            "slice_edge_opaque_pixels": 0,
+            "crop_method": "Full original rectangle around connected character, no alpha mask",
+            "foreign_major_component_pixels": 0,
+            "index": 3,
+            "rect": [
+              1037,
+              92,
+              177,
+              203
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.3389,
+            "support_y": 289,
+            "body_box": [
+              3,
+              3,
+              174,
+              199
+            ],
+            "body_height": 196,
+            "sha256": "d69f64f7abbb90d4a595e27b5d5a009299dffade220dccf410a73442e47c3c3d"
+          }
+        ],
+        "logical_frame_size": [
+          384,
+          384
+        ]
+      }
+    }
+  },
+  "processing": "Rectangle crop, uniform LANCZOS scale, translation, assembly only. Native alpha preserved; alpha>=192 bottom8px weighted contact proxy."
+}

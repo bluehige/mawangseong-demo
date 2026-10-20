@@ -75,11 +75,11 @@ func _test_toktok_crown() -> void:
 func _test_popo_crown() -> void:
 	var route := CrownScript.popo_shortest_mail_route(true)
 	_expect(float(route.transition_seconds) == 0.20 and float(route.first_skill_cooldown_recovery) == 0.30 and float(route.capture_duration_multiplier) == 1.15, "포포 0.20초 전이·쿨30% 회복·포획15% 약점")
-	var urgent := CrownScript.popo_urgent_courier("lower_01", {"id": "silky", "floor_id": "upper_02", "position": Vector2(320, 180)}, true, DataRegistry.skills.royal_urgent_courier)
-	_expect(bool(urgent.ok) and str(urgent.target_id) == "silky" and str(urgent.target_floor_id) == "upper_02" and float(urgent.duration) == 6.0, "포포 다른 층 긴급전령 6초")
+	var urgent := CrownScript.popo_urgent_courier("entrance", {"id": "silky", "room_id": "recovery", "position": Vector2(320, 180)}, true, DataRegistry.skills.royal_urgent_courier)
+	_expect(bool(urgent.ok) and str(urgent.target_id) == "silky" and str(urgent.target_room_id) == "recovery" and float(urgent.duration) == 6.0, "사용자 승인 재설계: 포포 다른 실제방 긴급전령6초")
 	_expect(float(urgent.move_multiplier) <= 1.30 and float(urgent.attack_interval_multiplier) >= 0.75 and float(urgent.status_resistance_bonus) == 0.20, "포포 이동·공격·상태저항 상한")
-	_expect(not bool(CrownScript.popo_urgent_courier("upper_02", {"id": "silky", "floor_id": "upper_02"}, true, DataRegistry.skills.royal_urgent_courier).ok), "포포 같은 층 긴급전령 금지")
-	_expect(not bool(CrownScript.popo_urgent_courier("lower_01", {"id": "silky", "floor_id": "upper_02"}, false, DataRegistry.skills.royal_urgent_courier).ok), "왕관실 무력화 시 포포 기능 정지")
+	_expect(not bool(CrownScript.popo_urgent_courier("entrance", {"id": "silky", "room_id": "entrance"}, true, DataRegistry.skills.royal_urgent_courier).ok), "포포 같은 방 긴급전령 금지")
+	_expect(not bool(CrownScript.popo_urgent_courier("entrance", {"id": "silky", "room_id": "recovery"}, false, DataRegistry.skills.royal_urgent_courier).ok), "왕관실 무력화 시 포포 기능 정지")
 
 
 func _test_save_and_matrix() -> void:

@@ -162,10 +162,10 @@ func update_reveal_regions() -> void:
 	var feet := PackedFloat32Array()
 	for id in bodies.keys():
 		var body = bodies[id].get_ref()
-		if not is_instance_valid(body):
+		if not is_instance_valid(body) or body.is_queued_for_deletion():
 			bodies.erase(id)
 			continue
-		if not body.is_visible_in_tree(): continue
+		if not body.is_visible_in_tree() or not body.material is ShaderMaterial: continue
 		if rectangles.size() >= 128:
 			body.material.set_shader_parameter("reveal_occluded_body",false)
 			continue
@@ -173,6 +173,7 @@ func update_reveal_regions() -> void:
 		if body is Sprite2D:
 			rect = body.get_rect()
 		elif body is AnimatedSprite2D:
+			if body.sprite_frames==null or not body.sprite_frames.has_animation(body.animation) or body.sprite_frames.get_frame_count(body.animation)<=body.frame:continue
 			var texture: Texture2D = body.sprite_frames.get_frame_texture(body.animation, body.frame)
 			if texture == null: continue
 			var size := texture.get_size()

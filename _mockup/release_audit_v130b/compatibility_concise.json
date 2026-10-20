@@ -1,0 +1,23 @@
+[
+  {
+    "schema": 1,
+    "selected": true,
+    "win": true,
+    "error": "",
+    "screen": "result"
+  },
+  {
+    "schema": 4,
+    "selected": true,
+    "win": true,
+    "error": "",
+    "screen": "result"
+  },
+  {
+    "schema": 5,
+    "selected": true,
+    "win": true,
+    "error": "",
+    "screen": "result"
+  }
+]

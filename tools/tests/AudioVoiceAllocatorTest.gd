@@ -108,7 +108,7 @@ func _test_catalog_resolution() -> void:
 	var resolved_event: Dictionary = CatalogScript.resolve_event("music.screen.management")
 	_expect(not resolved_event.is_empty(), "등록된 관리 BGM event 해석")
 	_expect(str(resolved_event.get("event", {}).get("asset_id", "")) == "management_castle_bustle", "event와 asset 연결 확인")
-	_expect(str(resolved_event.get("runtime_path", "")).ends_with("management_castle_bustle.wav"), "runtime 경로 확인")
+	_expect(str(resolved_event.get("runtime_path", "")).ends_with("management_castle_bustle.ogg"), "runtime 경로 확인")
 	var resolved_asset: Dictionary = CatalogScript.resolve_asset("combat_hit")
 	_expect(not resolved_asset.is_empty(), "실제 runtime SFX asset 해석")
 	var connected_update4: Dictionary = CatalogScript.resolve_asset("boss_brassa_motif")

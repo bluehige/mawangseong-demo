@@ -1,0 +1,7 @@
+asset,width,height,pivot_x,pivot_y,logical_footprint,axes
+dc/stone_deck.png,256,128,128.0,64.0,2x2,x; y by horizontal assembly reflection
+dc/gate_frame.png,152,152,76,120,separate trim,x; y by horizontal assembly reflection
+dc/rail_back.png,140,80,70,60,separate trim,x; y by horizontal assembly reflection
+dc/rail_front.png,140,80,70,60,separate trim,x; y by horizontal assembly reflection
+dc/abutment.png,144,80,72,40,separate trim,x; y by horizontal assembly reflection
+dc/throne_arch.png,160,180,80,150,separate trim,x; y by horizontal assembly reflection

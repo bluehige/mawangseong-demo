@@ -1,0 +1,474 @@
+{
+  "river_frog": {
+    "display_name": "퐁당",
+    "species_name": "물길 개구리",
+    "role": "다리 견제·속박",
+    "max_hp": 150,
+    "atk": 11,
+    "def": 5,
+    "move_speed": 100,
+    "attack_range": 90,
+    "attack_interval": 1.2,
+    "int": 14,
+    "loyalty": 72,
+    "sprite": "",
+    "placeholder_art": true,
+    "asset_status": "not_generated",
+    "skill_slots": [
+      "tongue_snag",
+      "puddle_song",
+      "rainy_day"
+    ],
+    "skills": [
+      "tongue_snag",
+      "puddle_song",
+      "rainy_day"
+    ],
+    "passive_skill_ids": [
+      "rainy_day"
+    ],
+    "recommended_spot": "1차 방어선 · 다리 옆 물가 칸",
+    "upkeep_food": 2,
+    "join_day": 6,
+    "contract_monster": true,
+    "instance_id": "mon_v130r_pongdang",
+    "character_id": "CHR_PONGDANG",
+    "specialization_ids": [
+      "frog_bridge_watch",
+      "frog_choir"
+    ],
+    "bond_memory_ids": {
+      "1": "bond_river_frog_rank_1",
+      "2": "bond_river_frog_rank_2",
+      "3": "bond_river_frog_rank_3"
+    },
+    "join_scene_id": "join_river_frog",
+    "planned_duo": "실키 — 거미줄 다리(다리 위 적 속박 연계)",
+    "implementation_status": "design_only"
+  },
+  "glue_snail": {
+    "display_name": "느릿",
+    "species_name": "끈끈이 달팽이",
+    "role": "함정 길 강화·지연 탱커",
+    "max_hp": 210,
+    "atk": 6,
+    "def": 9,
+    "move_speed": 55,
+    "attack_range": 50,
+    "attack_interval": 1.6,
+    "int": 10,
+    "loyalty": 90,
+    "sprite": "",
+    "placeholder_art": true,
+    "asset_status": "not_generated",
+    "skill_slots": [
+      "slime_trail",
+      "shell_retreat",
+      "sticky_neighbor"
+    ],
+    "skills": [
+      "slime_trail",
+      "shell_retreat",
+      "sticky_neighbor"
+    ],
+    "passive_skill_ids": [
+      "sticky_neighbor"
+    ],
+    "recommended_spot": "함정이 깔린 길 칸 주변",
+    "upkeep_food": 1,
+    "join_day": 8,
+    "contract_monster": true,
+    "instance_id": "mon_v130r_neurit",
+    "character_id": "CHR_NEURIT",
+    "specialization_ids": [
+      "snail_trail_layer",
+      "snail_fortress"
+    ],
+    "bond_memory_ids": {
+      "1": "bond_glue_snail_rank_1",
+      "2": "bond_glue_snail_rank_2",
+      "3": "bond_glue_snail_rank_3"
+    },
+    "join_scene_id": "join_glue_snail",
+    "planned_duo": "핀 — 미끈불길(점액 위 불길 지속 연계)",
+    "implementation_status": "design_only"
+  },
+  "bridge_troll": {
+    "display_name": "벙벙",
+    "species_name": "다리지기 트롤",
+    "role": "다리 봉쇄 탱커·도둑 대응",
+    "max_hp": 270,
+    "atk": 13,
+    "def": 10,
+    "move_speed": 70,
+    "attack_range": 55,
+    "attack_interval": 1.5,
+    "int": 9,
+    "loyalty": 86,
+    "sprite": "",
+    "placeholder_art": true,
+    "asset_status": "not_generated",
+    "skill_slots": [
+      "no_passage",
+      "toll_shakedown",
+      "my_bridge_my_job"
+    ],
+    "skills": [
+      "no_passage",
+      "toll_shakedown",
+      "my_bridge_my_job"
+    ],
+    "passive_skill_ids": [
+      "my_bridge_my_job"
+    ],
+    "recommended_spot": "다리 칸",
+    "upkeep_food": 3,
+    "join_day": 13,
+    "contract_monster": true,
+    "instance_id": "mon_v130r_beongbeong",
+    "character_id": "CHR_BEONGBEONG",
+    "specialization_ids": [
+      "troll_gatekeeper",
+      "troll_tax_collector"
+    ],
+    "bond_memory_ids": {
+      "1": "bond_bridge_troll_rank_1",
+      "2": "bond_bridge_troll_rank_2",
+      "3": "bond_bridge_troll_rank_3"
+    },
+    "join_scene_id": "join_bridge_troll",
+    "planned_duo": "곱 — 통행세 금고(도둑 금화 회수 연계)",
+    "implementation_status": "design_only"
+  },
+  "under_bed_shadow": {
+    "display_name": "쉿",
+    "species_name": "침대 밑 그림자",
+    "role": "은신 기습·공포",
+    "max_hp": 118,
+    "atk": 15,
+    "def": 3,
+    "move_speed": 140,
+    "attack_range": 50,
+    "attack_interval": 1.0,
+    "int": 22,
+    "loyalty": 70,
+    "sprite": "",
+    "placeholder_art": true,
+    "asset_status": "not_generated",
+    "skill_slots": [
+      "under_the_bed",
+      "peekaboo",
+      "blanket_hide"
+    ],
+    "skills": [
+      "under_the_bed",
+      "peekaboo",
+      "blanket_hide"
+    ],
+    "passive_skill_ids": [
+      "under_the_bed"
+    ],
+    "recommended_spot": "2차 방어선 · 갈림길",
+    "upkeep_food": 2,
+    "join_day": 10,
+    "contract_monster": true,
+    "instance_id": "mon_v130r_shh",
+    "character_id": "CHR_SHH",
+    "specialization_ids": [
+      "shadow_nightmare",
+      "shadow_lullaby"
+    ],
+    "bond_memory_ids": {
+      "1": "bond_under_bed_shadow_rank_1",
+      "2": "bond_under_bed_shadow_rank_2",
+      "3": "bond_under_bed_shadow_rank_3"
+    },
+    "join_scene_id": "join_under_bed_shadow",
+    "planned_duo": "루미 — 표식 기습(루미 표식 대상에 까꿍 강화)",
+    "implementation_status": "design_only"
+  },
+  "hollow_armor": {
+    "display_name": "텅텅",
+    "species_name": "빈 갑옷",
+    "role": "최종 방어선 도발 탱커·용사 대응",
+    "max_hp": 290,
+    "atk": 12,
+    "def": 14,
+    "move_speed": 65,
+    "attack_range": 55,
+    "attack_interval": 1.5,
+    "int": 12,
+    "loyalty": 80,
+    "sprite": "",
+    "placeholder_art": true,
+    "asset_status": "not_generated",
+    "skill_slots": [
+      "hero_pose",
+      "reassemble",
+      "old_masters_scent"
+    ],
+    "skills": [
+      "hero_pose",
+      "reassemble",
+      "old_masters_scent"
+    ],
+    "passive_skill_ids": [
+      "old_masters_scent"
+    ],
+    "recommended_spot": "최종 방어선 · 옥좌 앞",
+    "upkeep_food": 3,
+    "join_day": 25,
+    "contract_monster": true,
+    "instance_id": "mon_v130r_teongteong",
+    "character_id": "CHR_TEONGTEONG",
+    "specialization_ids": [
+      "armor_throne_guard",
+      "armor_wandering_knight"
+    ],
+    "bond_memory_ids": {
+      "1": "bond_hollow_armor_rank_1",
+      "2": "bond_hollow_armor_rank_2",
+      "3": "bond_hollow_armor_rank_3"
+    },
+    "join_scene_id": "join_hollow_armor",
+    "planned_duo": "톡톡 — 판금 교환(서로 판금 보호막 공유)",
+    "implementation_status": "design_only"
+  },
+  "candle_wisp": {
+    "display_name": "녹녹",
+    "species_name": "촛농 도깨비",
+    "role": "원거리 불꽃·은신 탐지·성기사 대응",
+    "max_hp": 110,
+    "atk": 16,
+    "def": 2,
+    "move_speed": 110,
+    "attack_range": 150,
+    "attack_interval": 1.15,
+    "int": 26,
+    "loyalty": 78,
+    "sprite": "",
+    "placeholder_art": true,
+    "asset_status": "not_generated",
+    "skill_slots": [
+      "candle_light",
+      "wax_drip",
+      "afraid_of_drips"
+    ],
+    "skills": [
+      "candle_light",
+      "wax_drip",
+      "afraid_of_drips"
+    ],
+    "passive_skill_ids": [
+      "candle_light",
+      "afraid_of_drips"
+    ],
+    "recommended_spot": "감시탑·옥좌 주변 (물가 피하기)",
+    "upkeep_food": 2,
+    "join_day": 15,
+    "contract_monster": true,
+    "instance_id": "mon_v130r_noknok",
+    "character_id": "CHR_NOKNOK",
+    "specialization_ids": [
+      "wisp_beacon",
+      "wisp_bonfire"
+    ],
+    "bond_memory_ids": {
+      "1": "bond_candle_wisp_rank_1",
+      "2": "bond_candle_wisp_rank_2",
+      "3": "bond_candle_wisp_rank_3"
+    },
+    "join_scene_id": "join_candle_wisp",
+    "planned_duo": "핀 — 촛불 불씨(불꽃 피해 연계)",
+    "implementation_status": "design_only"
+  },
+  "mole_digger": {
+    "display_name": "파파",
+    "species_name": "두더지 굴착꾼",
+    "role": "방어선 사이 기동·공병 대응",
+    "max_hp": 150,
+    "atk": 12,
+    "def": 6,
+    "move_speed": 100,
+    "attack_range": 50,
+    "attack_interval": 1.0,
+    "int": 24,
+    "loyalty": 84,
+    "sprite": "",
+    "placeholder_art": true,
+    "asset_status": "not_generated",
+    "skill_slots": [
+      "tunnel_hop",
+      "undermine",
+      "safety_first"
+    ],
+    "skills": [
+      "tunnel_hop",
+      "undermine",
+      "safety_first"
+    ],
+    "passive_skill_ids": [
+      "safety_first"
+    ],
+    "recommended_spot": "방어선 사이 빈 수비 지점",
+    "upkeep_food": 2,
+    "join_day": 20,
+    "contract_monster": true,
+    "instance_id": "mon_v130r_papa",
+    "character_id": "CHR_PAPA",
+    "specialization_ids": [
+      "mole_foreman",
+      "mole_saboteur"
+    ],
+    "bond_memory_ids": {
+      "1": "bond_mole_digger_rank_1",
+      "2": "bond_mole_digger_rank_2",
+      "3": "bond_mole_digger_rank_3"
+    },
+    "join_scene_id": "join_mole_digger",
+    "planned_duo": "돌콩 — 지하 행진(굴 이동 후 돌콩 방어 연계)",
+    "implementation_status": "design_only"
+  },
+  "crumpled_map": {
+    "display_name": "꼬깃",
+    "species_name": "구겨진 지도 요괴",
+    "role": "탐험가 길 잃히기·아군 기동",
+    "max_hp": 125,
+    "atk": 8,
+    "def": 3,
+    "move_speed": 95,
+    "attack_range": 120,
+    "attack_interval": 1.3,
+    "int": 30,
+    "loyalty": 75,
+    "sprite": "",
+    "placeholder_art": true,
+    "asset_status": "not_generated",
+    "skill_slots": [
+      "wrong_way",
+      "map_spread",
+      "paper_body"
+    ],
+    "skills": [
+      "wrong_way",
+      "map_spread",
+      "paper_body"
+    ],
+    "passive_skill_ids": [
+      "paper_body"
+    ],
+    "recommended_spot": "1차 방어선 · 입구 쪽 갈림길",
+    "upkeep_food": 1,
+    "join_day": 5,
+    "contract_monster": true,
+    "instance_id": "mon_v130r_kkogit",
+    "character_id": "CHR_KKOGIT",
+    "specialization_ids": [
+      "map_labyrinth",
+      "map_guide"
+    ],
+    "bond_memory_ids": {
+      "1": "bond_crumpled_map_rank_1",
+      "2": "bond_crumpled_map_rank_2",
+      "3": "bond_crumpled_map_rank_3"
+    },
+    "join_scene_id": "join_crumpled_map",
+    "planned_duo": "로로 — 가짜 지도 소동(가짜 발자국+엉터리 길안내 연계)",
+    "implementation_status": "design_only"
+  },
+  "rat_union": {
+    "display_name": "찍찍단",
+    "species_name": "쥐 무리 (1칸에 셋)",
+    "role": "도둑 대응·금화 회수",
+    "max_hp": 120,
+    "atk": 7,
+    "def": 2,
+    "move_speed": 150,
+    "attack_range": 40,
+    "attack_interval": 0.6,
+    "int": 18,
+    "loyalty": 68,
+    "sprite": "",
+    "placeholder_art": true,
+    "asset_status": "not_generated",
+    "skill_slots": [
+      "cheese_reclaim",
+      "swarm",
+      "strike_line"
+    ],
+    "skills": [
+      "cheese_reclaim",
+      "swarm",
+      "strike_line"
+    ],
+    "passive_skill_ids": [
+      "cheese_reclaim",
+      "strike_line"
+    ],
+    "recommended_spot": "금고·미끼 보물실 앞",
+    "upkeep_food": 1,
+    "join_day": 4,
+    "contract_monster": true,
+    "instance_id": "mon_v130r_jjikjjik",
+    "character_id": "CHR_JJIKJJIK",
+    "specialization_ids": [
+      "rats_vault_union",
+      "rats_night_shift"
+    ],
+    "bond_memory_ids": {
+      "1": "bond_rat_union_rank_1",
+      "2": "bond_rat_union_rank_2",
+      "3": "bond_rat_union_rank_3"
+    },
+    "join_scene_id": "join_rat_union",
+    "planned_duo": "미미 — 가짜 보물 작전(미끼 보물실 도둑 함정 연계)",
+    "implementation_status": "design_only"
+  },
+  "curse_doll": {
+    "display_name": "누비",
+    "species_name": "저주 인형",
+    "role": "보스 약화·아군 대신 맞기",
+    "max_hp": 115,
+    "atk": 11,
+    "def": 3,
+    "move_speed": 90,
+    "attack_range": 140,
+    "attack_interval": 1.3,
+    "int": 32,
+    "loyalty": 82,
+    "sprite": "",
+    "placeholder_art": true,
+    "asset_status": "not_generated",
+    "skill_slots": [
+      "stitch_curse",
+      "proxy_pain",
+      "mothers_stitches"
+    ],
+    "skills": [
+      "stitch_curse",
+      "proxy_pain",
+      "mothers_stitches"
+    ],
+    "passive_skill_ids": [
+      "mothers_stitches"
+    ],
+    "recommended_spot": "2차 방어선 후열",
+    "upkeep_food": 2,
+    "join_day": 18,
+    "contract_monster": true,
+    "instance_id": "mon_v130r_nubi",
+    "character_id": "CHR_NUBI",
+    "specialization_ids": [
+      "doll_hex_mistress",
+      "doll_guardian"
+    ],
+    "bond_memory_ids": {
+      "1": "bond_curse_doll_rank_1",
+      "2": "bond_curse_doll_rank_2",
+      "3": "bond_curse_doll_rank_3"
+    },
+    "join_scene_id": "join_curse_doll",
+    "planned_duo": "실키 — 재봉 인연(실키 구조 + 대신 맞기 연계)",
+    "implementation_status": "design_only"
+  }
+}

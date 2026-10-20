@@ -1,0 +1,9 @@
+{
+  "day": true,
+  "demon_lord_hp": true,
+  "gold": true,
+  "mana": true,
+  "food": true,
+  "player_name": true,
+  "checkpoint": true
+}

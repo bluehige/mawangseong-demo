@@ -1,0 +1,35 @@
+{
+  "method": "Manual visible-edge measurement; x/y/width/height in source pixels; exclude glow. Font sizes are raster glyph-height estimates, not recoverable source-font metadata. Edge uncertainty +/-2px.",
+  "sources": {
+    "kit_B": {"path":"docs/design/v1213_uiux/kit/kit_B_cute_dark.png", "size":[1672,941]},
+    "management": {"path":"docs/design/v1213_uiux/u3/03_management_build.png", "size":[1920,1080]},
+    "growth": {"path":"docs/design/v1213_uiux/u3/07_monster_growth.png", "size":[1920,1080]},
+    "result": {"path":"docs/design/v1213_uiux/u3/10_result.png", "size":[1920,1080]}
+  },
+  "measurements": [
+    {"source":"kit_B","part":"button","rect":[107,266,188,61],"padding":[20,10],"radius":14,"font":24,"icon":0,"bar":0},
+    {"source":"kit_B","part":"resource","rect":[916,96,692,75],"padding":[24,14],"radius":22,"font":22,"icon":44,"bar":0},
+    {"source":"kit_B","part":"tab","rect":[85,383,149,68],"padding":[20,12],"radius":12,"font":22,"icon":36,"bar":0},
+    {"source":"kit_B","part":"icon_button","rect":[70,495,70,73],"padding":[10,10],"radius":14,"font":18,"icon":42,"bar":0},
+    {"source":"kit_B","part":"card","rect":[796,215,452,289],"padding":[22,22],"radius":22,"font":30,"icon":210,"bar":21},
+    {"source":"kit_B","part":"enemy_chip","rect":[1285,272,324,103],"padding":[20,10],"radius":46,"font":24,"icon":88,"bar":0},
+    {"source":"kit_B","part":"health_strip","rect":[796,535,447,83],"padding":[16,10],"radius":18,"font":22,"icon":56,"bar":20},
+    {"source":"kit_B","part":"tooltip","rect":[145,645,533,178],"padding":[22,18],"radius":18,"font":24,"icon":150,"bar":0},
+    {"source":"kit_B","part":"modal","rect":[1276,449,349,239],"padding":[22,24],"radius":22,"font":24,"icon":0,"bar":0},
+    {"source":"kit_B","part":"toast","rect":[934,751,425,82],"padding":[24,14],"radius":18,"font":22,"icon":42,"bar":0},
+    {"source":"management","part":"resource","rect":[14,3,1892,58],"padding":[26,8],"radius":22,"font":24,"icon":40,"bar":0},
+    {"source":"management","part":"facility_card","rect":[426,806,288,128],"padding":[16,12],"radius":16,"font":26,"icon":104,"bar":0},
+    {"source":"management","part":"dock_button","rect":[394,960,224,90],"padding":[28,14],"radius":20,"font":30,"icon":56,"bar":0},
+    {"source":"management","part":"battle_button","rect":[1246,960,278,90],"padding":[30,14],"radius":20,"font":30,"icon":56,"bar":0},
+    {"source":"growth","part":"resource","rect":[890,32,795,78],"padding":[26,14],"radius":24,"font":26,"icon":48,"bar":0},
+    {"source":"growth","part":"tab","rect":[906,182,180,89],"padding":[26,16],"radius":16,"font":32,"icon":48,"bar":0},
+    {"source":"growth","part":"companion_card","rect":[86,228,288,117],"padding":[16,12],"radius":16,"font":30,"icon":96,"bar":0},
+    {"source":"growth","part":"exp_preview","rect":[1045,448,418,38],"padding":[8,4],"radius":19,"font":26,"icon":0,"bar":28},
+    {"source":"growth","part":"disabled_action","rect":[1403,832,397,118],"padding":[30,20],"radius":26,"font":36,"icon":0,"bar":0},
+    {"source":"result","part":"reward_panel","rect":[946,413,344,132],"padding":[24,14],"radius":18,"font":30,"icon":64,"bar":0},
+    {"source":"result","part":"selected_row","rect":[105,625,1710,86],"padding":[18,10],"radius":16,"font":28,"icon":112,"bar":0},
+    {"source":"result","part":"row","rect":[105,723,1710,71],"padding":[18,8],"radius":14,"font":26,"icon":88,"bar":0},
+    {"source":"result","part":"support_action","rect":[1055,918,273,95],"padding":[26,18],"radius":22,"font":32,"icon":0,"bar":0},
+    {"source":"result","part":"primary_action","rect":[1360,898,482,127],"padding":[32,22],"radius":24,"font":42,"icon":48,"bar":0}
+  ]
+}

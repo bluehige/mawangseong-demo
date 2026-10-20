@@ -1,0 +1,248 @@
+# Approved v7d map import — 2026-10-16
+
+- Generation model: GPT internal image generation
+- Generated date: 2026-10-16
+- Target version: v1.3.0
+
+User-approved external assets_v7d artwork; no new generation calls in this session.
+The final table's SHA256, dimensions, native alpha and pivots are preserved.
+Derived images only assemble source artwork with coverage masks or affine placement.
+No background removal, recolor, synthetic decoration or changes to original pixels.
+
+Source folder: `C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/assets_v7d`
+Plan: `C:/Users/blueh/Desktop/진행중인프로젝트/_mockup/plan/plan_E_cells.txt`
+
+Approved packed pieces and assembly rails are also preserved here as source copies.
+Raw generation originals, prompts and processing history remain in the external source folder;
+the reference_SOURCE*.md files record their history. Those historical paths are not runtime mappings.
+
+## Source copies
+
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/terrain/ground_unique_field.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/terrain/road_material.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/terrain/water_material.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/road/edge_down_128.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/road/edge_up_128.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/road/outer_corner_q0.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/road/outer_corner_q1.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/road/outer_corner_q2.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/road/outer_corner_q3.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/road/inner_corner_q0.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/road/inner_corner_q1.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/road/inner_corner_q2.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/road/inner_corner_q3.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/water/edge_down_128.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/water/edge_up_128.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/water/outer_corner_q0.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/water/outer_corner_q1.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/water/outer_corner_q2.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/water/outer_corner_q3.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/water/inner_corner_q0.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/water/inner_corner_q1.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/water/inner_corner_q2.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/water/inner_corner_q3.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/cliff/straight_down_flat.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/cliff/straight_up_flat.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/interiors/bait_treasure.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/interiors/barracks.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/interiors/entrance.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/interiors/recovery_nest.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/interiors/throne.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/interiors/vault.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/interiors/ward_core.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/interiors/watchtower.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/building/back_nw.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/building/back_ne.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/building/back_corner.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/building/front_se.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/building/front_sw.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/building/front_corner.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/building/door_arch.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/building/threshold.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/perimeter/edge_nw.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/perimeter/edge_ne.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/bridge/bridge_water_y.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/traps/spikes.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/traps/sticky.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/monsters/slime.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/monsters/goblin.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/background/cave_background.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/building/door_arch_down.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/building/door_arch_up.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/terrain/entrance_external_road.png
+- Source image path: assets/source/imagegen/v130r_step1/approved_final/bridge/entrance_bridge.png
+- Source image path: assets/source/imagegen/v130r_step1/assembly_rails/road/straight_down_flat.png
+- Source image path: assets/source/imagegen/v130r_step1/assembly_rails/road/straight_up_flat.png
+- Source image path: assets/source/imagegen/v130r_step1/assembly_rails/water/straight_down_flat.png
+- Source image path: assets/source/imagegen/v130r_step1/assembly_rails/water/straight_up_flat.png
+
+## Runtime images
+
+- Runtime image path: assets/maps/v130r_step1/terrain/ground_unique_field.png
+- Runtime image path: assets/maps/v130r_step1/terrain/road_material.png
+- Runtime image path: assets/maps/v130r_step1/terrain/water_material.png
+- Runtime image path: assets/maps/v130r_step1/road/edge_down_128.png
+- Runtime image path: assets/maps/v130r_step1/road/edge_up_128.png
+- Runtime image path: assets/maps/v130r_step1/road/outer_corner_q0.png
+- Runtime image path: assets/maps/v130r_step1/road/outer_corner_q1.png
+- Runtime image path: assets/maps/v130r_step1/road/outer_corner_q2.png
+- Runtime image path: assets/maps/v130r_step1/road/outer_corner_q3.png
+- Runtime image path: assets/maps/v130r_step1/road/inner_corner_q0.png
+- Runtime image path: assets/maps/v130r_step1/road/inner_corner_q1.png
+- Runtime image path: assets/maps/v130r_step1/road/inner_corner_q2.png
+- Runtime image path: assets/maps/v130r_step1/road/inner_corner_q3.png
+- Runtime image path: assets/maps/v130r_step1/water/edge_down_128.png
+- Runtime image path: assets/maps/v130r_step1/water/edge_up_128.png
+- Runtime image path: assets/maps/v130r_step1/water/outer_corner_q0.png
+- Runtime image path: assets/maps/v130r_step1/water/outer_corner_q1.png
+- Runtime image path: assets/maps/v130r_step1/water/outer_corner_q2.png
+- Runtime image path: assets/maps/v130r_step1/water/outer_corner_q3.png
+- Runtime image path: assets/maps/v130r_step1/water/inner_corner_q0.png
+- Runtime image path: assets/maps/v130r_step1/water/inner_corner_q1.png
+- Runtime image path: assets/maps/v130r_step1/water/inner_corner_q2.png
+- Runtime image path: assets/maps/v130r_step1/water/inner_corner_q3.png
+- Runtime image path: assets/maps/v130r_step1/cliff/straight_down_flat.png
+- Runtime image path: assets/maps/v130r_step1/cliff/straight_up_flat.png
+- Runtime image path: assets/maps/v130r_step1/interiors/bait_treasure.png
+- Runtime image path: assets/maps/v130r_step1/interiors/barracks.png
+- Runtime image path: assets/maps/v130r_step1/interiors/entrance.png
+- Runtime image path: assets/maps/v130r_step1/interiors/recovery_nest.png
+- Runtime image path: assets/maps/v130r_step1/interiors/throne.png
+- Runtime image path: assets/maps/v130r_step1/interiors/vault.png
+- Runtime image path: assets/maps/v130r_step1/interiors/ward_core.png
+- Runtime image path: assets/maps/v130r_step1/interiors/watchtower.png
+- Runtime image path: assets/maps/v130r_step1/building/back_nw.png
+- Runtime image path: assets/maps/v130r_step1/building/back_ne.png
+- Runtime image path: assets/maps/v130r_step1/building/back_corner.png
+- Runtime image path: assets/maps/v130r_step1/building/front_se.png
+- Runtime image path: assets/maps/v130r_step1/building/front_sw.png
+- Runtime image path: assets/maps/v130r_step1/building/front_corner.png
+- Runtime image path: assets/maps/v130r_step1/building/door_arch.png
+- Runtime image path: assets/maps/v130r_step1/building/threshold.png
+- Runtime image path: assets/maps/v130r_step1/perimeter/edge_nw.png
+- Runtime image path: assets/maps/v130r_step1/perimeter/edge_ne.png
+- Runtime image path: assets/maps/v130r_step1/bridge/bridge_water_y.png
+- Runtime image path: assets/maps/v130r_step1/traps/spikes.png
+- Runtime image path: assets/maps/v130r_step1/traps/sticky.png
+- Runtime image path: assets/maps/v130r_step1/monsters/slime.png
+- Runtime image path: assets/maps/v130r_step1/monsters/goblin.png
+- Runtime image path: assets/maps/v130r_step1/background/cave_background.png
+- Runtime image path: assets/maps/v130r_step1/building/door_arch_down.png
+- Runtime image path: assets/maps/v130r_step1/building/door_arch_up.png
+- Runtime image path: assets/maps/v130r_step1/terrain/entrance_external_road.png
+- Runtime image path: assets/maps/v130r_step1/bridge/entrance_bridge.png
+- Runtime image path: assets/maps/v130r_step1/assembled/cliff_down.png
+- Runtime image path: assets/maps/v130r_step1/assembled/cliff_up.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_10_10_11_10.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_10_8_10_10.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_10_8_11_8.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_11_10_11_12.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_11_12_13_12.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_11_6_11_8.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_11_6_13_6.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_13_10_13_12.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_13_10_16_10.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_13_6_13_8.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_13_8_16_8.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_16_10_16_14.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_16_14_24_14.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_16_5_16_8.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_16_5_24_5.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_18_10_18_12.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_18_10_19_10.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_18_12_24_12.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_18_7_18_8.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_18_7_24_7.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_18_8_19_8.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_19_8_19_10.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_24_12_24_14.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_24_5_24_7.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_26_12_26_14.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_26_12_28_12.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_26_14_28_14.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_26_5_26_7.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_26_5_30_5.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_26_7_30_7.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_28_12_28_14.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_30_5_30_7.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_3_12_5_12.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_3_6_3_12.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_3_6_5_6.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_5_10_5_12.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_5_10_8_10.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_5_6_5_8.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_5_8_8_8.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_8_8_8_10.png
+- Runtime image path: assets/maps/v130r_step1/assembled/road_field.png
+- Runtime image path: assets/maps/v130r_step1/assembled/water_10_0_10_18.png
+- Runtime image path: assets/maps/v130r_step1/assembled/water_24_0_24_18.png
+- Runtime image path: assets/maps/v130r_step1/assembled/water_24_0_26_0.png
+- Runtime image path: assets/maps/v130r_step1/assembled/water_24_18_26_18.png
+- Runtime image path: assets/maps/v130r_step1/assembled/water_26_0_26_8.png
+- Runtime image path: assets/maps/v130r_step1/assembled/water_26_10_26_18.png
+- Runtime image path: assets/maps/v130r_step1/assembled/water_26_10_32_10.png
+- Runtime image path: assets/maps/v130r_step1/assembled/water_26_8_32_8.png
+- Runtime image path: assets/maps/v130r_step1/assembled/water_32_8_32_10.png
+- Runtime image path: assets/maps/v130r_step1/assembled/water_8_0_10_0.png
+- Runtime image path: assets/maps/v130r_step1/assembled/water_8_0_8_18.png
+- Runtime image path: assets/maps/v130r_step1/assembled/water_8_18_10_18.png
+- Runtime image path: assets/maps/v130r_step1/assembled/water_field.png
+
+## Derived assembly inputs
+
+- `assembled/cliff_down.png` ← `final/cliff/straight_down_flat.png`
+- `assembled/cliff_up.png` ← `final/cliff/straight_up_flat.png`
+- `assembled/road_10_10_11_10.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_10_8_10_10.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_10_8_11_8.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_11_10_11_12.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_11_12_13_12.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_11_6_11_8.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_11_6_13_6.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_13_10_13_12.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_13_10_16_10.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_13_6_13_8.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_13_8_16_8.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_16_10_16_14.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_16_14_24_14.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_16_5_16_8.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_16_5_24_5.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_18_10_18_12.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_18_10_19_10.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_18_12_24_12.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_18_7_18_8.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_18_7_24_7.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_18_8_19_8.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_19_8_19_10.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_24_12_24_14.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_24_5_24_7.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_26_12_26_14.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_26_12_28_12.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_26_14_28_14.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_26_5_26_7.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_26_5_30_5.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_26_7_30_7.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_28_12_28_14.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_30_5_30_7.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_3_12_5_12.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_3_6_3_12.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_3_6_5_6.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_5_10_5_12.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_5_10_8_10.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_5_6_5_8.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_5_8_8_8.png` ← `edges/road/straight_up_flat.png`
+- `assembled/road_8_8_8_10.png` ← `edges/road/straight_down_flat.png`
+- `assembled/road_field.png` ← `final/terrain/road_material.png`
+- `assembled/water_10_0_10_18.png` ← `edges/water/straight_down_flat.png`
+- `assembled/water_24_0_24_18.png` ← `edges/water/straight_down_flat.png`
+- `assembled/water_24_0_26_0.png` ← `edges/water/straight_up_flat.png`
+- `assembled/water_24_18_26_18.png` ← `edges/water/straight_up_flat.png`
+- `assembled/water_26_0_26_8.png` ← `edges/water/straight_down_flat.png`
+- `assembled/water_26_10_26_18.png` ← `edges/water/straight_down_flat.png`
+- `assembled/water_26_10_32_10.png` ← `edges/water/straight_up_flat.png`
+- `assembled/water_26_8_32_8.png` ← `edges/water/straight_up_flat.png`
+- `assembled/water_32_8_32_10.png` ← `edges/water/straight_down_flat.png`
+- `assembled/water_8_0_10_0.png` ← `edges/water/straight_up_flat.png`
+- `assembled/water_8_0_8_18.png` ← `edges/water/straight_down_flat.png`
+- `assembled/water_8_18_10_18.png` ← `edges/water/straight_up_flat.png`
+- `assembled/water_field.png` ← `final/terrain/water_material.png`

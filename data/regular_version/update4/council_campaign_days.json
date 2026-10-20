@@ -1,32 +1,600 @@
 {
-  "council_day_01": {"day": 1, "title": "마계 의회 초청장", "story_beat": "회차 규칙 확인", "encounter_kind": "qualification", "management_only": false, "feature_flags": ["rules"], "empty_wave": true},
-  "council_day_02": {"day": 2, "title": "계약 로스터와 심장 확인", "story_beat": "기존 계승 전력 확인", "encounter_kind": "home_mixed", "management_only": false, "feature_flags": ["roster_review", "heart_review"], "empty_wave": true},
-  "council_day_03": {"day": 3, "title": "세 경쟁 마왕", "story_beat": "브라사·베스퍼·미렐라 첫 소개", "encounter_kind": "council_messenger", "management_only": false, "feature_flags": ["rival_intro"], "empty_wave": true},
-  "council_day_04": {"day": 4, "title": "첫 지역과 전초기지", "story_beat": "첫 지역·전초기지 유형 확정", "encounter_kind": "none", "management_only": true, "feature_flags": ["region_selection", "outpost_type_selection"], "empty_wave": false},
-  "council_day_05": {"day": 5, "title": "첫 지역 환경 학습", "story_beat": "선택 지역 규칙 소개", "encounter_kind": "region_wave_a", "management_only": false, "feature_flags": ["region_environment"], "empty_wave": true},
-  "council_day_06": {"day": 6, "title": "첫 지역 사건", "story_beat": "지역 사건 첫 해결", "encounter_kind": "region_wave_b", "management_only": false, "feature_flags": ["region_event"], "empty_wave": true},
-  "council_day_07": {"day": 7, "title": "전초기지 파견", "story_beat": "파견 몬스터 선택", "encounter_kind": "home_defense", "management_only": false, "feature_flags": ["outpost_assignment"], "empty_wave": true},
-  "council_day_08": {"day": 8, "title": "첫 의회 안건 예고", "story_beat": "안건 효과와 표결일 공개", "encounter_kind": "region_wave_c", "management_only": false, "feature_flags": ["agenda_preview"], "empty_wave": true},
-  "council_day_09": {"day": 9, "title": "전초기지 습격 예고", "story_beat": "첫 습격 정찰", "encounter_kind": "scouting", "management_only": false, "feature_flags": ["outpost_warning"], "empty_wave": true},
-  "council_day_10": {"day": 10, "title": "전초기지 방어전 1", "story_beat": "첫 전초기지 결산", "encounter_kind": "outpost_defense", "management_only": false, "feature_flags": ["outpost_battle"], "empty_wave": true},
-  "council_day_11": {"day": 11, "title": "두 번째 지역", "story_beat": "두 번째 지역 선택", "encounter_kind": "home_defense", "management_only": false, "feature_flags": ["region_selection"], "empty_wave": true},
-  "council_day_12": {"day": 12, "title": "전초기지 Lv.2", "story_beat": "전초기지 강화", "encounter_kind": "region_mixed", "management_only": false, "feature_flags": ["outpost_upgrade"], "empty_wave": true},
-  "council_day_13": {"day": 13, "title": "제1차 의회 표결", "story_beat": "첫 공개 표결", "encounter_kind": "council_trial", "management_only": false, "feature_flags": ["council_vote"], "empty_wave": true},
-  "council_day_14": {"day": 14, "title": "경쟁 마왕 첫 개입", "story_beat": "라이벌 지원 또는 방해", "encounter_kind": "rival_intervention", "management_only": false, "feature_flags": ["rival_intervention"], "empty_wave": true},
-  "council_day_15": {"day": 15, "title": "상층 공사 예고", "story_beat": "2층과 왕관 진화 예고", "encounter_kind": "stage_transition", "management_only": false, "feature_flags": ["upper_floor_preview", "crown_preview"], "empty_wave": true},
-  "council_day_16": {"day": 16, "title": "2층 개방", "story_beat": "상층 레이아웃 선택", "encounter_kind": "upper_split", "management_only": false, "feature_flags": ["upper_floor_unlock", "upper_layout_selection"], "empty_wave": true},
-  "council_day_17": {"day": 17, "title": "인장 금고 압박", "story_beat": "상층 목표 첫 방어", "encounter_kind": "upper_objective", "management_only": false, "feature_flags": ["seal_vault_pressure"], "empty_wave": true},
-  "council_day_18": {"day": 18, "title": "왕관실 압박", "story_beat": "층 전환 학습", "encounter_kind": "upper_transition", "management_only": false, "feature_flags": ["crown_sanctum_pressure"], "empty_wave": true},
-  "council_day_19": {"day": 19, "title": "두 번째 습격 예고", "story_beat": "전초기지 2차 습격 예고", "encounter_kind": "home_mixed", "management_only": false, "feature_flags": ["outpost_warning"], "empty_wave": true},
-  "council_day_20": {"day": 20, "title": "전초기지 방어전 2", "story_beat": "경쟁 마왕 대리인 결투", "encounter_kind": "outpost_boss", "management_only": false, "feature_flags": ["outpost_battle"], "empty_wave": true},
-  "council_day_21": {"day": 21, "title": "세 번째 지역", "story_beat": "마지막 지역 선택", "encounter_kind": "home_defense", "management_only": false, "feature_flags": ["region_selection"], "empty_wave": true},
-  "council_day_22": {"day": 22, "title": "제2차 의회 표결", "story_beat": "두 번째 공개 표결", "encounter_kind": "region_mixed", "management_only": false, "feature_flags": ["council_vote"], "empty_wave": true},
-  "council_day_23": {"day": 23, "title": "왕관 진화", "story_beat": "진화 또는 인장 대체", "encounter_kind": "crown_trial", "management_only": false, "feature_flags": ["crown_choice"], "empty_wave": true},
-  "council_day_24": {"day": 24, "title": "최종 대표 공개", "story_beat": "DAY 30 상대와 지원 세력 공개", "encounter_kind": "representative_preview", "management_only": false, "feature_flags": ["representative_reveal"], "empty_wave": true},
-  "council_day_25": {"day": 25, "title": "경쟁 마왕 정식 결투", "story_beat": "대표의 첫 형태", "encounter_kind": "rival_duel", "management_only": false, "feature_flags": ["rival_duel"], "empty_wave": true},
-  "council_day_26": {"day": 26, "title": "최종 의회 안건", "story_beat": "마지막 공개 표결", "encounter_kind": "home_defense", "management_only": false, "feature_flags": ["council_vote", "final_agenda"], "empty_wave": true},
-  "council_day_27": {"day": 27, "title": "상층 최종 시설", "story_beat": "Stage 04 상층 종합 시험", "encounter_kind": "upper_final", "management_only": false, "feature_flags": ["upper_final_facility"], "empty_wave": true},
-  "council_day_28": {"day": 28, "title": "마지막 지역 작전", "story_beat": "최종전 선택 효과 예약", "encounter_kind": "region_operation", "management_only": false, "feature_flags": ["region_operation"], "empty_wave": true},
-  "council_day_29": {"day": 29, "title": "의회 전야", "story_beat": "관계·지역·전초기지·상층 회수", "encounter_kind": "none", "management_only": true, "feature_flags": ["relationship_recap", "final_preparation"], "empty_wave": false},
-  "council_day_30": {"day": 30, "title": "마계 의회 왕관 심사", "story_beat": "경쟁 마왕 최종전과 엔딩", "encounter_kind": "council_final", "management_only": false, "feature_flags": ["final_boss", "ending"], "empty_wave": true}
+  "council_day_01": {
+    "day": 1,
+    "title": "마계 의회 초청장",
+    "story_beat": "회차 규칙 확인",
+    "encounter_kind": "qualification",
+    "management_only": false,
+    "feature_flags": [
+      "rules"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 01 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "초청에 응하겠다. 우리 성을 지키는 약속까지 넘기지는 않겠어."
+      }
+    ]
+  },
+  "council_day_02": {
+    "day": 2,
+    "title": "계약 로스터와 심장 확인",
+    "story_beat": "기존 계승 전력 확인",
+    "encounter_kind": "home_mixed",
+    "management_only": false,
+    "feature_flags": [
+      "roster_review",
+      "heart_review"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 02 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "심장과 동료부터 확인하자. 넓힐 성도 이 전력으로 지킨다."
+      }
+    ]
+  },
+  "council_day_03": {
+    "day": 3,
+    "title": "세 경쟁 마왕",
+    "story_beat": "브라사·베스퍼·미렐라 첫 소개",
+    "encounter_kind": "council_messenger",
+    "management_only": false,
+    "feature_flags": [
+      "rival_intro"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 03 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_RIVAL_BRASSA",
+        "emotion": "determined",
+        "text": "규격부터 보지."
+      },
+      {
+        "speaker": "CHR_RIVAL_VESPER",
+        "emotion": "determined",
+        "text": "배송 경로도요."
+      },
+      {
+        "speaker": "CHR_RIVAL_MIRELLA",
+        "emotion": "determined",
+        "text": "사는 아이들을 먼저 볼게요."
+      }
+    ]
+  },
+  "council_day_04": {
+    "day": 4,
+    "title": "첫 지역과 전초기지",
+    "story_beat": "첫 지역·전초기지 유형 확정",
+    "encounter_kind": "none",
+    "management_only": true,
+    "feature_flags": [
+      "region_selection",
+      "outpost_type_selection"
+    ],
+    "empty_wave": false,
+    "management_dialogue_header": "DAY 04 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "밖에 세울 보루와 안에 지킬 성을 함께 생각하자."
+      }
+    ]
+  },
+  "council_day_05": {
+    "day": 5,
+    "title": "첫 지역 환경 학습",
+    "story_beat": "선택 지역 규칙 소개; 본성 통로와 암반 조사 예고",
+    "encounter_kind": "region_wave_a",
+    "management_only": false,
+    "feature_flags": [
+      "region_environment"
+    ],
+    "empty_wave": true
+  },
+  "council_day_06": {
+    "day": 6,
+    "title": "첫 지역 사건",
+    "story_beat": "지역 사건 첫 해결",
+    "encounter_kind": "region_wave_b",
+    "management_only": false,
+    "feature_flags": [
+      "region_event"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 06 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "선택한 지역의 규칙부터 익힌다. 새 공사 계획은 그 다음이다."
+      }
+    ]
+  },
+  "council_day_07": {
+    "day": 7,
+    "title": "전초기지 파견",
+    "story_beat": "파견 몬스터 선택",
+    "encounter_kind": "home_defense",
+    "management_only": false,
+    "feature_flags": [
+      "outpost_assignment"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 07 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "밖의 경비와 본성의 경비가 서로 빈자리를 알아야 한다."
+      }
+    ]
+  },
+  "council_day_08": {
+    "day": 8,
+    "title": "첫 의회 안건 예고",
+    "story_beat": "안건 효과와 표결일 공개; 공사 예산·안전 규정 연결",
+    "encounter_kind": "region_wave_c",
+    "management_only": false,
+    "feature_flags": [
+      "agenda_preview"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 08 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_RIVAL_BRASSA",
+        "emotion": "determined",
+        "text": "성의 등급이 오르면 바위를 깰 수 있다. 하지만 버팀목 규격은 먼저 공개해라."
+      }
+    ]
+  },
+  "council_day_09": {
+    "day": 9,
+    "title": "전초기지 습격 예고",
+    "story_beat": "첫 습격 정찰",
+    "encounter_kind": "scouting",
+    "management_only": false,
+    "feature_flags": [
+      "outpost_warning"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 09 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "먼저 오는 습격부터 막는다. 공사 계획 때문에 파견을 흔들지 말자."
+      }
+    ]
+  },
+  "council_day_10": {
+    "day": 10,
+    "title": "전초기지 방어전 1",
+    "story_beat": "첫 전초기지 결산",
+    "encounter_kind": "outpost_defense",
+    "management_only": false,
+    "feature_flags": [
+      "outpost_battle"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 10 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "성 밖에서도 버텼다. 이 기록을 의회에 제출하자."
+      }
+    ]
+  },
+  "council_day_11": {
+    "day": 11,
+    "title": "두 번째 지역",
+    "story_beat": "두 번째 지역 선택",
+    "encounter_kind": "home_defense",
+    "management_only": false,
+    "feature_flags": [
+      "region_selection"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 11 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "다음 지역을 고른다. 공사 자재를 핑계로 선택을 바꾸지는 않겠다."
+      }
+    ]
+  },
+  "council_day_12": {
+    "day": 12,
+    "title": "전초기지 Lv.2",
+    "story_beat": "전초기지 강화; 본성 목표 진입 정찰 준비",
+    "encounter_kind": "region_mixed",
+    "management_only": false,
+    "feature_flags": [
+      "outpost_upgrade"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 12 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "감시 둥지의 보고는 본성의 새 구역을 지킬 때도 쓰겠다."
+      }
+    ]
+  },
+  "council_day_13": {
+    "day": 13,
+    "title": "제1차 의회 표결",
+    "story_beat": "첫 공개 표결; 확장 공사에 적용될 규정 선택",
+    "encounter_kind": "council_trial",
+    "management_only": false,
+    "feature_flags": [
+      "council_vote"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 13 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_RIVAL_BRASSA",
+        "emotion": "determined",
+        "text": "예산과 안전 규정은 넓힐 구역에도 적용된다."
+      },
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "규정은 논의하되 우리 등급의 성장을 허가제로 만들지는 않겠다."
+      }
+    ]
+  },
+  "council_day_14": {
+    "day": 14,
+    "title": "경쟁 마왕 첫 개입",
+    "story_beat": "라이벌 지원 또는 방해; 공사 점검/간섭",
+    "encounter_kind": "rival_intervention",
+    "management_only": false,
+    "feature_flags": [
+      "rival_intervention"
+    ],
+    "empty_wave": true
+  },
+  "council_day_15": {
+    "day": 15,
+    "title": "부지 확장 공사 예고",
+    "story_beat": "성 등급 확장으로 암반을 파낼 계획; 왕관실·금고·왕관 진화 예고",
+    "encounter_kind": "stage_transition",
+    "management_only": false,
+    "feature_flags": [
+      "plot_expansion_preview",
+      "crown_preview"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 15 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_TOKTOK",
+        "emotion": "determined",
+        "text": "성 등급에 맞는 버팀목을 세우고 이 암반을 걷어 내겠다."
+      },
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "새 땅에 인장 금고와 왕관실을 마련한다. 왕관을 맡길지는 나중에 정한다."
+      }
+    ]
+  },
+  "council_day_16": {
+    "day": 16,
+    "title": "새 구역 시설 개방",
+    "story_beat": "성 등급으로 열린 1층 구역 검수; 왕관실·금고 자유 배치와 자동 길 학습",
+    "encounter_kind": "expansion_opening",
+    "management_only": false,
+    "feature_flags": [
+      "expansion_objective_unlock",
+      "expansion_placement_guidance"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 16 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_TOKTOK",
+        "emotion": "determined",
+        "text": "왕관실과 금고의 길은 입구와 왕좌에 이어진다."
+      },
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "등급이 부족하면 기존 부지에서 먼저 지킨다. 땅은 성 등급으로만 넓힌다."
+      }
+    ]
+  },
+  "council_day_17": {
+    "day": 17,
+    "title": "인장 금고 압박",
+    "story_beat": "확장 구역 보조 목표 첫 방어; 의회 기록을 노리는 절도",
+    "encounter_kind": "expansion_objective",
+    "management_only": false,
+    "feature_flags": [
+      "seal_vault_pressure"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 17 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_POPO",
+        "emotion": "determined",
+        "text": "금고 쪽 봉인이 흔들려요!"
+      },
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "왕좌 경비는 남기고 금고로 지원한다. 공사 기록과 인장을 지켜라."
+      }
+    ]
+  },
+  "council_day_18": {
+    "day": 18,
+    "title": "왕관실 압박",
+    "story_beat": "같은 1층의 본성·확장 구역 사이 지원 이동 학습",
+    "encounter_kind": "expansion_relay",
+    "management_only": false,
+    "feature_flags": [
+      "crown_sanctum_pressure"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 18 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_SILKY",
+        "emotion": "determined",
+        "text": "문턱은 제가 붙잡을게요. 다친 아이는 이 길로 돌아와요."
+      },
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "왕관실을 지키되 왕좌로 이어지는 길도 비우지 마라."
+      }
+    ]
+  },
+  "council_day_19": {
+    "day": 19,
+    "title": "두 번째 습격 예고",
+    "story_beat": "전초기지 2차 습격 예고; 내부 시설과 외부 경비 책임 병존",
+    "encounter_kind": "home_mixed",
+    "management_only": false,
+    "feature_flags": [
+      "outpost_warning"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 19 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "새 구역이 생겼다고 성 밖의 동료를 잊지 않는다. 두 번째 습격에 대비하자."
+      }
+    ]
+  },
+  "council_day_20": {
+    "day": 20,
+    "title": "전초기지 방어전 2",
+    "story_beat": "경쟁 마왕 대리인 결투",
+    "encounter_kind": "outpost_boss",
+    "management_only": false,
+    "feature_flags": [
+      "outpost_battle"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 20 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "대표의 시험은 성 밖까지 왔다. 파견 동료가 지킨 약속부터 끝내자."
+      }
+    ]
+  },
+  "council_day_21": {
+    "day": 21,
+    "title": "세 번째 지역",
+    "story_beat": "마지막 지역 선택",
+    "encounter_kind": "home_defense",
+    "management_only": false,
+    "feature_flags": [
+      "region_selection"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 21 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "마지막 지역을 고른다. 돌아오면 왕관과 최종 심사가 기다린다."
+      }
+    ]
+  },
+  "council_day_22": {
+    "day": 22,
+    "title": "제2차 의회 표결",
+    "story_beat": "두 번째 공개 표결; 배송·공방·검역의 확장 구역 적용",
+    "encounter_kind": "region_mixed",
+    "management_only": false,
+    "feature_flags": [
+      "council_vote"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 22 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_RIVAL_VESPER",
+        "emotion": "determined",
+        "text": "새 구역 환기 통로로 표결 서신을 보낼 예정입니다."
+      },
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "배송 경로는 확인한다. 금고 봉인과 출입 기록은 따로 지켜라."
+      }
+    ]
+  },
+  "council_day_23": {
+    "day": 23,
+    "title": "왕관 진화",
+    "story_beat": "진화 또는 인장 대체; 확장 왕관실의 성장 회수",
+    "encounter_kind": "crown_trial",
+    "management_only": false,
+    "feature_flags": [
+      "crown_choice"
+    ],
+    "empty_wave": true
+  },
+  "council_day_24": {
+    "day": 24,
+    "title": "최종 대표 공개",
+    "story_beat": "DAY 30 상대와 지원 세력 공개; 새 구역을 포함한 방어 준비",
+    "encounter_kind": "representative_preview",
+    "management_only": false,
+    "feature_flags": [
+      "representative_reveal"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 24 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "누가 시험하고 누가 돕는지 정해졌다. 새 구역까지 포함해 방어 준비를 맞춘다."
+      }
+    ]
+  },
+  "council_day_25": {
+    "day": 25,
+    "title": "경쟁 마왕 정식 결투",
+    "story_beat": "대표의 첫 형태",
+    "encounter_kind": "rival_duel",
+    "management_only": false,
+    "feature_flags": [
+      "rival_duel"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 25 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "검사표가 아니라 직접 부딪쳐 증명할 차례군."
+      }
+    ]
+  },
+  "council_day_26": {
+    "day": 26,
+    "title": "최종 의회 안건",
+    "story_beat": "마지막 공개 표결; 인장 감사·왕관 권리·자치·독립",
+    "encounter_kind": "home_defense",
+    "management_only": false,
+    "feature_flags": [
+      "council_vote",
+      "final_agenda"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 26 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "확장 구역의 인장과 왕관도 마지막 안건의 대상이다. 어느 약속을 지킬지 결정하겠다."
+      }
+    ]
+  },
+  "council_day_27": {
+    "day": 27,
+    "title": "확장 구역 최종 시설",
+    "story_beat": "Stage04 확장 구역 시설 종합 시험",
+    "encounter_kind": "expansion_final",
+    "management_only": false,
+    "feature_flags": [
+      "expansion_final_facility"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 27 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_TOKTOK",
+        "emotion": "determined",
+        "text": "마지막 보강은 끝났다. 왕관실과 금고, 연결 통로를 함께 확인해라."
+      },
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "시설 하나에 모든 경비를 몰지 않는다. 한 성 전체를 지켜라."
+      }
+    ]
+  },
+  "council_day_28": {
+    "day": 28,
+    "title": "마지막 지역 작전",
+    "story_beat": "최종전 선택 효과 예약",
+    "encounter_kind": "region_operation",
+    "management_only": false,
+    "feature_flags": [
+      "region_operation"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 28 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "지역 작전의 성과를 내일 준비에 반영한다."
+      }
+    ]
+  },
+  "council_day_29": {
+    "day": 29,
+    "title": "의회 전야",
+    "story_beat": "관계·지역·전초기지·확장 구역 회수와 최종 준비",
+    "encounter_kind": "none",
+    "management_only": true,
+    "feature_flags": [
+      "relationship_recap",
+      "final_preparation"
+    ],
+    "empty_wave": false,
+    "management_dialogue_header": "DAY 29 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "밖의 보루도 새로 연 터도 우리가 지켰다. 내일 왕관의 이름과 의회에 할 말을 정하자."
+      }
+    ]
+  },
+  "council_day_30": {
+    "day": 30,
+    "title": "마계 의회 왕관 심사",
+    "story_beat": "경쟁 마왕 최종전과 엔딩; 왕좌와 확장 시설의 공동 방어 결산",
+    "encounter_kind": "council_final",
+    "management_only": false,
+    "feature_flags": [
+      "final_boss",
+      "ending"
+    ],
+    "empty_wave": true,
+    "management_dialogue_header": "DAY 30 · 마왕 의회",
+    "management_dialogue": [
+      {
+        "speaker": "CHR_DARKLORD_PLAYER",
+        "emotion": "determined",
+        "text": "왕좌와 새 구역은 같은 길로 이어져 있다. 오늘의 승리는 함께 지킨 성의 이름으로 남긴다."
+      }
+    ]
+  }
 }

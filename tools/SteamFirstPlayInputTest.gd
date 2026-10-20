@@ -25,6 +25,9 @@ func _run() -> void:
 	game.campaign_save_enabled = false
 	add_child(game)
 	await settle()
+	if game.continuity.update_open:
+		await click_control("UpdateNotesConfirm")
+		check(not game.continuity.update_open, "first-run update acknowledged before new-game input")
 	game.pending_title_reset_mode = "new"
 	game._onboarding_start_new_game()
 	await settle()

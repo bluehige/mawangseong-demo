@@ -1,0 +1,333 @@
+{
+  "projection": "X_iso=y; Y_iso=W-x; screen=(64*(x+y-W)+2304,32*(y+W-x)+512)",
+  "face_table": {
+    "N": {
+      "arch": "up",
+      "wall": "↙",
+      "outward": [
+        -64,
+        -32
+      ]
+    },
+    "S": {
+      "arch": "up",
+      "wall": "↙",
+      "outward": [
+        64,
+        32
+      ]
+    },
+    "E": {
+      "arch": "down",
+      "wall": "↘",
+      "outward": [
+        64,
+        -32
+      ]
+    },
+    "W": {
+      "arch": "down",
+      "wall": "↘",
+      "outward": [
+        -64,
+        32
+      ]
+    }
+  },
+  "buildings": [
+    {
+      "code": "W",
+      "side": "S",
+      "arch": "up",
+      "door_cell": [
+        4,
+        6
+      ],
+      "anchor": [
+        896,
+        1600
+      ],
+      "pivot": [
+        93.98019801980197,
+        146.93877551020407
+      ],
+      "outside": [
+        [
+          3,
+          6
+        ],
+        [
+          4,
+          6
+        ]
+      ],
+      "wall_screen_vector": [
+        64,
+        -32
+      ],
+      "foot_screen_offsets": [
+        [
+          -64,
+          32
+        ],
+        [
+          64,
+          -32
+        ]
+      ],
+      "contact": true
+    },
+    {
+      "code": "L",
+      "side": "N",
+      "arch": "up",
+      "door_cell": [
+        4,
+        12
+      ],
+      "anchor": [
+        1280,
+        1792
+      ],
+      "pivot": [
+        93.98019801980197,
+        146.93877551020407
+      ],
+      "outside": [
+        [
+          3,
+          11
+        ],
+        [
+          4,
+          11
+        ]
+      ],
+      "wall_screen_vector": [
+        64,
+        -32
+      ],
+      "foot_screen_offsets": [
+        [
+          -64,
+          32
+        ],
+        [
+          64,
+          -32
+        ]
+      ],
+      "contact": true
+    },
+    {
+      "code": "K",
+      "side": "S",
+      "arch": "up",
+      "door_cell": [
+        12,
+        6
+      ],
+      "anchor": [
+        1408,
+        1344
+      ],
+      "pivot": [
+        93.98019801980197,
+        146.93877551020407
+      ],
+      "outside": [
+        [
+          11,
+          6
+        ],
+        [
+          12,
+          6
+        ]
+      ],
+      "wall_screen_vector": [
+        64,
+        -32
+      ],
+      "foot_screen_offsets": [
+        [
+          -64,
+          32
+        ],
+        [
+          64,
+          -32
+        ]
+      ],
+      "contact": true
+    },
+    {
+      "code": "R",
+      "side": "N",
+      "arch": "up",
+      "door_cell": [
+        12,
+        12
+      ],
+      "anchor": [
+        1792,
+        1536
+      ],
+      "pivot": [
+        93.98019801980197,
+        146.93877551020407
+      ],
+      "outside": [
+        [
+          11,
+          11
+        ],
+        [
+          12,
+          11
+        ]
+      ],
+      "wall_screen_vector": [
+        64,
+        -32
+      ],
+      "foot_screen_offsets": [
+        [
+          -64,
+          32
+        ],
+        [
+          64,
+          -32
+        ]
+      ],
+      "contact": true
+    },
+    {
+      "code": "C",
+      "side": "W",
+      "arch": "down",
+      "door_cell": [
+        19,
+        9
+      ],
+      "anchor": [
+        2048,
+        1216
+      ],
+      "pivot": [
+        102.01980198019803,
+        146.93877551020407
+      ],
+      "outside": [
+        [
+          18,
+          8
+        ],
+        [
+          18,
+          9
+        ]
+      ],
+      "wall_screen_vector": [
+        64,
+        32
+      ],
+      "foot_screen_offsets": [
+        [
+          -64,
+          -32
+        ],
+        [
+          64,
+          32
+        ]
+      ],
+      "contact": true
+    },
+    {
+      "code": "T",
+      "side": "S",
+      "arch": "up",
+      "door_cell": [
+        28,
+        5
+      ],
+      "anchor": [
+        2368,
+        800
+      ],
+      "pivot": [
+        93.98019801980197,
+        146.93877551020407
+      ],
+      "outside": [
+        [
+          27,
+          5
+        ],
+        [
+          28,
+          5
+        ]
+      ],
+      "wall_screen_vector": [
+        64,
+        -32
+      ],
+      "foot_screen_offsets": [
+        [
+          -64,
+          32
+        ],
+        [
+          64,
+          -32
+        ]
+      ],
+      "contact": true
+    },
+    {
+      "code": "V",
+      "side": "W",
+      "arch": "down",
+      "door_cell": [
+        28,
+        13
+      ],
+      "anchor": [
+        2880,
+        1056
+      ],
+      "pivot": [
+        102.01980198019803,
+        146.93877551020407
+      ],
+      "outside": [
+        [
+          27,
+          12
+        ],
+        [
+          27,
+          13
+        ]
+      ],
+      "wall_screen_vector": [
+        64,
+        32
+      ],
+      "foot_screen_offsets": [
+        [
+          -64,
+          -32
+        ],
+        [
+          64,
+          32
+        ]
+      ],
+      "contact": true
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "version": "4.23.1",
+  "steamworks_sdk": "1.65",
+  "godot_minimum": "4.4",
+  "tested_godot": "4.6.3.stable.official.7d41c59c4",
+  "acquired_date": "2026-10-18",
+  "official_catalog": "https://godotengine.org/asset-library/asset/2445",
+  "archive_url": "https://codeberg.org/godotsteam/godotsteam/releases/download/v4.23.1/godotsteam-4.23.1-gdextension-plugin-4.4.zip.tar.xz",
+  "archive_sha256": "37d53ede5eda11d2247d70c1af91f95a4777ad2a419fc8a24de1cc816d21cc0a",
+  "modifications": "Only Windows x64 entries retained in .gdextension. DLLs/license byte-identical.",
+  "files": {
+    "addons/godotsteam/license.md": {
+      "sha256": "4b72012dba000de1e0b4c0183e5ed99f4fe8e949f50e570442f692ce3995bae2",
+      "official_sha256": "4b72012dba000de1e0b4c0183e5ed99f4fe8e949f50e570442f692ce3995bae2",
+      "bytes": 1110
+    },
+    "addons/godotsteam/godotsteam.gdextension": {
+      "sha256": "062b330a81d409f9ee908751a1edb402428d48b44bbf7de61583dafe6393630e",
+      "official_sha256": "f02059cdf3199a97ab2abfb88ba226af500402f7f9053daa09c158d6b47eda77",
+      "bytes": 391
+    },
+    "addons/godotsteam/win64/libgodotsteam.windows.template_debug.x86_64.dll": {
+      "sha256": "2f94c4ef1142534f332d0cbb41ee597f67af6fb6498a110c3644984488ed28ce",
+      "official_sha256": "2f94c4ef1142534f332d0cbb41ee597f67af6fb6498a110c3644984488ed28ce",
+      "bytes": 4325888
+    },
+    "addons/godotsteam/win64/libgodotsteam.windows.template_release.x86_64.dll": {
+      "sha256": "799e1917061854661ab53c8ef6d297366193ed495088b34f5e32a280fa4ef744",
+      "official_sha256": "799e1917061854661ab53c8ef6d297366193ed495088b34f5e32a280fa4ef744",
+      "bytes": 3982336
+    },
+    "addons/godotsteam/win64/steam_api64.dll": {
+      "sha256": "8de54d32508e216c9135b8bf025749243d44e404c1c22a8e5fe35acecabe7a9c",
+      "official_sha256": "8de54d32508e216c9135b8bf025749243d44e404c1c22a8e5fe35acecabe7a9c",
+      "bytes": 319128
+    }
+  }
+}

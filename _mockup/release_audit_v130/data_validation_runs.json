@@ -1,0 +1,41 @@
+[
+  {
+    "command": [
+      "python",
+      "tools/content/validate_v130r_monsters.py",
+      "--json"
+    ],
+    "exit_code": 0,
+    "log": "logs/data_0.log"
+  },
+  {
+    "command": [
+      "python",
+      "tools/content/validate_v130r_story.py",
+      "--json"
+    ],
+    "exit_code": 1,
+    "log": "logs/data_1.log"
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "unittest",
+      "tools.content.test_validate_v130r_story"
+    ],
+    "exit_code": 1,
+    "log": "logs/data_2.log"
+  },
+  {
+    "command": [
+      "python",
+      "-X",
+      "utf8",
+      "tools/content/test_validate_v130r_story.py"
+    ],
+    "exit_code": 0,
+    "log": "logs/story_validator_selftest.log",
+    "checks": 13
+  }
+]

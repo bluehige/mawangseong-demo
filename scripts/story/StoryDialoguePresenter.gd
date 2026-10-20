@@ -2,101 +2,569 @@ extends RefCounted
 class_name StoryDialoguePresenter
 
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
+const Kit = preload("res://scripts/ui/kit/UIKit.gd")
+const KitPanelScript = preload("res://scripts/story/DialogueStrip.gd")
+# Keep the button factory out of GameRoot's compile-time preload graph.
+var icon_button_script: Script = load("res://scripts/story/DialogueToolbarButton.gd")
+const Layers = preload("res://scripts/ui/kit/UIKitLayers.gd")
+const TextLayout = preload("res://scripts/ui/DialogueLayout.gd")
+const THRONE_BACKGROUND := "res://assets/ui/v1213/dialogue_throne.png"
+const LONG_STORY_TRIGGERS := ["opening", "new_game", "management_entered", "precombat_confirmed", "result_win"]
 
 var root = null
 var hud = null
+var participant_key := ""
+var participants: Array[String] = []
+var participant_emotions: Dictionary = {}
+var legacy_auto_enabled := false
+var legacy_auto_remaining := 0.0
+var auto_at_end := false
+var combat_layers := Layers.new()
+var page_key := ""
+var page_index := 0
+var text_pages: Array[String] = []
+var page_body: RichTextLabel
+var page_counter: Label
+var standing_bounds_cache: Dictionary = {}
+var frame_parent: Control
+var frame_legacy := false
+var frame_combat := false
+var frame_style: Array = []
+var speaker_label: Label
+var next_button: Button
+var source_text := ""
+var source_key := ""
+var pagination_pending := false
+var pagination_cache: Dictionary = {}
+var portrait_paths: Dictionary = {}
+var standing_textures: Dictionary = {}
+var background_textures: Dictionary = {}
 
+func _style_key() -> Array:
+	return [LanguageSettings.locale, UISettings.text_scale, UISettings.is_touch_ui()]
+
+func _portrait_path(id: String, emotion: String) -> String:
+	var key := id + ":" + emotion
+	if not portrait_paths.has(key):
+		portrait_paths[key] = root._onboarding_speaker_portrait_path(id, emotion)
+	return portrait_paths[key]
+
+func _standing_texture(id: String, emotion: String) -> Texture2D:
+	var path := _portrait_path(id, emotion)
+	if not standing_textures.has(path):
+		var texture: Texture2D = root._onboarding_portrait_texture(path) if path != "" else null
+		if texture != null and is_monster_speaker(id):
+			var bounds := standing_visible_bounds(texture)
+			if bounds.has_area():
+				var cropped := AtlasTexture.new()
+				cropped.atlas = texture
+				cropped.region = Rect2(bounds)
+				texture = cropped
+		standing_textures[path] = texture
+	return standing_textures[path]
+
+func _prepare_resources(legacy: bool) -> void:
+	# Hold the most recent dialogue's textures. ResourceLoader's weak
+	# cache otherwise drops backgrounds when the old screen is destroyed.
+	portrait_paths.clear(); standing_textures.clear(); background_textures.clear()
+	pagination_cache.clear()
+	var cues: Array = root.onboarding_dialogue_queue if legacy else root.story_director.current_scene().get("cues", [])
+	for cue in cues:
+		var resolved: Dictionary = cue if legacy else root._story_resolve_cue_speaker(cue)
+		_standing_texture(str(resolved.get("speaker" if legacy else "speaker_id", "")), str(resolved.get("emotion" if legacy else "portrait_emotion", "")))
+		if legacy: _background_texture(cue)
+	_standing_texture("CHR_DARKLORD_PLAYER", "")
+	var reference := _standing_texture("CHR_BATI", "dry")
+	# Monster placement uses Bati's visible baseline even when Bati is absent.
+	# Read these pixels at entry, not on the first monster speaker's line.
+	if reference != null: standing_visible_bounds(reference)
+	if not legacy: _background_texture(root.story_director.current_scene())
+
+func _background_texture(scene: Dictionary) -> Texture2D:
+	var path := background_path(scene)
+	if not background_textures.has(path): background_textures[path] = root._load_png(path)
+	return background_textures[path]
+
+func refresh_current() -> bool:
+	if not is_instance_valid(frame_parent) or not frame_parent.is_inside_tree() or frame_parent.is_queued_for_deletion(): return false
+	if frame_style != _style_key(): return false
+	if frame_combat:
+		if not root.story_combat_overlay_open or root.current_screen != "combat": return false
+	elif root.current_screen != "dialogue": return false
+	var legacy: bool = not root.onboarding_dialogue_queue.is_empty()
+	if legacy != frame_legacy: return false
+	if legacy:
+		var line: Dictionary = root.onboarding_dialogue_queue[root.onboarding_dialogue_index]
+		if line.get("v130r_text",false):
+			var localized: Dictionary = root.v130r_story.localized_entry(str(line.get("id","")))
+			if not localized.is_empty(): line = localized
+		_background(frame_parent, line)
+		var id := str(line.get("speaker", "NARRATOR"))
+		var speaker := str(line.get("speaker_name", root._onboarding_speaker_name(id)))
+		speaker = LanguageSettings.player_display_name(root._onboarding_player_name()) if id == "CHR_DARKLORD_PLAYER" else LanguageSettings.ui_text(speaker)
+		var text: String = root._onboarding_line_text(line)
+		root.continuity.record("legacy:%s:%d" % [str(root.onboarding_dialogue_queue.hash()), root.onboarding_dialogue_index], speaker, text)
+		_refresh_frame(id, speaker, str(line.get("emotion", "")), text)
+	else:
+		if not root.story_director.is_active(): return false
+		if not frame_combat: _background(frame_parent, root.story_director.current_scene())
+		root.continuity.record_story()
+		var cue: Dictionary = root.story_director.current_cue()
+		var resolved: Dictionary = root._story_resolve_cue_speaker(cue)
+		var id := str(resolved.get("speaker_id", "NARRATOR"))
+		resolved["speaker_label"] = root._onboarding_player_name() if id == "CHR_DARKLORD_PLAYER" else str(resolved.get("speaker_label", root._onboarding_speaker_name(id)))
+		_refresh_frame(id, LanguageSettings.story_speaker(resolved, root._onboarding_player_name()), str(resolved.get("portrait_emotion", "")), LanguageSettings.story_text(cue, root._onboarding_player_name()))
+	return true
+
+func _refresh_frame(id: String, speaker: String, emotion: String, text: String) -> void:
+	_update_participants(id, emotion, frame_legacy)
+	for slot in range(participants.size()): _standing(frame_parent, participants[slot], slot, participants[slot] == id, frame_combat)
+	speaker_label.text = speaker
+	var key := "%s:%s:%s:%s" % [frame_legacy,root.onboarding_dialogue_index if frame_legacy else root.story_director.current_cue_id,LanguageSettings.locale,text]
+	source_text = text; source_key = key
+	_paginate(page_body, page_counter, text, key)
+	_refresh_toolbar(frame_parent, frame_legacy)
+	next_button.tooltip_text = root.continuity.localized("자동 재생 완료 · 마지막 대사를 읽고 계속합니다.", "Auto finished · read the final line and continue.", "自动播放完成 · 阅读最后一句后继续。") if auto_at_end else root.continuity.localized("다음 대사 · 수동 입력은 자동 재생을 끕니다.", "Next line · manual input turns auto off.", "下一句 · 手动操作会关闭自动播放。")
+
+func standing_visible_bounds(texture: Texture2D) -> Rect2i:
+	var key := texture.get_instance_id()
+	if standing_bounds_cache.has(key): return standing_bounds_cache[key]
+	var pixels := texture.get_image()
+	if pixels == null: return Rect2i()
+	if pixels.is_compressed(): pixels.decompress()
+	pixels.convert(Image.FORMAT_RGBA8)
+	var data := pixels.get_data()
+	var width := pixels.get_width()
+	var bounds := pixels.get_used_rect()
+	# Alpha 1..8 speckles are imperceptible, but can make a small body fit a
+	# whole canvas. Measure visible edges only; never edit the source pixels.
+	for edge in range(4):
+		while bounds.has_area():
+			var visible := false
+			var horizontal := edge < 2
+			var fixed := bounds.position.y if edge == 0 else bounds.end.y - 1
+			if not horizontal: fixed = bounds.position.x if edge == 2 else bounds.end.x - 1
+			for moving in range(bounds.position.x if horizontal else bounds.position.y, bounds.end.x if horizontal else bounds.end.y):
+				var offset := (fixed * width + moving) * 4 + 3 if horizontal else (moving * width + fixed) * 4 + 3
+				if data[offset] > 8:
+					visible = true
+					break
+			if visible: break
+			if horizontal:
+				if edge == 0: bounds.position.y += 1
+				bounds.size.y -= 1
+			else:
+				if edge == 2: bounds.position.x += 1
+				bounds.size.x -= 1
+	standing_bounds_cache[key] = bounds
+	return bounds
 
 func setup(root_node, hud_controller) -> void:
 	root = root_node
 	hud = hud_controller
 
-
 func build_fullscreen() -> void:
+	_prepare_resources(false)
 	var cue: Dictionary = root.story_director.current_cue()
 	var scene: Dictionary = root.story_director.current_scene()
-	var screen = root._onboarding_screen_panel(Color("#050407e8"))
+	var screen = root._onboarding_screen_panel(Kit.Tokens.BACKGROUND)
 	screen.name = "StoryDialogueScreen"
 	screen.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
-	root._onboarding_add_scene_illustration(
-		screen,
-		root._onboarding_rect("S02_DIALOGUE", "SceneIllustration", Rect2(0, 0, 1920, 1080)),
-		root._onboarding_dialogue_scene_path({})
-	)
+	_background(screen, scene)
 	_build_frame(screen, cue, scene, false)
 
+func build_legacy() -> void:
+	_prepare_resources(true)
+	var screen = root._onboarding_screen_panel(Kit.Tokens.BACKGROUND)
+	screen.name = "LegacyDialogueScreen"
+	screen.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	var line: Dictionary = {} if root.onboarding_dialogue_queue.is_empty() else root.onboarding_dialogue_queue[clampi(root.onboarding_dialogue_index, 0, root.onboarding_dialogue_queue.size() - 1)]
+	if line.get("v130r_text",false):
+		var localized: Dictionary = root.v130r_story.localized_entry(str(line.get("id","")))
+		if not localized.is_empty(): line = localized
+	_background(screen, line)
+	var speaker_id := str(line.get("speaker", "NARRATOR"))
+	var speaker_name := str(line.get("speaker_name", root._onboarding_speaker_name(speaker_id)))
+	if speaker_id == "CHR_DARKLORD_PLAYER": speaker_name = LanguageSettings.player_display_name(root._onboarding_player_name())
+	else: speaker_name = LanguageSettings.ui_text(speaker_name)
+	var text: String = root._onboarding_line_text(line) if not line.is_empty() else root.continuity.localized("표시할 대사가 없습니다.", "No dialogue is available.", "没有可显示的对白。")
+	root.continuity.record("legacy:%s:%d" % [str(root.onboarding_dialogue_queue.hash()), root.onboarding_dialogue_index], speaker_name, text)
+	_build_shared_frame(screen, speaker_id, speaker_name, str(line.get("emotion", "")), text, false, true)
 
 func build_combat_overlay() -> void:
-	if root.ui_layer == null or not root.story_director.is_active():
-		return
-	var existing: Node = root.ui_layer.get_node_or_null("StoryCombatDialogueOverlay")
-	if existing != null:
-		root.ui_layer.remove_child(existing)
-		existing.queue_free()
-	var cue: Dictionary = root.story_director.current_cue()
-	var scene: Dictionary = root.story_director.current_scene()
-	var overlay = hud.panel(Rect2(0, 0, 1920, 1080), Color("#0000008f"), Color("#00000000"), "StoryCombatDialogueOverlay", "flat")
+	if root.ui_layer == null or not root.story_director.is_active() or root.current_screen != "combat": return
+	_prepare_resources(false)
+	clear_combat_overlay()
+	var controls: Array = []
+	for child in root.ui_layer.get_children():
+		if child is Control and str(child.name) not in ["PauseMenuOverlay", "DialogueBacklogOverlay", "CampaignLeaveConfirmation", "CampaignSaveNoticeOverlay", "UpdateNotesOverlay"]:
+			controls.append(child)
+	combat_layers.set_cutscene_active(true, controls)
+	var overlay = hud.panel(Rect2(0, 0, 1920, 1080), Color("#00000040"), Color.TRANSPARENT, "StoryCombatDialogueOverlay", "flat")
 	overlay.name = "StoryCombatDialogueOverlay"
 	overlay.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	overlay.z_index = 3500
 	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
-	_build_frame(overlay, cue, scene, true)
-
+	_build_frame(overlay, root.story_director.current_cue(), root.story_director.current_scene(), true)
 
 func clear_combat_overlay() -> void:
-	if root == null or root.ui_layer == null:
-		return
+	if root == null or root.ui_layer == null: return
+	combat_layers.set_cutscene_active(false, [])
 	var existing: Node = root.ui_layer.get_node_or_null("StoryCombatDialogueOverlay")
 	if existing != null:
 		root.ui_layer.remove_child(existing)
 		existing.queue_free()
 
+func _background(parent: Control, scene: Dictionary) -> void:
+	var image: TextureRect = parent.get_node_or_null("DialogueBackground")
+	if image == null:
+		image = hud.texture(parent, "", Rect2(0, 0, 1920, 1080))
+	image.texture = _background_texture(scene)
+	image.name = "DialogueBackground"
+	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-func _build_frame(parent: Control, cue: Dictionary, scene: Dictionary, combat_overlay: bool) -> void:
-	var touch_ui := UISettings.is_touch_ui()
-	var resolved_speaker: Dictionary = root._story_resolve_cue_speaker(cue)
-	var speaker_id := str(resolved_speaker.get("speaker_id", "NARRATOR"))
-	var speaker_name := str(resolved_speaker.get("speaker_label", ""))
-	if speaker_name == "":
-		speaker_name = root._onboarding_speaker_name(speaker_id)
-	if speaker_id == "CHR_DARKLORD_PLAYER":
-		speaker_name = root._onboarding_player_name()
-	resolved_speaker["speaker_label"] = speaker_name
-	speaker_name = LanguageSettings.story_speaker(resolved_speaker, root._onboarding_player_name())
-	var title := LanguageSettings.story_title(scene)
-	var header_y := 46.0 if not combat_overlay else 54.0
-	hud.label(parent, title, Vector2(72, header_y), Vector2(920, 42), 24, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "StoryDialogueHeader", UIFontScript.ROLE_EMPHASIS)
-	if combat_overlay:
-		hud.label(parent, LanguageSettings.story_ui("combat_paused"), Vector2(1220, header_y), Vector2(620, 42), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_RIGHT, "StoryCombatPausedLabel", UIFontScript.ROLE_EMPHASIS)
-	var text := LanguageSettings.story_text(cue, root._onboarding_player_name())
-	var dialogue_layout: Dictionary = root._onboarding_dialogue_layout(text, touch_ui)
-	var portrait_rect := Rect2(72, 510, 328, 510)
-	var portrait_panel = root._onboarding_add_portrait(parent, portrait_rect, speaker_id, speaker_name, str(resolved_speaker.get("portrait_emotion", "")), false)
-	portrait_panel.name = "StoryDialoguePortraitPanel"
-	var box_rect: Rect2 = dialogue_layout.get("box_rect", Rect2(392, 660, 1454, 326))
-	var dialogue_panel = root._onboarding_child_panel(parent, box_rect, Color("#100d14f7"), Color("#9b6a27"))
-	dialogue_panel.name = "StoryDialogueTextPanel"
-	var speaker_rect: Rect2 = dialogue_layout.get("speaker_rect", Rect2(432, 696, 760, 46))
-	hud.label(parent, speaker_name, speaker_rect.position, speaker_rect.size, 29, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "StorySpeakerLabel", UIFontScript.ROLE_EMPHASIS)
-	var text_rect: Rect2 = dialogue_layout.get("text_rect", Rect2(432, 756, 1180, 134))
-	var dialogue_label = hud.dialogue_text(parent, text, text_rect, "StoryDialogueText")
-	dialogue_label.add_theme_constant_override("line_separation", 4)
-	var next_rect: Rect2 = dialogue_layout.get("next_rect", Rect2(1542, 908, 246, 56))
-	var progress_rect: Rect2 = dialogue_layout.get("progress_rect", Rect2(1402, 920, 116, 28))
-	hud.label(
-		parent,
-		"%d / %d" % [root.story_director.cursor + 1, root.story_director.cue_count()],
-		progress_rect.position,
-		progress_rect.size,
-		20 if touch_ui else 16,
-		Color("#bfb7cc"),
-		HORIZONTAL_ALIGNMENT_RIGHT,
-		"StoryCueProgress"
-	)
-	hud.button(parent, LanguageSettings.story_ui("next"), next_rect, Callable(root, "_story_advance_dialogue").bind(true), 30 if touch_ui else 21, "StoryNextButton")
-	var auto_label := LanguageSettings.story_ui("auto_on" if root.story_director.auto_enabled else "auto")
-	var auto_rect: Rect2 = Rect2(1080, 820, 300, 144) if touch_ui else Rect2(1180, 940, 304, 60)
-	hud.button(parent, auto_label, auto_rect, Callable(root, "_story_toggle_auto"), 22 if touch_ui else 16, "StoryAutoButton")
-	if root.story_director.skip_allowed():
-		var skip_rect: Rect2 = Rect2(730, 820, 320, 144) if touch_ui else Rect2(876, 940, 280, 60)
-		hud.button(parent, LanguageSettings.story_ui("skip_read"), skip_rect, Callable(root, "_story_skip_dialogue"), 22 if touch_ui else 15, "StorySkipButton")
+func background_path(scene: Dictionary) -> String:
+	for key in ["background", "background_path", "scene_background"]:
+		var path := str(scene.get(key, ""))
+		if path.begins_with("res://") and ResourceLoader.exists(path): return path
+	return THRONE_BACKGROUND
+
+func _build_frame(parent: Control, cue: Dictionary, _scene: Dictionary, combat_overlay: bool) -> void:
+	root.continuity.record_story()
+	var resolved: Dictionary = root._story_resolve_cue_speaker(cue)
+	var speaker_id := str(resolved.get("speaker_id", "NARRATOR"))
+	resolved["speaker_label"] = root._onboarding_player_name() if speaker_id == "CHR_DARKLORD_PLAYER" else str(resolved.get("speaker_label", root._onboarding_speaker_name(speaker_id)))
+	var speaker_name := LanguageSettings.story_speaker(resolved, root._onboarding_player_name())
+	_build_shared_frame(parent, speaker_id, speaker_name, str(resolved.get("portrait_emotion", "")), LanguageSettings.story_text(cue, root._onboarding_player_name()), combat_overlay, false)
+
+func _build_shared_frame(parent: Control, speaker_id: String, speaker_name: String, emotion: String, text: String, combat: bool, legacy: bool) -> void:
+	frame_parent = parent; frame_legacy = legacy; frame_combat = combat
+	frame_style = _style_key()
+	_update_participants(speaker_id, emotion, legacy)
+	for slot in range(participants.size()): _standing(parent, participants[slot], slot, participants[slot] == speaker_id, combat)
+	var strip := KitPanelScript.new()
+	strip.name = "DialogueTextPanel" if legacy else "StoryDialogueTextPanel"
+	strip.top_jewel = true
+	var raster_only := bool(ProjectSettings.get_setting("debug/approved_map_step6",false))
+	strip.raster_only = raster_only
+	parent.add_child(strip)
+	strip.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	strip.anchor_top = 0.68 if not combat else 0.70
+	strip.offset_left = 24
+	strip.offset_right = -24
+	strip.offset_bottom = -24
+	strip.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	strip.mouse_filter = Control.MOUSE_FILTER_STOP
+	strip.content.add_theme_constant_override("separation", 8)
+	var heading := HBoxContainer.new()
+	strip.content.add_child(heading)
+	var speaker := Kit.label(speaker_name, "body", true)
+	speaker_label = speaker
+	speaker.name = "DialogueSpeakerLabel" if legacy else "StorySpeakerLabel"
+	speaker.add_theme_color_override("font_color", Kit.Tokens.HIGHLIGHT)
+	speaker.add_theme_font_size_override("font_size", maxi(26, Kit.Tokens.font_size(28, UISettings.text_scale, UISettings.is_touch_ui())))
+	# Wrapped names must not impose their unwrapped minimum width on the frame.
+	speaker.clip_text = true
+	heading.add_child(speaker)
+	var counter := Kit.label("", "support")
+	counter.name = "DialoguePageCounter"
+	counter.size_flags_horizontal = Control.SIZE_SHRINK_END
+	counter.add_theme_font_size_override("font_size",20)
+	heading.add_child(counter)
+	var row := HBoxContainer.new()
+	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	strip.content.add_child(row)
+	var body := RichTextLabel.new()
+	body.name = "DialogueText" if legacy else "StoryDialogueText"
+	body.text = text
+	body.bbcode_enabled = false
+	body.scroll_active = false
+	body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.custom_minimum_size.y = 116
+	body.add_theme_font_override("normal_font", UIFontScript.font_for_role(UIFontScript.ROLE_DIALOGUE))
+	body.add_theme_font_size_override("normal_font_size", maxi(32, Kit.Tokens.font_size(40, UISettings.text_scale, UISettings.is_touch_ui())))
+	body.add_theme_color_override("default_color", Kit.Tokens.TEXT)
+	body.add_theme_constant_override("line_separation", 6)
+	body.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
+	row.add_child(body)
+	var next = icon_button_script.new().configure_icon("play", root.continuity.localized("다음 대사 · 수동 입력은 자동 재생을 끕니다.", "Next line · manual input turns auto off.", "下一句 · 手动操作会关闭自动播放。"))
+	next_button = next
+	next.set_meta("uiux_external_button", true)
+	next.name = "LegacyNextButton" if legacy else "StoryNextButton"
+	if auto_at_end:
+		next.tooltip_text = root.continuity.localized("자동 재생 완료 · 마지막 대사를 읽고 계속합니다.", "Auto finished · read the final line and continue.", "自动播放完成 · 阅读最后一句后继续。")
+	next.size_flags_vertical = Control.SIZE_SHRINK_END
+	row.add_child(next)
+	var advance := Callable(root, "_onboarding_advance_dialogue") if legacy else Callable(root, "_story_advance_dialogue").bind(true)
+	if legacy and root.onboarding_dialogue_queue.is_empty():
+		advance = Callable(root, "_set_screen").bind(root.onboarding_dialogue_return_screen)
+	next.pressed.connect(advance)
+	root._connect_dialogue_click(strip, body, advance)
+	Kit.apply_scale(strip, UISettings.text_scale, UISettings.is_touch_ui())
+	# Override only this surface instance; shared kit panels remain unchanged.
+	var top_color := Kit.Tokens.PANEL_RAISED
+	var bottom_color := Kit.Tokens.BACKGROUND
+	top_color.a = 0.72
+	bottom_color.a = 0.78
+	strip.surface.material.set_shader_parameter("top_color", top_color)
+	strip.surface.material.set_shader_parameter("bottom_color", bottom_color)
+	_toolbar(parent, legacy)
+	if raster_only:
+		strip.surface.hide()
+		preload("res://scripts/ui/ApprovedBattleUI.gd").prepare_result_controls(parent)
+		# Preserve the GPT artwork's corners instead of stretching its bevel
+		# underneath the copy. Only this dialogue instance receives these margins.
+		var frame := preload("res://scripts/ui/ObsidianStyleBox.gd").new()
+		frame.texture = preload("res://assets/ui/uiux/obsidian_panel.png")
+		for side in [SIDE_LEFT,SIDE_RIGHT]: frame.set_content_margin(side,48)
+		for side in [SIDE_TOP,SIDE_BOTTOM]: frame.set_content_margin(side,28)
+		strip.add_theme_stylebox_override("panel",frame)
+	var key := "%s:%s:%s:%s" % [legacy,root.onboarding_dialogue_index if legacy else root.story_director.current_cue_id,LanguageSettings.locale,text]
+	speaker.custom_minimum_size.y = ceilf(speaker.get_theme_font("font").get_height(speaker.get_theme_font_size("font_size")))+4
+	page_body = body; page_counter = counter; source_text = text; source_key = key
+	body.resized.connect(_queue_paginate)
+	_queue_paginate()
+	if combat:
+		var paused: Label = hud.label(parent, LanguageSettings.story_ui("combat_paused"), Vector2(32, 32), Vector2(750, 48), 24, Kit.Tokens.HIGHLIGHT, HORIZONTAL_ALIGNMENT_LEFT, "StoryCombatPausedLabel", UIFontScript.ROLE_EMPHASIS)
+		paused.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+func _paginate(body: RichTextLabel, counter: Label, text: String, key: String) -> void:
+	if not is_instance_valid(body) or not body.is_inside_tree() or body.is_queued_for_deletion() or body.size.x<16 or body.size.y<16: return
+	if page_key != key:
+		page_key = key; page_index = 0
+	var font := body.get_theme_font("normal_font")
+	var pixels := body.get_theme_font_size("normal_font_size")
+	var layout_key: Array = [text, font.get_instance_id(), pixels, body.size, LanguageSettings.locale]
+	if not pagination_cache.has(layout_key):
+		if pagination_cache.size() >= 512: pagination_cache.clear()
+		pagination_cache[layout_key] = TextLayout.pages(text,font,pixels,body.size,6)
+	text_pages = pagination_cache[layout_key]
+	page_index = clampi(page_index,0,text_pages.size()-1)
+	page_body = body; page_counter = counter
+	_show_page()
+
+func _queue_paginate() -> void:
+	if pagination_pending: return
+	pagination_pending = true
+	_flush_paginate.call_deferred()
+
+func _flush_paginate() -> void:
+	pagination_pending = false
+	_paginate(page_body,page_counter,source_text,source_key)
+
+func _show_page() -> void:
+	if not is_instance_valid(page_body) or text_pages.is_empty(): return
+	# Page boundaries preserve every source character. Only boundary whitespace
+	# is hidden while drawing, avoiding a spurious blank row at the page edge.
+	page_body.text = text_pages[page_index].strip_edges()
+	page_body.set_meta("dialogue_page_count",text_pages.size())
+	page_body.set_meta("dialogue_full_text","".join(text_pages))
+	if is_instance_valid(page_counter):
+		page_counter.text = "%d / %d" % [page_index+1,text_pages.size()] if text_pages.size()>1 else ""
+
+func advance_page(manual: bool) -> bool:
+	if not is_instance_valid(page_body) or page_index+1>=text_pages.size(): return false
+	page_index += 1
+	if manual:
+		legacy_auto_enabled = false
+		root.story_director.set_auto(false)
+	_show_page()
+	root._story_reset_auto_timer()
+	if manual: root._story_refresh_dialogue_ui()
+	return true
+
+func _update_participants(speaker: String, emotion: String, legacy: bool) -> void:
+	var key: String = "legacy:%s" % root.onboarding_dialogue_queue.hash() if legacy else "story:" + root.story_director.current_scene_id
+	if participant_key != key:
+		participant_key = key
+		participants.clear()
+		participant_emotions.clear()
+		var ids: Array[String] = []
+		var cues: Array = root.onboarding_dialogue_queue if legacy else root.story_director.current_scene().get("cues", [])
+		for cue in cues:
+			var id: String = str(cue.get("speaker", "")) if legacy else str(root._story_resolve_cue_speaker(cue).get("speaker_id", ""))
+			if id != "" and id != "NARRATOR" and not ids.has(id): ids.append(id)
+		if ids.has("CHR_DARKLORD_PLAYER"):
+			participants.append("CHR_DARKLORD_PLAYER")
+			ids.erase("CHR_DARKLORD_PLAYER")
+		elif ids.size() < 2:
+			participants.append("CHR_DARKLORD_PLAYER")
+		for id in ids:
+			if participants.size() < 2: participants.append(id)
+	if speaker != "" and speaker != "NARRATOR" and not participants.has(speaker):
+		if participants.size() < 2: participants.append(speaker)
+		else: participants[1 if participants[0] == "CHR_DARKLORD_PLAYER" else 0] = speaker
+	participant_emotions[speaker] = emotion
+
+func _standing(parent: Control, id: String, slot: int, active: bool, combat: bool) -> void:
+	var path := _portrait_path(id, str(participant_emotions.get(id, "")))
+	var image: TextureRect = parent.get_node_or_null("DialogueStandingLeft" if slot == 0 else "DialogueStandingRight")
+	if image == null:
+		image = TextureRect.new()
+		image.name = "DialogueStandingLeft" if slot == 0 else "DialogueStandingRight"
+		parent.add_child(image)
+		# A participant replacing another stays behind the dialogue strip.
+		parent.move_child(image, mini(slot+1,parent.get_child_count()-1))
+	image.visible = path != ""
+	if path == "": return
+	image.texture = _standing_texture(id, str(participant_emotions.get(id, "")))
+	image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	image.modulate = Color.WHITE if active else Color(0.5, 0.5, 0.5, 1)
+	image.set_meta("speaker_id", id)
+	image.set_meta("portrait_path", path)
+	var layout := _layout_monster_standing.bind(image, slot, combat)
+	if parent.resized.is_connected(layout): parent.resized.disconnect(layout)
+	image.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	image.anchor_left = 0.005 if slot == 0 else 0.50
+	image.anchor_right = 0.495 if slot == 0 else 1.0
+	image.anchor_top = 0.02 if not combat else 0.40
+	image.anchor_bottom = 0.96
+	if combat:
+		image.anchor_left = 0.06 if slot == 0 else 0.65
+		image.anchor_right = 0.35 if slot == 0 else 0.94
+	if id == "CHR_BATI":
+		# A floating mascot at the lord's chest height, below the toolbar.
+		image.anchor_left = 0.10 if slot == 0 else 0.58
+		image.anchor_right = 0.42 if slot == 0 else 0.94
+		image.anchor_top = 0.26 if not combat else 0.44
+		image.anchor_bottom = 0.77
+	elif is_monster_speaker(id):
+		# Fit the actual alpha silhouette to Bati's visible height and baseline.
+		# Atlas cropping only selects source pixels; it never edits their alpha.
+		image.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+		parent.resized.connect(layout)
+		_layout_monster_standing(image, slot, combat)
+
+func is_monster_speaker(id: String) -> bool:
+	if id in ["CHR_DARKLORD_PLAYER", "CHR_BATI", "NARRATOR"]: return false
+	var category := str(DataRegistry.character(id).get("category", ""))
+	if "monster" in category: return true
+	for instance in DataRegistry.monster_instances.values():
+		if str(instance.get("character_id", "")) == id: return true
+	# Goldin is a skeleton member of castle staff, rather than a deployed unit.
+	return id == "CHR_GOLDIN"
+
+func _layout_monster_standing(image: TextureRect, slot: int, combat: bool) -> void:
+	if not is_instance_valid(image) or image.texture == null: return
+	var reference: Texture2D = root._onboarding_portrait_texture(_portrait_path("CHR_BATI", "dry"))
+	if reference == null: return
+	var bounds := standing_visible_bounds(reference)
+	var extent: Vector2 = image.get_parent().size
+	var area := Rect2(Vector2(extent.x * (0.10 if slot == 0 else 0.58), extent.y * (0.44 if combat else 0.26)), Vector2(extent.x * (0.32 if slot == 0 else 0.36), extent.y * (0.33 if combat else 0.51)))
+	var fit := minf(area.size.x / reference.get_width(), area.size.y / reference.get_height())
+	var origin := area.position + (area.size - reference.get_size() * fit) * 0.5
+	var height := bounds.size.y * fit
+	image.size = Vector2(height * image.texture.get_width() / image.texture.get_height(), height)
+	image.position = Vector2(area.get_center().x - image.size.x * 0.5, origin.y + bounds.end.y * fit - height)
+
+func _toolbar(parent: Control, legacy: bool) -> void:
+	var margin := MarginContainer.new()
+	margin.name = "DialogueToolbar"
+	parent.add_child(margin)
+	margin.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	margin.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	for side in ["left", "right", "top", "bottom"]: margin.add_theme_constant_override("margin_" + side, 24)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	margin.add_child(row)
+	_icon(row, "log", root.continuity.localized("대화 로그 · 읽기 전용, 자동 재생 일시정지", "Dialogue log · read only, pauses auto", "对白记录 · 只读，暂停自动播放"), Callable(root.continuity, "open_backlog"), "DialogueBacklogButton", root.continuity.localized("로그", "Log", "记录"))
+	var auto = _icon(row, "auto", "Auto", Callable(self, "toggle_legacy_auto") if legacy else Callable(root, "_story_toggle_auto"), "LegacyStoryAutoButton" if legacy else "StoryAutoButton", "")
+	auto.toggle_mode = true
+	var active_marker := Kit.image("check", 32)
+	active_marker.name = "DialogueAutoActiveMarker"
+	active_marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	auto.add_child(active_marker)
+	active_marker.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	active_marker.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	var skip = _icon(row, "skip", root.continuity.localized("넘기기 · 읽은 대화만 허용", "Skip · available for previously read dialogue", "跳过 · 仅限已读对白"), Callable(root, "_onboarding_skip_dialogue") if legacy else Callable(root, "_story_skip_dialogue"), "LegacyStorySkipButton" if legacy else "StorySkipButton", root.continuity.localized("넘기기", "Skip", "跳过"))
+	var lock := Kit.image("lock", 28)
+	lock.name = "DialogueSkipLock"
+	skip.add_child(lock)
+	lock.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	lock.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_icon(row, "menu", root.continuity.localized("게임 메뉴 · 대화 자동 재생 일시정지", "Game menu · pauses dialogue auto", "游戏菜单 · 暂停对白自动播放"), Callable(root, "_open_pause_menu"), "DialogueMenuButton", root.continuity.localized("메뉴", "Menu", "菜单"))
+	Kit.apply_scale(margin, UISettings.text_scale, UISettings.is_touch_ui())
+	_refresh_toolbar(parent, legacy)
+
+func _refresh_toolbar(parent: Control, legacy: bool) -> void:
+	var automatic := legacy_auto_enabled if legacy else bool(root.story_director.auto_enabled)
+	var status: String = root.continuity.localized("켜짐", "On", "开启") if automatic else root.continuity.localized("꺼짐", "Off", "关闭")
+	var auto: Button = parent.find_child("LegacyStoryAutoButton" if legacy else "StoryAutoButton", true, false)
+	auto.tooltip_text = root.continuity.localized("자동 재생 · 현재 %s\n클릭하여 켜기/끄기 · 마지막 대사에서 멈춤", "Auto · currently %s\nClick to toggle · stops at the final line", "自动播放 · 当前%s\n点击切换 · 在最后一句停止") % status
+	auto.set_pressed_no_signal(automatic)
+	auto.set_variant(icon_button_script.VariantStyle.PRIMARY if automatic else icon_button_script.VariantStyle.BASIC)
+	auto.get_meta("caption_label").text = root.continuity.localized("자동 · %s", "Auto · %s", "自动 · %s") % status
+	auto.get_node("DialogueAutoActiveMarker").visible = automatic
+	auto.disabled = not auto_allowed(legacy)
+	if auto.disabled: auto.tooltip_text = root.continuity.localized("자동 재생 · 현재 꺼짐 · 사용 불가\n오프닝/관리 진입/전투 직전/승리 후 긴 묶음에서 사용", "Auto · currently Off · unavailable\nAvailable for long opening/management/precombat/victory groups", "自动播放 · 当前关闭 · 不可用\n用于开场、管理开始、战斗前及胜利后的长对白")
+	var allowed: bool = root.campaign_cycle_index >= 2 and root.onboarding_dialogue_queue.size() > 1 if legacy else root.story_director.skip_allowed()
+	var skip: Button = parent.find_child("LegacyStorySkipButton" if legacy else "StorySkipButton", true, false)
+	skip.disabled = not allowed
+	skip.tooltip_text = root.continuity.localized("넘기기 · 읽은 대화만 허용", "Skip · available for previously read dialogue", "跳过 · 仅限已读对白") if allowed else root.continuity.localized("넘기기 · 현재 사용 불가\n읽은 대화부터 넘길 수 있습니다.", "Skip · currently unavailable\nAvailable after reading this dialogue.", "跳过 · 当前不可用\n读过此对白后方可跳过。")
+	skip.get_node("DialogueSkipLock").visible = not allowed
+
+func _icon(parent: Control, icon: String, help: String, callback: Callable, id: String, caption: String) -> Button:
+	var group := VBoxContainer.new()
+	group.add_theme_constant_override("separation", 4)
+	parent.add_child(group)
+	var button = icon_button_script.new().configure_icon(icon, help)
+	button.name = id
+	button.set_meta("uiux_external_button", true)
+	button.icon = Kit.Icons.get_icon(icon, 64)
+	button.add_theme_constant_override("icon_max_width", 64)
+	group.add_child(button)
+	var label := Kit.label(caption, "support")
+	label.name = id + "Caption"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	group.add_child(label)
+	button.set_meta("caption_label", label)
+	button.pressed.connect(callback)
+	return button
+
+func auto_allowed(legacy: bool) -> bool:
+	if not legacy: return str(root.story_director.current_scene().get("trigger", "")) in LONG_STORY_TRIGGERS
+	if root.onboarding_dialogue_queue.size() < 2: return false
+	if root.onboarding_dialogue_complete_action == root.ONBOARDING_ACTION_DAY1_MANAGEMENT: return true
+	if root.onboarding_dialogue_queue.size() >= 4 and root.onboarding_dialogue_return_screen in ["intrusion_brief", "defense_start", "result"]: return true
+	for line in root.onboarding_dialogue_queue:
+		if str(line.get("trigger", "")) in ["opening_start", "management_open", "management_open_extended", "battle_start", "precombat_confirmed", "win", "win_no_treasure_loss", "result_win"]: return true
+	return false
+
+func reset_legacy_auto() -> void:
+	legacy_auto_enabled = false
+	page_key = ""; page_index = 0; text_pages.clear()
+	auto_at_end = false
+	reset_legacy_timer()
+
+func reset_legacy_timer() -> void:
+	if root.onboarding_dialogue_queue.is_empty(): return
+	var text: String = root._onboarding_line_text(root.onboarding_dialogue_queue[root.onboarding_dialogue_index])
+	legacy_auto_remaining = clampf(1.4 + text.length() * 0.045, 2.2, 7.0)
+
+func toggle_legacy_auto() -> void:
+	if not auto_allowed(true): return
+	legacy_auto_enabled = not legacy_auto_enabled
+	auto_at_end = false
+	reset_legacy_timer()
+	root._story_refresh_dialogue_ui()
+
+func tick_legacy_auto(delta: float) -> void:
+	if not legacy_auto_enabled or root.onboarding_dialogue_queue.is_empty(): return
+	legacy_auto_remaining -= delta
+	if legacy_auto_remaining > 0.0: return
+	if page_index+1<text_pages.size():
+		root._onboarding_advance_dialogue(false)
+		return
+	if root.onboarding_dialogue_index + 1 >= root.onboarding_dialogue_queue.size():
+		legacy_auto_enabled = false
+		auto_at_end = true
+		root._story_refresh_dialogue_ui()
+	else: root._onboarding_advance_dialogue(false)
+
+static func dialogue_layout(_text: String, _touch: bool) -> Dictionary:
+	return {"box_rect":Rect2(24,821,1872,235), "speaker_rect":Rect2(48,845,1690,44), "text_rect":Rect2(48,897,1710,132), "next_rect":Rect2(1788,972,84,84), "skip_rect":Rect2(1680,24,84,84)}

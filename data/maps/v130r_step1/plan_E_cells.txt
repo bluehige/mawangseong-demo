@@ -1,0 +1,23 @@
+# 등급 E 설계도 칸 데이터 (32x18). x=왼→오른(입구→옥좌), y=위→아래
+# . 바닥  = 길  ~ 물길  B 다리  X 길 함정  m 수비 칸(길 위)
+# E 입구3x3 W 감시탑3x3 L 미끼보물실3x3 K 병영5x5 R 회복둥지5x5 C 결계핵5x5 T 옥좌5x5 V 금고4x4
+# 화면 투영(옥좌가 맨 위): X_iso = y, Y_iso = W - x ; screen = ((X_iso-Y_iso)*tw/2, (X_iso+Y_iso)*th/2)
+........~~..............~~.TTTTT
+........~~KKKKK.........~~.TTTTT
+........~~KKKKK.........~~.TTTTT
+...WWW..~~KKKKK.........~~.TTTTT
+...WWW..~~KKKKK.........~~.TTTTT
+...WWW..~~KKKKK.======X=BB==mm..
+...mm...~~.mm...======X=BB==mm..
+EEEm=...~~.mm...==.CCCCC~~......
+EEE===XXBB=========CCCCC~~~~~~~~
+EEE===XXBB========mCCCCC~~~~~~~~
+...mm...~~.mm...==.CCCCC~~......
+...==...~~.==...XX.CCCCC~~..VVVV
+...LLL..~~RRRRR.======X=BB=mVVVV
+...LLL..~~RRRRR.======X=BB=mVVVV
+...LLL..~~RRRRR.........~~..VVVV
+........~~RRRRR.........~~......
+........~~RRRRR.........~~......
+........~~..............~~......
+# buildings: [{"code": "E", "rect": [0, 7, 3, 3], "door": "E"}, {"code": "W", "rect": [3, 3, 3, 3], "door": "S"}, {"code": "L", "rect": [3, 12, 3, 3], "door": "N"}, {"code": "K", "rect": [10, 1, 5, 5], "door": "S"}, {"code": "R", "rect": [10, 12, 5, 5], "door": "N"}, {"code": "C", "rect": [19, 7, 5, 5], "door": "W"}, {"code": "T", "rect": [27, 0, 5, 5], "door": "S"}, {"code": "V", "rect": [28, 11, 4, 4], "door": "W"}]

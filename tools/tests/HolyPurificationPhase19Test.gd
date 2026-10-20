@@ -80,7 +80,12 @@ func _test_day_overlay_and_wave_budgets() -> void:
 		var modifier := FrontServiceScript.day_defense_modifier(run, day, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
 		var manager = WaveManagerScript.new()
 		manager.setup(day, DataRegistry.waves, {"holy": modifier})
-		_expect(manager.total_to_spawn == baseline_manager.total_to_spawn, "DAY %02d 웨이브 인원 예산이 기본 편성과 동일(%d명)" % [day, baseline_manager.total_to_spawn])
+		# V130R DAY11 has one thief, so the authored -2 removal saturates at one.
+		# Three holy replacements then make nine invaders; do not change wave data.
+		var expected_total: int = 9 if day == 11 else baseline_manager.total_to_spawn
+		_expect(manager.total_to_spawn == expected_total, "DAY %02d 현재 전선 인원 예산 %d명" % [day, expected_total])
+		if day == 11:
+			_expect(_schedule_enemy_count(manager.schedule, "thief") == 0 and _schedule_enemy_count(manager.schedule, "seal_chainbearer") == 1 and _schedule_enemy_count(manager.schedule, "shieldbearer") == 2, "DAY 11 가용 도둑만 제거하고 사슬병1·방패병2 추가")
 		if day >= 11:
 			_expect(_schedule_has_holy_enemy(manager.schedule), "DAY %02d 성광 적 출현" % day)
 	_expect(_schedule_has_enemy(_schedule_for(run, 10), "seal_chainbearer"), "DAY 10 봉인 사슬 순찰대 첫 등장")
@@ -131,7 +136,7 @@ func _test_leon_regression_and_selen_placeholder() -> void:
 	_expect(str(FrontServiceScript.day_defense_modifier(hero_run, 15, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays).get("id", "")) == "hero_day15_heart_chamber_test", "레온 전선 DAY 15 심장 대응 웨이브 유지")
 	var manager = WaveManagerScript.new()
 	manager.setup(15, DataRegistry.waves, {})
-	_expect(manager.total_to_spawn == 6 and _schedule_has_enemy(manager.schedule, "selen_trainee_paladin") and not _schedule_has_holy_enemy(manager.schedule), "레온 전선 DAY 15 기존 셀렌 웨이브 회귀 방지")
+	_expect(manager.total_to_spawn == 10 and _schedule_has_enemy(manager.schedule, "selen_trainee_paladin") and not _schedule_has_holy_enemy(manager.schedule), "레온 전선 DAY 15 현재 10명 셀렌 웨이브 회귀 방지")
 	var selen: Dictionary = DataRegistry.update3_rival_finales.get("selen", {})
 	var holy_day30 := FrontServiceScript.overlay_day_entry(_holy_run(), 30, DataRegistry.update3_fronts, DataRegistry.update3_front_day_overlays)
 	_expect(str(selen.get("content_status", "")) == "phase20_combat_ready" and not holy_day30.has("placeholder") and str(holy_day30.get("boss_enemy_id", "")) == "official_paladin_selen", "Phase 20 정식 셀렌 최종 보스로 교체")

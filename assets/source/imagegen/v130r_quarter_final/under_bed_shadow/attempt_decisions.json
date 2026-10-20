@@ -1,0 +1,12 @@
+[
+  {
+    "attempt": 1,
+    "status": "PARTIAL",
+    "reason": "Camera criteria pass; SW attack10/11 and NE attack9/10/11 have arms crossing source boundaries"
+  },
+  {
+    "attempt": 2,
+    "status": "ADOPTED_PATCH",
+    "reason": "Two SW and three NE replacement attack poses; sixth generated NE hurt is unused"
+  }
+]

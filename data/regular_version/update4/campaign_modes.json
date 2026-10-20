@@ -16,7 +16,7 @@
     "start_day": 1,
     "max_day": 30,
     "day_schedule_id": "council_day_schedule",
-    "supported_systems": ["regions", "council", "outpost", "upper_floor", "crown"],
+    "supported_systems": ["regions", "council", "outpost", "plot_expansion", "crown"],
     "data_root": "res://data/regular_version/update4",
     "start_screen_id": "management",
     "accent": "#b48cff"

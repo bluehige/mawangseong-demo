@@ -59,11 +59,24 @@ func set_locale(value: String, persist: bool = true) -> void:
 	locale_changed.emit(locale)
 
 func ui_text(source: String) -> String:
+	if catalog.get(LOCALE_KOREAN, {}).has(source): return text(source)
 	if locale == LOCALE_ENGLISH:
 		return english_translation.translate_text(source)
 	if locale == LOCALE_CHINESE:
 		return chinese_translation.translate_text(source)
 	return source
+
+func presentation_text(source: String) -> String:
+	var translation = chinese_translation if locale == LOCALE_CHINESE else english_translation
+	var protected_name := str(translation.protected_name)
+	if protected_name == "": protected_name = GameState.player_name
+	return preload("res://scripts/ui/CastlePresentationText.gd").clean(ui_text(source),locale,protected_name)
+
+# Preserve raw label/translation contracts unless a technical token is present.
+func presentation_source(source: String) -> String:
+	var translated := ui_text(source)
+	var displayed := presentation_text(source)
+	return displayed if displayed!=translated else source
 
 func _update_window_title() -> void:
 	ThemeDB.fallback_font = ChineseFont if locale == LOCALE_CHINESE else original_fallback_font
@@ -99,6 +112,18 @@ func _configure_ui_catalog(language: String, path: String, translation) -> void:
 	# Language-neutral composition templates still contain localized names/counts.
 	for template in ["%s %d", "%s %d/%d", "%s Lv.%d", "%s x%d", "%s × %d", "%s %d→%d", "%s (%s)", "[%s]", "• %s", "—  %s"]:
 		values[template] = "%s %d级" if language == LOCALE_CHINESE and template == "%s Lv.%d" else template
+	var supplement_path := "res://data/v130r/localization_"+("zh_cn" if language==LOCALE_CHINESE else "en")+".json"
+	var supplement = JSON.parse_string(FileAccess.get_file_as_string(supplement_path))
+	if supplement is Dictionary:
+		values.merge(supplement.get("messages",{}),true)
+		for source in supplement.get("messages",{}):
+			var translated: String = supplement.messages[source]
+			if str(source).begins_with("[") and "]:" in str(source) and "]:" in translated:
+				values[str(source).split("]:",true,1)[1].strip_edges()] = translated.split("]:",true,1)[1].strip_edges()
+
+	var duo_ui_path := "res://data/v130r/story/localization_duo_ui_"+("zh_cn" if language==LOCALE_CHINESE else "en")+".json"
+	var duo_ui: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(duo_ui_path))
+	values.merge(duo_ui.get("messages",{}),true)
 	translation.configure(values, language)
 	TranslationServer.add_translation(translation)
 
@@ -115,7 +140,7 @@ func display_name(value: String) -> String:
 	match normalize_locale(value):
 		LOCALE_ENGLISH: return "English"
 		LOCALE_CHINESE: return "简体中文"
-		_: return "한국어"
+		_: return {"en":"Korean","zh_CN":"韩语"}.get(locale,"한국어")
 
 func text(key: String, replacements: Dictionary = {}) -> String:
 	if catalog.is_empty():
@@ -215,8 +240,8 @@ func snapshot() -> Dictionary:
 func apply_snapshot(value: Dictionary, persist: bool = false) -> void:
 	set_locale(str(value.get("locale", LOCALE_KOREAN)), persist)
 
-func save() -> void:
-	_save_settings()
+func save() -> bool:
+	return _save_settings()
 
 func _system_default_locale() -> String:
 	return normalize_locale(OS.get_locale())
@@ -243,6 +268,9 @@ func _load_catalog() -> void:
 		var locale_catalog = parsed_locales.get(locale_id, {})
 		if locale_catalog is Dictionary:
 			catalog[locale_id] = locale_catalog.duplicate(true)
+	var map_catalog: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/localization/v130r_map_ui.json"))
+	for locale_id in SUPPORTED_LOCALES:
+		catalog[locale_id].merge(map_catalog.locales[locale_id],true)
 
 func _load_settings() -> void:
 	var config := ConfigFile.new()
@@ -255,10 +283,11 @@ func _load_settings() -> void:
 		_system_default_locale()
 	)))
 
-func _save_settings() -> void:
+func _save_settings() -> bool:
 	var config := ConfigFile.new()
 	config.load(SETTINGS_PATH)
 	config.set_value(SETTINGS_SECTION, "locale", locale)
 	var error := config.save(SETTINGS_PATH)
 	if error != OK:
 		push_warning("언어 설정을 저장하지 못했습니다: %s" % error_string(error))
+	return error == OK

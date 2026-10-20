@@ -1,0 +1,1484 @@
+[
+  {
+    "index": 0,
+    "source": "자동",
+    "key": "map.auto",
+    "locations": [
+      "scripts/camera/SpectatorCameraDirector.gd:107",
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:91",
+      "scripts/story/StoryDialoguePresenter.gd:232",
+      "scripts/ui/CombatWorkspaceUI.gd:247"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 1,
+    "source": " · 굶주림",
+    "key": "map.hungry",
+    "locations": [
+      "scripts/game/ApprovedBattleController.gd:111"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 2,
+    "source": "수비 칸 복귀",
+    "key": "map.return_to_defense_post",
+    "locations": [
+      "scripts/game/ApprovedBattleController.gd:247"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 3,
+    "source": " 방어선",
+    "key": "map.defense_line",
+    "locations": [
+      "scripts/map_builder/ApprovedBattleMap.gd:58"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 4,
+    "source": "날짜 역행 금지",
+    "key": "map.cannot_move_to_an_earlier_day",
+    "locations": [
+      "scripts/map_builder/ApprovedGradeProgression.gd:30"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 5,
+    "source": "등급 이전 고정 시설 누락",
+    "key": "map.required_fixed_facility_missing_during_expansion",
+    "locations": [
+      "scripts/map_builder/ApprovedGradeProgression.gd:42"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 6,
+    "source": "등급 이전 공간 부족: ",
+    "key": "map.not_enough_room_after_expansion",
+    "locations": [
+      "scripts/map_builder/ApprovedGradeProgression.gd:86"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 7,
+    "source": "등급 이전 함정 공간 부족",
+    "key": "map.not_enough_room_for_traps_after_expansion",
+    "locations": [
+      "scripts/map_builder/ApprovedGradeProgression.gd:121"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 8,
+    "source": "성 관리  ·  E등급 32×18  ·  맵 반영 1단계",
+    "key": "map.castle_management_grade_e_32_18_map_preview_1",
+    "locations": [
+      "scripts/map_builder/ApprovedMapView.gd:56"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 9,
+    "source": "전체 보기",
+    "key": "map.full_map",
+    "locations": [
+      "scripts/map_builder/ApprovedMapView.gd:65"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 10,
+    "source": "기본 2배",
+    "key": "map.default_2",
+    "locations": [
+      "scripts/map_builder/ApprovedMapView.gd:65"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 11,
+    "source": "드래그: 화면 이동   ·   휠: 확대/축소   ·   Shift+휠: 좌우 이동   ·   Ctrl+휠: 상하 이동   ·   F: 전체   ·   2: 기본   |   칸 %d×%d",
+    "key": "map.drag_pan_wheel_zoom_shift_wheel_horizontal_ctrl_wheel_vertical_f_full_",
+    "locations": [
+      "scripts/map_builder/ApprovedMapView.gd:91"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 12,
+    "source": "굶주림 위험",
+    "key": "map.hunger_risk",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:71"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 13,
+    "source": "카드 → 빛나는 수비 칸  ·  겹치면 교체  ·  밖으로 끌면 해제",
+    "key": "map.drag_cards_to_glowing_posts_drop_to_swap_drag_out_to_remove",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:75"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 14,
+    "source": "자동 배치 · 역할 추천 / 식량 수입 이내",
+    "key": "map.auto_deploy_suggested_roles_within_food_income",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:90"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 15,
+    "source": "전부 해제",
+    "key": "map.clear_all",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:92",
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:93"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 16,
+    "source": "미합류 · ",
+    "key": "map.not_recruited",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:118"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 17,
+    "source": "배치 중 · ",
+    "key": "map.deployed",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:118"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 18,
+    "source": "대기 · ",
+    "key": "map.reserve",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:118"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 19,
+    "source": "배치 %d / %d  ·  합류 %d",
+    "key": "map.deployed_d_d_recruited_d",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:119"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 20,
+    "source": "식량 %d (−%d/일)",
+    "key": "map.food_d_d_day",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:130"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 21,
+    "source": "%d/%d (−%d/일)",
+    "key": "map.d_d_d_day",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:131"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 22,
+    "source": "식량 수입 %d/일 · 대기 유지비 0 · 정산: 수입 → 유지비 → 창고",
+    "key": "map.food_income_d_day_reserves_cost_0_income_upkeep_storage",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:133"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 23,
+    "source": "수입 +%d/일 · 대기 0 · 창고 %d",
+    "key": "map.income_d_day_reserves_0_storage_d",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:135"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 24,
+    "source": "테스트 저장 실패 · ",
+    "key": "map.test_save_failed",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:255"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 25,
+    "source": "체력 %d   공격 %d   방어 %d",
+    "key": "map.hp_d_atk_d_def_d",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:288"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 26,
+    "source": "건물 영향범위",
+    "key": "map.building_s_area_of_effect",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:295"
+    ],
+    "handling": "source_normalization_removed"
+  },
+  {
+    "index": 27,
+    "source": "방 안",
+    "key": "map.inside_the_room",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:295"
+    ],
+    "handling": "source_normalization_removed"
+  },
+  {
+    "index": 28,
+    "source": "건물 영향범위 안",
+    "key": "map.within_the_building_s_area_of_effect",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:295"
+    ],
+    "handling": "source_normalization_removed"
+  },
+  {
+    "index": 29,
+    "source": "유대 기억",
+    "key": "map.bond_memories",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:304"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 30,
+    "source": "유지비 %d/일",
+    "key": "map.upkeep_d_day",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:319"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 31,
+    "source": "이 몬스터 해제",
+    "key": "map.remove_this_defender",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:320"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 32,
+    "source": "해제",
+    "key": "map.remove",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:321"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 33,
+    "source": "전문화 · DAY 2 해금 · 선택 후 변경 불가",
+    "key": "map.specialization_unlocks_day_2_permanent_choice",
+    "locations": [
+      "scripts/map_builder/ApprovedMonsterPlacementUI.gd:341"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 34,
+    "source": "감시탑",
+    "key": "map.watchtower",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:9",
+      "data/v130r/upkeep.json:/monsters/moon_tracker/recommended_spot",
+      "data/v130r/upkeep.json:/monsters/bat_courier/recommended_spot"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 35,
+    "source": "미끼보물실",
+    "key": "map.decoy_treasury",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:9"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 36,
+    "source": "결계핵",
+    "key": "map.ward_core",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:9",
+      "scripts/map_builder/DefenseLayout.gd:8"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 37,
+    "source": "옥좌",
+    "key": "map.throne",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:9",
+      "scripts/map_builder/DefenseLayout.gd:8",
+      "data/v130r/start_flow.json:/ko/throne"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 38,
+    "source": "가시 함정",
+    "key": "map.spike_trap",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:9"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 39,
+    "source": "끈끈이 함정",
+    "key": "map.sticky_trap",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:9"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 40,
+    "source": "부지 밖",
+    "key": "map.outside_castle_grounds",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:99"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 41,
+    "source": "시설과 겹침",
+    "key": "map.overlaps_a_facility",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:101"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 42,
+    "source": "물길 위",
+    "key": "map.on_a_waterway",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:103"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 43,
+    "source": "중복 시설 ID",
+    "key": "map.duplicate_facility_id",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:110"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 44,
+    "source": "고정 시설 누락",
+    "key": "map.required_fixed_facility_missing",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:120"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 45,
+    "source": "등급 고정 물길 오류",
+    "key": "map.invalid_waterway_for_this_grade",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:127"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 46,
+    "source": "입구→옥좌·금고 주 통로 차단",
+    "key": "map.main_route_from_gate_to_throne_or_vault_blocked",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:142"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 47,
+    "source": "문에서 2칸 길 연결 불가",
+    "key": "map.cannot_connect_a_two_tile_path_from_the_door",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:163"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 48,
+    "source": "함정의 길이 사라짐: ",
+    "key": "map.trap_has_lost_its_road",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:172",
+      "scripts/map_builder/ApprovedPlacement.gd:227"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 49,
+    "source": "승인 주 통로 위 시설",
+    "key": "map.facility_blocks_the_main_route",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:199"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 50,
+    "source": "문에서 2칸 길 연결 불가: ",
+    "key": "map.cannot_connect_a_two_tile_path_from_the_door_50",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:220"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 51,
+    "source": "문 앞 수비 공간 부족",
+    "key": "map.not_enough_defense_space_at_the_door",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:275"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 52,
+    "source": "수비 정원 자리 부족",
+    "key": "map.not_enough_defender_posts",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:282"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 53,
+    "source": "끊어진 문·주 통로: ",
+    "key": "map.disconnected_door_or_main_route",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:302"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 54,
+    "source": "끊어진 보조 문: ",
+    "key": "map.disconnected_secondary_door",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:305"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 55,
+    "source": "떨어진 길",
+    "key": "map.disconnected_road",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:306"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 56,
+    "source": "C 최종 진입로 분리 필요",
+    "key": "map.grade_c_needs_separate_final_approaches",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:316"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 57,
+    "source": "성 단계 미해금",
+    "key": "map.castle_stage_not_unlocked",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:336"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 58,
+    "source": "자원 부족",
+    "key": "map.not_enough_resources",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:337",
+      "scripts/map_builder/ApprovedPlacement.gd:393"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 59,
+    "source": "마른 길 위에만 설치",
+    "key": "map.place_only_on_dry_roads",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:339"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 60,
+    "source": "함정과 겹침",
+    "key": "map.overlaps_a_trap",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:341"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 61,
+    "source": "성 단계 건설 수 제한",
+    "key": "map.building_limit_for_this_stage_reached",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:346"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 62,
+    "source": "고유 시설: 원형 메뉴에서 이동",
+    "key": "map.unique_facility_move_it_from_the_radial_menu",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:352"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 63,
+    "source": "고정 시설",
+    "key": "map.fixed_facility",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:364",
+      "scripts/map_builder/ApprovedPlacement.gd:377"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 64,
+    "source": "강화 제한",
+    "key": "map.upgrade_limit_reached",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:391",
+      "scripts/map_builder/ApprovedPlacementView.gd:569"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 65,
+    "source": "배치 등급 불일치",
+    "key": "map.layout_grade_mismatch",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:417"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 66,
+    "source": "배치 저장 형식 오류",
+    "key": "map.invalid_saved_layout_format",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:420"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 67,
+    "source": "건물 저장 형식 오류",
+    "key": "map.invalid_saved_building_format",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:423"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 68,
+    "source": "건물 저장 필드 누락",
+    "key": "map.saved_building_fields_missing",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:425"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 69,
+    "source": "알 수 없는 시설",
+    "key": "map.unknown_facility",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:426"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 70,
+    "source": "고정 시설 변경",
+    "key": "map.fixed_facility_changed",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:434"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 71,
+    "source": "시설 크기 오류",
+    "key": "map.invalid_facility_size",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:437"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 72,
+    "source": "함정 저장 형식 오류",
+    "key": "map.invalid_saved_trap_format",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacement.gd:447"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 73,
+    "source": "DAY %d  ·  %s등급",
+    "key": "map.day_d_grade_s",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:226",
+      "scripts/map_builder/ApprovedPlacementView.gd:837"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 74,
+    "source": "전투",
+    "key": "map.battle",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:238"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 75,
+    "source": "전투 없이 다음 날로 넘어갑니다",
+    "key": "map.advance_to_the_next_day_without_a_battle",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:243"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 76,
+    "source": "현재 배치로 DAY %d 전투 시작",
+    "key": "map.start_day_d_with_the_current_deployment",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:243"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 77,
+    "source": "전체 보기 · F",
+    "key": "map.full_map_f",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:260"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 78,
+    "source": "시작 화면 · 2",
+    "key": "map.starting_view_2",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:261"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 79,
+    "source": "게임 메뉴",
+    "key": "map.game_menu",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:263",
+      "scripts/ui/PlayerContinuityUI.gd:190",
+      "scripts/ui/SettingsWorkspaceUI.gd:40"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 80,
+    "source": "테스트 창 닫기",
+    "key": "map.close_test_window",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:265"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 81,
+    "source": "금",
+    "key": "map.g",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:316"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 82,
+    "source": "마",
+    "key": "map.m",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:316"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 83,
+    "source": "식",
+    "key": "map.f",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:316"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 84,
+    "source": "미니맵",
+    "key": "map.minimap",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:321"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 85,
+    "source": "휠 확대 · 드래그 이동 · F 전체 · 2 시작 · Esc 취소",
+    "key": "map.wheel_zoom_drag_pan_f_full_2_start_esc_cancel",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:417"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 86,
+    "source": " · 놓을 위치 선택",
+    "key": "map.choose_a_location",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:437"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 87,
+    "source": "배치 불가",
+    "key": "map.cannot_place_here",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:478"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 88,
+    "source": " · 배치 가능",
+    "key": "map.ready_to_place",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:484"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 89,
+    "source": "저장됨",
+    "key": "map.saved",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:491",
+      "scripts/map_builder/ApprovedPlacementView.gd:704"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 90,
+    "source": "테스트 저장 실패: ",
+    "key": "map.test_save_failed_90",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:491"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 91,
+    "source": "정보",
+    "key": "map.info",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:522",
+      "scripts/map_builder/ApprovedPlacementView.gd:523"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 92,
+    "source": "해체·환불",
+    "key": "map.dismantle_refund",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:522"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 93,
+    "source": "수비 지점",
+    "key": "map.defense_posts",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:522"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 94,
+    "source": "해체",
+    "key": "map.dismantle",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:523"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 95,
+    "source": "수비",
+    "key": "map.defend",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:523",
+      "data/v130r/duo_links_new.json:/planned_web_bridge/role_tags/1",
+      "data/v130r/duo_links_new.json:/planned_slippery_flame/role_tags/1",
+      "data/v130r/duo_links_new.json:/planned_toll_vault/role_tags/1",
+      "data/v130r/duo_links_new.json:/planned_marked_ambush/role_tags/1",
+      "data/v130r/duo_links_new.json:/planned_plate_exchange/role_tags/1",
+      "data/v130r/duo_links_new.json:/planned_candle_ember/role_tags/1",
+      "data/v130r/duo_links_new.json:/planned_underground_march/role_tags/1",
+      "data/v130r/duo_links_new.json:/planned_false_map/role_tags/1",
+      "data/v130r/duo_links_new.json:/planned_false_treasure/role_tags/1",
+      "data/v130r/duo_links_new.json:/planned_sewn_bond/role_tags/1"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 96,
+    "source": "%d → %d명",
+    "key": "map.d_d_defenders",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:559"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 97,
+    "source": "%d명",
+    "key": "map.d_defenders",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:559"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 98,
+    "source": "수비 정원  ",
+    "key": "map.defender_capacity",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:560"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 99,
+    "source": "해체 환불",
+    "key": "map.dismantle_refund_99",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:565"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 100,
+    "source": "해체 확인",
+    "key": "map.confirm_dismantle",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:567",
+      "scripts/map_builder/ApprovedPlacementView.gd:582"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 101,
+    "source": "강화 비용",
+    "key": "map.upgrade_cost",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:569"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 102,
+    "source": "강화 확인",
+    "key": "map.confirm_upgrade",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:571",
+      "scripts/map_builder/ApprovedPlacementView.gd:582"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 103,
+    "source": "영향 범위  반경 %s칸",
+    "key": "map.area_of_effect_s_tile_radius",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:589"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 104,
+    "source": "영향 범위  시설 내부",
+    "key": "map.area_of_effect_inside_facility",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:589"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 105,
+    "source": "주둔 아군 공격·방어 지원",
+    "key": "map.boosts_stationed_allies_attack_and_defense",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:590"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 106,
+    "source": "주둔·인접 아군 체력 회복",
+    "key": "map.heals_stationed_and_nearby_allies",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:590"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 107,
+    "source": "모든 아군 받는 피해 감소",
+    "key": "map.reduces_damage_taken_by_all_allies",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:591"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 108,
+    "source": "범위 내 적 둔화·아군 피해 증가",
+    "key": "map.slows_enemies_and_boosts_allied_damage_in_range",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:591"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 109,
+    "source": "도둑을 유인하는 방어 거점",
+    "key": "map.a_strongpoint_that_lures_thieves",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:592"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 110,
+    "source": "마왕을 지키는 최종 방어선",
+    "key": "map.the_last_line_of_defense_for_the_demon_lord",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:592"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 111,
+    "source": "침입자가 들어오는 성문",
+    "key": "map.the_castle_gate_where_invaders_enter",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:593"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 112,
+    "source": "금화를 지키는 방어 거점",
+    "key": "map.a_strongpoint_that_protects_your_gold",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:593"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 113,
+    "source": "영향 범위  성 전체",
+    "key": "map.area_of_effect_entire_castle",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:594"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 114,
+    "source": "테스트 저장 실패",
+    "key": "map.test_save_failed_114",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:704"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 115,
+    "source": "오늘은 전투 없는 준비일입니다. 준비를 확정해 다음 날로 넘어가세요",
+    "key": "map.a_quiet_day_confirm_your_preparations_to_advance",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:787"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 116,
+    "source": "몬스터 배치 탭에서 수비대를 배치하세요",
+    "key": "map.deploy_defenders_from_the_deployment_tab",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:789"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 117,
+    "source": "기존 합류 조건: ",
+    "key": "map.recruitment_requirement",
+    "locations": [
+      "scripts/map_builder/ApprovedPlacementView.gd:857"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 118,
+    "source": "다친 동료가 있나요? 밥 한 그릇이면 포자도 힘을 낼 수 있어요.",
+    "key": "map.anyone_hurt_a_bowl_of_food_will_put_some_spring_in_these_spores",
+    "locations": [
+      "scripts/map_builder/ApprovedRecruitment.gd:7"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 119,
+    "source": "입구를 맡겨 줘. 식사 시간에도 자리는 지킬게.",
+    "key": "map.leave_the_entrance_to_me_i_ll_hold_my_post_even_at_mealtime",
+    "locations": [
+      "scripts/map_builder/ApprovedRecruitment.gd:7"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 120,
+    "source": "밥 먹고 북 치자! 빈속엔 박자도 자꾸 늦어진다구.",
+    "key": "map.food_first_drums_second_an_empty_stomach_throws_off_my_beat",
+    "locations": [
+      "scripts/map_builder/ApprovedRecruitment.gd:7"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 121,
+    "source": "달빛이 닿는 곳에서 지켜볼게. 식량 장부에도 내 이름을 적어 줘.",
+    "key": "map.i_ll_watch_where_the_moonlight_falls_put_my_name_in_the_food_ledger_to",
+    "locations": [
+      "scripts/map_builder/ApprovedRecruitment.gd:7"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 122,
+    "source": "진짜 밥은 내 안에 넣지 마! 가짜 보물만 맡겨 줘.",
+    "key": "map.don_t_put_real_food_inside_me_just_leave_the_fake_treasure_to_me",
+    "locations": [
+      "scripts/map_builder/ApprovedRecruitment.gd:7"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 123,
+    "source": "회차 계약에서 2명 선택",
+    "key": "map.choose_two_companions_through_cycle_contracts",
+    "locations": [
+      "scripts/map_builder/ApprovedRecruitment.gd:10"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 124,
+    "source": "기존 전선 클리어 또는 해당 엔딩/보상",
+    "key": "map.clear_the_required_front_or_earn_its_ending_reward",
+    "locations": [
+      "scripts/map_builder/ApprovedRecruitment.gd:11"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 125,
+    "source": "기쁨",
+    "key": "map.happy",
+    "locations": [
+      "scripts/map_builder/ApprovedRecruitment.gd:59",
+      "data/v130r/story/barks.json:/scenes/0/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/5/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/12/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/19/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/26/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/33/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/40/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/47/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/54/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/61/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/68/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/75/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/82/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/89/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/96/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/103/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/110/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/117/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/124/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/131/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/138/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/145/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/152/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/159/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/166/cues/0/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/0/cues/1/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/0/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/1/cues/1/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/1/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/2/cues/1/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/2/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/3/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/4/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/5/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/6/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/7/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/8/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/9/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/10/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/11/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/12/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/13/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/14/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/15/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/16/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/17/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/18/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/19/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/20/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/21/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/22/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/23/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/24/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/25/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/26/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/27/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/28/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/29/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/30/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/31/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/32/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/33/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/34/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/35/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/36/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/37/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/38/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/39/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/40/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/41/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/42/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/43/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/44/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/45/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/46/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/47/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/48/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/49/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/50/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/51/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/52/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/53/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/54/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/55/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/56/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/57/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/58/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/59/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/60/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/61/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/62/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/63/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/64/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/65/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/69/cues/1/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/69/cues/3/emotion_direction",
+      "data/v130r/story/bond_scenes.json:/scenes/71/cues/3/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/0/cues/1/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/0/cues/3/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/1/cues/4/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/2/cues/4/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/4/cues/5/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/5/cues/3/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/11/cues/5/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/14/cues/3/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/2/cues/7/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/4/cues/7/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/6/cues/7/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/8/cues/7/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/10/cues/7/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/14/cues/7/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/16/cues/5/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/16/cues/7/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/18/cues/7/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/21/cues/1/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/24/cues/0/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/24/cues/3/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/30/cues/7/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/38/cues/0/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/38/cues/7/emotion_direction"
+    ],
+    "handling": "internal_emotion_identifier"
+  },
+  {
+    "index": 126,
+    "source": "단호",
+    "key": "map.determined",
+    "locations": [
+      "scripts/map_builder/ApprovedRecruitment.gd:59",
+      "data/v130r/story/barks.json:/scenes/39/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/53/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/67/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/81/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/88/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/102/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/130/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/144/cues/0/emotion_direction",
+      "data/v130r/story/barks.json:/scenes/158/cues/0/emotion_direction",
+      "data/v130r/story/day_overlays.json:/scenes/5/segments/0/cues/0/emotion_direction",
+      "data/v130r/story/day_overlays.json:/scenes/19/segments/2/cues/0/emotion_direction",
+      "data/v130r/story/day_overlays.json:/scenes/28/segments/2/cues/0/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/1/cues/0/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/3/cues/0/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/3/cues/2/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/4/cues/1/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/5/cues/1/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/6/cues/0/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/6/cues/1/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/6/cues/2/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/9/cues/1/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/10/cues/0/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/10/cues/1/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/12/cues/0/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/12/cues/1/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/12/cues/2/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/14/cues/0/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/14/cues/2/emotion_direction",
+      "data/v130r/story/duo_scenes.json:/scenes/15/cues/1/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/0/cues/3/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/12/cues/1/emotion_direction",
+      "data/v130r/story/join_scenes.json:/scenes/36/cues/0/emotion_direction"
+    ],
+    "handling": "internal_emotion_identifier"
+  },
+  {
+    "index": 127,
+    "source": "결의",
+    "key": "map.resolved",
+    "locations": [
+      "scripts/map_builder/ApprovedRecruitment.gd:59"
+    ],
+    "handling": "internal_emotion_identifier"
+  },
+  {
+    "index": 128,
+    "source": "동료 합류 · ",
+    "key": "map.companion_joins",
+    "locations": [
+      "scripts/map_builder/ApprovedRecruitment.gd:60",
+      "scripts/map_builder/ApprovedRecruitment.gd:62"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 129,
+    "source": "보급과 수비, 함께 맡을게요. 오늘부터 잘 부탁해요!",
+    "key": "map.supplies_and_defense_i_ll_help_with_both_glad_to_be_here",
+    "locations": [
+      "scripts/map_builder/ApprovedRecruitment.gd:62"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 130,
+    "source": "집결 · 길 칸 선택",
+    "key": "map.rally_choose_a_road_tile",
+    "locations": [
+      "scripts/ui/ApprovedBattleUI.gd:6"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 131,
+    "source": "집중 공격 · 적 선택",
+    "key": "map.focus_fire_choose_an_enemy",
+    "locations": [
+      "scripts/ui/ApprovedBattleUI.gd:6"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 132,
+    "source": "비상 후퇴 · 회복 둥지",
+    "key": "map.emergency_retreat_recovery_nest",
+    "locations": [
+      "scripts/ui/ApprovedBattleUI.gd:6"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 133,
+    "source": "사수 · 수비 칸 복귀",
+    "key": "map.hold_ground_return_to_post",
+    "locations": [
+      "scripts/ui/ApprovedBattleUI.gd:6"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 134,
+    "source": "후퇴 유도 · 길 칸 선택",
+    "key": "map.lure_retreat_choose_a_road_tile",
+    "locations": [
+      "scripts/ui/ApprovedBattleUI.gd:6"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 135,
+    "source": "속도 ×",
+    "key": "map.speed",
+    "locations": [
+      "scripts/ui/ApprovedBattleUI.gd:29"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 136,
+    "source": "굶주림 · 공격 −20%\n회복 둥지 회복 불가",
+    "key": "map.hungry_atk_20_ncannot_heal_at_recovery_nests",
+    "locations": [
+      "scripts/ui/ApprovedBattleUI.gd:69"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 137,
+    "source": "직접 조종 · 우클릭으로 길 이동, 다시 누르면 자동 수비",
+    "key": "map.direct_control_right_click_a_road_to_move_click_again_for_auto_defense",
+    "locations": [
+      "scripts/ui/ApprovedBattleUI.gd:82"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 138,
+    "source": "DAY %d · 웨이브 %d/%d · 남은 적 %d",
+    "key": "map.day_d_wave_d_d_enemies_d",
+    "locations": [
+      "scripts/ui/ApprovedBattleUI.gd:131"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 139,
+    "source": "옥좌 %d/%d  ·  금고 손실 %d  ·  %s",
+    "key": "map.throne_d_d_gold_stolen_d_s",
+    "locations": [
+      "scripts/ui/ApprovedBattleUI.gd:132"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 140,
+    "source": "×%d  %.1f초",
+    "key": "map.d_1fs",
+    "locations": [
+      "scripts/ui/ApprovedBattleUI.gd:133"
+    ],
+    "handling": "keyed"
+  },
+  {
+    "index": 141,
+    "source": "계속",
+    "key": "map.continue",
+    "locations": [
+      "scripts/ui/ApprovedBattleUI.gd:200",
+      "scripts/ui/PlayerContinuityUI.gd:199",
+      "data/v130r/start_flow.json:/ko/next"
+    ],
+    "handling": "localized_button_role_match"
+  },
+  {
+    "index": 142,
+    "source": "타이틀",
+    "key": "map.title",
+    "locations": [
+      "scripts/ui/ApprovedBattleUI.gd:201",
+      "scripts/ui/PlayerContinuityUI.gd:203"
+    ],
+    "handling": "localized_button_role_match"
+  },
+  {
+    "index": 143,
+    "source": "식량 · 하루 정산",
+    "key": "map.food_daily_settlement",
+    "locations": [
+      "scripts/ui/ApprovedBattleUI.gd:213"
+    ],
+    "handling": "keyed"
+  }
+]

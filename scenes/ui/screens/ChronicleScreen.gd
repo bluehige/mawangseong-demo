@@ -2,7 +2,9 @@ extends Control
 class_name ChronicleScreen
 
 signal canceled
-signal accessibility_changed(settings: Dictionary)
+signal settings_requested
+signal ending_requested
+signal companion_requested(id: String, codex: bool)
 
 const ChronicleServiceScript = preload("res://scripts/systems/chronicle/ChronicleService.gd")
 const CouncilChronicleScript = preload("res://scripts/systems/chronicle/CouncilChronicleService.gd")
@@ -10,12 +12,17 @@ const UXTheme = preload("res://scripts/ui/UIUXTheme.gd")
 const UIFontScript = preload("res://scripts/ui/UIFont.gd")
 const FRONT_ART_SHEET := preload("res://assets/ui/fronts/front_chronicle_sheet.png")
 const BREAKPOINT_WIDTH := 1600.0
-const TAB_NAMES := ["전선·심장", "라이벌·합동 기억", "회차·후일담", "표시·조작 설정"]
+const TAB_NAMES := ["전선·심장", "라이벌·합동 기억", "회차·후일담", "엔딩"]
+const Kit = preload("res://scripts/ui/kit/UIKit.gd")
+const Surface = preload("res://scripts/ui/kit/KitSurface.gd")
+var companions: Array = []
+var selected_companion := ""
 
 var view_model: Dictionary = {}
 var update4_catalogs: Dictionary = {}
 var active_tab := 0
 var section_by_tab: Dictionary = {}
+var scroll_by_tab: Dictionary = {}
 var focus_after_build := ""
 var content_root: Control
 var _rebuild_queued := false
@@ -65,70 +72,86 @@ func _queue_rebuild() -> void:
 
 func _build() -> void:
 	_rebuild_queued = false
-	if size.x < 10.0 or size.y < 10.0:
-		return
-	if content_root != null and is_instance_valid(content_root):
-		remove_child(content_root)
-		content_root.queue_free()
+	if size.x < 10 or size.y < 10: return
+	if is_instance_valid(content_root):
+		remove_child(content_root); content_root.queue_free()
 	content_root = Control.new()
 	content_root.name = "ChronicleCanvas"
 	content_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	content_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content_root.theme = Kit.scaled_theme(UISettings.text_scale,UISettings.is_touch_ui())
 	add_child(content_root)
 	var backdrop := TextureRect.new()
+	backdrop.name = "RecordsCastleBackground"
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	backdrop.texture = load("res://assets/ui/onboarding/scenes/scene_demon_castle_dialogue.png")
 	backdrop.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	backdrop.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content_root.add_child(backdrop)
-	var shade := ColorRect.new()
-	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	shade.color = Color("#07040cf2")
-	shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content_root.add_child(shade)
-	var map_art := TextureRect.new()
-	map_art.name = "ChronicleThreeFrontMap"
-	map_art.position = Vector2(maxf(620.0, size.x - 520.0), 4)
-	map_art.size = Vector2(310, 150)
-	map_art.texture = _sheet_cell(FRONT_ART_SHEET, Vector2i(3, 0), Vector2i(4, 3))
-	map_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	map_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	map_art.material = _chroma_material()
-	map_art.modulate.a = 0.62
-	map_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content_root.add_child(map_art)
-	_add_label(content_root, "마왕성 연대기", Rect2(54, 14, size.x - 108, 56), 32 if size.x < BREAKPOINT_WIDTH else 40, Color("#fff3d2"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_EMPHASIS)
-	_add_label(content_root, "전투 능력치를 올리지 않는 장기 기록 · 전선과 의회 회차의 숙련, 서신, 왕관과 후일담을 확인합니다.", Rect2(54, 78, size.x - 108, 36), 14 if size.x < BREAKPOINT_WIDTH else 17, Color("#c9bfd2"), HORIZONTAL_ALIGNMENT_LEFT, UIFontScript.ROLE_BODY)
-	if bool(view_model.get("final_nameplate_unlocked", false)):
-		var nameplate := _add_label(content_root, "세 전선의 대휴전 조율자", Rect2(size.x - 474, 22, 420, 42), 18 if size.x < BREAKPOINT_WIDTH else 21, Color("#ffe4a0"), HORIZONTAL_ALIGNMENT_RIGHT, UIFontScript.ROLE_EMPHASIS)
-		nameplate.name = "ChronicleFinalNameplate"
-		nameplate.tooltip_text = "E16 · 세 전선 대휴전 엔딩을 완수한 기록 명패"
-	var rects:=layout_contract(size)
-	for index in range(4):
-		var button:=_add_button(content_root,TAB_NAMES[index],rects["tab_%d"%index],Callable(self,"_select_tab").bind(index))
-		button.name="ChronicleTab%d"%index
-		if index==active_tab: button.add_theme_stylebox_override("normal",UXTheme.surface(UXTheme.INK,UXTheme.GOLD,2))
-	_build_page_panel(rects.content,active_tab)
-	var close := _add_button(content_root, "돌아가기", Rect2(size.x - 214, size.y - 64, 160, 44), Callable(self, "_cancel"))
+	var banner := _glass_panel(content_root,Rect2(54,16,size.x-108,98),"RecordsTitleBanner")
+	_add_label(banner,_loc("기록실 · 연대기","Records · Chronicle","记录室 · 编年史"),Rect2(20,4,banner.size.x-40,76),48,UXTheme.GOLD,HORIZONTAL_ALIGNMENT_CENTER,UIFontScript.ROLE_EMPHASIS)
+	var rects := layout_contract(size)
+	for index in 4:
+		var caption := LanguageSettings.ui_text(TAB_NAMES[index])
+		if index == 3: caption = _loc("엔딩","Endings","结局")
+		var button := _add_button(content_root,caption,rects["tab_%d"%index],_open_record_tab.bind(index))
+		button.name = "ChronicleTab%d"%index
+		if index == active_tab:
+			button.theme_type_variation = "KitPrimary"
+			button.set_meta("kit_selected",true); button.surface.sync(button)
+	_build_page_panel(rects.content,mini(active_tab,2))
+	# The old accessibility page is now only a shortcut into the single settings editor.
+	_build_accessibility_controls(content_root,size.x)
+	var choice := OptionButton.new()
+	choice.name = "RecordCompanionOption"
+	choice.position = Vector2(330,size.y-72); choice.size = Vector2(260,56)
+	choice.tooltip_text = _loc("동료 기록 선택","Choose companion records","选择伙伴记录")
+	content_root.add_child(choice)
+	choice.add_theme_font_size_override("font_size",24)
+	for id in companions:
+		choice.add_item(LanguageSettings.ui_text(str(DataRegistry.monster(id).get("display_name",id))))
+		choice.set_item_metadata(choice.item_count-1,id)
+		if id == selected_companion: choice.select(choice.item_count-1)
+	choice.item_selected.connect(func(index: int): selected_companion = str(choice.get_item_metadata(index)))
+	if selected_companion == "" and not companions.is_empty(): selected_companion = str(companions[0])
+	var memory := _add_button(content_root,_loc("동료 기억","Memories","伙伴记忆"),Rect2(614,size.y-72,230,56),func(): companion_requested.emit(selected_companion,false))
+	memory.name = "RecordsMemoryButton"; memory.disabled = companions.is_empty()
+	var codex := _add_button(content_root,_loc("동료 도감","Companions","伙伴图鉴"),Rect2(866,size.y-72,250,56),func(): companion_requested.emit(selected_companion,true))
+	codex.name = "RecordsCompanionButton"
+	var close := _add_button(content_root,_loc("돌아가기","Back","返回"),Rect2(size.x-274,size.y-72,220,56),_cancel)
 	close.name = "ChronicleCloseButton"
-	if focus_after_build!="":
-		var focused:=content_root.find_child(focus_after_build,true,false) as Control
-		if focused!=null: focused.grab_focus()
-		focus_after_build=""
+	if focus_after_build != "":
+		var focused := content_root.find_child(focus_after_build,true,false) as Control
+		if focused != null: focused.grab_focus()
+		focus_after_build = ""
 
+func _loc(ko: String, en: String, zh: String) -> String:
+	return en if LanguageSettings.locale == "en" else (zh if LanguageSettings.locale == "zh_CN" else ko)
+
+func _open_record_tab(index: int) -> void:
+	if index == 3: ending_requested.emit()
+	else: _select_tab(index)
+
+func _glass_panel(parent: Control, rect: Rect2, id: String) -> Panel:
+	var pane := Panel.new()
+	pane.theme = content_root.theme
+	pane.name = id; pane.position = rect.position; pane.size = rect.size
+	pane.add_theme_stylebox_override("panel",StyleBoxEmpty.new())
+	parent.add_child(pane)
+	var surface := Surface.new()
+	pane.add_child(surface); surface.sync(pane)
+	surface._material.set_shader_parameter("top_color",Color(0.16,0.10,0.23,0.82))
+	surface._material.set_shader_parameter("bottom_color",Color(0.05,0.03,0.09,0.82))
+	return pane
 
 func _build_page_panel(rect: Rect2,page_index: int) -> void:
-	var panel:=Panel.new()
+	var panel:=_glass_panel(content_root,rect,"ChroniclePage%d"%page_index)
 	panel.name="ChroniclePage%d"%page_index
 	panel.position=rect.position
 	panel.size=rect.size
 	panel.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	panel.add_theme_stylebox_override("panel",UXTheme.panel(UXTheme.INK,UXTheme.LINE))
-	content_root.add_child(panel)
-	if page_index==3:
-		_build_accessibility_controls(panel,rect.size.x)
-		return
+
 	var sections:=_sections(page_index)
 	var selected:=clampi(int(section_by_tab.get(page_index,0)),0,maxi(0,sections.size()-1))
 	section_by_tab[page_index]=selected
@@ -148,7 +171,9 @@ func _build_page_panel(rect: Rect2,page_index: int) -> void:
 		b.name="ChronicleSection%d"%index
 		b.custom_minimum_size=Vector2(330,94)
 		b.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-		if index==selected: b.add_theme_stylebox_override("normal",UXTheme.surface(UXTheme.INK,UXTheme.GOLD,2))
+		if index==selected:
+			b.theme_type_variation="KitPrimary"
+			b.set_meta("kit_selected",true); b.surface.sync(b)
 	var detail_x:=410.0
 	_add_label(panel,str(sections[selected].title),Rect2(detail_x,26,rect.size.x-detail_x-34,64),32,UXTheme.GOLD,HORIZONTAL_ALIGNMENT_LEFT,UIFontScript.ROLE_EMPHASIS)
 	var scroll:=ScrollContainer.new()
@@ -158,10 +183,11 @@ func _build_page_panel(rect: Rect2,page_index: int) -> void:
 	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.focus_mode=Control.FOCUS_ALL
 	panel.add_child(scroll)
+	scroll.set_deferred("scroll_vertical",int(scroll_by_tab.get("%d:%d"%[page_index,selected],0)))
 	var label:=Label.new()
 	label.name="ChroniclePageText%d"%page_index
 	label.custom_minimum_size.x=maxf(320,scroll.size.x-24)
-	label.text=str(sections[selected].body)
+	label.text=LanguageSettings.ui_text(str(sections[selected].body))
 	label.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 	label.add_theme_font_override("font",UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
 	label.add_theme_font_size_override("font_size",UISettings.scaled_font_size(25))
@@ -184,6 +210,7 @@ func _sections(page_index: int) -> Array:
 	return result
 
 func _select_section(index: int) -> void:
+	remember_scroll()
 	section_by_tab[active_tab]=index
 	focus_after_build="ChronicleSection%d"%index
 	_queue_rebuild()
@@ -245,6 +272,7 @@ func _rival_link_text() -> String:
 	lines.append("\n[경쟁 마왕 서신 · 각 5개]")
 	for entry_value in view_model.get("update4", {}).get("rival_letters", []):
 		var entry: Dictionary = entry_value
+		if not bool(entry.get("unlocked",false)): continue
 		lines.append("• %s · %s\n  %s" % [str(entry.get("rival_name", "")), str(entry.get("subject", "???")) if bool(entry.get("unlocked", false)) else "???", str(entry.get("body", "")) if bool(entry.get("unlocked", false)) else "잠김 · %s" % str(entry.get("lock_hint", ""))])
 	return "\n\n".join(lines)
 
@@ -266,11 +294,11 @@ func _run_epilogue_text() -> String:
 		for index in range(council_recent.size() - 1, -1, -1):
 			var entry: Dictionary = council_recent[index]
 			var day30: Dictionary = entry.get("day30", {})
-			lines.append("• %d회차 · %s %s\n  지역 %s · 전초 %s/%s · 상층 %s\n  대표 %s · 관계 %s\n  왕관 %s · 인장 %d · 표 %d · 독립 %d\n  DAY30 %.1f초 · 생존 1F %d/2F %d · 층 피해 %s" % [
-				int(entry.get("cycle_index", 0)), str(entry.get("ending_code", "")), str(entry.get("ending_title", entry.get("ending_id", ""))),
-				_region_names(entry.get("region_order", [])), _catalog_name("outpost_types",str(entry.get("outpost_type_id", ""))), "생존" if bool(entry.get("outpost_survived", false)) else "파괴", _catalog_name("upper_floor_layouts",str(entry.get("upper_layout_id", ""))),
+			lines.append("• %d회차 · %s %s\n  지역 %s · 전초 %s/%s · 구역 %s\n  대표 %s · 관계 %s\n  왕관 %s · 인장 %d · 표 %d · 독립 %d\n  DAY30 %.1f초 · 본성 생존 %d/확장 생존 %d · 구역 피해 %s" % [
+				int(entry.get("cycle_index", 0)), str(entry.get("ending_code", "")), _council_ending_title(entry),
+				_region_names(entry.get("region_order", [])), _catalog_name("outpost_types",str(entry.get("outpost_type_id", ""))), "생존" if bool(entry.get("outpost_survived", false)) else "파괴", ("임시 배치" if bool(entry.get("expansion_temporary", true)) else "확장 배치") if int(entry.get("zone_record_version",0)) == 1 else "이전 회차 기록",
 				_catalog_name("rival_lords",str(entry.get("representative_id", ""))), _relation_text(entry.get("rival_relations", {})), _catalog_name("crown_evolutions",str(entry.get("crown_form_id", ""))), int(entry.get("council_seals", 0)), int(entry.get("council_votes", 0)), int(entry.get("independence", 0)),
-				float(day30.get("time_seconds", 0.0)), int(day30.get("lower_survivors", 0)), int(day30.get("upper_survivors", 0)), _floor_damage_text(day30.get("damage_by_floor", {}))
+				float(day30.get("time_seconds", 0.0)), int(day30.get("original_survivors", 0)), int(day30.get("expansion_survivors", 0)), _zone_damage_text(day30.get("damage_by_zone", {}))
 			])
 	lines.append("\n[왕관 진화 도감]")
 	for entry_value in view_model.get("update4", {}).get("crowns", []):
@@ -281,92 +309,24 @@ func _run_epilogue_text() -> String:
 		var entry: Dictionary = entry_value
 		if bool(entry.get("unlocked", false)):
 			lines.append("• %s\n  %s" % [str(entry.get("title", "")), str(entry.get("text", ""))])
-		else:
-			lines.append("• ???\n  잠김 · %s" % str(entry.get("lock_hint", "")))
 	return "\n\n".join(lines)
 
 
-func _build_accessibility_controls(panel: Panel,panel_width: float) -> void:
-	var settings: Dictionary=view_model.get("update4",{}).get("accessibility",CouncilChronicleScript.default_accessibility())
-	var controls:=Panel.new()
-	controls.name="Update4AccessibilityControls"
-	controls.position=Vector2(30,20)
-	controls.size=Vector2(panel_width-60,panel.size.y-40)
-	controls.mouse_filter=Control.MOUSE_FILTER_IGNORE
-	controls.add_theme_stylebox_override("panel",StyleBoxEmpty.new())
-	panel.add_child(controls)
-	_add_label(controls,"표시와 조작",Rect2(24,6,controls.size.x-48,62),32,UXTheme.GOLD,HORIZONTAL_ALIGNMENT_LEFT,UIFontScript.ROLE_EMPHASIS)
-	var col:=(controls.size.x-72)/2
-	_add_access_toggle(controls,"QuickDialogueToggle","빠른 대사 건너뛰기",Rect2(24,102,col,62),bool(settings.get("quick_dialogue",false)),"quick_dialogue")
-	_add_access_toggle(controls,"RegionDetailsToggle","지역 추가 정보 표시",Rect2(48+col,102,col,62),bool(settings.get("show_region_details",true)),"show_region_details")
-	_add_access_toggle(controls,"HiddenFloorSummaryToggle","숨은 층 전투 요약",Rect2(24,190,col,62),bool(settings.get("hidden_floor_summary",true)),"hidden_floor_summary")
-	_add_access_toggle(controls,"HighContrastIconsToggle","고대비 위험 아이콘",Rect2(48+col,190,col,62),bool(settings.get("high_contrast_icons",false)),"high_contrast_icons")
-	_add_access_toggle(controls,"ReduceRegionMotionToggle","지역 지도 움직임 감소",Rect2(24,278,col,62),bool(settings.get("reduce_region_motion",false)),"reduce_region_motion")
-	_add_label(controls,"층 경보 소리",Rect2(48+col,278,190,62),24,UXTheme.PAPER,HORIZONTAL_ALIGNMENT_LEFT,UIFontScript.ROLE_BODY)
-	var volume:=HSlider.new()
-	volume.name="FloorAlertVolume"
-	volume.position=Vector2(252+col,296)
-	volume.size=Vector2(col-224,32)
-	volume.min_value=0
-	volume.max_value=1
-	volume.step=0.05
-	volume.value=float(settings.get("floor_alert_volume",0.8))
-	volume.value_changed.connect(func(value: float): _set_accessibility("floor_alert_volume",value))
-	controls.add_child(volume)
-	_add_label(controls,"1층 전환",Rect2(24,388,160,56),24,UXTheme.PAPER,HORIZONTAL_ALIGNMENT_LEFT,UIFontScript.ROLE_BODY)
-	_add_key_option(controls,"FloorOneKey",Rect2(202,388,160,56),CouncilChronicleScript.FLOOR_ONE_KEYS,str(settings.get("floor_one_key","Q")),"floor_one_key")
-	_add_label(controls,"2층 전환",Rect2(48+col,388,160,56),24,UXTheme.PAPER,HORIZONTAL_ALIGNMENT_LEFT,UIFontScript.ROLE_BODY)
-	_add_key_option(controls,"FloorTwoKey",Rect2(226+col,388,160,56),CouncilChronicleScript.FLOOR_TWO_KEYS,str(settings.get("floor_two_key","E")),"floor_two_key")
-	_add_label(controls,"설정은 다음 실행에도 유지됩니다. 전투 능력치에는 영향을 주지 않습니다.",Rect2(24,490,controls.size.x-48,84),23,UXTheme.MUTED,HORIZONTAL_ALIGNMENT_LEFT,UIFontScript.ROLE_BODY)
-
-func _add_access_toggle(parent: Control, node_name: String, text_value: String, rect: Rect2, enabled: bool, setting_key: String) -> void:
-	var toggle := CheckBox.new()
-	toggle.name = node_name
-	toggle.position = rect.position
-	toggle.size = rect.size
-	toggle.mouse_filter = Control.MOUSE_FILTER_STOP
-	toggle.text = text_value
-	toggle.button_pressed = enabled
-	toggle.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_BODY))
-	toggle.add_theme_font_size_override("font_size", UISettings.scaled_font_size(24))
-	toggle.add_theme_stylebox_override("focus",UXTheme.surface(Color.TRANSPARENT,UXTheme.GOLD,2))
-	toggle.add_theme_color_override("font_color",UXTheme.PAPER)
-	toggle.toggled.connect(func(value: bool): _set_accessibility(setting_key, value))
-	parent.add_child(toggle)
-
-
-func _add_key_option(parent: Control, node_name: String, rect: Rect2, values: Array, selected_value: String, setting_key: String) -> void:
-	var option := OptionButton.new()
-	option.name = node_name
-	option.position = rect.position
-	option.size = rect.size
-	option.mouse_filter = Control.MOUSE_FILTER_STOP
-	option.add_theme_font_override("font",UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
-	option.add_theme_font_size_override("font_size",UISettings.scaled_font_size(26))
-	option.add_theme_stylebox_override("normal",UXTheme.surface(UXTheme.INK,UXTheme.LINE))
-	option.add_theme_stylebox_override("focus",UXTheme.surface(Color.TRANSPARENT,UXTheme.GOLD,2))
-	for value in values:
-		option.add_item(str(value))
-		if str(value) == selected_value:
-			option.select(option.item_count - 1)
-	option.item_selected.connect(func(index: int): _set_accessibility(setting_key, option.get_item_text(index)))
-	parent.add_child(option)
-
-
-func _set_accessibility(key: String, value) -> void:
-	var update4: Dictionary = view_model.get("update4", {}).duplicate(true)
-	var settings := CouncilChronicleScript.normalize_accessibility(update4.get("accessibility", {}))
-	settings[key] = value
-	settings = CouncilChronicleScript.normalize_accessibility(settings)
-	update4["accessibility"] = settings
-	view_model["update4"] = update4
-	accessibility_changed.emit(settings.duplicate(true))
+func _build_accessibility_controls(panel: Control, _panel_width: float) -> void:
+	var button := _add_button(panel,_loc("조작·접근성 설정","Accessibility","操作·辅助设置"),Rect2(54,size.y-72,250,56),func(): settings_requested.emit())
+	button.name = "ChronicleSettingsShortcut"
 
 
 func _select_tab(index: int) -> void:
+	remember_scroll()
 	active_tab = clampi(index, 0, 3)
 	focus_after_build="ChronicleTab%d"%active_tab
 	_queue_rebuild()
+
+func remember_scroll() -> void:
+	if not is_instance_valid(content_root): return
+	var scroll := content_root.find_child("ChronicleScroll%d"%active_tab,true,false) as ScrollContainer
+	if scroll!=null: scroll_by_tab["%d:%d"%[active_tab,int(section_by_tab.get(active_tab,0))]]=scroll.scroll_vertical
 
 
 func _cancel() -> void:
@@ -377,7 +337,7 @@ func _add_label(parent: Control, text_value: String, rect: Rect2, font_size: int
 	var label := Label.new()
 	label.position = rect.position
 	label.size = rect.size
-	label.text = text_value
+	label.text = LanguageSettings.ui_text(text_value)
 	label.horizontal_alignment = alignment
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -391,22 +351,15 @@ func _add_label(parent: Control, text_value: String, rect: Rect2, font_size: int
 
 
 func _add_button(parent: Control, text_value: String, rect: Rect2, callback: Callable) -> Button:
-	var button := Button.new()
-	button.position = rect.position
-	button.size = rect.size
-	button.mouse_filter = Control.MOUSE_FILTER_STOP
-	button.text = text_value
-	button.add_theme_font_override("font", UIFontScript.font_for_role(UIFontScript.ROLE_EMPHASIS))
-	button.add_theme_font_size_override("font_size", 16)
-	button.add_theme_color_override("font_color", Color("#fff2cf"))
-	button.add_theme_stylebox_override("normal", _style(Color("#251730f4"), Color("#9b6a27"), 2, 8))
-	button.add_theme_stylebox_override("hover", _style(Color("#3a2348f8"), Color("#ffd36a"), 2, 8))
-	button.add_theme_stylebox_override("pressed", _style(Color("#150d1df8"), Color("#fff0b0"), 2, 8))
-	button.pressed.connect(callback)
+	var button: Button = load("res://scripts/ui/kit/KitButton.gd").new()
+	button.configure(LanguageSettings.ui_text(text_value),0,"",LanguageSettings.ui_text(text_value))
+	button.position = rect.position; button.size = rect.size
 	parent.add_child(button)
-	UXTheme.apply_tree(button)
+	Kit.inherit_theme(button,content_root.theme)
+	button.custom_minimum_size = rect.size
+	button.add_theme_font_size_override("font_size",24)
+	button.pressed.connect(callback)
 	return button
-
 
 func _style(fill: Color, border: Color, width: int, radius: int) -> StyleBox:
 	return UXTheme.panel(fill, border, width, radius)
@@ -425,8 +378,13 @@ func _relation_text(relations: Dictionary) -> String:
 	for id in relations: parts.append("%s %d"%[_catalog_name("rival_lords",str(id)),int(relations[id])])
 	return " · ".join(parts) if not parts.is_empty() else "기록 없음"
 
-func _floor_damage_text(damage: Dictionary) -> String:
+func _zone_damage_text(damage: Dictionary) -> String:
 	var parts: Array[String]=[]
-	for floor_id in ["1F","2F"]:
-		if damage.has(floor_id): parts.append("%s %.0f"%["1층" if floor_id=="1F" else "2층",float(damage[floor_id])])
+	for floor_id in ["original","expansion"]:
+		if damage.has(floor_id): parts.append("%s %.0f"%["본성" if floor_id=="original" else "확장",float(damage[floor_id])])
 	return " · ".join(parts) if not parts.is_empty() else "기록 없음"
+
+func _council_ending_title(entry: Dictionary) -> String:
+	var id := str(entry.get("ending_id",""))
+	if str(entry.get("ending_code","")) == "E18": id = "ending_two_floors_one_throne"
+	return str(DataRegistry.update4_council_endings.get(id,{}).get("display_name",entry.get("ending_title",id)))

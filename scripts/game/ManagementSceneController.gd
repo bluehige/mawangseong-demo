@@ -8,6 +8,7 @@ const V122CombatResultViewModelScript = preload("res://scripts/v122/ui/V122Comba
 const CouncilVoteLedgerScript = preload("res://scripts/systems/council/CouncilVoteLedger.gd")
 
 var memory_archive_ui = preload("res://scripts/ui/MemoryArchiveUI.gd").new()
+var monster_ui = preload("res://scripts/ui/MonsterWorkspaceUI.gd").new()
 var workspace_ui = preload("res://scripts/ui/ManagementWorkspaceUI.gd").new()
 var root: Node
 var hud
@@ -21,87 +22,55 @@ func setup(game_root: Node, hud_controller) -> void:
 	hud = hud_controller
 	workspace_ui.setup(root, hud)
 	memory_archive_ui.setup(root,hud)
+	monster_ui.setup(root,hud)
 
 
 func build_intrusion_brief_ui(snapshot: Dictionary) -> void:
-	var touch_ui := UISettings.is_touch_ui()
-	var screen = hud.panel(Rect2(0, 0, 1920, 1080), Color("#07060cf8"), Color("#00000000"), "IntrusionBriefScreen", "flat")
-	screen.name = "IntrusionBriefScreen"
-	hud.label(screen, "DAY %02d · 침입 정보" % int(snapshot.get("day", GameState.day)), Vector2(120, 48), Vector2(1680, 58), 34 if touch_ui else 30, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(screen, "적의 편대와 목표를 확인한 뒤 배치를 시작하세요." , Vector2(120, 108), Vector2(1680, 38), 22 if touch_ui else 18, Color("#c8bfd2"))
-	var schedule: Array = snapshot.get("schedule", [])
-	var enemy_groups: Array = snapshot.get("enemy_groups", [])
-	var last_arrival := 0.0
-	for entry_value in schedule:
-		if entry_value is Dictionary:
-			last_arrival = maxf(last_arrival, float(entry_value.get("time", 0.0)))
-	var main = hud.child_panel(screen, Rect2(120, 170, 1110, 700), Color("#100d17f2"), Color("#52455c"), 2)
-	main.name = "IntrusionBriefEnemyPanel"
-	hud.label(main, "침입 편대", Vector2(30, 24), Vector2(430, 42), 25 if touch_ui else 22, Color("#fff1ce"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(main, "총 %d명 · 마지막 진입 %.0f초" % [schedule.size(), last_arrival], Vector2(610, 28), Vector2(460, 34), 20 if touch_ui else 17, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_RIGHT)
-	var visible_groups := mini(enemy_groups.size(), 6)
-	for index in range(visible_groups):
-		var group: Dictionary = enemy_groups[index]
-		var row_y := 82.0 + index * 94.0
-		var row = hud.child_panel(main, Rect2(24, row_y, 1062, 82), Color("#17121feb"), Color("#342b3c"), 1)
-		var threat_color := Color("#ff9b8f") if bool(group.get("boss", false)) else Color("#f4e8d4")
-		hud.label(row, "%s × %d" % [str(group.get("display_name", group.get("enemy_id", "적"))), int(group.get("count", 0))], Vector2(18, 10), Vector2(300, 30), 20 if touch_ui else 18, threat_color, HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-		hud.label(row, "%s · %.0f~%.0f초" % [_encounter_role_label(str(group.get("role", "assault"))), float(group.get("first_arrival", 0.0)), float(group.get("last_arrival", 0.0))], Vector2(18, 43), Vector2(300, 24), 16 if touch_ui else 14, Color("#a99fba"))
-		var target_name: String = str(root.display_name_for_instance(str(group.get("target_room_id", "throne"))))
-		hud.label(row, "목표 · %s" % target_name, Vector2(340, 12), Vector2(230, 28), 17 if touch_ui else 15, Color("#ffd36a"))
-		hud.label(row, str(group.get("counter_hint", "첫 방어 구간에서 진입을 지연하세요.")), Vector2(590, 10), Vector2(448, 58), 16 if touch_ui else 14, Color("#d8d1df"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	if enemy_groups.size() > visible_groups:
-		hud.label(main, "외 %d개 편대" % (enemy_groups.size() - visible_groups), Vector2(24, 650), Vector2(1062, 28), 15, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER)
-	var side = hud.child_panel(screen, Rect2(1260, 170, 540, 700), Color("#100d17f2"), Color("#52455c"), 2)
-	side.name = "IntrusionBriefThreatPanel"
-	hud.label(side, "이번 방어의 변수", Vector2(28, 24), Vector2(484, 42), 24 if touch_ui else 21, Color("#fff1ce"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	var modifiers: Dictionary = snapshot.get("defense_modifiers", {})
-	var modifier_lines: Array[String] = []
-	for modifier_value in modifiers.values():
-		if modifier_value is Dictionary:
-			modifier_lines.append("• %s · %s" % [
-				str(modifier_value.get("source_label", "방어 변수")),
-				str(modifier_value.get("display_name", "침입 변화"))
-			])
-	if modifier_lines.is_empty():
-		modifier_lines.append("• 추가 방어 변수 없음")
-	hud.rich_label(side, "\n\n".join(modifier_lines), Vector2(28, 84), Vector2(484, 250), 18 if touch_ui else 16, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP, "IntrusionModifierList", 10)
-	var battle_plan: Dictionary = snapshot.get("battle_plan", {})
-	var route: Array = battle_plan.get("active_route", [])
-	var route_names: Array[String] = []
-	for room_id in route:
-		route_names.append(root.display_name_for_instance(str(room_id)))
-	hud.label(side, "주요 방어선", Vector2(28, 370), Vector2(484, 32), 20 if touch_ui else 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
-	hud.rich_label(side, " → ".join(route_names), Vector2(28, 414), Vector2(484, 176), 17 if touch_ui else 15, Color("#d8d1df"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART, VERTICAL_ALIGNMENT_TOP, "IntrusionRouteLabel", 8)
-	hud.label(side, "이 정보는 실제 전투 편성과 같은 데이터에서 생성됩니다.", Vector2(28, 610), Vector2(484, 54), 15, Color("#8f859a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 3)
-	var enter_rect := Rect2(680, 894, 560, 120) if touch_ui else Rect2(720, 914, 480, 94)
-	hud.button(screen, "배치 시작", enter_rect, Callable(root, "_enter_placement_from_brief"), 28 if touch_ui else 23, "EnterPlacementButton", HUDController.BUTTON_GRADE_PRIMARY)
-	hud.label(screen, "ESC · 배치 화면으로 이동", Vector2(1210, 940), Vector2(590, 30), 15, Color("#8f859a"), HORIZONTAL_ALIGNMENT_RIGHT)
+	# The old state ID remains compatible; only its presentation joins management.
+	var model: Dictionary = V122ManagementViewModelScript.build(root)
+	workspace_ui.build(model, "")
+	var pane := workspace_ui.kit_panel(Rect2(416, 196, 1088, 758), "IntrusionBriefScreen")
+	var column := workspace_ui.kit_content(pane,24)
+	workspace_ui.kit_line(column,"DAY %02d · 침입 정보" % int(snapshot.get("day",GameState.day)),"",workspace_ui.GOLD)
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	column.add_child(scroll)
+	var list := workspace_ui.kit_flow(scroll,true)
+	for group in snapshot.get("enemy_groups",[]):
+		workspace_ui.kit_line(list,"%s × %d · %s" % [LanguageSettings.ui_text(str(group.get("display_name",group.get("enemy_id","적")))),int(group.get("count",0)),LanguageSettings.ui_text(_encounter_role_label(str(group.get("role","assault"))))])
+		workspace_ui.kit_line(list,"%s · %.0f~%.0f s" % [LanguageSettings.ui_text(root.display_name_for_instance(str(group.get("target_room_id","throne")))),float(group.get("first_arrival",0)),float(group.get("last_arrival",0))],"",workspace_ui.GOLD)
+		workspace_ui.kit_line(list,str(group.get("counter_hint","")),"",workspace_ui.MUTED)
+	for modifier in snapshot.get("defense_modifiers",{}).values():
+		if modifier is Dictionary: workspace_ui.kit_line(list,"%s · %s" % [str(modifier.get("source_label","")),str(modifier.get("display_name",""))])
+	var names: Array[String] = []
+	for id in snapshot.get("battle_plan",{}).get("active_route",[]): names.append(LanguageSettings.ui_text(root.display_name_for_instance(str(id))))
+	workspace_ui.kit_line(list," → ".join(names),"IntrusionRouteLabel",workspace_ui.MUTED)
+	workspace_ui.kit_button(column,"배치 시작",Rect2(),Callable(root,"_enter_placement_from_brief"),"EnterPlacementButton","primary","garrison")
+	# Brief is read-only: preserve its Enter/ESC boundary and disable map tools.
+	for id in ["ManagementToolTabs","BuildingToolbox","MonsterRosterDock","TacticsToolbox","PlacementUndoButton","ManagementPrimaryBar"]:
+		var control := root.ui_layer.find_child(id,true,false) as Control
+		if control != null: control.visible = false
 	root.set_meta("v122_intrusion_brief_model", snapshot.duplicate(true))
 
-
 func build_defense_start_ui(snapshot: Dictionary, seconds: float) -> void:
-	var touch_ui := UISettings.is_touch_ui()
-	var screen = hud.panel(Rect2(0, 0, 1920, 1080), Color("#050308d9"), Color("#00000000"), "DefenseStartScreen", "flat")
-	screen.name = "DefenseStartScreen"
-	hud.label(screen, "방어 시작", Vector2(560, 158), Vector2(800, 58), 34 if touch_ui else 30, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
-	hud.label(screen, "현재 배치를 고정했습니다", Vector2(560, 230), Vector2(800, 44), 25 if touch_ui else 21, Color("#f7efe1"), HORIZONTAL_ALIGNMENT_CENTER)
-	defense_start_countdown_label = hud.label(screen, str(maxi(1, ceili(seconds))), Vector2(710, 300), Vector2(500, 330), 220 if touch_ui else 190, Color("#fff0c2"), HORIZONTAL_ALIGNMENT_CENTER, "DefenseStartCountdownLabel", UIFontScript.ROLE_EMPHASIS, VERTICAL_ALIGNMENT_CENTER)
-	defense_start_countdown_label.name = "DefenseStartCountdownLabel"
-	defense_start_status_label = hud.label(screen, "0초에 배치와 침입 편성을 확정합니다.", Vector2(520, 642), Vector2(880, 44), 22 if touch_ui else 18, Color("#c8bfd2"), HORIZONTAL_ALIGNMENT_CENTER, "DefenseStartStatusLabel")
-	defense_start_status_label.name = "DefenseStartStatusLabel"
-	var schedule: Array = snapshot.get("schedule", [])
-	hud.label(screen, "DAY %02d · 침입 %d명 · 배치 변경 잠금" % [int(snapshot.get("day", GameState.day)), schedule.size()], Vector2(520, 704), Vector2(880, 38), 19 if touch_ui else 16, Color("#a99fba"), HORIZONTAL_ALIGNMENT_CENTER)
-	var cancel_rect := Rect2(720, 786, 480, 120) if touch_ui else Rect2(760, 800, 400, 92)
-	hud.button(screen, "취소", cancel_rect, Callable(root, "_cancel_defense_start"), 27 if touch_ui else 21, "CancelDefenseStartButton", HUDController.BUTTON_GRADE_UTILITY)
-	hud.label(screen, "ESC로도 취소할 수 있습니다.", Vector2(660, 914), Vector2(600, 32), 16, Color("#8f859a"), HORIZONTAL_ALIGNMENT_CENTER)
-
+	workspace_ui.shared_theme = null
+	workspace_ui._top(snapshot)
+	var strip := workspace_ui.kit_panel(Rect2(416, 826, 1088, 238), "DefenseStartScreen")
+	var column := workspace_ui.kit_content(strip,20)
+	var row := workspace_ui.kit_flow(column)
+	defense_start_countdown_label = workspace_ui.kit_line(row,str(maxi(1,ceili(seconds))),"DefenseStartCountdownLabel",workspace_ui.GOLD)
+	defense_start_countdown_label.add_theme_font_size_override("font_size",48)
+	defense_start_status_label = workspace_ui.kit_line(row,"현재 배치를 고정했습니다","DefenseStartStatusLabel")
+	workspace_ui.kit_line(column,"DAY %02d · 침입 %d명 · 배치 변경 잠금" % [int(snapshot.get("day",GameState.day)),snapshot.get("schedule",[]).size()],"",workspace_ui.MUTED)
+	workspace_ui.kit_button(column,"취소 · ESC",Rect2(),Callable(root,"_cancel_defense_start"),"CancelDefenseStartButton","utility","close")
+	# State owner still counts exactly three seconds and locks all placement input.
 
 func update_defense_start_countdown(seconds: float) -> void:
-	if defense_start_countdown_label != null and is_instance_valid(defense_start_countdown_label):
-		defense_start_countdown_label.text = "출진!" if seconds <= 0.0 else str(maxi(1, ceili(seconds)))
-	if defense_start_status_label != null and is_instance_valid(defense_start_status_label):
-		defense_start_status_label.text = "전투를 시작합니다." if seconds <= 0.0 else "0초에 배치와 침입 편성을 확정합니다."
+	if is_instance_valid(defense_start_countdown_label):
+		defense_start_countdown_label.text = LanguageSettings.ui_text("출진!") if seconds <= 0 else str(maxi(1,ceili(seconds)))
+	if is_instance_valid(defense_start_status_label):
+		defense_start_status_label.text = LanguageSettings.ui_text("전투를 시작합니다." if seconds <= 0 else "현재 배치를 고정했습니다")
 
 
 func _encounter_role_label(role: String) -> String:
@@ -127,13 +96,12 @@ func build_management_ui() -> void:
 	var pending_reason := str(model.get("workspace", {}).get("pending_reason", ""))
 	if _tutorial_focus_requires_management_map():
 		root.management_context_drawer_open = false
+		root.management_tool_tab = "roster"
 	elif _tutorial_focus_requires_management_drawer():
 		root.management_tool_tab = "tactics"
-		root.management_context_drawer_open = true
+		root.management_context_drawer_open = str(root._tutorial_effective_focus_id(root.tutorial_manager.current_step())) != "GLOBAL_DIRECTIVE_DEFEND"
 	elif pending_reason != "":
 		root.management_context_drawer_open = true
-	hud.build_top_bar()
-	_build_campaign_notice()
 	workspace_ui.build(model, pending_reason)
 
 func _tutorial_focus_requires_management_drawer() -> bool:
@@ -158,79 +126,60 @@ func _tutorial_focus_requires_management_map() -> bool:
 
 
 func _build_monster_roster_dock() -> void:
-	var touch_ui := UISettings.is_touch_ui()
-	var compact := UISettings.is_compact_layout() and not touch_ui
-	var drawer_margin := 0.0
-	var dock_rect := Rect2(98, 586, 1725 - drawer_margin, 276) if touch_ui else (
-		Rect2(24, 816, 1872 - drawer_margin, 156) if compact else Rect2(24, 816, 1872 - drawer_margin, 156)
-	)
-	var dock = hud.panel(dock_rect, Color("#0d0a13dc"), Color("#52455c"), "MonsterRosterDock", "flat")
-	dock.name = "MonsterRosterDock"
-	dock.mouse_filter = Control.MOUSE_FILTER_STOP
-	dock.set_meta("layout_mode", UISettings.effective_layout_mode())
-	var counts := {"reserve": 0, "support": 0, "unavailable": 0}
-	for id in root.monster_roster:
-		var status: Dictionary = root._monster_roster_status(id)
-		if counts.has(status.state): counts[status.state] += 1
-	var active_count: int = root._defense_monster_ids().size()
-	hud.label(dock, "출전 %d" % active_count, Vector2(18, 8), Vector2(208, 34), 23, Color("#e8bd76"), HORIZONTAL_ALIGNMENT_LEFT, "RosterActiveCount", UIFontScript.ROLE_EMPHASIS)
-	var summary := "예비 %d · 지원 %d" % [counts.reserve, counts.support]
-	if counts.unavailable > 0: summary += " · 출전 불가 %d" % counts.unavailable
-	hud.label(dock, summary, Vector2(18, 46), Vector2(208, 40), 18, Color("#c8bfd2"), HORIZONTAL_ALIGNMENT_LEFT, "RosterReserveCount")
-	if root._contract_roster_available():
-		hud.button(dock, "출전·예비 편성", Rect2(12, 94, 216, 44), Callable(root, "_open_contract_roster"), 20, "ManagementRosterButton", HUDController.BUTTON_GRADE_UTILITY)
-	else:
-		hud.label(dock, "지도 · 출전 동료만 표시", Vector2(18, 88), Vector2(208, 48), 17, Color("#a99fba"))
+	var dock := workspace_ui.kit_panel(workspace_ui.TOOL_RECT,"MonsterRosterDock")
 	var scroll := ScrollContainer.new()
 	scroll.name = "MonsterRosterScroll"
-	var scroll_x := 244.0
-	scroll.position = Vector2(scroll_x, 10 if compact else 12)
-	scroll.size = Vector2(maxf(260.0, dock_rect.size.x - scroll_x - 14.0), dock_rect.size.y - (20.0 if compact else 24.0))
+	scroll.position = Vector2(8,6)
+	scroll.size = dock.size - Vector2(16,12)
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.mouse_filter = Control.MOUSE_FILTER_STOP
 	scroll.follow_focus = true
 	dock.add_child(scroll)
-	var roster_row := HBoxContainer.new()
-	roster_row.name = "MonsterRosterRow"
-	roster_row.add_theme_constant_override("separation", 10 if touch_ui else 8)
-	roster_row.custom_minimum_size.y = scroll.size.y - 8.0
-	scroll.add_child(roster_row)
-	var monster_ids: Array = root._defense_monster_ids() if root.has_method("_defense_monster_ids") else root.monster_roster.keys()
-	for monster_id_value in monster_ids:
-		var monster_id := str(monster_id_value)
-		var room_name: String = root._monster_roster_status(monster_id).location
-		var card_width := 312.0
-		var card = hud.button(
-			roster_row,
-			"%s · Lv.%d\n출전 · %s" % [root._monster_companion_name(monster_id), int(root.monster_roster[monster_id].get("level", 1)), room_name],
-			Rect2(Vector2.ZERO, Vector2(card_width, scroll.size.y - 8.0)),
-			Callable(),
-			22,
-			"MonsterCard_%s" % monster_id,
-			HUDController.BUTTON_GRADE_TACTICAL
-		)
-		card.name = "MonsterCard_%s" % monster_id
-		card.focus_mode = Control.FOCUS_ALL
-		card.add_theme_stylebox_override("focus", hud.flat_style(Color("#00000000"), Color("#e8bd76"), 3))
-		card.custom_minimum_size = Vector2(card_width, scroll.size.y - 8.0)
-		card.icon = monster_identity_texture(monster_id)
+	var row := workspace_ui.kit_flow(scroll)
+	row.name = "MonsterRosterRow"
+	for id_value in root._defense_monster_ids():
+		var id := str(id_value)
+		var status: Dictionary = root._monster_roster_status(id)
+		var caption := "%s · Lv.%d\n%s" % [root._monster_companion_name(id),int(root.monster_roster[id].get("level",1)),LanguageSettings.ui_text(str(status.location))]
+		var card := workspace_ui.kit_button(row,caption,Rect2(),Callable(),"MonsterCard_"+id,"tactical")
+		card.custom_minimum_size = Vector2(330,122)
+		card.icon = monster_identity_texture(id)
 		card.expand_icon = true
-		card.add_theme_constant_override("icon_max_width", 78 if touch_ui else 82)
+		card.add_theme_constant_override("icon_max_width",82)
 		card.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		card.tooltip_text = "%s · %s\n원하는 방으로 끌어 배치합니다. 짧게 누르거나 Enter로 선택한 뒤 방을 클릭할 수도 있습니다." % [root._monster_companion_name(monster_id), root._monster_display_name(monster_id)]
-		card.button_down.connect(Callable(root, "_begin_management_roster_drag").bind(monster_id))
-		if root.has_method("_day1_tutorial_monster_is_fixed") and root._day1_tutorial_monster_is_fixed(monster_id):
+		card.tooltip_text = root.continuity.localized("카드→방 또는 드래그로 배치 / 정원은 지도에 표시", "Card → room or drag to deploy / Capacity shown on map", "卡片→房间或拖动部署 / 地图显示容量")
+		card.gui_input.connect(Callable(self,"roster_card_input").bind(id,card))
+		if root._day1_tutorial_monster_is_fixed(id):
 			card.disabled = true
-			card.tooltip_text = "DAY 1 고정 배치입니다. 이번에는 곱의 전열·후열 합류 위치를 선택하세요."
-		var tutorial_target_id := _tutorial_monster_target_id(monster_id)
-		if tutorial_target_id != "" and root.has_method("register_tutorial_target_control"):
-			root.register_tutorial_target_control(tutorial_target_id, card)
-		if root.deploy_pick_monster_id == monster_id:
-			hud.apply_button_state(card, HUDController.UI_STATE_SELECTED)
+			card.tooltip_text = LanguageSettings.ui_text("DAY 1 고정 배치입니다. 이번에는 곱의 전열·후열 합류 위치를 선택하세요.")
+		var tutorial_id := _tutorial_monster_target_id(id)
+		if tutorial_id != "": root.register_tutorial_target_control(tutorial_id,card)
+		if root.deploy_pick_monster_id == id: card.set_variant(1)
+	var status := workspace_ui.kit_panel(Rect2(24,790,360,164),"RosterStatus")
+	var column := workspace_ui.kit_content(status)
+	workspace_ui.kit_line(column,"출전 %d" % root._defense_monster_ids().size(),"RosterActiveCount",workspace_ui.GOLD)
+	var reserve := 0
+	var support := 0
+	for id in root.monster_roster:
+		var state: String = root._monster_roster_status(id).state
+		if state == "reserve": reserve += 1
+		if state == "support": support += 1
+	workspace_ui.kit_line(column,"예비 %d · 지원 %d" % [reserve,support],"RosterReserveCount",workspace_ui.MUTED)
+	if root._contract_roster_available(): workspace_ui.kit_button(column,"출전·예비 편성",Rect2(),Callable(root,"_open_contract_roster"),"ManagementRosterButton")
 	if root._management_action_mode_active():
-		var cancel = hud.button(dock, "선택 취소", Rect2(dock_rect.size.x - 138, 12, 120, 42), Callable(root, "_cancel_management_action_mode"), 15 if touch_ui else 12, "CancelPlacementSelectionButton", HUDController.BUTTON_GRADE_UTILITY)
-		cancel.z_index = 20
+		var cancel := workspace_ui.kit_button(root.ui_layer,"",Rect2(1800,968,96,96),Callable(root,"_cancel_management_action_mode"),"CancelPlacementSelectionButton","utility","close")
+		cancel.tooltip_text = root.continuity.localized("선택 취소 · ESC", "Cancel selection · ESC", "取消选择 · ESC")
+		cancel.set_meta("u5b_occluder",true)
+
+
+func roster_card_input(event: InputEvent, monster_id: String, card: Control) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		root._begin_management_roster_drag(monster_id)
+		if root.dragging_monster_id == monster_id:
+			# Input position owns the gesture, including synthetic/keyboard-assisted
+			# mouse input; do not substitute the last OS mouse position.
+			root.drag_start_position = root.build_placement.viewport_to_world(card.get_global_transform_with_canvas()*event.position)
+		card.accept_event()
 
 
 func _build_management_primary_bar(model: Dictionary) -> void:
@@ -763,6 +712,9 @@ func _build_map_editor_workspace_ui() -> void:
 	var heading_rect := Rect2(24, 104, 520, 880) if touch_ui else Rect2(24, 104, 300, 370)
 	var heading = hud.panel(heading_rect, Color("#0b0911f5"), Color("#8f66b5"), "MapEditorWorkspace", "flat")
 	heading.name = "MapEditorWorkspace"
+	# This interactive workspace owns its entire surface; empty space between
+	# controls must not start a world drag underneath it.
+	heading.mouse_filter = Control.MOUSE_FILTER_STOP
 	hud.label(heading, "성 구조 편집", Vector2(18, 12), Vector2(484 if touch_ui else 264, 54 if touch_ui else 34), 28 if touch_ui else 24, Color("#fff2c9"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_EMPHASIS)
 	_build_map_editor_controls(heading)
 	if touch_ui:
@@ -849,8 +801,8 @@ func _build_legacy_management_ui() -> void:
 	elif root.has_method("_update4_council_mode_active") and root._update4_council_mode_active():
 		var outpost_button = hud.button(bottom, "전초기지", Rect2(908, primary_y, 170, primary_height), Callable(root, "_open_update4_outpost_management"), 17, "OutpostManagementButton")
 		outpost_button.disabled = str(root.update4_active_run.get("outpost", {}).get("type_id", "")) == ""
-		var upper_button = hud.button(bottom, "상층 왕성", Rect2(1088, primary_y, 170, primary_height), Callable(root, "_open_update4_upper_floor"), 17, "UpperFloorButton")
-		upper_button.disabled = not bool(root.update4_active_run.get("upper_floor", {}).get("unlocked", false))
+		var upper_button = hud.button(bottom, "확장 구역 목표", Rect2(1088, primary_y, 170, primary_height), Callable(root, "_open_update4_expansion"), 17, "ExpansionObjectivesButton")
+		upper_button.disabled = not bool(root.update4_active_run.get("expansion", {}).get("unlocked", false))
 		text_x = 1290
 		guide_width = 390
 		if root.has_method("_update4_required_choice_pending") and root._update4_required_choice_pending():
@@ -988,20 +940,20 @@ func _build_campaign_notice() -> void:
 	var notice = hud.panel(notice_rect, Color("#0c0a11d8"), Color("#6e5630"), "CampaignNotice", "flat")
 	notice.name = "CampaignNotice"
 	notice.set_meta("layout_mode", UISettings.effective_layout_mode())
-	if LanguageSettings.locale != LanguageSettings.LOCALE_KOREAN:
-		# English chapter titles need a full row instead of sharing the Korean badge row.
-		notice.size.y = 112
+	if not UISettings.is_touch_ui():
+		# Shared full-width rows keep all three locales above the readable minimum.
+		notice.size.y = 142
 		var width: float = notice.size.x - 36
-		var heading: Label = hud.label(notice, str(info.get("title", "")), Vector2(18, 8), Vector2(width, 26), 18, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
+		var heading: Label = hud.label(notice, str(info.get("title", "")), Vector2(18, 6), Vector2(width, 36), 20, Color("#ffd36a"), HORIZONTAL_ALIGNMENT_LEFT, "", UIFontScript.ROLE_EMPHASIS)
 		heading.name = "CampaignNoticeTitle"
 		heading.clip_text = true
 		heading.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		heading.tooltip_text = heading.text
 		var description: String = root._campaign_notice_summary()
-		var body: RichTextLabel = hud.rich_label(notice, description, Vector2(18, 38), Vector2(width, 40), 14, Color("#f4e7d2"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART)
+		var body: RichTextLabel = hud.rich_label(notice, description, Vector2(18, 44), Vector2(width, 54), 20, Color("#f4e7d2"), UIFontScript.ROLE_BODY, TextServer.AUTOWRAP_WORD_SMART)
 		body.name = "CampaignNoticeSummary"
 		var stage: String = "%s | %s" % [root._castle_stage_display_line(), root._castle_area_summary()]
-		var stage_line: Label = hud.label(notice, stage, Vector2(18, 82), Vector2(width, 22), 13, Color("#ead9ff"))
+		var stage_line: Label = hud.label(notice, stage, Vector2(18, 102), Vector2(width, 32), 18, Color("#ead9ff"))
 		stage_line.name = "CampaignNoticeStage"
 		notice.tooltip_text = "\n".join([stage, root._campaign_notice_cast_line(), root._campaign_notice_enemy_line(), root._campaign_notice_monster_line()])
 		return
@@ -1126,8 +1078,6 @@ func _build_map_editor_controls(panel: Control) -> void:
 	hud.label(panel, root._map_editor_status_line(), Vector2(18, 320), Vector2(264, 20), 10, Color("#bfb7cc"), HORIZONTAL_ALIGNMENT_CENTER, "", UIFontScript.ROLE_BODY, VERTICAL_ALIGNMENT_CENTER, TextServer.AUTOWRAP_WORD_SMART, 2)
 
 func build_monster_ui() -> void:
-	var monster_ui = preload("res://scripts/ui/MonsterWorkspaceUI.gd").new()
-	monster_ui.setup(root, hud)
 	monster_ui.build_monster()
 
 func _focus_monster_roster_row(row: Control) -> void:

@@ -1,0 +1,10 @@
+{
+  "measurement": "Manual visible body vertical spans in assembled SW idle frame rect coordinates. Includes ears/cap and paws/ghost tail; excludes broom, needle, lantern/flame, shadows and VFX. Visual uncertainty about 2px. No character pixels modified.",
+  "moon_tracker": [3, 195],
+  "mimic_porter": [5, 158],
+  "ghost_housemaid": [5, 114],
+  "graveyard_hound": [42, 210],
+  "armored_beetle": [4, 140],
+  "spider_tailor": [10, 133],
+  "bat_courier": [4, 168]
+}

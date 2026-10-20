@@ -1,6 +1,6 @@
 # 제품 버전 체계
 
-최종 갱신: 2026-08-20
+최종 갱신: 2026-10-15
 
 이 문서는 2026-07-16 이후 새로 만드는 프로젝트 표기, 브랜치, 태그, 빌드와 릴리스의 단일 버전 기준이다.
 
@@ -21,6 +21,30 @@
 | 첫 확장판 | 2.0 | 2.0.0 | `v2.0.0` |
 | 두 번째 확장판 | 3.0 | 3.0.0 | `v3.0.0` |
 | 세 번째 확장판 | 4.0 | 4.0.0 | `v4.0.0` |
+
+## 2026-10-15 사용자 확정
+
+2026-10-15 00:08 KST, 사용자가 [콘텐츠 대응표](design/CONTENT_VERSION_MAP_2026-10-14.md)의 선택지 1을 채택했다. 위 계보 표와 아래 기존 기록은 삭제하지 않고 이력으로 보존한다. 버전·출시 계획이 충돌하면 이 결정이 우선하며, 구 `2.0/3.0/4.0` 확장판 번호 체계를 대체한다.
+
+| 구분 | 제품 버전 | 확정 내용·상태 |
+|---|---|---|
+| 준비된 유지보수판 | `1.2.12` | 준비됨 / 미업로드 |
+| 다음 출시 | `1.3.0` | UI 개편 + 1층 자유 배치 맵 개편 + 의회 2층→1층 부지 확장 전환. 1.x 패치 라인 |
+| 다음 DLC | `1.5.0` (화면 1.5) | v0.5 「연맹 주간과 일곱 밤」 기획 |
+| v0.6 이후 | 미정 | 제품 버전 추후 결정 |
+
+- 이미 공개된 전선 연대기(`v0.3`)·마왕 의회 회차(`v0.4`)는 **본편의 완주 후 회차**로 인정한다. 별도 DLC로 재분리하지 않는다.
+- 내부 작업명은 제품 2.0과 혼동되지 않도록 **맵 개편(map overhaul)**으로 부르며, 제품 버전은 **1.3.0**, 브랜치는 `codex/v130-map-overhaul`이다.
+- 이 기록은 버전·콘텐츠 경계 결정이며, 업로드·구현·배포 완료를 뜻하지 않는다.
+
+### 1.3.0 빌드 준비 — 2026-10-15 09:33 사용자 확정
+
+- 전투 수치·성장 자격·장식의 비전투 역할을 유지한다. 성 승격 금화 720·악명 720은 보유 조건이며 차감하지 않는다는 안내를 세 언어로 명확히 한다.
+- 프로젝트·게임 내 버전/공지/manifest는 1.3.0, Windows 파일·제품 버전은 1.3.0.0으로 갱신한다. 이번 지시는 기존 두 자리 화면 표시 관례보다 우선한다.
+- `codex/v130-map-overhaul`에서 영어 로컬 커밋과 `Windows Steam` export·웹 업로드용 ZIP까지만 준비한다. push·merge·태그·Steam 업로드/Commit/default 전환·공지 게시를 수행하지 않는다. manifest의 의도한 `v1.3.0`은 태그 생성 증거가 아니며 `tag_state=not_created`를 기록한다.
+- 보류한 재설계·미술·장기 검증은 [1.5.0 DLC 백로그](design/plans/V150_DLC_BACKLOG_2026-10-15.md)에 모은다. 빌드 준비 결과와 미해결 BGM 상태는 [출시 빌드 인계](handoff/V130_RELEASE_BUILD_2026-10-15.md)에 기록한다.
+
+### 이전 버전 체계 기록 (위 결정 우선)
 
 - 사용자에게 보이는 버전은 `1.2`, `2.0`처럼 두 자리로 표시한다.
 - Godot 프로젝트, Windows 파일 버전, manifest와 Git 태그는 SemVer에 맞춰 `1.2.1`, `2.0.0`처럼 세 자리로 기록한다.
@@ -101,3 +125,20 @@
 - 사용자가 새 SemVer `1.2.10`을 확정했다. `1.2` 표시 체계와 저장 경로는 유지한다.
 - project·Windows export·manifest·새 불변 태그를 1.2.10으로 일치시킨다. 기존 v1.2.9@4076e099202f440c85a30699268d1c887c26c903 및 출시 파일은 보존한다.
 - 기존 main@b06be967aa763199ac631729eb65cacbe9489c26의 간체 추가와 관련 표적 검증을 기반으로 한다. 새 전체 30일·원어민 교정·Steam 설치·2PC Cloud 완료를 주장하지 않는다.
+
+## 1.2.11 continuity maintenance patch — 2026-10-11 user decision
+
+- The user selected 1.2.11 for caption continuity, checkpoint/menu safety, read-only backlog, offline update notes, promotion feedback and remembered-speed improvements. This is a compatible patch, not an expansion or save-format change.
+- Parent live Steamworks read: public Build25808943, description v1.2.10 same-version hotfix, source515ed745d4ce731f7bafb31ee1f9381470794d72. This commit is an ancestor of the review branch. Public deployment timestamps were displayed as October8 9:24am/9:42am; timezone unverified. The local agent did not independently read that web page.
+- Project and installed-version labels use 1.2.11; Windows file/product versions use 1.2.11.0. New exports and review manifests identify 1.2.11. Prior 1.2.10 history, tags and binaries remain unchanged. The latest user request takes precedence over the older two-component display convention.
+- App5267750 and the existing custom user-data path, five campaign format versions and custom-layout filename stay unchanged. No new Cloud button/SDK or account-isolated save migration.
+- No public game deployment, push, merge, release tag or GitHub Release is performed by this local version-update task. Real two-PC Auto-Cloud and full human campaign tests remain separate verification gates.
+
+## 1.2.12 skill, growth and save maintenance patch — 2026-10-13
+
+- User authorized publishing the completed maintenance changes and a higher patch version after directly verifying the currently public build.
+- Fresh official SteamCMD anonymous app-info read: public Build25870353, Depot5267751 manifest5824439082666467035. Both identifiers exactly match the recorded immutable 1.2.11 public deployment; 1.2.12 is the next maintenance patch.
+- Product behavior is based on reviewed 2dfbaeea2e28b4d8d04631689eee24c9ef7b0800. This release preparation changes version metadata and KO/EN/ZH offline patch notes only; existing passing skill/growth/save evidence is retained by impact scope.
+- Project/update identifiers use 1.2.12; Windows file/product metadata use 1.2.12.0. The next source commit is frozen before export.
+- No change to App5267750, Depot5267751, user-data directory, save-format filenames or Cloud configuration.
+- No immutable Git tag is claimed created. A build manifest's v1.2.12 field records the intended release label, with explicit tag_state=not_created. Upload/default/announcement status is recorded separately in the handoff. Remote Git integration and two-PC Steam Cloud validation are not part of this local upload preparation.

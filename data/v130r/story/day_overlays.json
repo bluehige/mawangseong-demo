@@ -1,0 +1,3136 @@
+{
+  "schema_version": 1,
+  "locale": "ko",
+  "status": "draft",
+  "scope": "v130r_story_staging_0111",
+  "kind": "day_overlay",
+  "scenes": [
+    {
+      "id": "V130R_D01_MANAGEMENT",
+      "day": 1,
+      "title": "누수 인수인계",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D01_MANAGEMENT_ENTRY",
+      "anchor_character_ids": [
+        "CHR_EXPLORER_MILO"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D01_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "spider_tailor"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_SILKY",
+              "speaker_label": "실키",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "물이 떨어지는 데는 실을 안 걸게. 젖은 망토는 무거우니까.",
+              "id": "V130R_D01_MANAGEMENT_S1_001",
+              "line": "[실키|다정]: 물이 떨어지는 데는 실을 안 걸게. 젖은 망토는 무거우니까."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "내 위엄은 원래 무겁다. 그래도 마른 쪽으로 부탁한다.",
+              "id": "V130R_D01_MANAGEMENT_S1_002",
+              "line": "[마왕|허세]: 내 위엄은 원래 무겁다. 그래도 마른 쪽으로 부탁한다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D01_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "bat_courier"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_POPO",
+              "speaker_label": "포포",
+              "emotion_direction": "자신만만",
+              "portrait_emotion": "happy",
+              "text": "밀로 앞으로 온 우편은 없어! 본인이 먼저 걸어오나 봐!",
+              "id": "V130R_D01_MANAGEMENT_S2_001",
+              "line": "[포포|자신만만]: 밀로 앞으로 온 우편은 없어! 본인이 먼저 걸어오나 봐!"
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "손님이 주소보다 빨리 오는 집입니다. 익숙해지십시오.",
+              "id": "V130R_D01_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 손님이 주소보다 빨리 오는 집입니다. 익숙해지십시오."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D02_MANAGEMENT",
+      "day": 2,
+      "title": "도난 대비 청소",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D02_MANAGEMENT_ENTRY",
+      "anchor_character_ids": [
+        "CHR_THIEF_NIA"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D02_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "ghost_housemaid"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_BEBE",
+              "speaker_label": "베베",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "니아가 손댈 만한 문손잡이는 닦았어. 지문은 잘 보이겠지.",
+              "id": "V130R_D02_MANAGEMENT_S1_001",
+              "line": "[베베|다정]: 니아가 손댈 만한 문손잡이는 닦았어. 지문은 잘 보이겠지."
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "청소가 증거 보존에 기여하는군요. 세제 예산은 검토하겠습니다.",
+              "id": "V130R_D02_MANAGEMENT_S1_002",
+              "line": "[골딘|계산]: 청소가 증거 보존에 기여하는군요. 세제 예산은 검토하겠습니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D02_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "graveyard_hound"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_KOKO",
+              "speaker_label": "코코",
+              "emotion_direction": "확인",
+              "portrait_emotion": "base",
+              "text": "도둑 향수 냄새가 나. 금고 앞에서 제일 짙어.",
+              "id": "V130R_D02_MANAGEMENT_S2_001",
+              "line": "[코코|확인]: 도둑 향수 냄새가 나. 금고 앞에서 제일 짙어."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "금화는 향수를 안 쓴다. 그 냄새를 따라가라.",
+              "id": "V130R_D02_MANAGEMENT_S2_002",
+              "line": "[마왕|허세]: 금화는 향수를 안 쓴다. 그 냄새를 따라가라."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D02_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "armored_beetle"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_TOKTOK",
+              "speaker_label": "톡톡",
+              "emotion_direction": "확인",
+              "portrait_emotion": "base",
+              "text": "금고 문틀 받쳤다. 안에 걱정도 많다. 톡.",
+              "id": "V130R_D02_MANAGEMENT_S3_001",
+              "line": "[톡톡|확인]: 금고 문틀 받쳤다. 안에 걱정도 많다. 톡."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "걱정의 소유자는 골딘입니다. 문틀까지만 맡으십시오.",
+              "id": "V130R_D02_MANAGEMENT_S3_002",
+              "line": "[바티|건조]: 걱정의 소유자는 골딘입니다. 문틀까지만 맡으십시오."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D03_MANAGEMENT",
+      "day": 3,
+      "title": "용사의 발소리",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D03_MANAGEMENT_ENTRY",
+      "anchor_character_ids": [
+        "CHR_HERO_LEON"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D03_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "spider_tailor"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_SILKY",
+              "speaker_label": "실키",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "레온이 기술 이름 외칠 때 발에 망토가 걸리면 곤란해. 조금 걷을게.",
+              "id": "V130R_D03_MANAGEMENT_S1_001",
+              "line": "[실키|다정]: 레온이 기술 이름 외칠 때 발에 망토가 걸리면 곤란해. 조금 걷을게."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "내 대사까지 걷지는 마라. 아직 첫 문장이다.",
+              "id": "V130R_D03_MANAGEMENT_S1_002",
+              "line": "[마왕|허세]: 내 대사까지 걷지는 마라. 아직 첫 문장이다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D03_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "bat_courier"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_POPO",
+              "speaker_label": "포포",
+              "emotion_direction": "자신만만",
+              "portrait_emotion": "happy",
+              "text": "견습 용사 도착 예고! 발소리보다 자기소개가 먼저야!",
+              "id": "V130R_D03_MANAGEMENT_S2_001",
+              "line": "[포포|자신만만]: 견습 용사 도착 예고! 발소리보다 자기소개가 먼저야!"
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "이름을 알아들었으면 이제 이동 방향을 알려 주십시오.",
+              "id": "V130R_D03_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 이름을 알아들었으면 이제 이동 방향을 알려 주십시오."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D03_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "ghost_housemaid"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_BEBE",
+              "speaker_label": "베베",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "회복 둥지 바닥은 닦았어. 치료받으러 오다가 미끄러지진 않아.",
+              "id": "V130R_D03_MANAGEMENT_S3_001",
+              "line": "[베베|다정]: 회복 둥지 바닥은 닦았어. 치료받으러 오다가 미끄러지진 않아."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "좋다. 공포는 적에게만 제공하자.",
+              "id": "V130R_D03_MANAGEMENT_S3_002",
+              "line": "[마왕|허세]: 좋다. 공포는 적에게만 제공하자."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D04_MANAGEMENT",
+      "day": 4,
+      "title": "표지판과 협약서",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D04_MANAGEMENT_ENTRY",
+      "anchor_character_ids": [
+        "CHR_HERO_LEON"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D04_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "rat_union"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_JJIKJJIK",
+              "speaker_label": "찍찍단",
+              "emotion_direction": "합창",
+              "portrait_emotion": "happy",
+              "text": "표지판 원정에도 치즈 조항 적용! 멀리 가도 배는 같다!",
+              "id": "V130R_D04_MANAGEMENT_S1_001",
+              "line": "[찍찍단|합창]: 표지판 원정에도 치즈 조항 적용! 멀리 가도 배는 같다!"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "서명한 조항만 적용합니다. 글씨 옆에 깨문 자국은 서명이 아닙니다.",
+              "id": "V130R_D04_MANAGEMENT_S1_002",
+              "line": "[골딘|계산]: 서명한 조항만 적용합니다. 글씨 옆에 깨문 자국은 서명이 아닙니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D04_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "graveyard_hound"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_KOKO",
+              "speaker_label": "코코",
+              "emotion_direction": "확인",
+              "portrait_emotion": "base",
+              "text": "로로가 나간 길 냄새, 기억했어. 돌아오면 알 수 있어.",
+              "id": "V130R_D04_MANAGEMENT_S2_001",
+              "line": "[코코|확인]: 로로가 나간 길 냄새, 기억했어. 돌아오면 알 수 있어."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "소문이 먼저 돌아와도 본인까지 확인해 주십시오.",
+              "id": "V130R_D04_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 소문이 먼저 돌아와도 본인까지 확인해 주십시오."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D04_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "armored_beetle"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_TOKTOK",
+              "speaker_label": "톡톡",
+              "emotion_direction": "확인",
+              "portrait_emotion": "base",
+              "text": "표지판 못, 남은 거 있나. 문틀에도 쓴다.",
+              "id": "V130R_D04_MANAGEMENT_S3_001",
+              "line": "[톡톡|확인]: 표지판 못, 남은 거 있나. 문틀에도 쓴다."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "내 이름 적을 못 하나는 남겨라.",
+              "id": "V130R_D04_MANAGEMENT_S3_002",
+              "line": "[마왕|허세]: 내 이름 적을 못 하나는 남겨라."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D05_MANAGEMENT",
+      "day": 5,
+      "title": "세 왕좌의 지도",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D05_MANAGEMENT_ENTRY",
+      "anchor_character_ids": [
+        "CHR_EXPLORER_MILO"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D05_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "crumpled_map"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_KKOGIT",
+              "speaker_label": "꼬깃",
+              "emotion_direction": "자신만만",
+              "portrait_emotion": "happy",
+              "text": "밀로가 왕좌 셋을 지우려 해! 선택지를 줄이는 건 너무 잔인해!",
+              "id": "V130R_D05_MANAGEMENT_S1_001",
+              "line": "[꼬깃|자신만만]: 밀로가 왕좌 셋을 지우려 해! 선택지를 줄이는 건 너무 잔인해!"
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "식구용 귀환로만 정확하면 적의 선택지는 넉넉해도 된다.",
+              "id": "V130R_D05_MANAGEMENT_S1_002",
+              "line": "[마왕|다정]: 식구용 귀환로만 정확하면 적의 선택지는 넉넉해도 된다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D05_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "rat_union"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_JJIKJJIK",
+              "speaker_label": "찍찍단",
+              "emotion_direction": "합창",
+              "portrait_emotion": "happy",
+              "text": "길 잃은 탐험가가 금고로 오면 추가 근무다!",
+              "id": "V130R_D05_MANAGEMENT_S2_001",
+              "line": "[찍찍단|합창]: 길 잃은 탐험가가 금고로 오면 추가 근무다!"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "금고 위치는 안내하지 마십시오. 추가 근무의 원인을 줄입시다.",
+              "id": "V130R_D05_MANAGEMENT_S2_002",
+              "line": "[골딘|계산]: 금고 위치는 안내하지 마십시오. 추가 근무의 원인을 줄입시다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D05_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "spider_tailor"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_SILKY",
+              "speaker_label": "실키",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "지도 구겨진 데 실 한 가닥 묶을까? 펴기 쉽게.",
+              "id": "V130R_D05_MANAGEMENT_S3_001",
+              "line": "[실키|다정]: 지도 구겨진 데 실 한 가닥 묶을까? 펴기 쉽게."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "찢어지지 않는 정도로만. 길 안내가 두 장으로 나뉘면 곤란합니다.",
+              "id": "V130R_D05_MANAGEMENT_S3_002",
+              "line": "[바티|건조]: 찢어지지 않는 정도로만. 길 안내가 두 장으로 나뉘면 곤란합니다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D06_MANAGEMENT",
+      "day": 6,
+      "title": "예약과 반환",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D06_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_THIEF_NIA"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D06_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "river_frog"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_PONGDANG",
+              "speaker_label": "퐁당",
+              "emotion_direction": "단호",
+              "portrait_emotion": "determined",
+              "text": "니아 씨 방문 예약서보다 제 반환 요구서가 먼저인데요.",
+              "id": "V130R_D06_MANAGEMENT_S1_001",
+              "line": "[퐁당|단호]: 니아 씨 방문 예약서보다 제 반환 요구서가 먼저인데요."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "예약은 거절하고 요구서는 읽겠다. 순서에 공정한 마왕이다.",
+              "id": "V130R_D06_MANAGEMENT_S1_002",
+              "line": "[마왕|허세]: 예약은 거절하고 요구서는 읽겠다. 순서에 공정한 마왕이다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D06_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "crumpled_map"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_KKOGIT",
+              "speaker_label": "꼬깃",
+              "emotion_direction": "자신만만",
+              "portrait_emotion": "happy",
+              "text": "예약 손님용 길은 더 길게 그렸어! 정성이야!",
+              "id": "V130R_D06_MANAGEMENT_S2_001",
+              "line": "[꼬깃|자신만만]: 예약 손님용 길은 더 길게 그렸어! 정성이야!"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "금고를 지나지 않으면 충분한 정성입니다.",
+              "id": "V130R_D06_MANAGEMENT_S2_002",
+              "line": "[골딘|계산]: 금고를 지나지 않으면 충분한 정성입니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D06_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "bat_courier"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_POPO",
+              "speaker_label": "포포",
+              "emotion_direction": "자랑",
+              "portrait_emotion": "happy",
+              "text": "니아 쪽지 수령인 확인! 왕좌 서랍까지 배달하면 돼?",
+              "id": "V130R_D06_MANAGEMENT_S3_001",
+              "line": "[포포|자랑]: 니아 쪽지 수령인 확인! 왕좌 서랍까지 배달하면 돼?"
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "보관 장소는 더 이상 소리 내어 말하지 마십시오.",
+              "id": "V130R_D06_MANAGEMENT_S3_002",
+              "line": "[바티|건조]: 보관 장소는 더 이상 소리 내어 말하지 마십시오."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D07_MANAGEMENT",
+      "day": 7,
+      "title": "강화 전 진찰",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D07_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_EXPLORER_MILO"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D07_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "spore_healer"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_MORI",
+              "speaker_label": "모리",
+              "emotion_direction": "결심",
+              "portrait_emotion": "determined",
+              "text": "시설 강화 전에 손 좀 보여 줘. 망치보다 손이 먼저야.",
+              "id": "V130R_D07_MANAGEMENT_S1_001",
+              "line": "[모리|결심]: 시설 강화 전에 손 좀 보여 줘. 망치보다 손이 먼저야."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "마왕의 손도 점검 대상인가? 좋아, 장갑은 벗겠다.",
+              "id": "V130R_D07_MANAGEMENT_S1_002",
+              "line": "[마왕|허세]: 마왕의 손도 점검 대상인가? 좋아, 장갑은 벗겠다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D07_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "river_frog"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_PONGDANG",
+              "speaker_label": "퐁당",
+              "emotion_direction": "무표정",
+              "portrait_emotion": "base",
+              "text": "시설이 단단해져도 연못은 그대로 두실 건데요?",
+              "id": "V130R_D07_MANAGEMENT_S2_001",
+              "line": "[퐁당|무표정]: 시설이 단단해져도 연못은 그대로 두실 건데요?"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "매립 공사비는 승인한 적 없습니다. 그 점은 안심하십시오.",
+              "id": "V130R_D07_MANAGEMENT_S2_002",
+              "line": "[골딘|계산]: 매립 공사비는 승인한 적 없습니다. 그 점은 안심하십시오."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D07_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "ghost_housemaid"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_BEBE",
+              "speaker_label": "베베",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "왕좌 쿠션 대신 먼지라도 털었어. 조금 덜 딱딱할 거야.",
+              "id": "V130R_D07_MANAGEMENT_S3_001",
+              "line": "[베베|다정]: 왕좌 쿠션 대신 먼지라도 털었어. 조금 덜 딱딱할 거야."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "현재 예산에 맞는 허리 복지입니다.",
+              "id": "V130R_D07_MANAGEMENT_S3_002",
+              "line": "[바티|건조]: 현재 예산에 맞는 허리 복지입니다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D08_MANAGEMENT",
+      "day": 8,
+      "title": "성장은 천천히",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D08_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_HERO_LEON"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D08_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "glue_snail"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_NEURIT",
+              "speaker_label": "느릿",
+              "emotion_direction": "속삭임",
+              "portrait_emotion": "base",
+              "text": "다들… 빨라져도… 제 자리… 남나요…",
+              "id": "V130R_D08_MANAGEMENT_S1_001",
+              "line": "[느릿|속삭임]: 다들… 빨라져도… 제 자리… 남나요…"
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "느린 자리를 지키는 것도 성장이다. 네 속도까지 내 재산이다.",
+              "id": "V130R_D08_MANAGEMENT_S1_002",
+              "line": "[마왕|허세]: 느린 자리를 지키는 것도 성장이다. 네 속도까지 내 재산이다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D08_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "spore_healer"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_MORI",
+              "speaker_label": "모리",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "벽에 부딪힌 애부터 살필게. 단단해져도 아픈 건 아프니까.",
+              "id": "V130R_D08_MANAGEMENT_S2_001",
+              "line": "[모리|다정]: 벽에 부딪힌 애부터 살필게. 단단해져도 아픈 건 아프니까."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "벽 수리 견적보다 먼저 처리하셔도 됩니다.",
+              "id": "V130R_D08_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 벽 수리 견적보다 먼저 처리하셔도 됩니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D08_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "graveyard_hound"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_KOKO",
+              "speaker_label": "코코",
+              "emotion_direction": "확인",
+              "portrait_emotion": "base",
+              "text": "벽 금 간 냄새가 나. 수리할 데 찾았어.",
+              "id": "V130R_D08_MANAGEMENT_S3_001",
+              "line": "[코코|확인]: 벽 금 간 냄새가 나. 수리할 데 찾았어."
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "그 냄새를 맡을 때마다 장부도 갈라지는군요.",
+              "id": "V130R_D08_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 그 냄새를 맡을 때마다 장부도 갈라지는군요."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D09_MANAGEMENT",
+      "day": 9,
+      "title": "기록과 문지기",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D09_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_INVESTIGATOR_IRIS"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D09_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "stone_sentinel"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_DOLKONG",
+              "speaker_label": "돌콩",
+              "emotion_direction": "엄숙",
+              "portrait_emotion": "base",
+              "text": "아이리스가 내 자리도 적는다. 콩.",
+              "id": "V130R_D09_MANAGEMENT_S1_001",
+              "line": "[돌콩|엄숙]: 아이리스가 내 자리도 적는다. 콩."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "그 자리에서 식구가 지날 틈도 보십시오. 기록보다 중요합니다.",
+              "id": "V130R_D09_MANAGEMENT_S1_002",
+              "line": "[바티|건조]: 그 자리에서 식구가 지날 틈도 보십시오. 기록보다 중요합니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D09_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "glue_snail"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_NEURIT",
+              "speaker_label": "느릿",
+              "emotion_direction": "속삭임",
+              "portrait_emotion": "base",
+              "text": "조사관이… 제 흔적도… 적나요…",
+              "id": "V130R_D09_MANAGEMENT_S2_001",
+              "line": "[느릿|속삭임]: 조사관이… 제 흔적도… 적나요…"
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "적어도 된다. 지워야 할 낙서가 아니라 네가 온 길이다.",
+              "id": "V130R_D09_MANAGEMENT_S2_002",
+              "line": "[마왕|허세]: 적어도 된다. 지워야 할 낙서가 아니라 네가 온 길이다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D09_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "armored_beetle"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_TOKTOK",
+              "speaker_label": "톡톡",
+              "emotion_direction": "확인",
+              "portrait_emotion": "base",
+              "text": "문틀 흠집도 조사하더군. 톡.",
+              "id": "V130R_D09_MANAGEMENT_S3_001",
+              "line": "[톡톡|확인]: 문틀 흠집도 조사하더군. 톡."
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "견적까지 대신 써 주면 적이어도 정중히 받겠습니다.",
+              "id": "V130R_D09_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 견적까지 대신 써 주면 적이어도 정중히 받겠습니다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D10_MANAGEMENT",
+      "day": 10,
+      "title": "현상금 뒤쪽",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D10_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_INVESTIGATOR_IRIS"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D10_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "under_bed_shadow"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_SHH",
+              "speaker_label": "쉿",
+              "emotion_direction": "수줍음",
+              "portrait_emotion": "happy",
+              "text": "게시판에… 제 이름도 있어요…? 뒤쪽이라도…",
+              "id": "V130R_D10_MANAGEMENT_S1_001",
+              "line": "[쉿|수줍음]: 게시판에… 제 이름도 있어요…? 뒤쪽이라도…"
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "아직 없다면 우리 명단에 먼저 적자. 뒤쪽이 아니라 네 칸이다.",
+              "id": "V130R_D10_MANAGEMENT_S1_002",
+              "line": "[마왕|허세]: 아직 없다면 우리 명단에 먼저 적자. 뒤쪽이 아니라 네 칸이다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D10_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "stone_sentinel"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_DOLKONG",
+              "speaker_label": "돌콩",
+              "emotion_direction": "엄숙",
+              "portrait_emotion": "base",
+              "text": "조사대가 와도 자리 같다. 콩.",
+              "id": "V130R_D10_MANAGEMENT_S2_001",
+              "line": "[돌콩|엄숙]: 조사대가 와도 자리 같다. 콩."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "적이 우리를 안다고 우리가 돌아올 문까지 바꿀 필요는 없습니다.",
+              "id": "V130R_D10_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 적이 우리를 안다고 우리가 돌아올 문까지 바꿀 필요는 없습니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D10_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "crumpled_map"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_KKOGIT",
+              "speaker_label": "꼬깃",
+              "emotion_direction": "자신만만",
+              "portrait_emotion": "happy",
+              "text": "현상금 종이에 지도 그려도 돼? 뒷면이 비었어!",
+              "id": "V130R_D10_MANAGEMENT_S3_001",
+              "line": "[꼬깃|자신만만]: 현상금 종이에 지도 그려도 돼? 뒷면이 비었어!"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "종이값을 아끼는 제안입니다. 금액 위에는 그리지 마십시오.",
+              "id": "V130R_D10_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 종이값을 아끼는 제안입니다. 금액 위에는 그리지 마십시오."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D11_MANAGEMENT",
+      "day": 11,
+      "title": "경고문 재활용",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D11_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_INVESTIGATOR_IRIS"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D11_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "rat_union"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_JJIKJJIK",
+              "speaker_label": "찍찍단",
+              "emotion_direction": "합창",
+              "portrait_emotion": "happy",
+              "text": "토벌 경고문도 협약서만큼 세 장 필요하나?",
+              "id": "V130R_D11_MANAGEMENT_S1_001",
+              "line": "[찍찍단|합창]: 토벌 경고문도 협약서만큼 세 장 필요하나?"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "이건 한 장으로 충분합니다. 세 장이면 공포보다 우편료가 큽니다.",
+              "id": "V130R_D11_MANAGEMENT_S1_002",
+              "line": "[골딘|계산]: 이건 한 장으로 충분합니다. 세 장이면 공포보다 우편료가 큽니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D11_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "river_frog"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_PONGDANG",
+              "speaker_label": "퐁당",
+              "emotion_direction": "무표정",
+              "portrait_emotion": "base",
+              "text": "고급지면 요구서로 쓰기 좋겠는데요. 잘 안 찢어지고요.",
+              "id": "V130R_D11_MANAGEMENT_S2_001",
+              "line": "[퐁당|무표정]: 고급지면 요구서로 쓰기 좋겠는데요. 잘 안 찢어지고요."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "왕국의 위협을 민원 용지로 바꾸는군. 고등 전술이다.",
+              "id": "V130R_D11_MANAGEMENT_S2_002",
+              "line": "[마왕|허세]: 왕국의 위협을 민원 용지로 바꾸는군. 고등 전술이다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D11_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "under_bed_shadow"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_SHH",
+              "speaker_label": "쉿",
+              "emotion_direction": "속삭임",
+              "portrait_emotion": "base",
+              "text": "거꾸로 붙이면… 읽는 동안 뒤에 숨을 수 있겠어요…",
+              "id": "V130R_D11_MANAGEMENT_S3_001",
+              "line": "[쉿|속삭임]: 거꾸로 붙이면… 읽는 동안 뒤에 숨을 수 있겠어요…"
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "안내문 뒤에 숨을 때 본인 출근표까지 뒤집지는 마십시오.",
+              "id": "V130R_D11_MANAGEMENT_S3_002",
+              "line": "[바티|건조]: 안내문 뒤에 숨을 때 본인 출근표까지 뒤집지는 마십시오."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D12_MANAGEMENT",
+      "day": 12,
+      "title": "승급의 박자",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D12_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_HERO_LEON"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D12_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "war_drummer"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_DUDUM",
+              "speaker_label": "두둠",
+              "emotion_direction": "자랑",
+              "portrait_emotion": "happy",
+              "text": "승급곡 준비했어! 천둥 예산 없어도 북은 있지!",
+              "id": "V130R_D12_MANAGEMENT_S1_001",
+              "line": "[두둠|자랑]: 승급곡 준비했어! 천둥 예산 없어도 북은 있지!"
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "좋다. 내 위엄은 오늘부터 타악기 지원을 받는다.",
+              "id": "V130R_D12_MANAGEMENT_S1_002",
+              "line": "[마왕|허세]: 좋다. 내 위엄은 오늘부터 타악기 지원을 받는다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D12_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "spore_healer"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_MORI",
+              "speaker_label": "모리",
+              "emotion_direction": "결심",
+              "portrait_emotion": "determined",
+              "text": "누가 먼저 강해져도 치료 순서는 아픈 순서야.",
+              "id": "V130R_D12_MANAGEMENT_S2_001",
+              "line": "[모리|결심]: 누가 먼저 강해져도 치료 순서는 아픈 순서야."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "합리적입니다. 승급 명찰이 진료 순서를 앞당기지는 않습니다.",
+              "id": "V130R_D12_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 합리적입니다. 승급 명찰이 진료 순서를 앞당기지는 않습니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D12_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "glue_snail"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_NEURIT",
+              "speaker_label": "느릿",
+              "emotion_direction": "속삭임",
+              "portrait_emotion": "base",
+              "text": "박수는… 제가… 제일 늦어도… 끝까지…",
+              "id": "V130R_D12_MANAGEMENT_S3_001",
+              "line": "[느릿|속삭임]: 박수는… 제가… 제일 늦어도… 끝까지…"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "추가 공연료 없는 앙코르는 환영합니다.",
+              "id": "V130R_D12_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 추가 공연료 없는 앙코르는 환영합니다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D13_MANAGEMENT",
+      "day": 13,
+      "title": "걸어오는 문짝",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D13_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_HERO_LEON"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D13_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "bridge_troll"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_BEONGBEONG",
+              "speaker_label": "벙벙",
+              "emotion_direction": "울먹",
+              "portrait_emotion": "base",
+              "text": "방패병이 문짝이면 제 다리는 현관입니다! 신발 털고 오세요!",
+              "id": "V130R_D13_MANAGEMENT_S1_001",
+              "line": "[벙벙|울먹]: 방패병이 문짝이면 제 다리는 현관입니다! 신발 털고 오세요!"
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "좋다. 침입 허가는 내주지 말고 신발만 털어라.",
+              "id": "V130R_D13_MANAGEMENT_S1_002",
+              "line": "[마왕|허세]: 좋다. 침입 허가는 내주지 말고 신발만 털어라."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D13_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "stone_sentinel"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_DOLKONG",
+              "speaker_label": "돌콩",
+              "emotion_direction": "엄숙",
+              "portrait_emotion": "base",
+              "text": "큰 방패도 길은 하나다. 콩.",
+              "id": "V130R_D13_MANAGEMENT_S2_001",
+              "line": "[돌콩|엄숙]: 큰 방패도 길은 하나다. 콩."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "식구가 빠질 옆길은 남겨 두십시오.",
+              "id": "V130R_D13_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 식구가 빠질 옆길은 남겨 두십시오."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D13_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "war_drummer"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_DUDUM",
+              "speaker_label": "두둠",
+              "emotion_direction": "자랑",
+              "portrait_emotion": "happy",
+              "text": "느린 발엔 느린 곡! 오래 버티는 박자로 간다!",
+              "id": "V130R_D13_MANAGEMENT_S3_001",
+              "line": "[두둠|자랑]: 느린 발엔 느린 곡! 오래 버티는 박자로 간다!"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "곡이 길어져도 청구서까지 길게 쓰지는 마십시오.",
+              "id": "V130R_D13_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 곡이 길어져도 청구서까지 길게 쓰지는 마십시오."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D14_MANAGEMENT",
+      "day": 14,
+      "title": "자격과 자리",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D14_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_SELEN"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D14_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "bridge_troll"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_BEONGBEONG",
+              "speaker_label": "벙벙",
+              "emotion_direction": "울먹",
+              "portrait_emotion": "base",
+              "text": "소마왕성 되면 다리지기도 승진인가요? 넥타이 꺼내도 돼요?",
+              "id": "V130R_D14_MANAGEMENT_S1_001",
+              "line": "[벙벙|울먹]: 소마왕성 되면 다리지기도 승진인가요? 넥타이 꺼내도 돼요?"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "심사는 보유 자격 확인입니다. 넥타이는 기존 것을 쓰십시오.",
+              "id": "V130R_D14_MANAGEMENT_S1_002",
+              "line": "[골딘|계산]: 심사는 보유 자격 확인입니다. 넥타이는 기존 것을 쓰십시오."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D14_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "under_bed_shadow"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_SHH",
+              "speaker_label": "쉿",
+              "emotion_direction": "속삭임",
+              "portrait_emotion": "base",
+              "text": "성이 커지면… 저를 못 찾을까요…?",
+              "id": "V130R_D14_MANAGEMENT_S2_001",
+              "line": "[쉿|속삭임]: 성이 커지면… 저를 못 찾을까요…?"
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "이름을 부르면 된다. 성이 커져도 네 이름은 안 줄인다.",
+              "id": "V130R_D14_MANAGEMENT_S2_002",
+              "line": "[마왕|허세]: 이름을 부르면 된다. 성이 커져도 네 이름은 안 줄인다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D14_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "war_drummer"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_DUDUM",
+              "speaker_label": "두둠",
+              "emotion_direction": "자랑",
+              "portrait_emotion": "happy",
+              "text": "악명은 안 내도 북은 쳐도 되지? 축하 예행연습!",
+              "id": "V130R_D14_MANAGEMENT_S3_001",
+              "line": "[두둠|자랑]: 악명은 안 내도 북은 쳐도 되지? 축하 예행연습!"
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "심사 전에는 짧게. 합격보다 먼저 이웃이 항의하겠습니다.",
+              "id": "V130R_D14_MANAGEMENT_S3_002",
+              "line": "[바티|건조]: 심사 전에는 짧게. 합격보다 먼저 이웃이 항의하겠습니다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D15_MANAGEMENT",
+      "day": 15,
+      "title": "빛 담당 점검",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D15_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_SELEN"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D15_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "candle_wisp"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_NOKNOK",
+              "speaker_label": "녹녹",
+              "emotion_direction": "겁",
+              "portrait_emotion": "base",
+              "text": "셀렌 씨 점검표에 빛 담당도 적어 주세요! 저요, 저!",
+              "id": "V130R_D15_MANAGEMENT_S1_001",
+              "line": "[녹녹|겁]: 셀렌 씨 점검표에 빛 담당도 적어 주세요! 저요, 저!"
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "좋다. 경력 이백 년을 한 칸에 구겨 넣어 보마.",
+              "id": "V130R_D15_MANAGEMENT_S1_002",
+              "line": "[마왕|허세]: 좋다. 경력 이백 년을 한 칸에 구겨 넣어 보마."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D15_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "bridge_troll"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_BEONGBEONG",
+              "speaker_label": "벙벙",
+              "emotion_direction": "울먹",
+              "portrait_emotion": "base",
+              "text": "비상구도 제가 지켜요? 도망갈 땐 통행세 안 받습니다!",
+              "id": "V130R_D15_MANAGEMENT_S2_001",
+              "line": "[벙벙|울먹]: 비상구도 제가 지켜요? 도망갈 땐 통행세 안 받습니다!"
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "식구의 대피는 영업이 아닙니다. 그대로 기억하십시오.",
+              "id": "V130R_D15_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 식구의 대피는 영업이 아닙니다. 그대로 기억하십시오."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D15_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "ghost_housemaid"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_BEBE",
+              "speaker_label": "베베",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "심사 전에 바닥 닦았어. 물기는 조금 남았지만.",
+              "id": "V130R_D15_MANAGEMENT_S3_001",
+              "line": "[베베|다정]: 심사 전에 바닥 닦았어. 물기는 조금 남았지만."
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "미끄럼 주의는 무료로 알릴 수 있습니다. 크게 알려 주십시오.",
+              "id": "V130R_D15_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 미끄럼 주의는 무료로 알릴 수 있습니다. 크게 알려 주십시오."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D16_MANAGEMENT",
+      "day": 16,
+      "title": "보급로의 작은 달",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D16_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_SELEN"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D16_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "moon_tracker"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_LUMI",
+              "speaker_label": "루미",
+              "emotion_direction": "속삭임",
+              "portrait_emotion": "base",
+              "text": "셀렌 지도에 점심 자국이 있네. 길보다 밥시간이 정확해.",
+              "id": "V130R_D16_MANAGEMENT_S1_001",
+              "line": "[루미|속삭임]: 셀렌 지도에 점심 자국이 있네. 길보다 밥시간이 정확해."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "우리 귀환 시간도 그만큼 정확히 하자.",
+              "id": "V130R_D16_MANAGEMENT_S1_002",
+              "line": "[마왕|허세]: 우리 귀환 시간도 그만큼 정확히 하자."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D16_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "candle_wisp"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_NOKNOK",
+              "speaker_label": "녹녹",
+              "emotion_direction": "겁",
+              "portrait_emotion": "base",
+              "text": "정찰 가는 식구들 발밑 비출게요! 물 없는 쪽으로만요!",
+              "id": "V130R_D16_MANAGEMENT_S2_001",
+              "line": "[녹녹|겁]: 정찰 가는 식구들 발밑 비출게요! 물 없는 쪽으로만요!"
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "빛을 보내는 방향과 본인 안전을 함께 확인하십시오.",
+              "id": "V130R_D16_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 빛을 보내는 방향과 본인 안전을 함께 확인하십시오."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D16_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "river_frog"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_PONGDANG",
+              "speaker_label": "퐁당",
+              "emotion_direction": "무표정",
+              "portrait_emotion": "base",
+              "text": "강변 창고면 제 친척도 사는데요. 물은 건드리지 마세요.",
+              "id": "V130R_D16_MANAGEMENT_S3_001",
+              "line": "[퐁당|무표정]: 강변 창고면 제 친척도 사는데요. 물은 건드리지 마세요."
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "원정 목표는 장부에 적힌 물자입니다. 강은 자산 목록에 없습니다.",
+              "id": "V130R_D16_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 원정 목표는 장부에 적힌 물자입니다. 강은 자산 목록에 없습니다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D17_MANAGEMENT",
+      "day": 17,
+      "title": "두 번 닫는 뚜껑",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D17_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_THIEF_NIA"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D17_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "mimic_porter"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_MIMI",
+              "speaker_label": "미미",
+              "emotion_direction": "자신만만",
+              "portrait_emotion": "happy",
+              "text": "니아가 두 번 온대… 놀라는 것도 두 번 준비해야 해?",
+              "id": "V130R_D17_MANAGEMENT_S1_001",
+              "line": "[미미|자신만만]: 니아가 두 번 온대… 놀라는 것도 두 번 준비해야 해?"
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "놀라는 횟수보다 자리 지키는 시간을 준비하십시오.",
+              "id": "V130R_D17_MANAGEMENT_S1_002",
+              "line": "[바티|건조]: 놀라는 횟수보다 자리 지키는 시간을 준비하십시오."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D17_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "moon_tracker"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_LUMI",
+              "speaker_label": "루미",
+              "emotion_direction": "속삭임",
+              "portrait_emotion": "base",
+              "text": "첫 발자국이 끝나도 표식은 지우지 않을게.",
+              "id": "V130R_D17_MANAGEMENT_S2_001",
+              "line": "[루미|속삭임]: 첫 발자국이 끝나도 표식은 지우지 않을게."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "결심",
+              "portrait_emotion": "serious",
+              "text": "그래. 조용하다고 식구를 혼자 두지는 말자.",
+              "id": "V130R_D17_MANAGEMENT_S2_002",
+              "line": "[마왕|결심]: 그래. 조용하다고 식구를 혼자 두지는 말자."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D17_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "rat_union"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_JJIKJJIK",
+              "speaker_label": "찍찍단",
+              "emotion_direction": "합창",
+              "portrait_emotion": "happy",
+              "text": "두 번 와도 근무자는 셋! 계산은 여섯이 아니지?",
+              "id": "V130R_D17_MANAGEMENT_S3_001",
+              "line": "[찍찍단|합창]: 두 번 와도 근무자는 셋! 계산은 여섯이 아니지?"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "그 계산 감각은 앞으로도 유지해 주십시오.",
+              "id": "V130R_D17_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 그 계산 감각은 앞으로도 유지해 주십시오."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D18_MANAGEMENT",
+      "day": 18,
+      "title": "봉쇄와 실밥",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D18_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_THIEF_NIA",
+        "CHR_INVESTIGATOR_IRIS"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D18_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "curse_doll"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_NUBI",
+              "speaker_label": "누비",
+              "emotion_direction": "무심",
+              "portrait_emotion": "base",
+              "text": "니아가 버린 나도 여기 들어왔잖아. 막힌 길에도 틈은 있어.",
+              "id": "V130R_D18_MANAGEMENT_S1_001",
+              "line": "[누비|무심]: 니아가 버린 나도 여기 들어왔잖아. 막힌 길에도 틈은 있어."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "우리 식구가 돌아올 틈부터 찾자. 저주는 그다음이다.",
+              "id": "V130R_D18_MANAGEMENT_S1_002",
+              "line": "[마왕|다정]: 우리 식구가 돌아올 틈부터 찾자. 저주는 그다음이다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D18_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "mimic_porter"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_MIMI",
+              "speaker_label": "미미",
+              "emotion_direction": "자신만만",
+              "portrait_emotion": "happy",
+              "text": "가짜 장부… 내 안에 넣으면 진짜 금화랑 섞일까?",
+              "id": "V130R_D18_MANAGEMENT_S2_001",
+              "line": "[미미|자신만만]: 가짜 장부… 내 안에 넣으면 진짜 금화랑 섞일까?"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "내용물이 아닌 표지로 구분하겠습니다. 동전은 제가 따로 셉니다.",
+              "id": "V130R_D18_MANAGEMENT_S2_002",
+              "line": "[골딘|계산]: 내용물이 아닌 표지로 구분하겠습니다. 동전은 제가 따로 셉니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D18_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "spider_tailor"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_SILKY",
+              "speaker_label": "실키",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "봉쇄로 끊긴 통로엔 실을 더 남길게. 돌아오는 쪽에서 잡도록.",
+              "id": "V130R_D18_MANAGEMENT_S3_001",
+              "line": "[실키|다정]: 봉쇄로 끊긴 통로엔 실을 더 남길게. 돌아오는 쪽에서 잡도록."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "원정 선택 결과는 그대로입니다. 안전 표시만 보태십시오.",
+              "id": "V130R_D18_MANAGEMENT_S3_002",
+              "line": "[바티|건조]: 원정 선택 결과는 그대로입니다. 안전 표시만 보태십시오."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D19_MANAGEMENT",
+      "day": 19,
+      "title": "금고 안의 지루한 종이",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D19_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_THIEF_NIA",
+        "CHR_ROMAN"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D19_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "curse_doll"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_NUBI",
+              "speaker_label": "누비",
+              "emotion_direction": "무심",
+              "portrait_emotion": "base",
+              "text": "니아한테 편지 쓸 종이, 저 명령서 뒷면은 안 되겠지?",
+              "id": "V130R_D19_MANAGEMENT_S1_001",
+              "line": "[누비|무심]: 니아한테 편지 쓸 종이, 저 명령서 뒷면은 안 되겠지?"
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "회수대가 찾는 원본입니다. 문구류는 별도로 드리겠습니다.",
+              "id": "V130R_D19_MANAGEMENT_S1_002",
+              "line": "[바티|건조]: 회수대가 찾는 원본입니다. 문구류는 별도로 드리겠습니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D19_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "mimic_porter"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_MIMI",
+              "speaker_label": "미미",
+              "emotion_direction": "자신만만",
+              "portrait_emotion": "happy",
+              "text": "금화보다 종이를 노린다니… 내가 보물 보는 눈이 없는 줄 알았어.",
+              "id": "V130R_D19_MANAGEMENT_S2_001",
+              "line": "[미미|자신만만]: 금화보다 종이를 노린다니… 내가 보물 보는 눈이 없는 줄 알았어."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "식구가 지키는 종이면 오늘의 보물이다. 가격표는 나중에 붙여라.",
+              "id": "V130R_D19_MANAGEMENT_S2_002",
+              "line": "[마왕|다정]: 식구가 지키는 종이면 오늘의 보물이다. 가격표는 나중에 붙여라."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D19_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "bat_courier"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_POPO",
+              "speaker_label": "포포",
+              "emotion_direction": "자랑",
+              "portrait_emotion": "happy",
+              "text": "명령서 반송 봉투는 만들지 말까? 도둑이 직접 오는데.",
+              "id": "V130R_D19_MANAGEMENT_S3_001",
+              "line": "[포포|자랑]: 명령서 반송 봉투는 만들지 말까? 도둑이 직접 오는데."
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "반송도 방문 수령도 허가하지 않았습니다.",
+              "id": "V130R_D19_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 반송도 방문 수령도 허가하지 않았습니다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D20_MANAGEMENT",
+      "day": 20,
+      "title": "안전모의 새 현장",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D20_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_ROMAN",
+        "CHR_SELEN"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D20_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "mole_digger"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_PAPA",
+              "speaker_label": "파파",
+              "emotion_direction": "확인",
+              "portrait_emotion": "base",
+              "text": "로만이 온다니 현장표부터 다시 보죠. 식구 이름은 지우지 맙시다.",
+              "id": "V130R_D20_MANAGEMENT_S1_001",
+              "line": "[파파|확인]: 로만이 온다니 현장표부터 다시 보죠. 식구 이름은 지우지 맙시다."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "결심",
+              "portrait_emotion": "serious",
+              "text": "좋다. 공사 완료보다 전원 귀환을 먼저 적어라.",
+              "id": "V130R_D20_MANAGEMENT_S1_002",
+              "line": "[마왕|결심]: 좋다. 공사 완료보다 전원 귀환을 먼저 적어라."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D20_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "candle_wisp"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_NOKNOK",
+              "speaker_label": "녹녹",
+              "emotion_direction": "겁",
+              "portrait_emotion": "base",
+              "text": "공병이 감시초소 끄면 제가 비출게요! 비 새는 곳만 알려 줘요!",
+              "id": "V130R_D20_MANAGEMENT_S2_001",
+              "line": "[녹녹|겁]: 공병이 감시초소 끄면 제가 비출게요! 비 새는 곳만 알려 줘요!"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "조명 대체 인력은 고맙습니다. 양동이 위치는 제가 확인하지요.",
+              "id": "V130R_D20_MANAGEMENT_S2_002",
+              "line": "[골딘|계산]: 조명 대체 인력은 고맙습니다. 양동이 위치는 제가 확인하지요."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D20_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "stone_sentinel"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_DOLKONG",
+              "speaker_label": "돌콩",
+              "emotion_direction": "단호",
+              "portrait_emotion": "determined",
+              "text": "시설 멈춰도 나는 선다. 콩.",
+              "id": "V130R_D20_MANAGEMENT_S3_001",
+              "line": "[돌콩|단호]: 시설 멈춰도 나는 선다. 콩."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "냉정",
+              "portrait_emotion": "stern",
+              "text": "공병은 서로 다른 목표로 갑니다. 보이는 길부터 지키십시오.",
+              "id": "V130R_D20_MANAGEMENT_S3_002",
+              "line": "[바티|냉정]: 공병은 서로 다른 목표로 갑니다. 보이는 길부터 지키십시오."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D21_MANAGEMENT",
+      "day": 21,
+      "title": "지휘관과 안전선",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D21_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_SELEN",
+        "CHR_ROMAN"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D21_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "mole_digger"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_PAPA",
+              "speaker_label": "파파",
+              "emotion_direction": "확인",
+              "portrait_emotion": "base",
+              "text": "셀렌은 교대 틈을 보겠죠. 안전선은 끊지 않고 넘겨야 합니다.",
+              "id": "V130R_D21_MANAGEMENT_S1_001",
+              "line": "[파파|확인]: 셀렌은 교대 틈을 보겠죠. 안전선은 끊지 않고 넘겨야 합니다."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "추측은 기록과 구분하되 준비는 해 두십시오.",
+              "id": "V130R_D21_MANAGEMENT_S1_002",
+              "line": "[바티|건조]: 추측은 기록과 구분하되 준비는 해 두십시오."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D21_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "moon_tracker"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_LUMI",
+              "speaker_label": "루미",
+              "emotion_direction": "속삭임",
+              "portrait_emotion": "base",
+              "text": "빛이 오는 쪽만 보면 뒤를 놓쳐. 오늘은 돌아오는 발도 셀게.",
+              "id": "V130R_D21_MANAGEMENT_S2_001",
+              "line": "[루미|속삭임]: 빛이 오는 쪽만 보면 뒤를 놓쳐. 오늘은 돌아오는 발도 셀게."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "출발 때 센 수와 같게. 그 보고가 제일 듣고 싶다.",
+              "id": "V130R_D21_MANAGEMENT_S2_002",
+              "line": "[마왕|허세]: 출발 때 센 수와 같게. 그 보고가 제일 듣고 싶다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D21_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "armored_beetle"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_TOKTOK",
+              "speaker_label": "톡톡",
+              "emotion_direction": "확인",
+              "portrait_emotion": "base",
+              "text": "로만 공병이 남긴 흠집, 표시했다. 톡.",
+              "id": "V130R_D21_MANAGEMENT_S3_001",
+              "line": "[톡톡|확인]: 로만 공병이 남긴 흠집, 표시했다. 톡."
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "표시는 지우지 마십시오. 오늘 수리할 곳과 어제 값을 구분해야 합니다.",
+              "id": "V130R_D21_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 표시는 지우지 마십시오. 오늘 수리할 곳과 어제 값을 구분해야 합니다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D22_MANAGEMENT",
+      "day": 22,
+      "title": "교대표의 빈칸",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D22_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_INVESTIGATOR_IRIS"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D22_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "curse_doll"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_NUBI",
+              "speaker_label": "누비",
+              "emotion_direction": "무심",
+              "portrait_emotion": "base",
+              "text": "조사관이 간식 시간도 적었대. 내 바느질 시간은 못 줘.",
+              "id": "V130R_D22_MANAGEMENT_S1_001",
+              "line": "[누비|무심]: 조사관이 간식 시간도 적었대. 내 바느질 시간은 못 줘."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "그건 식구만 보는 일정이다. 적에게 바늘땀까지 설명할 의무는 없다.",
+              "id": "V130R_D22_MANAGEMENT_S1_002",
+              "line": "[마왕|다정]: 그건 식구만 보는 일정이다. 적에게 바늘땀까지 설명할 의무는 없다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D22_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "war_drummer"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_DUDUM",
+              "speaker_label": "두둠",
+              "emotion_direction": "자랑",
+              "portrait_emotion": "happy",
+              "text": "교대 북소리까지 적히면 어떡해? 오늘부터 조용히 둥?",
+              "id": "V130R_D22_MANAGEMENT_S2_001",
+              "line": "[두둠|자랑]: 교대 북소리까지 적히면 어떡해? 오늘부터 조용히 둥?"
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "박자를 바꾸기 전에 식구에게 먼저 알리십시오.",
+              "id": "V130R_D22_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 박자를 바꾸기 전에 식구에게 먼저 알리십시오."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D22_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "crumpled_map"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_KKOGIT",
+              "speaker_label": "꼬깃",
+              "emotion_direction": "자신만만",
+              "portrait_emotion": "happy",
+              "text": "아이리스가 사각을 찾으면 내가 종이를 한번 접을까?",
+              "id": "V130R_D22_MANAGEMENT_S3_001",
+              "line": "[꼬깃|자신만만]: 아이리스가 사각을 찾으면 내가 종이를 한번 접을까?"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "종이만 접고 감시초소를 접지는 마십시오.",
+              "id": "V130R_D22_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 종이만 접고 감시초소를 접지는 마십시오."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D23_MANAGEMENT",
+      "day": 23,
+      "title": "둘을 고르는 날",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D23_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_ROMAN"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D23_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "mole_digger"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_PAPA",
+              "speaker_label": "파파",
+              "emotion_direction": "확인",
+              "portrait_emotion": "base",
+              "text": "승급 둘이면 발판도 둘 점검! 높아질수록 바닥이 중요합니다.",
+              "id": "V130R_D23_MANAGEMENT_S1_001",
+              "line": "[파파|확인]: 승급 둘이면 발판도 둘 점검! 높아질수록 바닥이 중요합니다."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "내 왕좌도 점검 목록에 넣어라. 높이만 높은 건 곤란하다.",
+              "id": "V130R_D23_MANAGEMENT_S1_002",
+              "line": "[마왕|허세]: 내 왕좌도 점검 목록에 넣어라. 높이만 높은 건 곤란하다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D23_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "glue_snail"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_NEURIT",
+              "speaker_label": "느릿",
+              "emotion_direction": "결심",
+              "portrait_emotion": "determined",
+              "text": "누가… 먼저여도… 박수 칠… 준비는… 됐어요…",
+              "id": "V130R_D23_MANAGEMENT_S2_001",
+              "line": "[느릿|결심]: 누가… 먼저여도… 박수 칠… 준비는… 됐어요…"
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "손님 박수가 끝날 때까지 다음 설명은 기다리겠습니다.",
+              "id": "V130R_D23_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 손님 박수가 끝날 때까지 다음 설명은 기다리겠습니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D23_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "spore_healer"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_MORI",
+              "speaker_label": "모리",
+              "emotion_direction": "결심",
+              "portrait_emotion": "determined",
+              "text": "공병 먼저 잡겠다는 애도 잠은 자야 해. 침대 점검도 하자.",
+              "id": "V130R_D23_MANAGEMENT_S3_001",
+              "line": "[모리|결심]: 공병 먼저 잡겠다는 애도 잠은 자야 해. 침대 점검도 하자."
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "고장 나기 전 점검은 수리보다 쌉니다. 동의합니다.",
+              "id": "V130R_D23_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 고장 나기 전 점검은 수리보다 쌉니다. 동의합니다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D24_MANAGEMENT",
+      "day": 24,
+      "title": "빵 냄새 나는 전술",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D24_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_HERO_LEON"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D24_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "moon_tracker"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_LUMI",
+              "speaker_label": "루미",
+              "emotion_direction": "속삭임",
+              "portrait_emotion": "base",
+              "text": "레온 지도에 빵 냄새가 나. 외운 길은 쉽게 안 바꾸겠어.",
+              "id": "V130R_D24_MANAGEMENT_S1_001",
+              "line": "[루미|속삭임]: 레온 지도에 빵 냄새가 나. 외운 길은 쉽게 안 바꾸겠어."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "식사 흔적과 전술 의도는 구분하되 관찰은 유효합니다.",
+              "id": "V130R_D24_MANAGEMENT_S1_002",
+              "line": "[바티|건조]: 식사 흔적과 전술 의도는 구분하되 관찰은 유효합니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D24_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "mimic_porter"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_MIMI",
+              "speaker_label": "미미",
+              "emotion_direction": "자신만만",
+              "portrait_emotion": "happy",
+              "text": "왕좌 옆 동그라미… 내 뚜껑에 그려도 돼? 당황할 자리.",
+              "id": "V130R_D24_MANAGEMENT_S2_001",
+              "line": "[미미|자신만만]: 왕좌 옆 동그라미… 내 뚜껑에 그려도 돼? 당황할 자리."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "굳이 표시하지 마라. 내 것은 전술 이동 표시다.",
+              "id": "V130R_D24_MANAGEMENT_S2_002",
+              "line": "[마왕|허세]: 굳이 표시하지 마라. 내 것은 전술 이동 표시다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D24_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "graveyard_hound"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_KOKO",
+              "speaker_label": "코코",
+              "emotion_direction": "결심",
+              "portrait_emotion": "determined",
+              "text": "빵 냄새보다 돌아올 손 냄새 먼저 맡을게.",
+              "id": "V130R_D24_MANAGEMENT_S3_001",
+              "line": "[코코|결심]: 빵 냄새보다 돌아올 손 냄새 먼저 맡을게."
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "빵이 실제로 남아 있다면 그 위치는 따로 보고하십시오.",
+              "id": "V130R_D24_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 빵이 실제로 남아 있다면 그 위치는 따로 보고하십시오."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D25_MANAGEMENT",
+      "day": 25,
+      "title": "빈 갑옷의 출근",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D25_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_HERO_LEON"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D25_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "hollow_armor"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_TEONGTEONG",
+              "speaker_label": "텅텅",
+              "emotion_direction": "정의감",
+              "portrait_emotion": "determined",
+              "text": "레온은 돌진한다고 들었습니다. 저는 제 이름으로 여기 서겠습니다.",
+              "id": "V130R_D25_MANAGEMENT_S1_001",
+              "line": "[텅텅|정의감]: 레온은 돌진한다고 들었습니다. 저는 제 이름으로 여기 서겠습니다."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "정의의 자격증은 필요 없다. 네 뒤에 식구가 있다는 것만 기억해라.",
+              "id": "V130R_D25_MANAGEMENT_S1_002",
+              "line": "[마왕|다정]: 정의의 자격증은 필요 없다. 네 뒤에 식구가 있다는 것만 기억해라."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D25_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "armored_beetle"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_TOKTOK",
+              "speaker_label": "톡톡",
+              "emotion_direction": "확인",
+              "portrait_emotion": "base",
+              "text": "빈 갑옷도 판금은 판금이다. 이음새 봐 뒀다. 톡.",
+              "id": "V130R_D25_MANAGEMENT_S2_001",
+              "line": "[톡톡|확인]: 빈 갑옷도 판금은 판금이다. 이음새 봐 뒀다. 톡."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "재조립은 사망을 되돌리는 기술이 아닙니다. 버티는 동안 보조하십시오.",
+              "id": "V130R_D25_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 재조립은 사망을 되돌리는 기술이 아닙니다. 버티는 동안 보조하십시오."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D25_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "bridge_troll"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_BEONGBEONG",
+              "speaker_label": "벙벙",
+              "emotion_direction": "울먹",
+              "portrait_emotion": "base",
+              "text": "용사가 와도 다리 근무는 그대로죠? 오늘도 제 자리죠?",
+              "id": "V130R_D25_MANAGEMENT_S3_001",
+              "line": "[벙벙|울먹]: 용사가 와도 다리 근무는 그대로죠? 오늘도 제 자리죠?"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "근무표는 그대로입니다. 떨리는 손으로 영수증만 구기지 마십시오.",
+              "id": "V130R_D25_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 근무표는 그대로입니다. 떨리는 손으로 영수증만 구기지 마십시오."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D26_MANAGEMENT",
+      "day": 26,
+      "title": "문패 아래 이름들",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D26_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_HERO_LEON"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D26_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "hollow_armor"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_TEONGTEONG",
+              "speaker_label": "텅텅",
+              "emotion_direction": "정의감",
+              "portrait_emotion": "determined",
+              "text": "정식 마왕성 등록증에 제 이름은 없어도 됩니다. 투구 안에는 있거든요.",
+              "id": "V130R_D26_MANAGEMENT_S1_001",
+              "line": "[텅텅|정의감]: 정식 마왕성 등록증에 제 이름은 없어도 됩니다. 투구 안에는 있거든요."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "등록증은 성의 이름입니다. 식구 명단은 별도로 보존하겠습니다.",
+              "id": "V130R_D26_MANAGEMENT_S1_002",
+              "line": "[바티|건조]: 등록증은 성의 이름입니다. 식구 명단은 별도로 보존하겠습니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D26_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "mole_digger"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_PAPA",
+              "speaker_label": "파파",
+              "emotion_direction": "확인",
+              "portrait_emotion": "base",
+              "text": "명칭 바뀌어도 비상구 표시는 그대로 알아보게 합시다.",
+              "id": "V130R_D26_MANAGEMENT_S2_001",
+              "line": "[파파|확인]: 명칭 바뀌어도 비상구 표시는 그대로 알아보게 합시다."
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "간판 교체는 필요한 것만. 안전 표시는 재사용합니다.",
+              "id": "V130R_D26_MANAGEMENT_S2_002",
+              "line": "[골딘|계산]: 간판 교체는 필요한 것만. 안전 표시는 재사용합니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D26_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "candle_wisp"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_NOKNOK",
+              "speaker_label": "녹녹",
+              "emotion_direction": "겁",
+              "portrait_emotion": "base",
+              "text": "정식 등록이면 제 촛대도 정식 근무지죠?! 비 안 새게 해 줘요!",
+              "id": "V130R_D26_MANAGEMENT_S3_001",
+              "line": "[녹녹|겁]: 정식 등록이면 제 촛대도 정식 근무지죠?! 비 안 새게 해 줘요!"
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "공식 위협보다 빗물이 더 무섭다는 건 기밀로 하자.",
+              "id": "V130R_D26_MANAGEMENT_S3_002",
+              "line": "[마왕|허세]: 공식 위협보다 빗물이 더 무섭다는 건 기밀로 하자."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D27_MANAGEMENT",
+      "day": 27,
+      "title": "같은 껍질 안",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D27_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_ROMAN"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D27_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "hollow_armor"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_TEONGTEONG",
+              "speaker_label": "텅텅",
+              "emotion_direction": "당황",
+              "portrait_emotion": "base",
+              "text": "성채 심장은 뛰는데 저는 비었습니다. 그래도 같은 편이지요?",
+              "id": "V130R_D27_MANAGEMENT_S1_001",
+              "line": "[텅텅|당황]: 성채 심장은 뛰는데 저는 비었습니다. 그래도 같은 편이지요?"
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "같은 식구다. 심장 소리보다 그 말을 먼저 기억해라.",
+              "id": "V130R_D27_MANAGEMENT_S1_002",
+              "line": "[마왕|다정]: 같은 식구다. 심장 소리보다 그 말을 먼저 기억해라."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D27_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "stone_sentinel"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_DOLKONG",
+              "speaker_label": "돌콩",
+              "emotion_direction": "엄숙",
+              "portrait_emotion": "base",
+              "text": "공병이 둘이어도 돌아올 문은 지킨다. 콩.",
+              "id": "V130R_D27_MANAGEMENT_S2_001",
+              "line": "[돌콩|엄숙]: 공병이 둘이어도 돌아올 문은 지킨다. 콩."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "성채 심장과 시설의 연결 상태도 함께 보겠습니다.",
+              "id": "V130R_D27_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 성채 심장과 시설의 연결 상태도 함께 보겠습니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D27_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "war_drummer"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_DUDUM",
+              "speaker_label": "두둠",
+              "emotion_direction": "자랑",
+              "portrait_emotion": "happy",
+              "text": "심장 박자 들리면 맞춰 칠게! 네 장부보다 느리겠지?",
+              "id": "V130R_D27_MANAGEMENT_S3_001",
+              "line": "[두둠|자랑]: 심장 박자 들리면 맞춰 칠게! 네 장부보다 느리겠지?"
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "제 장부 박자는 따라 치지 마십시오. 손목이 남아나지 않습니다.",
+              "id": "V130R_D27_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 제 장부 박자는 따라 치지 마십시오. 손목이 남아나지 않습니다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D28_MANAGEMENT",
+      "day": 28,
+      "title": "마지막 귀환 표시",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D28_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_ROMAN",
+        "CHR_INVESTIGATOR_IRIS"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D28_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "crumpled_map"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_KKOGIT",
+              "speaker_label": "꼬깃",
+              "emotion_direction": "자신만만",
+              "portrait_emotion": "happy",
+              "text": "공성로든 공병 수레든, 식구 귀환로는 안 구길게!",
+              "id": "V130R_D28_MANAGEMENT_S1_001",
+              "line": "[꼬깃|자신만만]: 공성로든 공병 수레든, 식구 귀환로는 안 구길게!"
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "선택은 내가 한다. 돌아올 표시는 네가 맡아라.",
+              "id": "V130R_D28_MANAGEMENT_S1_002",
+              "line": "[마왕|허세]: 선택은 내가 한다. 돌아올 표시는 네가 맡아라."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D28_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "bat_courier"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_POPO",
+              "speaker_label": "포포",
+              "emotion_direction": "자랑",
+              "portrait_emotion": "happy",
+              "text": "원정 결과는 돌아온 식구한테 직접 받을게! 소문은 임시 우편!",
+              "id": "V130R_D28_MANAGEMENT_S2_001",
+              "line": "[포포|자랑]: 원정 결과는 돌아온 식구한테 직접 받을게! 소문은 임시 우편!"
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "보고 전까지 선택 효과를 확정해서 외치지는 마십시오.",
+              "id": "V130R_D28_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 보고 전까지 선택 효과를 확정해서 외치지는 마십시오."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D28_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "river_frog"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_PONGDANG",
+              "speaker_label": "퐁당",
+              "emotion_direction": "무표정",
+              "portrait_emotion": "base",
+              "text": "수레가 물길로 빠져도 흙으로 막지는 마세요. 연못인데요.",
+              "id": "V130R_D28_MANAGEMENT_S3_001",
+              "line": "[퐁당|무표정]: 수레가 물길로 빠져도 흙으로 막지는 마세요. 연못인데요."
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "원정 비용에 매립 항목은 없습니다.",
+              "id": "V130R_D28_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 원정 비용에 매립 항목은 없습니다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D29_MANAGEMENT",
+      "day": 29,
+      "title": "싸우지 않는 밤",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D29_MANAGEMENT_01",
+      "anchor_character_ids": [
+        "CHR_HERO_LEON"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D29_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "curse_doll"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_NUBI",
+              "speaker_label": "누비",
+              "emotion_direction": "무심",
+              "portrait_emotion": "base",
+              "text": "내일 레온이 오기 전에 오늘 실밥부터 볼래? 아픈 곳 숨기지 마.",
+              "id": "V130R_D29_MANAGEMENT_S1_001",
+              "line": "[누비|무심]: 내일 레온이 오기 전에 오늘 실밥부터 볼래? 아픈 곳 숨기지 마."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "결심",
+              "portrait_emotion": "serious",
+              "text": "오늘은 싸우지 않는다. 그러니 아픈 척 안 하는 것도 금지다.",
+              "id": "V130R_D29_MANAGEMENT_S1_002",
+              "line": "[마왕|결심]: 오늘은 싸우지 않는다. 그러니 아픈 척 안 하는 것도 금지다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D29_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "under_bed_shadow"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_SHH",
+              "speaker_label": "쉿",
+              "emotion_direction": "속삭임",
+              "portrait_emotion": "base",
+              "text": "오늘은… 무섭게 안 할게요… 잠들 때 옆에 있을게요…",
+              "id": "V130R_D29_MANAGEMENT_S2_001",
+              "line": "[쉿|속삭임]: 오늘은… 무섭게 안 할게요… 잠들 때 옆에 있을게요…"
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "냉정",
+              "portrait_emotion": "stern",
+              "text": "침입 일정 없음. 조용한 근무도 정식 근무로 기록합니다.",
+              "id": "V130R_D29_MANAGEMENT_S2_002",
+              "line": "[바티|냉정]: 침입 일정 없음. 조용한 근무도 정식 근무로 기록합니다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D29_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "spider_tailor"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_SILKY",
+              "speaker_label": "실키",
+              "emotion_direction": "단호",
+              "portrait_emotion": "determined",
+              "text": "내일 잡아당길 실은 준비됐어. 오늘은 해진 데만 꿰맬게.",
+              "id": "V130R_D29_MANAGEMENT_S3_001",
+              "line": "[실키|단호]: 내일 잡아당길 실은 준비됐어. 오늘은 해진 데만 꿰맬게."
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "수선비보다 사람이 먼저라는 항목을 오늘은 맨 위에 적겠습니다.",
+              "id": "V130R_D29_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 수선비보다 사람이 먼저라는 항목을 오늘은 맨 위에 적겠습니다."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "V130R_D30_MANAGEMENT",
+      "day": 30,
+      "title": "문 앞의 모든 이름",
+      "trigger": "management_entered",
+      "insert_after_scene_id": "STORY_D30_MANAGEMENT",
+      "anchor_character_ids": [
+        "CHR_HERO_LEON",
+        "CHR_SELEN",
+        "CHR_ROMAN"
+      ],
+      "repeat_policy": "once_first_cycle_day",
+      "missing_participant_policy": "skip_segment_preserve_original",
+      "side_effects": [],
+      "segments": [
+        {
+          "id": "V130R_D30_MANAGEMENT_S1",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "hollow_armor"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_TEONGTEONG",
+              "speaker_label": "텅텅",
+              "emotion_direction": "정의감",
+              "portrait_emotion": "determined",
+              "text": "레온이 마지막이라 들었습니다. 제 뒤 이름은 하나도 빼지 않겠습니다.",
+              "id": "V130R_D30_MANAGEMENT_S1_001",
+              "line": "[텅텅|정의감]: 레온이 마지막이라 들었습니다. 제 뒤 이름은 하나도 빼지 않겠습니다."
+            },
+            {
+              "speaker_id": "CHR_DARKLORD_PLAYER",
+              "speaker_label": "마왕",
+              "emotion_direction": "허세",
+              "portrait_emotion": "proud",
+              "text": "돌아올 때 다시 세자. 연설보다 그 점호를 길게 하겠다.",
+              "id": "V130R_D30_MANAGEMENT_S1_002",
+              "line": "[마왕|허세]: 돌아올 때 다시 세자. 연설보다 그 점호를 길게 하겠다."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D30_MANAGEMENT_S2",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "ghost_housemaid"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_BEBE",
+              "speaker_label": "베베",
+              "emotion_direction": "다정",
+              "portrait_emotion": "base",
+              "text": "셀렌과 공병이 와도 돌아올 문은 열어 둘게. 청소는 다 온 뒤에.",
+              "id": "V130R_D30_MANAGEMENT_S2_001",
+              "line": "[베베|다정]: 셀렌과 공병이 와도 돌아올 문은 열어 둘게. 청소는 다 온 뒤에."
+            },
+            {
+              "speaker_id": "CHR_BATI",
+              "speaker_label": "바티",
+              "emotion_direction": "건조",
+              "portrait_emotion": "dry",
+              "text": "퇴로를 비우고 각자 정한 자리를 지키십시오.",
+              "id": "V130R_D30_MANAGEMENT_S2_002",
+              "line": "[바티|건조]: 퇴로를 비우고 각자 정한 자리를 지키십시오."
+            }
+          ]
+        },
+        {
+          "id": "V130R_D30_MANAGEMENT_S3",
+          "conditions": {
+            "requires_owned_species_ids": [
+              "graveyard_hound"
+            ],
+            "requires_join_event_completed": true,
+            "existing_join_condition_first": true
+          },
+          "cues": [
+            {
+              "speaker_id": "CHR_KOKO",
+              "speaker_label": "코코",
+              "emotion_direction": "결심",
+              "portrait_emotion": "determined",
+              "text": "오늘도 식구 냄새부터 센다. 적보다 먼저.",
+              "id": "V130R_D30_MANAGEMENT_S3_001",
+              "line": "[코코|결심]: 오늘도 식구 냄새부터 센다. 적보다 먼저."
+            },
+            {
+              "speaker_id": "CHR_GOLDIN",
+              "speaker_label": "골딘",
+              "emotion_direction": "계산",
+              "portrait_emotion": "accounting",
+              "text": "저도 금화보다 먼저 명단을 보겠습니다. 오늘만큼은요.",
+              "id": "V130R_D30_MANAGEMENT_S3_002",
+              "line": "[골딘|계산]: 저도 금화보다 먼저 명단을 보겠습니다. 오늘만큼은요."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

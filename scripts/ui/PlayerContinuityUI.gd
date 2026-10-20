@@ -1,0 +1,334 @@
+extends RefCounted
+# Read-only dialogue history and shared campaign controls. History never replays actions.
+var root: Node
+var history: Array[Dictionary] = []
+var last_key := ""
+var backlog_open := false
+var confirmation_action := ""
+var update_open := false
+var update_session_acknowledged := false
+var modal_previous_focus: Dictionary = {}
+var menu_feedback := ""
+var promotion_uses: Dictionary = {}
+var promotion_damage := 0
+var promotion_notice_remaining := 0.0
+var support_notice_remaining:=0.0
+var support_notice_deadline:=0.0
+var prototype_ambush_enabled := false
+const UPDATE_ID := "1.3.0"
+
+func setup(value: Node) -> void:
+	root = value
+	prototype_ambush_enabled = OS.get_cmdline_user_args().has("--prototype-ambush-backline")
+
+func reset_combat() -> void:
+	promotion_uses.clear()
+	promotion_damage = 0
+	promotion_notice_remaining = 0.0
+	remove("PromotionContributionNotice")
+	support_notice_remaining=0.0;support_notice_deadline=0.0;remove("PromotionSupportNotice")
+
+func record_promoted_slash(unit: Node, actual_damage: int) -> void:
+	if str(root.monster_roster.get(unit.unit_id, {}).get("promotion_id", "")) != "goblin_ambush_captain": return
+	var key := "goblin_ambush_captain:quick_slash"
+	var first := not promotion_uses.has(key)
+	promotion_uses[key] = int(promotion_uses.get(key, 0)) + 1
+	promotion_damage += maxi(0, actual_damage)
+	root._log(localized("승급 빠른 베기 · 실제 피해 %d · 이번 전투 누적 %d", "Promoted Quick Slash · damage %d · battle total %d", "晋升快速斩击 · 实际伤害 %d · 本场合计 %d") % [actual_damage, promotion_damage])
+	if not first: return
+	remove("PromotionContributionNotice")
+	var panel: Panel = root.hud.panel(Rect2(1150, 182, 708, 122), Color("#241526f5"), Color("#ffd36a"), "PromotionContributionNotice", "flat")
+	panel.name = "PromotionContributionNotice"
+	panel.z_index = 620
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var text: Label = root.hud.label(panel, localized("매복대장 · 첫 강화 베기!\n기본 1.90 → 승급 2.15배 · 실제 피해 %d", "Ambush Captain · first upgraded slash!\nBase 1.90 → promoted 2.15 multiplier · damage %d", "伏击队长 · 首次强化斩击！\n基础 1.90 → 晋升 2.15 倍 · 实际伤害 %d") % actual_damage, Vector2(20, 16), Vector2(668, 92), 22, Color("#ffe4b0"), HORIZONTAL_ALIGNMENT_LEFT, "PromotionFirstUseText", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 3)
+	text.name = "PromotionFirstUseText"
+	promotion_notice_remaining = 5.0
+
+func record_pudding_support(unit:Node,target:Node)->void:
+	var branch:String=str(root.monster_roster.get(unit.unit_id,{}).get("promotion_id",""))
+	if branch not in ["slime_gate_bulwark","slime_rescue_alchemy_gel"]:return
+	var key:String="pudding_support:%d"%unit.get_instance_id()
+	if promotion_uses.has(key):return
+	promotion_uses[key]=1;remove("PromotionSupportNotice")
+	var panel:Panel=root.hud.panel(Rect2(56,176,790,136),Color("#241526f5"),Color("#ffd36a"),"PromotionSupportNotice","flat")
+	panel.name="PromotionSupportNotice";panel.z_index=620;panel.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	var role:String=localized("길목 방벽","Entry bulwark","入口壁垒") if branch=="slime_gate_bulwark" else localized("부상 아군 보호","Wounded ally guard","保护受伤同伴")
+	var text:Label=root.hud.label(panel,localized("%s · 첫 유효 보호!\n%s에게 실제 방패 적용. 결산에 보호 적용 1회 기록.","%s · first effective protection!\nShield applied to %s. One application recorded for results.","%s · 首次有效保护！\n为%s实际应用护盾，结算记录1次应用。")%[role,LanguageSettings.ui_text(str(target.display_name))],Vector2(20,16),Vector2(750,106),22,Color("#ffe4b0"),HORIZONTAL_ALIGNMENT_LEFT,"PromotionSupportFirstText","body",VERTICAL_ALIGNMENT_TOP,TextServer.AUTOWRAP_WORD_SMART,3)
+	text.mouse_filter=Control.MOUSE_FILTER_IGNORE;support_notice_remaining=5.0;support_notice_deadline=float(root.combat_time)+5.0
+
+func tick(delta: float) -> void:
+	if root.current_screen != "combat" or root.combat_paused: return
+	if support_notice_remaining>0.0:
+		support_notice_remaining=maxf(0.0,support_notice_deadline-float(root.combat_time))
+		if support_notice_remaining<=0.0:remove("PromotionSupportNotice")
+	if promotion_notice_remaining > 0.0:
+		promotion_notice_remaining -= delta
+		if promotion_notice_remaining <= 0.0: remove("PromotionContributionNotice")
+
+func promotion_explanation(rule: Dictionary) -> String:
+	if str(rule.get("id",""))=="slime_gate_bulwark":return localized("길목 방벽: 자기 방패 6초·피해감소48%, 입구 방어선 유지. 왕좌 위협·수동 명령이 우선합니다. 첫 유효 보호와 실제 적용 횟수를 표시합니다.","Entry bulwark: self shield 6s/48% reduction; holds the entry line. Throne threats and manual orders take priority. Shows first effective protection and actual applications.","入口壁垒：自身护盾6秒/减伤48%，守住入口防线。王座威胁和手动命令优先。显示首次有效保护与实际应用次数。")
+	if str(rule.get("id",""))=="slime_rescue_alchemy_gel":return localized("구조 호위: 부상 아군 방패 5.5초·피해감소45%, 부상 아군의 방으로 이동. 왕좌 위협·수동 명령·즉시 교전이 우선할 수 있습니다. 첫 유효 보호와 실제 적용 횟수를 표시합니다.","Rescue guard: wounded ally shield 5.5s/45% reduction; moves to the wounded ally's room. Throne threats, manual orders and immediate combat may take priority. Shows first effective protection and actual applications.","救援护卫：受伤同伴护盾5.5秒/减伤45%，前往受伤同伴房间。王座威胁、手动命令和即时交战可能优先。显示首次有效保护与实际应用次数。")
+	if str(rule.get("id", "")) != "goblin_ambush_captain": return str(rule.get("role_summary", ""))
+	return localized("기본 곱도 도둑을 추격합니다. 승급 후 빠른 베기 피해배율 1.90→2.15, 이동 +5%. 첫 강화 베기와 실제 피해를 전투에서 표시합니다.", "Base Gob also pursues thieves. Promotion raises Quick Slash from 1.90 to 2.15 and speed by 5%. The first upgraded slash and actual damage are shown in battle.", "基础哥布也追击盗贼。晋升后快速斩击由1.90变为2.15倍，移动+5%。战斗中显示首次强化斩击和实际伤害。")
+
+func localized(ko: String, en: String, zh: String) -> String:
+	return en if LanguageSettings.locale == "en" else (zh if LanguageSettings.locale == "zh_CN" else ko)
+
+func record(key: String, speaker: String, text: String) -> void:
+	if key == last_key or text == "": return
+	last_key = key
+	history.append({"speaker": speaker, "text": text, "day": GameState.day})
+
+func record_story() -> void:
+	if not root.story_director.is_active(): return
+	var cue: Dictionary = root.story_director.current_cue()
+	var speaker: Dictionary = root._story_resolve_cue_speaker(cue)
+	record("%s:%s" % [root.story_director.current_scene_id, root.story_director.cursor], LanguageSettings.story_speaker(speaker, root._onboarding_player_name()), LanguageSettings.story_text(cue, root._onboarding_player_name()))
+
+func add_dialogue_buttons(parent: Control) -> void:
+	root.hud.icon_button(parent, "log", Rect2(1728, 112, 48, 48), Callable(self, "open_backlog"), "DialogueBacklogButton")
+	root.hud.icon_button(parent, "menu", Rect2(1792, 112, 48, 48), Callable(root, "_open_pause_menu"), "DialogueMenuButton")
+
+func open_backlog() -> void:
+	if backlog_open: return
+	backlog_open = true
+	var panel := modal("DialogueBacklogOverlay", localized("대화 로그 · 읽기 전용", "Dialogue log · read only", "对话记录 · 只读"))
+	var scroll := ScrollContainer.new()
+	scroll.name = "DialogueBacklogScroll"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.position = Vector2(44, 110)
+	scroll.size = Vector2(1112, 540)
+	panel.add_child(scroll)
+	var rows := VBoxContainer.new()
+	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rows.add_theme_constant_override("separation", 18)
+	scroll.add_child(rows)
+	for entry in history:
+		var label := Label.new()
+		label.text = "DAY %02d · %s\n%s" % [entry.day, entry.speaker, entry.text]
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		label.add_theme_font_override("font", root.hud.UI_FONT)
+		label.add_theme_font_size_override("font_size", UISettings.scaled_font_size(25))
+		rows.add_child(label)
+	root.hud.button(panel, localized("닫고 대화로 돌아가기", "Close and resume dialogue", "关闭并返回对话"), Rect2(340, 680, 520, 60), Callable(self, "close_backlog"), 22, "BacklogCloseButton")
+	scroll.set_deferred("scroll_vertical", 1000000)
+
+func close_backlog() -> void:
+	remove("DialogueBacklogOverlay")
+	backlog_open = false
+	root._story_reset_auto_timer()
+
+func modal(name: String, title: String) -> Panel:
+	var previous: Control = root.get_viewport().gui_get_focus_owner()
+	modal_previous_focus[name] = weakref(previous) if previous != null else null
+	var overlay: Panel = root.hud.panel(Rect2(0, 0, 1920, 1080), Color("#020104dd"), Color.TRANSPARENT, name, "flat")
+	overlay.name = name
+	overlay.z_index = 4000
+	overlay.mouse_filter = Control.MOUSE_FILTER_STOP
+	var panel: Panel = root.hud.child_panel(overlay, Rect2(360, 140, 1200, 800), Color("#100d18fa"), Color("#796284"), 2)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	root.hud.label(panel, title, Vector2(44, 32), Vector2(1112, 64), 30, Color("#ffd36a"))
+	call_deferred("_focus_modal", name)
+	return panel
+
+func _top_modal() -> Control:
+	for name in ["CampaignLeaveConfirmation", "DialogueBacklogOverlay", "UpdateNotesOverlay", "PauseMenuOverlay"]:
+		var overlay: Control = root.ui_layer.find_child(name, true, false)
+		if overlay != null: return overlay
+	return null
+
+func _focus_modal(name: String) -> void:
+	var overlay := _top_modal()
+	if overlay == null or str(overlay.name) != name: return
+	var buttons: Array[Node] = overlay.find_children("*", "BaseButton", true, false)
+	var focusable: Array[Control] = []
+	for button in buttons:
+		if button.is_visible_in_tree() and not button.disabled and button.focus_mode != Control.FOCUS_NONE:
+			focusable.append(button)
+	if focusable.is_empty(): return
+	for i in range(focusable.size()):
+		var before: NodePath = focusable[(i - 1 + focusable.size()) % focusable.size()].get_path()
+		var after: NodePath = focusable[(i + 1) % focusable.size()].get_path()
+		focusable[i].focus_previous = before
+		focusable[i].focus_next = after
+		focusable[i].focus_neighbor_left = before
+		focusable[i].focus_neighbor_top = before
+		focusable[i].focus_neighbor_right = after
+		focusable[i].focus_neighbor_bottom = after
+	var focused: Control = root.get_viewport().gui_get_focus_owner()
+	if focused == null or not overlay.is_ancestor_of(focused): focusable[0].grab_focus()
+
+func remove(name: String) -> void:
+	var node: Node = root.ui_layer.find_child(name, true, false)
+	if node != null:
+		node.get_parent().remove_child(node)
+		node.queue_free()
+	if modal_previous_focus.has(name):
+		var reference = modal_previous_focus[name]
+		modal_previous_focus.erase(name)
+		var previous = reference.get_ref() if reference != null else null
+		if is_instance_valid(previous) and previous.is_inside_tree() and previous.is_visible_in_tree(): previous.grab_focus()
+		var top := _top_modal()
+		if top != null: _focus_modal(str(top.name))
+
+func checkpoint_text() -> String:
+	if root.campaign_save_status != root.CampaignSaveStoreScript.STATUS_VALID:
+		return localized("복원 가능한 저장 기록이 없습니다.", "No restorable checkpoint.", "没有可恢复的存档。")
+	var summary: Dictionary = root.campaign_save_summary
+	var stamp := str(summary.get("saved_at_text", ""))
+	return "DAY %02d · %s\n%s" % [int(summary.get("day", 1)), str(summary.get("checkpoint_label", "")), stamp]
+
+func loss_text() -> String:
+	if root.current_screen == "combat" or root.pause_menu_source_screen == "combat":
+		return localized("전투 중간 저장은 지원하지 않습니다. 불러오면 마지막 체크포인트부터 다시 시작하며 이번 전투 진행은 사라집니다.", "Mid-battle saves are unavailable. Loading restores the last checkpoint and loses this battle's progress.", "不支持战斗中途存档。读档将返回最近检查点，本次战斗进度会丢失。")
+	return localized("불러오거나 저장 없이 나가면 위 체크포인트 이후의 변경이 사라집니다.", "Loading or leaving without saving loses changes since this checkpoint.", "读档或不保存离开会丢失此检查点之后的更改。")
+
+func build_menu() -> void:
+	if not root.pause_menu_open or root.current_screen != root.pause_menu_source_screen: return
+	if root.ui_layer.find_child("PauseMenuOverlay", true, false) != null: return
+	var panel := modal("PauseMenuOverlay", localized("게임 메뉴", "Game menu", "游戏菜单"))
+	panel.theme = preload("res://scripts/ui/kit/UIKit.gd").scaled_theme(UISettings.text_scale,UISettings.is_touch_ui())
+	panel.add_theme_stylebox_override("panel",StyleBoxEmpty.new())
+	var surface := preload("res://scripts/ui/kit/KitSurface.gd").new()
+	panel.add_child(surface); surface.sync(panel)
+	surface._material.set_shader_parameter("top_color",Color(0.16,0.10,0.23,0.88))
+	surface._material.set_shader_parameter("bottom_color",Color(0.05,0.03,0.09,0.88))
+	root.hud.label(panel, checkpoint_text() + "\n" + loss_text(), Vector2(44, 110), Vector2(1112, 150), 22, Color("#d5c9df"), HORIZONTAL_ALIGNMENT_LEFT, "MenuCheckpoint", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 5)
+	var actions := [
+		[localized("계속", "Resume", "继续"), Callable(root, "_close_pause_menu"), "PauseResumeButton"],
+		[localized("저장", "Save", "保存"), Callable(self, "save_now"), "PauseSaveButton"],
+		[localized("불러오기", "Load", "读取"), Callable(self, "confirm").bind("load"), "PauseLoadButton"],
+		[localized("설정", "Settings", "设置"), Callable(root, "_open_settings_screen").bind(true), "PauseSettingsButton"],
+		[localized("타이틀", "Title", "标题"), Callable(self, "confirm").bind("title"), "PauseTitleButton"],
+		[localized("종료", "Quit", "退出"), Callable(self, "confirm").bind("quit"), "PauseQuitButton"]]
+	for i in range(actions.size()):
+		var button: Button = load("res://scripts/ui/kit/KitButton.gd").new()
+		button.configure(actions[i][0],1 if i==0 else 0,["resume","save","load","settings","title","quit"][i],actions[i][0])
+		button.name = actions[i][2]
+		button.position = Vector2(64+(i%3)*364,350+(i/3)*126)
+		button.custom_minimum_size = Vector2(344,94); button.size = Vector2(344,94)
+		panel.add_child(button)
+		preload("res://scripts/ui/kit/UIKit.gd").apply_scale(button,UISettings.text_scale,UISettings.is_touch_ui())
+		button.pressed.connect(actions[i][1])
+	var feedback: String = root.campaign_save_notice if root.campaign_save_notice != "" else menu_feedback
+	if feedback != "":
+		root.hud.label(panel, feedback, Vector2(44, 688), Vector2(1112, 88), 20, Color("#ffa89f"), HORIZONTAL_ALIGNMENT_LEFT, "MenuSaveNotice", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
+
+func save_now() -> bool:
+	if not root._campaign_safe_save_screen(root.current_screen) or root.story_combat_overlay_open:
+		menu_feedback = localized("현재 화면에서는 저장하지 않습니다. 마지막 체크포인트를 불러올 수 있습니다.", "Saving is unavailable here. You can restore the last checkpoint.", "此画面无法保存。可以读取最近检查点。")
+		refresh_menu()
+		return false
+	root._schedule_campaign_autosave(root.current_screen)
+	var ok: bool = root._flush_campaign_autosave()
+	if ok: menu_feedback = localized("저장 완료 · ", "Saved · ", "保存完成 · ") + checkpoint_text()
+	refresh_menu()
+	return ok
+
+func refresh_menu() -> void:
+	remove("PauseMenuOverlay")
+	build_menu()
+
+func settings_menu() -> void:
+	root._cancel_settings_changes()
+	if root.current_screen == "title":
+		root.pause_menu_open = true
+		root.pause_menu_source_screen = "title"
+		build_menu()
+	else:
+		root._open_pause_menu()
+
+func confirm(action: String) -> void:
+	confirmation_action = action
+	var failed_quit: bool = action == "quit" and root.campaign_save_error != "" and root.campaign_save_notice != ""
+	var heading := localized("저장 실패 · 종료 선택", "Save failed · choose how to quit", "保存失败 · 选择退出方式") if failed_quit else localized("진행 손실 확인", "Confirm progress loss", "确认进度损失")
+	var panel := modal("CampaignLeaveConfirmation", heading)
+	if failed_quit:
+		root.hud.label(panel, root.campaign_save_notice, Vector2(64, 110), Vector2(1072, 120), 20, Color("#ffa89f"), HORIZONTAL_ALIGNMENT_LEFT, "LeaveSaveFailure", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 4)
+	root.hud.label(panel, checkpoint_text() + "\n\n" + loss_text(), Vector2(64, 244 if failed_quit else 150), Vector2(1072, 184 if failed_quit else 250), 22 if failed_quit else 26, Color("#eee1d2"), HORIZONTAL_ALIGNMENT_LEFT, "LeaveLossText", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 8)
+	root.hud.button(panel, localized("취소 · 계속 플레이", "Cancel · keep playing", "取消 · 继续游戏"), Rect2(64, 448, 1072, 76), Callable(self, "cancel_confirmation"), 24, "LeaveCancelButton")
+	if action != "load" and root._campaign_safe_save_screen(root.current_screen) and not root.story_combat_overlay_open:
+		var save_label := localized("다시 저장하고 종료", "Retry save and quit", "重新保存并退出") if failed_quit else (localized("저장하고 종료", "Save and quit", "保存后退出") if action == "quit" else localized("저장하고 이동", "Save and leave", "保存后离开"))
+		root.hud.button(panel, save_label, Rect2(64, 546, 1072, 76), Callable(self, "leave").bind(true), 24, "LeaveSaveButton")
+	var checkpoint_label := localized("저장 없이 종료", "Quit without saving", "不保存并退出") if action == "quit" else localized("마지막 저장 기준으로 이동", "Leave using last checkpoint", "按最近存档离开")
+	root.hud.button(panel, checkpoint_label, Rect2(64, 644, 1072, 76), Callable(self, "leave").bind(false), 24, "LeaveCheckpointButton")
+
+func cancel_confirmation() -> void:
+	remove("CampaignLeaveConfirmation")
+	confirmation_action = ""
+
+func leave(save_first: bool) -> void:
+	if save_first and not save_now():
+		var failed_action := confirmation_action
+		cancel_confirmation()
+		if failed_action == "quit" and root.campaign_save_error != "" and root.campaign_save_notice != "":
+			confirm(failed_action)
+		return
+	var action := confirmation_action
+	cancel_confirmation()
+	root.campaign_autosave_pending = false
+	root.pause_menu_open = false
+	root.pause_menu_source_screen = ""
+	root.pause_menu_combat_was_paused = false
+	root.story_combat_overlay_open = false
+	root.story_pending_combat_scenes.clear()
+	root.story_director.cancel_active_scene()
+	root.combat_story_feed.clear()
+	# A failed new write does not make an intact previous checkpoint unusable.
+	root.campaign_save_notice = ""
+	if action == "load": root._continue_campaign_save()
+	elif action == "quit": root._queue_audio_safe_quit()
+	else: root._set_screen("title", false)
+
+func update_acknowledged() -> bool:
+	if update_session_acknowledged: return true
+	var config := ConfigFile.new()
+	config.load("user://settings.cfg")
+	return str(config.get_value("updates", "acknowledged", "")) == UPDATE_ID
+
+func show_update() -> void:
+	if update_open or root.current_screen != "title": return
+	update_open = true
+	var version := str(ProjectSettings.get_setting("application/config/version", ""))
+	var panel := modal("UpdateNotesOverlay", localized("업데이트 내역 · ", "Update notes · ", "更新记录 · ") + version)
+	var notes := localized("• 건물을 자유롭게 배치·회전하고 길을 자동으로 연결합니다.\n\n• 성장에 따라 1층 부지가 확장됩니다. 장식은 표시 평가에만 반영되며 전투 능력을 바꾸지 않습니다.\n\n• 소마왕성 승격은 금화 720·악명 720의 보유 조건입니다. 심사 시 차감하지 않습니다.\n\n• 관리·관전 카메라와 미니맵, 주요 화면을 새롭게 정리했습니다.\n\n• 의회 방어 목표를 1층 확장 구역으로 옮기고 기존 저장의 이관을 연결했습니다.", "• Place and rotate buildings freely. Roads connect automatically.\n\n• Growth expands first-floor grounds. Decorations affect appraisal only.\n\n• Castle review: hold 720 gold and 720 Infamy. No resources are spent.\n\n• Refreshed screens, cameras, unit tracking and minimap controls.\n\n• Council defense uses first-floor expansion areas. Older saves can migrate.", "• 自由放置、旋转建筑，自动连接道路。\n\n• 城堡成长会扩展一层地块。装饰仅影响显示评价，不改变战斗能力。\n\n• 小魔王城晋级审查要求持有720金币和720恶名，审查时均不扣除。\n\n• 更新主要界面、管理与观战镜头及小地图。\n\n• 议会防守目标移至一层扩展区域，并接入旧存档迁移。")
+	root.hud.label(panel, notes, Vector2(64, 132), Vector2(1072, 500), 26, Color("#eee1d2"), HORIZONTAL_ALIGNMENT_LEFT, "UpdateNotesText", "body", VERTICAL_ALIGNMENT_TOP, TextServer.AUTOWRAP_WORD_SMART, 16)
+	root.hud.button(panel, localized("확인", "OK", "确定"), Rect2(340, 680, 520, 60), Callable(self, "acknowledge_update"), 24, "UpdateNotesConfirm")
+
+func acknowledge_update() -> void:
+	var config := ConfigFile.new()
+	config.load("user://settings.cfg")
+	config.set_value("updates", "acknowledged", UPDATE_ID)
+	if config.save("user://settings.cfg") != OK:
+		root._log(localized("업데이트 확인 기록을 저장하지 못했습니다. 다음 실행에 다시 표시될 수 있습니다.", "Could not save the update acknowledgement. Notes may appear again next launch.", "无法保存更新确认记录，下次启动可能再次显示。"))
+	update_session_acknowledged = true
+	remove("UpdateNotesOverlay")
+	update_open = false
+
+func input(event: InputEvent) -> bool:
+	if root.current_screen=="management" and not root.pause_menu_open and root.ui_layer!=null:
+		var approved: Control = root.ui_layer.get_node_or_null("ApprovedMapManagement")
+		if approved!=null:
+			if approved.handle_key(event): return true
+			# Let the image viewport receive GUI events; block legacy world picking.
+			if event is InputEventMouse or event is InputEventScreenTouch or event is InputEventScreenDrag or event is InputEventGesture: return true
+		var graybox: Control = root.ui_layer.get_node_or_null("DefenseGrayboxManagement")
+		if graybox!=null and graybox.handle_key(event): return true
+	if event is InputEventKey:
+		var top := _top_modal()
+		if top != null: _focus_modal(str(top.name))
+	if backlog_open or confirmation_action != "" or update_open:
+		if event is InputEventKey:
+			if event.pressed and not event.echo and event.keycode == KEY_ESCAPE:
+				if backlog_open: close_backlog()
+				elif confirmation_action != "": cancel_confirmation()
+				else: acknowledge_update()
+			return true
+		# Let GUI controls receive pointer input, but block world handlers.
+		return true
+	if root.pause_menu_open and root.current_screen != "settings":
+		if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE: root._close_pause_menu()
+		return true
+	return false
