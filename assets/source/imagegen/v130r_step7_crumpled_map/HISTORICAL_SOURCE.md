@@ -1,3 +1,5 @@
+> 2026-10-20 release/v1.3.0 exclusion: the two historical PNGs were removed from the branch by user approval. Both remain at tag `v1.3.0`, commit `f048a2b2c870b30c878d56ffab7061e1bb0cd9e5`, under the same paths. The preservation statements below describe the historical commit. Exact SHA-256 values and rationale: `docs/handoff/V130_PR110_MERGE_2026-10-20.md`. PROMPT_V1.txt and PROMPT_V2.txt remain here. Current adopted runtime provenance belongs to Step8.
+
 > Historical 0102 candidate at commit35de2147, superseded by adopted0103 in Step8. The runtime paths below describe that historical commit, not the current pixels. Raw originals and exact prompts remain preserved here. Current provenance: `../v130r_step8_crumpled_map/SOURCE.md`.
 
 # Step7 crumpled map

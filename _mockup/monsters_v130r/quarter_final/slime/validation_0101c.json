@@ -1,0 +1,128 @@
+{
+  "result": "TARGETED_PASS",
+  "species": [
+    {
+      "species_id": "slime",
+      "selected_attempt": 1,
+      "native_alpha": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.4324234481145507,
+      "frames": 40,
+      "unique_frames": 40,
+      "atlas_count": 4,
+      "contact_x_error_max": 0.4866000000000099,
+      "transparent_border_px": 5,
+      "pixel_reconstruction": "EXACT",
+      "protected_reference_hashes": 9,
+      "raw_slice_edge_opaque_pixels": 0
+    },
+    {
+      "species_id": "goblin",
+      "selected_attempt": 2,
+      "native_alpha": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5822761156083472,
+      "frames": 40,
+      "unique_frames": 40,
+      "atlas_count": 4,
+      "contact_x_error_max": 0.49850000000000705,
+      "transparent_border_px": 5,
+      "pixel_reconstruction": "EXACT",
+      "protected_reference_hashes": 9,
+      "raw_slice_edge_opaque_pixels": 0
+    },
+    {
+      "species_id": "imp",
+      "selected_attempt": 2,
+      "native_alpha": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.405149773217264,
+      "frames": 40,
+      "unique_frames": 40,
+      "atlas_count": 4,
+      "contact_x_error_max": 0.49559999999999604,
+      "transparent_border_px": 5,
+      "pixel_reconstruction": "EXACT",
+      "protected_reference_hashes": 9,
+      "raw_slice_edge_opaque_pixels": 0
+    },
+    {
+      "species_id": "kobold_scout",
+      "selected_attempt": 4,
+      "native_alpha": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.6477939531383476,
+      "frames": 40,
+      "unique_frames": 40,
+      "atlas_count": 4,
+      "contact_x_error_max": 0.4952000000000112,
+      "transparent_border_px": 5,
+      "pixel_reconstruction": "EXACT",
+      "protected_reference_hashes": 9,
+      "raw_slice_edge_opaque_pixels": 0
+    },
+    {
+      "species_id": "spore_healer",
+      "selected_attempt": 2,
+      "native_alpha": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.48280951267135824,
+      "frames": 40,
+      "unique_frames": 40,
+      "atlas_count": 4,
+      "contact_x_error_max": 0.4995000000000118,
+      "transparent_border_px": 5,
+      "pixel_reconstruction": "EXACT",
+      "protected_reference_hashes": 9,
+      "raw_slice_edge_opaque_pixels": 0
+    },
+    {
+      "species_id": "stone_sentinel",
+      "selected_attempt": 1,
+      "native_alpha": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.45751891551071877,
+      "frames": 40,
+      "unique_frames": 40,
+      "atlas_count": 4,
+      "contact_x_error_max": 0.49459999999999127,
+      "transparent_border_px": 5,
+      "pixel_reconstruction": "EXACT",
+      "protected_reference_hashes": 9,
+      "raw_slice_edge_opaque_pixels": 0
+    },
+    {
+      "species_id": "war_drummer",
+      "selected_attempt": 1,
+      "native_alpha": [
+        0,
+        255
+      ],
+      "transparent_fraction": 0.5095823333197739,
+      "frames": 40,
+      "unique_frames": 40,
+      "atlas_count": 4,
+      "contact_x_error_max": 0.49809999999999377,
+      "transparent_border_px": 5,
+      "pixel_reconstruction": "EXACT",
+      "protected_reference_hashes": 9,
+      "raw_slice_edge_opaque_pixels": 0
+    }
+  ],
+  "map_panels": 7,
+  "godot": "NOT_RUN_USER_PROHIBITED",
+  "full_regression": "NOT_REQUESTED",
+  "note": "Visual angle judgement separate from mechanical alpha/frame/provenance checks. Raw source edge counts recorded, cropped rather than erased."
+}

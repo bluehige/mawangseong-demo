@@ -1,0 +1,17 @@
+[
+  {
+    "attempt": 1,
+    "status": "PARTIAL",
+    "reason": "SW camera criteria pass; some NE frames turn frontal; six SW frames overlap adjacent body/effects"
+  },
+  {
+    "attempt": 2,
+    "status": "ADOPTED_NE",
+    "reason": "20 genuine NE rear poses; native alpha; selected all NE"
+  },
+  {
+    "attempt": 3,
+    "status": "ADOPTED_SW_PATCH",
+    "reason": "Six SW attack/skill poses with ample margins; all criteria pass"
+  }
+]

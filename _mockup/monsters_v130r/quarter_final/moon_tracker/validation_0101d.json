@@ -1,0 +1,88 @@
+{
+  "result": "TARGETED_PASS",
+  "species": [
+    {
+      "species_id": "moon_tracker",
+      "unique_poses": 40,
+      "atlases": 4,
+      "native_alpha": true,
+      "borders_5px_clear": true,
+      "anchor_error_x_max": 0.4937031994554104,
+      "exact_pixel_provenance": true,
+      "reference_hashes_preserved": 9,
+      "source_clipping": 0
+    },
+    {
+      "species_id": "mimic_porter",
+      "unique_poses": 40,
+      "atlases": 4,
+      "native_alpha": true,
+      "borders_5px_clear": true,
+      "anchor_error_x_max": 0.49426442267437665,
+      "exact_pixel_provenance": true,
+      "reference_hashes_preserved": 9,
+      "source_clipping": 0
+    },
+    {
+      "species_id": "ghost_housemaid",
+      "unique_poses": 40,
+      "atlases": 4,
+      "native_alpha": true,
+      "borders_5px_clear": true,
+      "anchor_error_x_max": 0.49805816473988784,
+      "exact_pixel_provenance": true,
+      "reference_hashes_preserved": 9,
+      "source_clipping": 0
+    },
+    {
+      "species_id": "graveyard_hound",
+      "unique_poses": 40,
+      "atlases": 4,
+      "native_alpha": true,
+      "borders_5px_clear": true,
+      "anchor_error_x_max": 0.48762138512432784,
+      "exact_pixel_provenance": true,
+      "reference_hashes_preserved": 9,
+      "source_clipping": 0
+    },
+    {
+      "species_id": "armored_beetle",
+      "unique_poses": 40,
+      "atlases": 4,
+      "native_alpha": true,
+      "borders_5px_clear": true,
+      "anchor_error_x_max": 0.4983556688317208,
+      "exact_pixel_provenance": true,
+      "reference_hashes_preserved": 9,
+      "source_clipping": 0
+    },
+    {
+      "species_id": "spider_tailor",
+      "unique_poses": 40,
+      "atlases": 4,
+      "native_alpha": true,
+      "borders_5px_clear": true,
+      "anchor_error_x_max": 0.48618192566317475,
+      "exact_pixel_provenance": true,
+      "reference_hashes_preserved": 9,
+      "source_clipping": 0
+    },
+    {
+      "species_id": "bat_courier",
+      "unique_poses": 40,
+      "atlases": 4,
+      "native_alpha": true,
+      "borders_5px_clear": true,
+      "anchor_error_x_max": 0.4907055766540225,
+      "exact_pixel_provenance": true,
+      "reference_hashes_preserved": 9,
+      "source_clipping": 0
+    }
+  ],
+  "accepted_count": 7,
+  "requested_count": 7,
+  "godot": "NOT_RUN_USER_PROHIBITED",
+  "full_regression": "NOT_REQUESTED",
+  "map_body_tile_ratio": 0.75,
+  "note": "Visual TFHES distinct from mechanical checks. Exact 3D angle and complete occluded ellipse not measured."
+}

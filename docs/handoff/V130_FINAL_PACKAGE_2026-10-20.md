@@ -62,9 +62,11 @@
 
 - Review task ID: NOT_REQUESTED
 - Reviewed SHA: e70e04c24b61b65b493b48baa1285556170dc47f
-- Review range: e70e04c24b61b65b493b48baa1285556170dc47f..e70e04c24b61b65b493b48baa1285556170dc47f
+- Review range: 0ac9fdc7f1a5f3d2e8cc23ca2ec771873094c53b..e70e04c24b61b65b493b48baa1285556170dc47f
 - Remaining P1/P2: N/A
 - Final review result: TARGETED_PASS
+
+2026-10-20 PR #110 기록 정합: Review range의 기준을 원격 main과 검증 SHA의 공통 조상으로 바로잡았다. 이전의 e70e04c2..e70e04c2는 빌드 입력과 같은 SHA를 양끝에 중복 기재한 값이었다. 이 범위는 main 대비 누적 변경의 식별 범위이며, 범위 전체를 새로 검수하거나 전체 검수를 완료했다는 뜻이 아니다. 위 표적 검증은 e70e04c2의 패키지에 대해 수행한 기존 사실을 유지한다. 최종 문서 커밋 f048a2b2까지의 변경은 docs/handoff/뿐이다. 근거와 이번 Git 전용 처리 범위는 [PR #110 정책 기록 정합](V130_PR110_POLICY_2026-10-20.md)에 기록한다.
 
 ## 7. 미해결 항목과 위험
 

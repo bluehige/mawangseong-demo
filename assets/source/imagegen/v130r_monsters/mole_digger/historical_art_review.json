@@ -1,0 +1,916 @@
+{
+  "species_id": "mole_digger",
+  "status": "USER_REVIEW_PENDING_NOT_INTEGRATED",
+  "sheet_size": [
+    1254,
+    1254
+  ],
+  "grid": [
+    4,
+    4
+  ],
+  "cell_edges": [
+    0,
+    313,
+    627,
+    940,
+    1254
+  ],
+  "virtual_frame_size": [
+    384,
+    384
+  ],
+  "animations": {
+    "idle_down": [
+      0,
+      1
+    ],
+    "down": [
+      2,
+      3
+    ],
+    "move_down": [
+      4,
+      5,
+      6,
+      7
+    ],
+    "attack_down": [
+      8,
+      9,
+      10,
+      11
+    ],
+    "skill_down": [
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "hurt_animation": "Absent in existing Unit.gd sheet contract",
+  "portrait_size": [
+    512,
+    512
+  ],
+  "portrait_margin": 18,
+  "card_size": [
+    82,
+    82
+  ],
+  "uniform_frame_scale": 0.7414104882459313,
+  "frames": [
+    {
+      "index": 0,
+      "source_bbox": [
+        29,
+        38,
+        299,
+        317
+      ],
+      "source_cell_size": [
+        313,
+        317
+      ],
+      "source_slice_rect": [
+        0,
+        0,
+        313,
+        317
+      ],
+      "rect": [
+        56,
+        83,
+        200,
+        207
+      ],
+      "cell": [
+        0,
+        0,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 145.297
+    },
+    {
+      "index": 1,
+      "source_bbox": [
+        25,
+        40,
+        289,
+        314
+      ],
+      "source_cell_size": [
+        314,
+        317
+      ],
+      "source_slice_rect": [
+        313,
+        0,
+        627,
+        317
+      ],
+      "rect": [
+        372,
+        87,
+        196,
+        203
+      ],
+      "cell": [
+        313,
+        0,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 159.439
+    },
+    {
+      "index": 2,
+      "source_bbox": [
+        29,
+        85,
+        279,
+        317
+      ],
+      "source_cell_size": [
+        313,
+        317
+      ],
+      "source_slice_rect": [
+        627,
+        0,
+        940,
+        317
+      ],
+      "rect": [
+        691,
+        119,
+        185,
+        172
+      ],
+      "cell": [
+        627,
+        0,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 151.203
+    },
+    {
+      "index": 3,
+      "source_bbox": [
+        6,
+        161,
+        303,
+        315
+      ],
+      "source_cell_size": [
+        314,
+        317
+      ],
+      "source_slice_rect": [
+        940,
+        0,
+        1254,
+        317
+      ],
+      "rect": [
+        987,
+        176,
+        220,
+        114
+      ],
+      "cell": [
+        940,
+        0,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 139.411
+    },
+    {
+      "index": 4,
+      "source_bbox": [
+        34,
+        20,
+        279,
+        301
+      ],
+      "source_cell_size": [
+        313,
+        310
+      ],
+      "source_slice_rect": [
+        0,
+        317,
+        313,
+        627
+      ],
+      "rect": [
+        65,
+        395,
+        182,
+        208
+      ],
+      "cell": [
+        0,
+        313,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 183.303
+    },
+    {
+      "index": 5,
+      "source_bbox": [
+        31,
+        22,
+        281,
+        299
+      ],
+      "source_cell_size": [
+        314,
+        310
+      ],
+      "source_slice_rect": [
+        313,
+        317,
+        627,
+        627
+      ],
+      "rect": [
+        377,
+        398,
+        185,
+        205
+      ],
+      "cell": [
+        313,
+        313,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 136.663
+    },
+    {
+      "index": 6,
+      "source_bbox": [
+        32,
+        22,
+        277,
+        300
+      ],
+      "source_cell_size": [
+        313,
+        310
+      ],
+      "source_slice_rect": [
+        627,
+        317,
+        940,
+        627
+      ],
+      "rect": [
+        692,
+        397,
+        182,
+        206
+      ],
+      "cell": [
+        627,
+        313,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 185.087
+    },
+    {
+      "index": 7,
+      "source_bbox": [
+        36,
+        18,
+        285,
+        299
+      ],
+      "source_cell_size": [
+        314,
+        310
+      ],
+      "source_slice_rect": [
+        940,
+        317,
+        1254,
+        627
+      ],
+      "rect": [
+        1004,
+        395,
+        185,
+        208
+      ],
+      "cell": [
+        940,
+        313,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 171.822
+    },
+    {
+      "index": 8,
+      "source_bbox": [
+        30,
+        23,
+        305,
+        284
+      ],
+      "source_cell_size": [
+        313,
+        313
+      ],
+      "source_slice_rect": [
+        0,
+        627,
+        313,
+        940
+      ],
+      "rect": [
+        54,
+        723,
+        204,
+        194
+      ],
+      "cell": [
+        0,
+        627,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 200.927
+    },
+    {
+      "index": 9,
+      "source_bbox": [
+        21,
+        12,
+        313,
+        288
+      ],
+      "source_cell_size": [
+        314,
+        313
+      ],
+      "source_slice_rect": [
+        313,
+        627,
+        627,
+        940
+      ],
+      "rect": [
+        362,
+        712,
+        216,
+        205
+      ],
+      "cell": [
+        313,
+        627,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.5,
+      "support_band_centroid_x": 212.332
+    },
+    {
+      "index": 10,
+      "source_bbox": [
+        22,
+        9,
+        298,
+        285
+      ],
+      "source_cell_size": [
+        313,
+        313
+      ],
+      "source_slice_rect": [
+        627,
+        627,
+        940,
+        940
+      ],
+      "rect": [
+        681,
+        712,
+        205,
+        205
+      ],
+      "cell": [
+        627,
+        627,
+        313,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 176.222
+    },
+    {
+      "index": 11,
+      "source_bbox": [
+        22,
+        21,
+        293,
+        284
+      ],
+      "source_cell_size": [
+        314,
+        313
+      ],
+      "source_slice_rect": [
+        940,
+        627,
+        1254,
+        940
+      ],
+      "rect": [
+        996,
+        722,
+        201,
+        195
+      ],
+      "cell": [
+        940,
+        627,
+        314,
+        313
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 148.559
+    },
+    {
+      "index": 12,
+      "source_bbox": [
+        42,
+        20,
+        285,
+        271
+      ],
+      "source_cell_size": [
+        313,
+        314
+      ],
+      "source_slice_rect": [
+        0,
+        940,
+        313,
+        1254
+      ],
+      "rect": [
+        66,
+        1045,
+        180,
+        186
+      ],
+      "cell": [
+        0,
+        940,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 155.293
+    },
+    {
+      "index": 13,
+      "source_bbox": [
+        31,
+        16,
+        280,
+        271
+      ],
+      "source_cell_size": [
+        314,
+        314
+      ],
+      "source_slice_rect": [
+        313,
+        940,
+        627,
+        1254
+      ],
+      "rect": [
+        377,
+        1041,
+        185,
+        189
+      ],
+      "cell": [
+        313,
+        940,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 155.247
+    },
+    {
+      "index": 14,
+      "source_bbox": [
+        10,
+        12,
+        288,
+        272
+      ],
+      "source_cell_size": [
+        313,
+        314
+      ],
+      "source_slice_rect": [
+        627,
+        940,
+        940,
+        1254
+      ],
+      "rect": [
+        680,
+        1037,
+        206,
+        193
+      ],
+      "cell": [
+        627,
+        940,
+        313,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 155.5,
+      "support_band_centroid_x": 135.945
+    },
+    {
+      "index": 15,
+      "source_bbox": [
+        25,
+        3,
+        288,
+        272
+      ],
+      "source_cell_size": [
+        314,
+        314
+      ],
+      "source_slice_rect": [
+        940,
+        940,
+        1254,
+        1254
+      ],
+      "rect": [
+        999,
+        1031,
+        195,
+        199
+      ],
+      "cell": [
+        940,
+        940,
+        314,
+        314
+      ],
+      "support_y": 289,
+      "center_x": 156.0,
+      "support_band_centroid_x": 152.29
+    }
+  ],
+  "support_baseline_range_px": 0,
+  "bbox_center_range_px": 1.0,
+  "support_band_centroid_range_px": 76.387,
+  "source_support_baseline_range_px": 46,
+  "preview_body_height_on_128x64_tile": 59.3,
+  "catalog_candidate_not_registered": {
+    "path": "res://assets/sprites/v130r/mole_digger/mole_digger_sheet.png",
+    "frame_size": [
+      384,
+      384
+    ],
+    "regions": [
+      [
+        56,
+        83,
+        200,
+        207
+      ],
+      [
+        372,
+        87,
+        196,
+        203
+      ],
+      [
+        691,
+        119,
+        185,
+        172
+      ],
+      [
+        987,
+        176,
+        220,
+        114
+      ],
+      [
+        65,
+        395,
+        182,
+        208
+      ],
+      [
+        377,
+        398,
+        185,
+        205
+      ],
+      [
+        692,
+        397,
+        182,
+        206
+      ],
+      [
+        1004,
+        395,
+        185,
+        208
+      ],
+      [
+        54,
+        723,
+        204,
+        194
+      ],
+      [
+        362,
+        712,
+        216,
+        205
+      ],
+      [
+        681,
+        712,
+        205,
+        205
+      ],
+      [
+        996,
+        722,
+        201,
+        195
+      ],
+      [
+        66,
+        1045,
+        180,
+        186
+      ],
+      [
+        377,
+        1041,
+        185,
+        189
+      ],
+      [
+        680,
+        1037,
+        206,
+        193
+      ],
+      [
+        999,
+        1031,
+        195,
+        199
+      ]
+    ],
+    "margins": [
+      [
+        92.0,
+        139,
+        184,
+        177
+      ],
+      [
+        94.0,
+        143,
+        188,
+        181
+      ],
+      [
+        99.5,
+        174,
+        199,
+        212
+      ],
+      [
+        82.0,
+        232,
+        164,
+        270
+      ],
+      [
+        101.0,
+        138,
+        202,
+        176
+      ],
+      [
+        99.5,
+        141,
+        199,
+        179
+      ],
+      [
+        101.0,
+        140,
+        202,
+        178
+      ],
+      [
+        99.5,
+        138,
+        199,
+        176
+      ],
+      [
+        90.0,
+        152,
+        180,
+        190
+      ],
+      [
+        84.0,
+        141,
+        168,
+        179
+      ],
+      [
+        89.5,
+        141,
+        179,
+        179
+      ],
+      [
+        91.5,
+        151,
+        183,
+        189
+      ],
+      [
+        102.0,
+        160,
+        204,
+        198
+      ],
+      [
+        99.5,
+        157,
+        199,
+        195
+      ],
+      [
+        89.0,
+        153,
+        178,
+        191
+      ],
+      [
+        94.5,
+        147,
+        189,
+        185
+      ]
+    ],
+    "visible_bounds": [
+      [
+        92.0,
+        139,
+        200,
+        207
+      ],
+      [
+        94.0,
+        143,
+        196,
+        203
+      ],
+      [
+        99.5,
+        174,
+        185,
+        172
+      ],
+      [
+        82.0,
+        232,
+        220,
+        114
+      ],
+      [
+        101.0,
+        138,
+        182,
+        208
+      ],
+      [
+        99.5,
+        141,
+        185,
+        205
+      ],
+      [
+        101.0,
+        140,
+        182,
+        206
+      ],
+      [
+        99.5,
+        138,
+        185,
+        208
+      ],
+      [
+        90.0,
+        152,
+        204,
+        194
+      ],
+      [
+        84.0,
+        141,
+        216,
+        205
+      ],
+      [
+        89.5,
+        141,
+        205,
+        205
+      ],
+      [
+        91.5,
+        151,
+        201,
+        195
+      ],
+      [
+        102.0,
+        160,
+        180,
+        186
+      ],
+      [
+        99.5,
+        157,
+        185,
+        189
+      ],
+      [
+        89.0,
+        153,
+        206,
+        193
+      ],
+      [
+        94.5,
+        147,
+        195,
+        199
+      ]
+    ]
+  },
+  "measurement_note": "Alpha>=8 outermost support baseline after translation; not anatomical foot tracking. Lower8px alpha-weighted contact centroid also recorded; wax, thread and rat tails may contribute. All16 frames use ONE uniform scale. Preview height is a review assumption, not game registration.",
+  "source_border_alpha_max": 1
+}

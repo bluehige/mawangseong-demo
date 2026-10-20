@@ -1,0 +1,18 @@
+[
+  {
+    "attempt": 1,
+    "prompt": "Use case: stylized-concept. Production combat miniature animation sprite sheet, native transparent RGBA. Reference image supplied: LEFT portrait and old combat figure are IDENTITY ONLY; TOP RIGHT contains the three user-approved 0098 candidate C characters for CAMERA ANGLE ONLY; BOTTOM four real map pieces are CAMERA references. Do not copy frog/troll identity or old eye-level camera.\nCRITICAL CAMERA, identical to 0098 C: orthographic 2:1 dimetric view looking DOWN 42 degrees above horizontal, strong crown/shoulder/back TOP surfaces AT LEAST as extensive as visible front. Foreshortened short torso/lower body, face small LOW on front, viewed from ABOVE, never looking up at viewer. Southwest front three-quarter: entire head/body turned 45 degrees toward screen LOWER LEFT, near eye larger, far eye compressed by half, nose points diagonally down-left, shoulders and feet stagger diagonally. Broad crown and upper back, tiny chin. Ground contact soft horizontal 2:1 elliptical shadow generated as part of figure. No long cast shadow.\nLAYOUT: wide 3072x1920 transparent canvas, EXACTLY 8 columns x 5 rows, 40 distinct separate complete figures in equal cells. All sprites same camera and scale. Each sprite entirely contained with at least 12% empty transparent margins on all sides, all limbs and props included, no touching neighbors. Left FOUR columns SW front view; right FOUR columns NE up-right BACK view, clear back of head and body, face hidden except tiny possible far-side profile. Never front-facing NE sprites. Reference props remain in same anatomical hands; actually draw reverse views, never flip front sprites.\nEach half: ROW1 idle relaxed; idle breathing; defeat kneel; defeat rest. ROW2 move step1,2,3,4. ROW3 attack windup,strike,contact,recover. ROW4 skill gather,prepare,release,settle. ROW5 hit startle,recoil,compress,recover. Exactly four poses per row per facing. Attack axes follow respective facing. Distinct consecutive animation, no duplicated poses. Contact at 50% cell x,85% cell y.\nStyle: preserve approved softly shaded detailed dimensional chibi game painting, readable crisp edges and original palette/accessories. Only figure and compact generated contact shadow. Genuine native alpha, no painted checkerboard, background, scenery, floor, tile, labels, letters, borders or detached VFX. Do not draw reference montage.\nIDENTITY: Exactly Dolkong: stocky dark GREY stone gargoyle sentinel, rocky pointed ear/horns, glowing small amber eyes, carved angular stone muzzle, huge stone hands and short chunky feet, folded dark stone BAT WINGS, stone belt/skirt plates. No moss, green vines, wood sign, scarf, weapon or extra equipment. Broad head crown and shoulder tops/back visible from above, small lowered muzzle, compressed torso, staggered feet. Attack stone punch; skill defensive braced stone stance; NE clearly shows folded wings and rear head.\nExtra strict: asymmetrical SW profile, muzzle points strongly down-LEFT, far eye half the near eye, one rocky shoulder behind the other. Do NOT show two equally sized frontal eyes. Crown/upper back TOP area greater than muzzle/chest front. NO added emblems.",
+    "original": "C:\\Users\\blueh\\.codex\\generated_images\\01a1456c-90b2-7e63-800b-8f5f1471372f\\exec-35c8e2c5-78dd-4c39-b93b-f7fbe9f9bd2c.png",
+    "native_transparent_background": true,
+    "source_image_path": "_mockup/monsters_v130r/quarter_final/stone_sentinel/attempt_1.png",
+    "size": [
+      1586,
+      992
+    ],
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "selected": true
+  }
+]

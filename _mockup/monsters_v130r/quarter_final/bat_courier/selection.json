@@ -1,0 +1,95 @@
+{
+  "status": "ACCEPTED_NOT_INTEGRATED",
+  "sources": [
+    {
+      "file": "attempt_1.png"
+    }
+  ],
+  "repairs": [
+    {
+      "file": "attempt_2.png",
+      "cols": 3,
+      "rows": 2,
+      "mapping": [
+        [
+          [
+            0,
+            0
+          ],
+          [
+            "sw",
+            1,
+            2
+          ]
+        ],
+        [
+          [
+            0,
+            1
+          ],
+          [
+            "sw",
+            1,
+            3
+          ]
+        ],
+        [
+          [
+            0,
+            2
+          ],
+          [
+            "sw",
+            2,
+            1
+          ]
+        ],
+        [
+          [
+            1,
+            0
+          ],
+          [
+            "sw",
+            2,
+            2
+          ]
+        ],
+        [
+          [
+            1,
+            1
+          ],
+          [
+            "sw",
+            3,
+            2
+          ]
+        ],
+        [
+          [
+            1,
+            2
+          ],
+          [
+            "sw",
+            3,
+            3
+          ]
+        ]
+      ]
+    }
+  ],
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "evidence": "모자·정수리 윗면·낮은 왼쪽 얼굴·단축 몸·타원. NE는 등/날개.",
+  "notes": [
+    "Attempt1 four SW attack/skill rectangular crops intersect neighbors; replaced by six coherent SW movement/attack/skill poses in attempt2. Move4 lying pose also replaced by low hop.",
+    "Mailbag and envelopes, letter, plum cape, crescent pendant, jeweled cap retained."
+  ]
+}

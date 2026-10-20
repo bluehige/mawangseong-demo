@@ -1,0 +1,18 @@
+[
+  {
+    "attempt": 1,
+    "prompt": "Use case: stylized-concept. Production combat miniature animation sprite sheet, native transparent RGBA. Reference image supplied: LEFT portrait and old combat figure are IDENTITY ONLY; TOP RIGHT contains the three user-approved 0098 candidate C characters for CAMERA ANGLE ONLY; BOTTOM four real map pieces are CAMERA references. Do not copy frog/troll identity or old eye-level camera.\nCRITICAL CAMERA, identical to 0098 C: orthographic 2:1 dimetric view looking DOWN 42 degrees above horizontal, strong crown/shoulder/back TOP surfaces AT LEAST as extensive as visible front. Foreshortened short torso/lower body, face small LOW on front, viewed from ABOVE, never looking up at viewer. Southwest front three-quarter: entire head/body turned 45 degrees toward screen LOWER LEFT, near eye larger, far eye compressed by half, nose points diagonally down-left, shoulders and feet stagger diagonally. Broad crown and upper back, tiny chin. Ground contact soft horizontal 2:1 elliptical shadow generated as part of figure. No long cast shadow.\nLAYOUT: wide 3072x1920 transparent canvas, EXACTLY 8 columns x 5 rows, 40 distinct separate complete figures in equal cells. All sprites same camera and scale. Each sprite entirely contained with at least 12% empty transparent margins on all sides, all limbs and props included, no touching neighbors. Left FOUR columns SW front view; right FOUR columns NE up-right BACK view, clear back of head and body, face hidden except tiny possible far-side profile. Never front-facing NE sprites. Reference props remain in same anatomical hands; actually draw reverse views, never flip front sprites.\nEach half: ROW1 idle relaxed; idle breathing; defeat kneel; defeat rest. ROW2 move step1,2,3,4. ROW3 attack windup,strike,contact,recover. ROW4 skill gather,prepare,release,settle. ROW5 hit startle,recoil,compress,recover. Exactly four poses per row per facing. Attack axes follow respective facing. Distinct consecutive animation, no duplicated poses. Contact at 50% cell x,85% cell y.\nStyle: preserve approved softly shaded detailed dimensional chibi game painting, readable crisp edges and original palette/accessories. Only figure and compact generated contact shadow. Genuine native alpha, no painted checkerboard, background, scenery, floor, tile, labels, letters, borders or detached VFX. Do not draw reference montage.\nIDENTITY: Exactly the approved BLUE translucent jelly slime Pudding: glossy cyan broad dome, tiny crown droplet, determined dark eyes and tiny mouth LOW on southwest wall, lobed base, small bronze-rimmed circular WOODEN shield at its side, not a huge ornate shield. Broad TOP/BACK dome dominates, face visibly on down-left side, far eye smaller. Shield top rim visible. Keep shield in all poses; defeat is flattening, move is squash/stretch sliding, attack is shield bash, skill protective jelly pulse attached to body. NE shows back dome and shield back, no frontal face.",
+    "original": "C:\\Users\\blueh\\.codex\\generated_images\\01a1456c-90b2-7e63-800b-8f5f1471372f\\exec-2abc99e6-c190-424b-8f05-520a3035b001.png",
+    "native_transparent_background": true,
+    "source_image_path": "_mockup/monsters_v130r/quarter_final/slime/attempt_1.png",
+    "size": [
+      1586,
+      992
+    ],
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "selected": true
+  }
+]

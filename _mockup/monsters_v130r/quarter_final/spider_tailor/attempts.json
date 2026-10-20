@@ -1,0 +1,42 @@
+[
+  {
+    "original_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a14588-d174-7ed2-bebf-5cbb83d79b1e\\exec-9d111282-43cc-4ec4-b480-0e9035773449.png",
+    "sha256": "fe25914051e611dc8b0456b31df71ed2558922b873ae4e11a6c83895c4118b86",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "native_alpha_extrema": [
+      0,
+      254
+    ],
+    "transparent_fraction": 0.46785227457682294,
+    "attempt": 1,
+    "status": "REJECTED",
+    "adopted_poses": 0,
+    "reason": "SW top/face/azimuth T/H/S insufficient; NE compressed hurt pose front facing.",
+    "transparent_background": true,
+    "tool": "image_gen.imagegen"
+  },
+  {
+    "original_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a14588-d174-7ed2-bebf-5cbb83d79b1e\\exec-b795dbdb-bc51-4d4e-83a1-1b17d5e5b8f8.png",
+    "sha256": "8d5067c497a94f342260076c86f08dc8adb44fc0cb9cf1854ab298e93b77c514",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "native_alpha_extrema": [
+      0,
+      254
+    ],
+    "transparent_fraction": 0.22751426696777344,
+    "attempt": 2,
+    "status": "ADOPTED",
+    "adopted_poses": 40,
+    "reason": "Broader cap/crown/back top and smaller down-left face; true rear all20 NE poses. T/F/H/E/S pass.",
+    "transparent_background": true,
+    "tool": "image_gen.imagegen"
+  }
+]

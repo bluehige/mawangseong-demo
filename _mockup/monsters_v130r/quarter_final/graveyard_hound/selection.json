@@ -1,0 +1,40 @@
+{
+  "status": "ACCEPTED_NOT_INTEGRATED",
+  "sources": [
+    {
+      "file": "attempt_1.png"
+    }
+  ],
+  "repairs": [
+    {
+      "file": "attempt_3.png",
+      "cols": 1,
+      "rows": 1,
+      "mapping": [
+        [
+          [
+            0,
+            0
+          ],
+          [
+            "ne",
+            4,
+            3
+          ]
+        ]
+      ]
+    }
+  ],
+  "criteria": {
+    "T": true,
+    "F": true,
+    "H": true,
+    "E": true,
+    "S": true
+  },
+  "evidence": "넓은 털 정수리·등·짧은 발·낮은 왼쪽 주둥이·타원. NE 등/꼬리.",
+  "notes": [
+    "Attempt1 NE final hurt-recover front face rejected. Attempt2 genuine rear but large front bone pendant wrongly moved onto back, rejected. Attempt3 shows only small bone beads at back; large front pendant hidden; tail lantern and cyan flame maintained.",
+    "No style painting or background removal. Native original maxalpha254 and repair255 preserved."
+  ]
+}

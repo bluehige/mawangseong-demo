@@ -1,10 +1,10 @@
 # Tutorial button glow
 
-Generation model: GPT internal image generation
-Generated date: 2026-10-20
-Target version: 1.3.1
-Source image path: assets/source/imagegen/v131_tutorial_glow/generated.png
-Runtime image path: assets/ui/v131/tutorial_glow.png
+- Generation model: GPT internal image generation
+- Generated date: 2026-10-20
+- Target version: v1.3.1
+- Source image path: assets/source/imagegen/v131_tutorial_glow/generated.png
+- Runtime image path: assets/ui/v131/tutorial_glow.png
 
 Built-in image_gen, native transparent background enabled. Original 1983×793 RGBA,
 alpha 0–253 verified. Runtime resized proportionally to 384×154 and PNG optimized;

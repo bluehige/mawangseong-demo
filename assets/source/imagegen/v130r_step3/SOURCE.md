@@ -1,10 +1,10 @@
 # Step3 monster inspection panel
 
-Generation model: GPT internal image generation
-Generated date: 2026-10-16
-Target version: 1.3.0
-Source image path: assets/source/imagegen/v130r_step3/monster_info_panel_source.png
-Runtime image path: assets/maps/v130r_step3/monster_info_panel.png
+- Generation model: GPT internal image generation
+- Generated date: 2026-10-16
+- Target version: v1.3.0
+- Source image path: assets/source/imagegen/v130r_step3/monster_info_panel_source.png
+- Runtime image path: assets/maps/v130r_step3/monster_info_panel.png
 
 Built-in image_gen with transparent_background=true. Native alpha verified 0..255.
 Postprocessing: crop transparent outer margin, resize to 800px, crop the painted

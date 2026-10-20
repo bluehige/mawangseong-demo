@@ -1,0 +1,13 @@
+{
+  "status": "ACCEPTED_OFFLINE_NOT_INTEGRATED",
+  "frames": 40,
+  "unique_frames": 40,
+  "max_contact_x_error": 0.4924000000000035,
+  "border_alpha_pixels": 0,
+  "source_edge_alpha192": 0,
+  "cropped_residue_alpha8": 232,
+  "own_body_cropped_alpha96": 0,
+  "foreign_body_pixels": 0,
+  "existing_species_files_changed": [],
+  "mechanical_pass": true
+}

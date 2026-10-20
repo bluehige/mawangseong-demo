@@ -1,0 +1,42 @@
+[
+  {
+    "original_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a14588-d174-7ed2-bebf-5cbb83d79b1e\\exec-8589397d-a4d1-4c11-9dd8-0e71967e49e7.png",
+    "sha256": "5056873ce5a826150b8ea8f4dc4999815635da768d37616cf2aa6734290258a5",
+    "size": [
+      1586,
+      992
+    ],
+    "mode": "RGBA",
+    "native_alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.3867402015620551,
+    "attempt": 1,
+    "status": "PARTIAL",
+    "adopted_poses": 38,
+    "reason": "NE hurt-recover returned to front; SW skill-gather effect spacing risk. Those two frames rejected.",
+    "transparent_background": true,
+    "tool": "image_gen.imagegen"
+  },
+  {
+    "original_path": "C:\\Users\\blueh\\.codex\\generated_images\\01a14588-d174-7ed2-bebf-5cbb83d79b1e\\exec-4c183eb0-ab28-4430-8bbf-a55a034c86d0.png",
+    "sha256": "4f4a18f792ac548bc6baa1db66e14020f1dda52e7f975e9e844be727f11cf317",
+    "size": [
+      1774,
+      887
+    ],
+    "mode": "RGBA",
+    "native_alpha_extrema": [
+      0,
+      255
+    ],
+    "transparent_fraction": 0.7498433466493978,
+    "attempt": 2,
+    "status": "ADOPTED",
+    "adopted_poses": 2,
+    "reason": "SW compact gather and genuine NE rear hurt-recover replacement. Native alpha and T/F/H/E/S pass.",
+    "transparent_background": true,
+    "tool": "image_gen.imagegen"
+  }
+]

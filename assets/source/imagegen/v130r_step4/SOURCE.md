@@ -2,7 +2,7 @@
 
 - Generation model: GPT internal image generation
 - Generated date: 2026-10-16
-- Target version: 1.3.0
+- Target version: v1.3.0
 
 - Source image path: assets/source/imagegen/v130r_step4/tactic_rally_source.png
 - Runtime image path: assets/maps/v130r_step4/tactic_rally.png

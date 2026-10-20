@@ -1,0 +1,1437 @@
+{
+  "accepted": true,
+  "combat_and_hurt": {
+    "sw": {
+      "combat": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\river_frog\\river_frog_sheet.png",
+        "frames": [
+          {
+            "source_slice": [
+              0,
+              0,
+              208,
+              226
+            ],
+            "source_bbox": [
+              60,
+              53,
+              208,
+              222
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 0,
+            "rect": [
+              54,
+              118,
+              156,
+              178
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.6621,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              208,
+              0,
+              396,
+              226
+            ],
+            "source_bbox": [
+              43,
+              56,
+              188,
+              221
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 1,
+            "rect": [
+              370,
+              123,
+              153,
+              174
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.8208,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              396,
+              0,
+              595,
+              226
+            ],
+            "source_bbox": [
+              33,
+              94,
+              186,
+              226
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 3,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 2,
+            "rect": [
+              715,
+              154,
+              162,
+              139
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.3136,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              595,
+              0,
+              793,
+              226
+            ],
+            "source_bbox": [
+              20,
+              102,
+              190,
+              226
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 3,
+            "rect": [
+              1018,
+              161,
+              179,
+              131
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.1899,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              226,
+              213,
+              411
+            ],
+            "source_bbox": [
+              57,
+              2,
+              213,
+              180
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 4,
+            "rect": [
+              46,
+              420,
+              165,
+              188
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.1785,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              213,
+              226,
+              418,
+              411
+            ],
+            "source_bbox": [
+              48,
+              11,
+              205,
+              181
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 5,
+            "rect": [
+              371,
+              429,
+              166,
+              179
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.2285,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              418,
+              226,
+              596,
+              411
+            ],
+            "source_bbox": [
+              26,
+              20,
+              178,
+              177
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 11,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 6,
+            "rect": [
+              689,
+              443,
+              160,
+              166
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.2552,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              596,
+              226,
+              793,
+              411
+            ],
+            "source_bbox": [
+              35,
+              15,
+              186,
+              179
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 9,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 7,
+            "rect": [
+              1054,
+              435,
+              159,
+              173
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.4263,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              411,
+              209,
+              594
+            ],
+            "source_bbox": [
+              54,
+              15,
+              209,
+              172
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 8,
+            "rect": [
+              65,
+              756,
+              164,
+              166
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.7727,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              209,
+              411,
+              408,
+              594
+            ],
+            "source_bbox": [
+              28,
+              15,
+              199,
+              176
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 1,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 9,
+            "rect": [
+              389,
+              753,
+              181,
+              170
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.5423,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              0,
+              971,
+              809
+            ],
+            "source_bbox": [
+              279,
+              178,
+              863,
+              653
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 125,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "source_normalization": 0.3722943722943723,
+            "index": 10,
+            "rect": [
+              686,
+              744,
+              230,
+              187
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.7554,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              598,
+              411,
+              793,
+              594
+            ],
+            "source_bbox": [
+              30,
+              14,
+              182,
+              177
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 1,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 11,
+            "rect": [
+              1002,
+              751,
+              160,
+              172
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.5048,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              0,
+              594,
+              209,
+              776
+            ],
+            "source_bbox": [
+              55,
+              3,
+              209,
+              172
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 12,
+            "rect": [
+              53,
+              1058,
+              163,
+              178
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.6956,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              209,
+              594,
+              407,
+              776
+            ],
+            "source_bbox": [
+              27,
+              2,
+              198,
+              180
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 5,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 13,
+            "rect": [
+              351,
+              1048,
+              181,
+              188
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.7493,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              971,
+              0,
+              1942,
+              809
+            ],
+            "source_bbox": [
+              200,
+              174,
+              688,
+              666
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_2.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "source_normalization": 0.36382536382536385,
+            "index": 14,
+            "rect": [
+              669,
+              1046,
+              187,
+              189
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.0544,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              596,
+              594,
+              793,
+              776
+            ],
+            "source_bbox": [
+              32,
+              12,
+              188,
+              177
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 4,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 15,
+            "rect": [
+              993,
+              1060,
+              165,
+              174
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.2163,
+            "support_y": 289
+          }
+        ],
+        "sha256": "596fa5916bc4cb482cb5151c4f15855899c90ae50cb554d249bb01c27e6a8f89"
+      },
+      "hurt": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\river_frog\\river_frog_hurt_sw.png",
+        "frames": [
+          {
+            "source_slice": [
+              0,
+              776,
+              205,
+              992
+            ],
+            "source_bbox": [
+              46,
+              3,
+              205,
+              167
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 0,
+            "rect": [
+              45,
+              123,
+              168,
+              173
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.7374,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              205,
+              776,
+              405,
+              992
+            ],
+            "source_bbox": [
+              29,
+              6,
+              200,
+              168
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 1,
+            "rect": [
+              363,
+              125,
+              181,
+              171
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.8455,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              405,
+              776,
+              595,
+              992
+            ],
+            "source_bbox": [
+              27,
+              32,
+              181,
+              164
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 24,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 2,
+            "rect": [
+              716,
+              158,
+              163,
+              139
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.6921,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              595,
+              776,
+              793,
+              992
+            ],
+            "source_bbox": [
+              33,
+              6,
+              188,
+              166
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 3,
+            "rect": [
+              995,
+              127,
+              164,
+              169
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.7982,
+            "support_y": 289
+          }
+        ],
+        "sha256": "bd0a24f633083eb587cdd4aaa635d303bc8d919b9b0483446fbbfdc15147e224"
+      }
+    },
+    "ne": {
+      "combat": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\river_frog\\river_frog_sheet_ne.png",
+        "frames": [
+          {
+            "source_slice": [
+              793,
+              0,
+              991,
+              226
+            ],
+            "source_bbox": [
+              27,
+              49,
+              178,
+              223
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 0,
+            "rect": [
+              46,
+              117,
+              159,
+              184
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.5904,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              991,
+              0,
+              1189,
+              226
+            ],
+            "source_bbox": [
+              16,
+              49,
+              181,
+              223
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 1,
+            "rect": [
+              349,
+              115,
+              174,
+              184
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.8683,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1189,
+              0,
+              1386,
+              226
+            ],
+            "source_bbox": [
+              9,
+              96,
+              168,
+              225
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 2,
+            "rect": [
+              693,
+              159,
+              168,
+              136
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.4568,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1386,
+              0,
+              1586,
+              226
+            ],
+            "source_bbox": [
+              0,
+              100,
+              157,
+              225
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 3,
+            "rect": [
+              1011,
+              164,
+              166,
+              132
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.6084,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              793,
+              226,
+              991,
+              411
+            ],
+            "source_bbox": [
+              24,
+              10,
+              189,
+              180
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 1,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 4,
+            "rect": [
+              44,
+              432,
+              174,
+              179
+            ],
+            "cell": [
+              0,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.5379,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              991,
+              226,
+              1189,
+              411
+            ],
+            "source_bbox": [
+              18,
+              12,
+              169,
+              179
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 5,
+            "rect": [
+              364,
+              440,
+              159,
+              176
+            ],
+            "cell": [
+              313,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.9271,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1189,
+              226,
+              1388,
+              411
+            ],
+            "source_bbox": [
+              11,
+              18,
+              168,
+              185
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 6,
+            "rect": [
+              671,
+              435,
+              166,
+              176
+            ],
+            "cell": [
+              627,
+              313,
+              313,
+              314
+            ],
+            "contact_x": 156.7094,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1388,
+              226,
+              1586,
+              411
+            ],
+            "source_bbox": [
+              3,
+              29,
+              161,
+              185
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 7,
+            "rect": [
+              1011,
+              446,
+              167,
+              165
+            ],
+            "cell": [
+              940,
+              313,
+              314,
+              314
+            ],
+            "contact_x": 156.0293,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              793,
+              411,
+              1001,
+              594
+            ],
+            "source_bbox": [
+              24,
+              34,
+              208,
+              180
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 47,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 8,
+            "rect": [
+              61,
+              774,
+              194,
+              154
+            ],
+            "cell": [
+              0,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.2003,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1001,
+              411,
+              1197,
+              594
+            ],
+            "source_bbox": [
+              11,
+              7,
+              196,
+              181
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 3,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 9,
+            "rect": [
+              364,
+              740,
+              195,
+              184
+            ],
+            "cell": [
+              313,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.4492,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1197,
+              411,
+              1388,
+              594
+            ],
+            "source_bbox": [
+              4,
+              35,
+              177,
+              183
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 41,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 10,
+            "rect": [
+              718,
+              766,
+              183,
+              156
+            ],
+            "cell": [
+              627,
+              627,
+              313,
+              313
+            ],
+            "contact_x": 156.1227,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1388,
+              411,
+              1586,
+              594
+            ],
+            "source_bbox": [
+              1,
+              12,
+              155,
+              180
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 61,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 11,
+            "rect": [
+              999,
+              750,
+              163,
+              177
+            ],
+            "cell": [
+              940,
+              627,
+              314,
+              313
+            ],
+            "contact_x": 156.7808,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              793,
+              594,
+              993,
+              776
+            ],
+            "source_bbox": [
+              22,
+              0,
+              200,
+              176
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 12,
+            "rect": [
+              29,
+              1050,
+              188,
+              186
+            ],
+            "cell": [
+              0,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.2457,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              993,
+              594,
+              1189,
+              776
+            ],
+            "source_bbox": [
+              22,
+              14,
+              193,
+              179
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 23,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 13,
+            "rect": [
+              369,
+              1064,
+              181,
+              174
+            ],
+            "cell": [
+              313,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.1988,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1189,
+              594,
+              1388,
+              776
+            ],
+            "source_bbox": [
+              11,
+              0,
+              183,
+              180
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 17,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 14,
+            "rect": [
+              693,
+              1049,
+              182,
+              190
+            ],
+            "cell": [
+              627,
+              940,
+              313,
+              314
+            ],
+            "contact_x": 156.7061,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1388,
+              594,
+              1586,
+              776
+            ],
+            "source_bbox": [
+              3,
+              14,
+              159,
+              178
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 15,
+            "rect": [
+              1005,
+              1063,
+              165,
+              173
+            ],
+            "cell": [
+              940,
+              940,
+              314,
+              314
+            ],
+            "contact_x": 156.7519,
+            "support_y": 289
+          }
+        ],
+        "sha256": "fba5e19461ab8607afdcd31545205b957ef1e817760495c6e736d653654a9180"
+      },
+      "hurt": {
+        "path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\assets\\sprites\\v130r\\quarter_final\\river_frog\\river_frog_hurt_ne.png",
+        "frames": [
+          {
+            "source_slice": [
+              793,
+              776,
+              991,
+              992
+            ],
+            "source_bbox": [
+              28,
+              0,
+              197,
+              172
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 0,
+            "rect": [
+              101,
+              116,
+              178,
+              182
+            ],
+            "cell": [
+              0,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.6248,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              991,
+              776,
+              1189,
+              992
+            ],
+            "source_bbox": [
+              20,
+              12,
+              187,
+              170
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 1,
+            "rect": [
+              361,
+              133,
+              176,
+              167
+            ],
+            "cell": [
+              313,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.0958,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1189,
+              776,
+              1388,
+              992
+            ],
+            "source_bbox": [
+              6,
+              47,
+              163,
+              168
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 2,
+            "rect": [
+              708,
+              173,
+              166,
+              128
+            ],
+            "cell": [
+              627,
+              0,
+              313,
+              313
+            ],
+            "contact_x": 156.6038,
+            "support_y": 289
+          },
+          {
+            "source_slice": [
+              1388,
+              776,
+              1586,
+              992
+            ],
+            "source_bbox": [
+              1,
+              16,
+              149,
+              171
+            ],
+            "slice_edge_alpha192": 0,
+            "cropped_residue_alpha8": 0,
+            "source_path": "C:\\Users\\blueh\\Documents\\Codex\\2026-10-11\\task-2\\mawangseong-monsters\\_mockup\\monsters_v130r\\quarter_final\\river_frog\\generated_attempt_1.png",
+            "own_body_cropped_alpha96": 0,
+            "foreign_body_pixels": 0,
+            "crop_method": "Sparse seam rectangle then rectangular bounds of significant alpha24 components; all source pixels inside rectangle retained.",
+            "index": 3,
+            "rect": [
+              1004,
+              136,
+              156,
+              164
+            ],
+            "cell": [
+              940,
+              0,
+              314,
+              313
+            ],
+            "contact_x": 156.1838,
+            "support_y": 289
+          }
+        ],
+        "sha256": "30c9e112becf965ef69b4160c93b5f5978dc602b2842511270448ff74bef23c9"
+      }
+    }
+  },
+  "selected_attempts": [
+    1,
+    2
+  ]
+}
